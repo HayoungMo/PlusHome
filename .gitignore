@@ -1,0 +1,86 @@
+######################
+# Spring Boot / Gradle
+######################
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS / Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### VS Code ###
+.vscode/
+
+######################
+# 로그 / 민감 정보
+######################
+*.log
+logs/
+
+# OAuth 키, DB 비밀번호 등 절대 공유 금지
+application-secret.properties
+application-secret.yml
+application-local.properties
+application-local.yml
+.env
+
+######################
+# React (src/main/frontend)
+######################
+
+# node_modules — 절대 공유 금지
+src/main/frontend/node_modules/
+
+# 빌드 결과물
+src/main/frontend/build/
+src/main/frontend/dist/
+
+# 환경변수 (REACT_APP_KAKAO_MAP_KEY 등)
+src/main/frontend/.env
+src/main/frontend/.env.local
+src/main/frontend/.env.development.local
+src/main/frontend/.env.test.local
+src/main/frontend/.env.production.local
+
+# npm / yarn 로그
+src/main/frontend/npm-debug.log*
+src/main/frontend/yarn-debug.log*
+src/main/frontend/yarn-error.log*
+
+# 캐시
+src/main/frontend/.cache/
+src/main/frontend/.eslintcache
+
+# 테스트 커버리지
+src/main/frontend/coverage/
+
+######################
+# 운영체제 (OS)
+######################
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS (혹시 팀원 중 맥 사용자 대비)
+.DS_Store
+
+######################
+# 기타
+######################
+*.tmp
+*.bak
+*.swp
