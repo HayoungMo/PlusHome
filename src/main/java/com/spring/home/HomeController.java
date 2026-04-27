@@ -3,8 +3,11 @@ package com.spring.home;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -12,14 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
 
-	@RequestMapping("/testServicePost")
-	public String testService(@RequestBody Map<String, String> data) {
+	@GetMapping("/testService")
+	public String testServiceGet(@RequestParam("text") String text) {
+		System.out.println("GET í”„ë¡ íŠ¸ì—ì„œ ë°›ì€ ë°ì´í„° : " + text);
+
+		return "GET í”„ë¡ íŠ¸ì—ì„œ ë°›ì€ ë°ì´í„° : " + text;
+	}
+
+	@PostMapping("/testService")
+	public String testServicePost(@RequestBody Map<String, String> data) {
 		String text = data.get("text");
 
-		// ÄÜ¼Ö È®ÀÎ
-		System.out.println("¹ŞÀº µ¥ÀÌÅÍ: " + text);
+		System.out.println("POST í”„ë¡ íŠ¸ì—ì„œ ë°›ì€ ë°ì´í„° : " + text);
 
-		// ÅØ½ºÆ® ¸®ÅÏ
-		return "¼­¹ö¿¡¼­ ¹ŞÀº ¸Ş½ÃÁö: " + text;
+		return "POST í”„ë¡ íŠ¸ì—ì„œ ë°›ì€ ë°ì´í„° : : " + text;
 	}
 }
