@@ -9,20 +9,26 @@
 <insert id="insertData" parameterType="com.spring.home.dto.InteriorDTO">
 	insert into board (c_id,c_kind,c_name,i_tag,i_text) values 
 	(#{c_id},#{c_kind},#{c_name},#{i_tag},#{i_text})	
+	from INTERIOR
 </insert>
 
-<select id="getLists"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
-	select c_id,c_kind,c_name,i_tag,i_text
-	from board where ${searchKey} like '%' || #{searchValue}|| '%'	
+<select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
+	select c_id,c_kind,c_name,c_tel,c_addr,c_info,c_boss from COMPANY WHERE c_kind like 'interior'
 </select>
 
 <select id="getReadData"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
 	select c_id,c_kind,c_name,i_tag,i_text
-	from board where c_id like '%' || #{c_id} || '%'
+	from INTERIOR where c_id like '%' || #{c_id} || '%'
       and c_kind like '%' || #{c_kind} || '%'
       and c_name like '%' || #{c_name} || '%' 
 </select>
 
+<select id="getExamples"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorExampleDTO">
+	select c_id,c_kind,c_name,ie_content,ie_tag,ie_tag2
+	from I_EXAMPLE where c_id like '%' || #{c_id} || '%'
+      and c_kind like '%' || #{c_kind} || '%'
+      and c_name like '%' || #{c_name} || '%' 
+</select>
 
 
 </mapper>

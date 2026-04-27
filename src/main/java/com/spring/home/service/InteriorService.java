@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
+import com.spring.home.dto.InteriorExampleDTO;
 import com.spring.home.mapper.InteriorMapper;
 
 @Service
@@ -18,9 +19,9 @@ public class InteriorService {
 		interiorMapper.insertData(dto);
 	}
 
-	public List<InteriorDTO> getLists(String searchKey, String searchValue) {
+	public List<CompanyDTO> getLists() {
 		// TODO Auto-generated method stub
-		return interiorMapper.getLists(searchKey, searchValue);
+		return interiorMapper.getLists();
 	}
 
 
@@ -28,5 +29,9 @@ public class InteriorService {
 		// TODO Auto-generated method stub
 		return interiorMapper.getReadData(companyDTO);
 	}
+	
+	public List<InteriorExampleDTO> getExamples(CompanyDTO dto) throws Exception{
+		return interiorMapper.getExamples(dto);
+	};	
 
 }
