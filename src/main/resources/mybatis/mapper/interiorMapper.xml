@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.InteriorMapper">
+
+    <!-- 데이터 베이스 테스트 -->
+    
+<insert id="insertData" parameterType="com.spring.home.dto.InteriorDTO">
+	insert into board (c_id,c_kind,c_name,i_tag,i_text) values 
+	(#{c_id},#{c_kind},#{c_name},#{i_tag},#{i_text})	
+</insert>
+
+<select id="getLists"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
+	select c_id,c_kind,c_name,i_tag,i_text
+	from board where ${searchKey} like '%' || #{searchValue}|| '%'	
+</select>
+
+<select id="getReadData"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
+	select c_id,c_kind,c_name,i_tag,i_text
+	from board where c_id like '%' || #{c_id} || '%'
+      and c_kind like '%' || #{c_kind} || '%'
+      and c_name like '%' || #{c_name} || '%' 
+</select>
+
+
+
+</mapper>
