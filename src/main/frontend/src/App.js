@@ -1,6 +1,7 @@
 import logo from "./logo.svg";
 import "./App.css";
 import TestService from "./service/testService";
+import ComponentEx from "./pages/ComponentEx";
 
 const testPost = () => {
 	TestService.postTest({ text: "test" })
@@ -26,6 +27,8 @@ function App() {
 		<div className="App">
 			<input type="button" value="post" onClick={testPost} />
 			<input type="button" value="get" onClick={testGet} />
+
+			<ComponentEx/>
 		</div>
 	);
 }
