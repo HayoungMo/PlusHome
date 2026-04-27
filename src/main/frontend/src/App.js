@@ -4,6 +4,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import TestService from "./service/testService";
 import ComponentEx from "./pages/ComponentEx";
 import TestMyPage from "./pages/TestMyPage";
+import InteriorList from "./pages/InteriorList";
 
 // 테스트 용 get, post 
 // const testPost = () => {
@@ -29,20 +30,19 @@ function App() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="App">
-			{/* <input type="button" value="post" onClick={testPost} />
-			<input type="button" value="get" onClick={testGet} /> */}
-			<button onClick={() => navigate('/myPage')}>로그인</button>
+    <div className="App">
+      {/* <input type="button" value="post" onClick={testPost} />
+			<input type="button" value="get" onClick={testGet} /> 
+			<button onClick={() => navigate('/myPage')}>로그인</button>*/}
 
-				<Routes>
-					{/* Main화면 */}
+      <Routes>
+        {/* Main화면
 					<Route path='/' element={<ComponentEx/>}/> 
-					{/* 테스트용 마이페이지 */}
-					<Route path='/myPage' element={<TestMyPage />}/>
-				</Routes>
-			
-		</div>
-	);
+					테스트용 마이페이지 */}
+        <Route path="/myPage" element={<InteriorList />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;
