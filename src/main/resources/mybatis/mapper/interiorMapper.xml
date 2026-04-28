@@ -21,6 +21,11 @@
 	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_kind},#{b_long},#{b_date},#{b_status},#{b_content})	
 </insert>
 
+<insert id="insertInvoiceData" parameterType="com.spring.home.dto.InvoiceDTO">
+	insert into INVOICE (id, c_id,c_kind,c_name,b_createddate,invoice_text,invoice_price) values 
+	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createddate},#{invoice_text},#{invoice_price})	
+</insert>
+
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
 	select c_id,c_kind,c_name,c_tel,c_addr,c_info,c_boss from COMPANY WHERE c_kind like 'interior'
 </select>

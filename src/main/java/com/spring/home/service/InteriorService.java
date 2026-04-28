@@ -9,6 +9,7 @@ import com.spring.home.dto.BookingDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
+import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.mapper.InteriorMapper;
 
 @Service
@@ -25,6 +26,9 @@ public class InteriorService {
 	}
 	public void insertBookingData(BookingDTO dto) throws Exception{
 		interiorMapper.insertBookingData(dto);
+	}
+	public void insertInvoiceData(InvoiceDTO dto) throws Exception{
+		interiorMapper.insertInvoiceData(dto);
 	}
 
 	public List<CompanyDTO> getLists() {
