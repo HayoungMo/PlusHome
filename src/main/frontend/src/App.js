@@ -5,6 +5,7 @@ import ComponentEx from "./pages/ComponentEx";
 import TestMyPage from "./pages/TestMyPage";
 import ImageGetTest from "./pages/ImageGetTest";
 import InteriorList from "./pages/InteriorList";
+import MainHomePage from "./pages/MainHomePage";
 
 function App() {
 	const navigate = useNavigate();
@@ -19,6 +20,10 @@ function App() {
         {/* Main화면
 					<Route path='/' element={<ComponentEx/>}/> 
 					테스트용 마이페이지 */}
+          
+        {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
+        <Route path="/" element={<MainHomePage />} />
+        
         <Route path="/myPage" element={<InteriorList />} />
       </Routes>
     </div>
