@@ -1,5 +1,36 @@
 package com.spring.home.service;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.spring.home.dto.UserDTO;
+import com.spring.home.mapper.UserMapper;
+
+@Service
 public class UserService {
 
+	@Autowired
+	private UserMapper userMapper;
+	
+	public void insertData(UserDTO dto) throws Exception{
+		userMapper.insertData(dto);
+	}
+	
+	public List<UserDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
+		return userMapper.getLists(start, end, searchKey, SearchValue);
+	}
+	
+	public UserDTO getReadData(int num) throws Exception{
+		return userMapper.getReadData(num);
+	}
+	
+	public void updateData(UserDTO dto) throws Exception{
+		userMapper.updateData(dto);
+	}
+	
+	public void deleteData(int num) throws Exception{
+		userMapper.deleteData(num);
+	}
 }

@@ -1,8 +1,21 @@
 package com.spring.home.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
-@Mapper
-public class UserMapper {
+import com.spring.home.dto.UserDTO;
 
+@Mapper
+public interface UserMapper {
+
+	public void insertData(UserDTO dto) throws Exception;
+	
+	public List<UserDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	
+	public UserDTO getReadData(int num) throws Exception;
+	
+	public void updateData(UserDTO dto) throws Exception;
+	
+	public void deleteData(int num) throws Exception;
 }
