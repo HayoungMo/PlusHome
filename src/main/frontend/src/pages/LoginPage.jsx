@@ -1,93 +1,124 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import loginService from '../service/loginService';
 
-const LoginPage = () => {
-    
-    const [step,setStep] = useState(3);
+const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
+
+    const navigate = useNavigate();
+
+    const [form, setForm] = useState({
+        userId: '',
+        password: ''
+    });
+
+    const [errorMsg, setErrorMsg] = useState('');
     const [idFormatMsg, setIdFormatMsg] = useState('');
-    const [errorMsg,setErrorMsg] = useState('');
+    const [step,setStep] = useState(3);
 
-    const onText = (evt)=>{
-        const {value,name} = evt.target;
+    // 입력 처리
+    const onText = (e) => {
+        const { name, value } = e.target;
 
-        //사용자가 다시 입력하기 시작하면 에러 메시지 삭제됨
-        if(errorMsg) setErrorMsg('');
-        
-        //아이디 입력 시 기존 경고 사라짐        
-        if(name==='userId' &&idFormatMsg) setIdFormatMsg('');
-
-        //아이디 한글 금지
-        if(/[ㄱ-ㅎ ㅏ - ㅣ 가-힣]/.test(value)){
-            if(step===3){
-                setErrorMsg('한글 키보드가 켜져있습니다. 영문으로 전환하십시오.')
-            }else{
-                setIdFormatMsg('아이디에 한글은 입력할 수 없습니다.')
-            }
-        }else{
-                setErrorMsg('한글은 입력할 수 없습니다.')
-            }
-            return;
-    }
-
-    //아이디 특수기호 금지
-    if(name==='userId'){
-        if(/[^a-zA-Z0-9_]/.test(value)){
-            setIdFormatMsg('영문,숫자,언더스코어(_)만 가능합니다.')
-            return;
-        }
+        // 에러 초기화
+        setErrorMsg('');
         setIdFormatMsg('');
-    }
 
-    const onLogin = async()=>{
-        try{
-            const response = await axios.post('/api/login',{userId,
-                password});
-                if(response.data.success) {
-                    localStorage.setItem('userId', response.data.userId);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                    setLoginUser(response.data.userId);
-                    setLoginInfo(response.data.user);
-                    window.scrollTo({top: 0, behavior:'instant'})
-                    navigator('/')                    
-                }
-        }catch(error) {
-            setErrorMsg("로그인 중 서버 오류")
+        // 한글 체크
+        if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)) {
+            if (name === 'userId') {
+                setIdFormatMsg('아이디에 한글은 입력할 수 없습니다.');
+            } else {
+                setErrorMsg('비밀번호는 영문으로 입력하세요.');
+            }
+            return;
         }
-    }
+
+        // 아이디 특수문자 제한
+        if (name === 'userId' && /[^a-zA-Z0-9_]/.test(value)) {
+            setIdFormatMsg('영문, 숫자, _(언더스코어)만 가능합니다.');
+            return;
+        }
+
+        // 정상 입력
+        setForm(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // 로그인
+    const onLogin = async () => {
+        if (!form.userId || !form.password) {
+            setErrorMsg('아이디와 비밀번호를 입력하세요.');
+            return;
+        }
+
+        try {
+            const response = await loginService.postLogin(form.id, form.password);
+
+            if (response.data.success) {
+                localStorage.setItem('id', response.data.id);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+
+                setLoginUser(response.data.id);
+                setLoginInfo(response.data.user);
+
+                navigate('/');
+            } else {
+                setErrorMsg('아이디 또는 비밀번호가 틀렸습니다.');
+            }
+
+        } catch (error) {
+            setErrorMsg('서버 오류가 발생했습니다.');
+        }
+    };
 
     return (
         <div>
             <h3>로그인
                 <span>Login</span>
             </h3>
-
+        <form
+            onSubmit={(e) => {e.preventDefault(); //새로고침 방지
+                onLogin();
+        }}
+        >
             <label>아이디</label>
-            <input type='text' name='userId' value={userId} onChange={onText}
-                placeholder='아이디 입력'/>
-            <label>비밀번호</label>
-            <input type='password' name='password' value={password} onChange={onText}
-                placeholder='비밀번호 입력'/>
-            
-            {/*로그인 에러 메시지*/}
-            {errorMsg &&(
-                <span initial={{opacity:0, x:-10}} animate={{opacity: 1,x:0}} exit={{opacity:0}}>
-                    {errorMsg}
-                </span>                
-            )}
+            <input
+                type="text"
+                name="userId"
+                value={form.userId}
+                onChange={onText}
+                placeholder="아이디 입력"
+            />
+            {idFormatMsg && <div style={{ color: 'red' }}>{idFormatMsg}</div>}
 
-            <button 
-                className='' onClick={onLogin}
-                whileHover={{scale: 1.01}}
-                whileTap={{scale: 0.98}}>
+            <label>비밀번호</label>
+            <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={onText}
+                placeholder="비밀번호 입력"
+            />
+
+            {errorMsg && <div style={{ color: 'red' }}>{errorMsg}</div>}
+
+            <button type='submit' onClick={onLogin} disabled={!form.userId || !form.password}>
                 로그인
             </button>
-
-            <p className=''>
+        </form>
+            <p>
                 계정이 없으신가요?
-                <a href='' onClick={(e)=>{e.preventDefault();
-                setErrorMsg(''); setStep(1); }} >회원가입</a>              
+                <a href="#!"
+                   onClick={(e) => {
+                       e.preventDefault();
+                       setErrorMsg(''); setStep(1); 
+                   }}>
+                    회원가입
+                </a>
             </p>
-            <p>SNS계정으로 간편 로그인/회원가입</p>
         </div>
     );
 };
