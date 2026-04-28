@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
@@ -32,11 +34,11 @@ public class ImageController {
 		System.out.println(queryDTO);
 		return ImageService.getList(queryDTO);
 	}
-	
+
 	@PostMapping("/insertImage")
-	public void insertImage(@RequestBody ImageQueryDTO queryDTO) {
+	public void insertImage(@RequestPart("files") List<MultipartFile> files,
+			@RequestPart("dtoList") List<ImageQueryDTO> dtoList) {
 		System.out.println("@@ Image == // == insertImage");
-		System.out.println(queryDTO);
 	}
 
 	private boolean validateImageCondition(ImageQueryDTO queryDTO) {
