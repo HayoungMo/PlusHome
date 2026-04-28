@@ -5,6 +5,9 @@ import ComponentEx from "./pages/ComponentEx";
 import TestMyPage from "./pages/TestMyPage";
 import ImageGetTest from "./pages/ImageGetTest";
 import InteriorList from "./pages/InteriorList";
+import InteriorArticle from "./pages/InteriorArticle";
+import InteriorCreated from "./pages/InteriorCreated";
+import InteriorQuestion from "./pages/InteriorQuestion";
 
 function App() {
 	const navigate = useNavigate();
@@ -19,6 +22,10 @@ function App() {
 					테스트용 마이페이지 */}
         <Route path="/myPage" element={<InteriorList />} />
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
+        <Route path="/interiorlist" element={<InteriorList />} />
+        <Route path="/interiorarticle" element={<InteriorArticle />} />
+        <Route path="/interiorcreated" element={<InteriorCreated />} />
+        <Route path="/interiorquestion" element={<InteriorQuestion />} />
       </Routes>
     </div>
   );
