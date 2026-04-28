@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		 System.out.println("==== 외부 이미지 ResourceHandler 등록됨 ====");
+		// handler 등록 확인용
+//		 System.out.println("==== 외부 이미지 ResourceHandler 등록됨 ====");
 		// 외부 디렉토리의 File Folder 접근
 		 registry.addResourceHandler("/images/**")
          .addResourceLocations("file:/C:/project_img/upload/");

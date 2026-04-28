@@ -1,0 +1,16 @@
+package com.spring.home.dto;
+
+import java.util.Date;
+
+import lombok.Data;
+
+@Data
+public class QuestionDTO {
+
+	public String id;
+	public String f_code;
+	public int q_idx;
+	public String q_status;
+	public String q_content;
+	public Date q_createdDate;
+}

@@ -2,22 +2,25 @@ package com.spring.home.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
 public class InvoiceDTO {
 
-    private String C_id;
-    private String C_kind;
-    private String C_name;
+    private String c_id;
+    private String c_kind;
+    private String c_name;
     
-    private String Id;
+    private String id;
     
-    private Date B_date;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date b_createddate;
     
-    private int Invoice_no;
-    private String Invoice_kind;
-    private String Invoice_text;
-    private int Invoice_price;
+    private int invoice_no;
+    private String invoice_kind;
+    private String invoice_text;
+    private int invoice_price;
 
 }

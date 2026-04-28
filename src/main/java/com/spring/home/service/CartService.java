@@ -1,0 +1,36 @@
+package com.spring.home.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.spring.home.dto.CartDTO;
+import com.spring.home.mapper.CartMapper;
+
+@Service
+public class CartService {
+
+	@Autowired
+	private CartMapper cartMapper;
+	
+	public void insertData(CartDTO dto) throws Exception{
+		cartMapper.insertData(dto);
+	}
+	
+	public List<CartDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
+		return cartMapper.getLists(start, end, searchKey, SearchValue);
+	}
+	
+	public CartDTO getReadData(int num) throws Exception{
+		return cartMapper.getReadData(num);
+	}
+	
+	public void updateData(CartDTO dto) throws Exception{
+		cartMapper.updateData(dto);
+	}
+	
+	public void deleteData(int num) throws Exception{
+		cartMapper.deleteData(num);
+	}
+}
