@@ -11,15 +11,14 @@ function App() {
 
 	return (
     <div className="App">
-      {/* <input type="button" value="post" onClick={testPost} />
-			<input type="button" value="get" onClick={testGet} /> 
-			<button onClick={() => navigate('/myPage')}>로그인</button>*/}
+      <button onClick={() => navigate('/ImageGetTest')}>ImageGetTest</button>
 
       <Routes>
         {/* Main화면
 					<Route path='/' element={<ComponentEx/>}/> 
 					테스트용 마이페이지 */}
         <Route path="/myPage" element={<InteriorList />} />
+        <Route path="/ImageGetTest" element={<ImageGetTest />} />
       </Routes>
     </div>
   );

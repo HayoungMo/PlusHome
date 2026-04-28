@@ -4,9 +4,95 @@
 
 <mapper namespace="com.spring.home.mapper.ImageMapper">
 
-	<select id="getThumbnail"
+	<select id="getOne"
+		parameterType="com.spring.home.dto.ImageQueryDTO"
 		resultType="com.spring.home.dto.ImageDTO">
-		select * from IMG
+		SELECT * FROM (
+		SELECT * FROM IMG
+		<where>
+			<choose>
+				<when test='kind == "I_REVIEW"'>
+					AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c}
+					AND DIR_D = #{d}
+					AND DIR_E = #{e}
+				</when>
+				<when
+					test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" '>
+					AND DIR_A = #{a} AND DIR_D = #{d}
+				</when>
+				<when test='kind == "U_PROFILE"'>
+					AND DIR_D = #{d}
+				</when>
+				<when
+					test='kind == "LOGO" or kind == "I_EX" or kind == "C_PROFILE"'>
+					AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c} AND DIR_D =
+					#{d}
+				</when>
+				<when test='kind == "FUNITURE"'>
+					AND DIR_A = #{a}
+				</when>
+				<when test='kind == "DEV"'>
+					AND DIR_A = #{a} AND DIR_B = #{b}
+				</when>
+				<when test='kind == "BOARD"'>
+					AND DIR_A = #{a} AND DIR_D = #{d}
+				</when>
+				<otherwise>
+					AND img_kind = #{kind}
+				</otherwise>
+			</choose>
+			<if test="idx != -1">
+				AND img_idx = #{idx}
+			</if>
+			<if test="tag != null and tag != ''">
+				AND TAG LIKE '%' || #{tag} || '%'
+			</if>
+		</where>
+		ORDER BY IMG_CREATEDDATE DESC )
+		WHERE ROWNUM = 1
+	</select>
+
+	<select id="getList"
+		parameterType="com.spring.home.dto.ImageQueryDTO"
+		resultType="com.spring.home.dto.ImageDTO">
+		SELECT * FROM IMG
+		<where>
+			<choose>
+				<when test='kind == "I_REVIEW"'>
+					AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c}
+					AND DIR_D = #{d}
+					AND DIR_E = #{e}
+				</when>
+				<when
+					test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" '>
+					AND DIR_A = #{a} AND DIR_D = #{d}
+				</when>
+				<when test='kind == "U_PROFILE"'>
+					AND DIR_D = #{d}
+				</when>
+				<when
+					test='kind == "LOGO" or kind == "I_EX" or kind == "C_PROFILE"'>
+					AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c} AND DIR_D =
+					#{d}
+				</when>
+				<when test='kind == "FUNITURE"'>
+					AND DIR_A = #{a}
+				</when>
+				<when test='kind == "DEV"'>
+					AND DIR_A = #{a} AND DIR_B = #{b}
+				</when>
+				<when test='kind == "BOARD"'>
+					AND DIR_A = #{a} AND DIR_D = #{d}
+				</when>
+			</choose>
+			<if test="idx != -1">
+				AND img_idx = #{idx}
+			</if>
+			<if test="tag != null and tag != ''">
+				AND TAG LIKE '%' || #{tag} || '%'
+			</if>
+	AND img_kind = #{kind}
+		</where>
 	</select>
 
 </mapper>
