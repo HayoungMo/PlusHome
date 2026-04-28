@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class InteriorDTO {
-	private String C_Id;
-	private String C_Kind;
-	private String C_Name;
+	private String C_id;
+	private String C_kind;
+	private String C_name;
 	
-	private String I_Tag;
-	private String I_Text;
+	private String I_tag;
+	private String I_text;
 }
