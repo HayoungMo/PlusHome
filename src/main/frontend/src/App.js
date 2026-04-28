@@ -6,15 +6,16 @@ import TestMyPage from "./pages/TestMyPage";
 import ImageGetTest from "./pages/ImageGetTest";
 import InteriorList from "./pages/InteriorList";
 import MainHomePage from "./pages/MainHomePage";
+import InteriorArticle from "./pages/InteriorArticle";
+import InteriorCreated from "./pages/InteriorCreated";
+import InteriorQuestion from "./pages/InteriorQuestion";
 
 function App() {
 	const navigate = useNavigate();
 
 	return (
     <div className="App">
-      {/* <input type="button" value="post" onClick={testPost} />
-			<input type="button" value="get" onClick={testGet} /> 
-			<button onClick={() => navigate('/myPage')}>로그인</button>*/}
+      <button onClick={() => navigate('/ImageGetTest')}>ImageGetTest</button>
 
       <Routes>
         {/* Main화면
@@ -25,6 +26,11 @@ function App() {
         <Route path="/" element={<MainHomePage />} />
         
         <Route path="/myPage" element={<InteriorList />} />
+        <Route path="/ImageGetTest" element={<ImageGetTest />} />
+        <Route path="/interiorlist" element={<InteriorList />} />
+        <Route path="/interiorarticle" element={<InteriorArticle />} />
+        <Route path="/interiorcreated" element={<InteriorCreated />} />
+        <Route path="/interiorquestion" element={<InteriorQuestion />} />
       </Routes>
     </div>
   );

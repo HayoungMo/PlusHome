@@ -1,31 +1,37 @@
 import http from "../http-common";
 
-//테스트 데이터 생성 (POST)
-const getThumbnail = async () => {
+const runGetImage = async (object, type) => {
 	try {
-		console.log("Service: Sending POST request");
-		const response = await http.post("/image/getImage");
-		return response; // 필요한 데이터만 반환
+		let result;
+		let apiURL = `/image/get${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+		await http.post(apiURL, object).then((res) => (result = res.data));
+		return result;
 	} catch (error) {
 		console.error("API Error:", error);
-		throw error; // 에러를 호출부로 전파
+		throw error;
 	}
 };
 
-const getImageFormDB = async () => {
+const insertImage = async (dataList) => {
 	try {
-		console.log("Service: Sending POST request");
-		const response = await http.post("/image/getImageFormDB");
-		return response;
+		// Blob > formData에 object 넣으면 깨지는 거 방지
+		// 			Spring이 DTO/DTO List로 자동변환 가능
+		//			JSON인걸 명시한다고 함  :p
+		const formData = new FormData();
+		dataList.map((item, index) => {
+			console.log(item);
+			debugger;
+			// formData.append("files", item.file);
+		});
 	} catch (error) {
 		console.error("API Error:", error);
-		throw error; // 에러를 호출부로 전파
+		throw error;
 	}
 };
 
 const ImageService = {
-	getThumbnail,
-	getImageFormDB,
+	runGetImage,
+	insertImage,
 };
 
 export default ImageService;

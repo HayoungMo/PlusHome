@@ -4,12 +4,14 @@ import lombok.Data;
 
 @Data
 public class ImageDTO {
-	private String Img_kind;
-	private String Img_tag;
-	private int Img_idx;
-	private String Dir_a;
-	private String Dir_b;
-	private String Dir_c;
-	private String Dir_d;
-	private String Dir_e;
+	private String img_kind;
+	private String img_tag;
+	private int img_idx;
+	private String dir_a;
+	private String dir_b;
+	private String dir_c;
+	private String dir_d;
+	private String dir_e;
+	private String img_name;
+	private String img_CreatedDate;
 }
