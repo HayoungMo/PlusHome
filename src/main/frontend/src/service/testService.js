@@ -1,8 +1,6 @@
 import http from "../http-common";
 
-/**
- * 테스트 데이터 생성 (POST)
- */
+//테스트 데이터 생성 (POST)
 const postTest = async (data) => {
 	try {
 		console.log("Service: Sending POST request");
@@ -14,9 +12,7 @@ const postTest = async (data) => {
 	}
 };
 
-/**
- * 테스트 데이터 조회 (GET)
- */
+//테스트 데이터 조회 (GET)
 const getTest = async (params) => {
 	try {
 		console.log("Service: Sending GET request");
