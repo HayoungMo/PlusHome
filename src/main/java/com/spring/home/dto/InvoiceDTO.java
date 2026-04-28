@@ -7,17 +7,17 @@ import lombok.Data;
 @Data
 public class InvoiceDTO {
 
-    private String C_id;
-    private String C_kind;
-    private String C_name;
+    private String c_id;
+    private String c_kind;
+    private String c_name;
     
-    private String Id;
+    private String id;
     
-    private Date B_date;
+    private Date b_date;
     
-    private int Invoice_no;
-    private String Invoice_kind;
-    private String Invoice_text;
-    private int Invoice_price;
+    private int invoice_no;
+    private String invoice_kind;
+    private String invoice_text;
+    private int invoice_price;
 
 }

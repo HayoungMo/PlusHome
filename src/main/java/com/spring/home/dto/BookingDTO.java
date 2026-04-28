@@ -7,15 +7,15 @@ import lombok.Data;
 @Data
 public class BookingDTO {
 
-    private String Id;
-    private Date Booking_created_date;
-    private String C_id;
-    private String C_kind;
-    private String C_name;
-    private String B_kind;
-    private String B_long;
-    private Date B_date;
-    private String B_status;
-    private String B_content;
+    private String id;
+    private Date b_createdDate;
+    private String c_id;
+    private String c_kind;
+    private String c_name;
+    private String b_kind;
+    private String b_long;
+    private Date b_date;
+    private String b_status;
+    private String b_content;
 
 }

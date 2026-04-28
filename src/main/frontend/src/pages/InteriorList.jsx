@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import http from "../http-common";
 import InteriorService from "../service/interiorService";
+import DatePickerMui from "../components/DatePickerMui";
 
 //테스트용 파일
 function InteriorList() {
@@ -11,10 +12,32 @@ function InteriorList() {
 
     const [example, setExample] = useState([]); 
 
-     const [form, setForm] = useState({
+    const [form, setForm] = useState({
        c_id: "",
        c_kind: "",
        c_name: "",
+       tag: "",
+       text: "",
+     });
+
+     const [form2, setForm2] = useState({
+       c_id: "",
+       c_kind: "",
+       c_name: "",
+       tag: "",
+       tag2: "",
+       content: "",
+     });
+
+     const [form3, setForm3] = useState({
+      id:"",
+       c_id: "",
+       c_kind: "",
+       c_name: "",
+       kind: "",
+       long: "",
+       date: "",
+       content: ""
      });
 
      const handleChange = (e) => {
@@ -23,20 +46,41 @@ function InteriorList() {
          [e.target.name]: e.target.value,
        });
      };
-
      const handleSubmit = async (e) => {
        e.preventDefault(); // 🔥 페이지 새로고침 막기
-
-       try {
-         const res = await axios.post(
-           "http://localhost:8080/api/interior/read",
-           form,
-         );
-         console.log(res.data);
-       } catch (err) {
-         console.error(err);
-       }
+       InteriorService.testAddInterior(form);
      };
+
+     const handleChange2 = (e) => {
+       setForm2({
+         ...form2,
+         [e.target.name]: e.target.value,
+       });
+     };
+
+     const handleSubmit2 = async (e) => {
+       e.preventDefault(); // 🔥 페이지 새로고침 막기
+       InteriorService.testAddInteriorExample(form2);
+     };
+
+      const handleChange3 = (e) => {
+        setForm3({
+          ...form3,
+          [e.target.name]: e.target.value,
+        });
+      };
+
+      const handleDateChange = (newValue) => {
+        setForm3((prev) => ({
+          ...prev,
+          date: newValue,
+        }));
+      };
+
+      const handleSubmit3 = async (e) => {
+        e.preventDefault(); // 🔥 페이지 새로고침 막기
+        InteriorService.testAddBooking(form3);
+      };
 
     return (
       <div>
@@ -115,9 +159,28 @@ function InteriorList() {
 
         <form name="article" onSubmit={handleSubmit}>
           <div>
-            <input type="text" name="tag" onAbortnChange={handleChange} />
+            <input type="text" name="tag" onChange={handleChange} />
             <input type="text" name="text" onChange={handleChange} />
-            <input type="submit" onChange={handleChange} />
+            <input type="submit" />
+          </div>
+        </form>
+
+        <form name="example" onSubmit={handleSubmit2}>
+          <div>
+            <input type="text" name="tag" onChange={handleChange2} />
+            <input type="text" name="tag2" onChange={handleChange2} />
+            <input type="text" name="content" onChange={handleChange2} />
+            <input type="submit" />
+          </div>
+        </form>
+
+        <form name="booking" onSubmit={handleSubmit3}>
+          <div>
+            <input type="text" name="kind" onChange={handleChange3} />
+            <input type="text" name="long" onChange={handleChange3} />
+            <DatePickerMui value={form3.date} onChange={handleDateChange} />
+            <input type="text" name="content" onChange={handleChange3} />
+            <input type="submit" />
           </div>
         </form>
       </div>

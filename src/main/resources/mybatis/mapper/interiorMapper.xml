@@ -6,10 +6,19 @@
 
     <!-- 데이터 베이스 테스트 -->
     
-<insert id="insertData" parameterType="com.spring.home.dto.InteriorDTO">
-	insert into board (c_id,c_kind,c_name,i_tag,i_text) values 
+<insert id="insertInteriorData" parameterType="com.spring.home.dto.InteriorDTO">
+	insert into INTERIOR (c_id,c_kind,c_name,i_tag,i_text) values 
 	(#{c_id},#{c_kind},#{c_name},#{i_tag},#{i_text})	
-	from INTERIOR
+</insert>
+
+<insert id="insertInteriorExampleData" parameterType="com.spring.home.dto.InteriorExampleDTO">
+	insert into I_EXAMPLE (c_id,c_kind,c_name,ie_tag,ie_tag2,ie_content) values 
+	(#{c_id},#{c_kind},#{c_name},#{ie_tag},#{ie_tag2},#{ie_content})	
+</insert>
+
+<insert id="insertBookingData" parameterType="com.spring.home.dto.InteriorExampleDTO">
+	insert into Booking (id, c_id,c_kind,c_name,b_kind,b_long,b_date,b_status,b_content) values 
+	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_kind},#{b_long},#{b_date},#{b_status},#{b_content})	
 </insert>
 
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">

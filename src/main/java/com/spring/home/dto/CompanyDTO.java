@@ -5,12 +5,12 @@ import lombok.Data;
 @Data
 public class CompanyDTO {
 
-    private String C_id;
-    private String C_name;
-    private String C_kind;
-    private String C_tel;
-    private String C_addr;
-    private String C_info;
-    private String C_boss;
+    private String c_id;
+    private String c_name;
+    private String c_kind;
+    private String c_tel;
+    private String c_addr;
+    private String c_info;
+    private String c_boss;
 
 }
