@@ -16,18 +16,22 @@
 	(#{c_id},#{c_kind},#{c_name},#{ie_tag},#{ie_tag2},#{ie_content})	
 </insert>
 
-<insert id="insertBookingData" parameterType="com.spring.home.dto.InteriorExampleDTO">
-	insert into Booking (id, c_id,c_kind,c_name,b_kind,b_long,b_date,b_status,b_content) values 
-	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_kind},#{b_long},#{b_date},#{b_status},#{b_content})	
+<insert id="insertBookingData" parameterType="com.spring.home.dto.BookingDTO">
+	insert into Booking (id, c_id,c_kind,c_name,b_kind,b_long,b_date,b_status,b_content,b_answer) values 
+	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_kind},#{b_long},#{b_date},#{b_status},#{b_content},#{b_answer})	
 </insert>
 
 <insert id="insertInvoiceData" parameterType="com.spring.home.dto.InvoiceDTO">
-	insert into INVOICE (id, c_id,c_kind,c_name,b_createddate,invoice_text,invoice_price) values 
-	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createddate},#{invoice_text},#{invoice_price})	
+	insert into INVOICE (id, c_id,c_kind,c_name,b_createdDate,invoice_text,invoice_price) values 
+	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_text},#{invoice_price})	
 </insert>
 
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
 	select c_id,c_kind,c_name,c_tel,c_addr,c_info,c_boss from COMPANY WHERE c_kind like 'interior'
+</select>
+
+<select id="getArticleLists" resultType="com.spring.home.dto.InteriorDTO">
+	select c_id,c_kind,c_name,i_tag,i_text from INTERIOR
 </select>
 
 <select id="getReadData"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
@@ -42,6 +46,22 @@
 	from I_EXAMPLE where c_id like '%' || #{c_id} || '%'
       and c_kind like '%' || #{c_kind} || '%'
       and c_name like '%' || #{c_name} || '%' 
+</select>
+
+<select id="getBookings"  parameterType="hashMap" resultType="com.spring.home.dto.BookingDTO">
+	select id,b_createddate,c_id,c_kind,c_name,b_kind,b_date,b_status,b_content,b_answer
+	from Booking where c_id like '%' || #{c_id} || '%'
+      and c_kind like '%' || #{c_kind} || '%'
+      and c_name like '%' || #{c_name} || '%' 
+</select>
+
+<select id="getInvoices"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
+	select id,b_createddate,c_id,c_kind,c_name,invoice_text,invoice_price
+	from INVOICE where id like '%' || #{id} || '%'
+		and c_id like '%' || #{c_id} || '%'
+      and c_kind like '%' || #{c_kind} || '%'
+      and c_name like '%' || #{c_name} || '%' 
+      and b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
 </select>
 
 

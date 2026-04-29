@@ -31,10 +31,15 @@ public class InteriorController {
 	private InteriorService interiorService;
 	
 	
-	@GetMapping
+	@GetMapping("/lists")
 	public List<CompanyDTO> getLists() {
 
 	    return interiorService.getLists();
+	}
+	
+	@GetMapping("/articlelists")
+	public List<InteriorDTO> getArticleLists() {
+	    return interiorService.getArticleLists();
 	}
 	
 	@PostMapping("/read")
@@ -45,6 +50,16 @@ public class InteriorController {
 	@PostMapping("/example")
 	public List<InteriorExampleDTO> getExamples(@RequestBody CompanyDTO dto) throws Exception {
 	    return interiorService.getExamples(dto);
+	}
+	
+	@PostMapping("/bookinglists")
+	public List<BookingDTO> getBookings(@RequestBody CompanyDTO dto) throws Exception {
+	    return interiorService.getBookings(dto);
+	}
+	
+	@PostMapping("/invoice")
+	public List<InvoiceDTO> getInvoices(@RequestBody BookingDTO dto) throws Exception {
+	    return interiorService.getInvoices(dto);
 	}
 
 	@PostMapping("/add/interior")
