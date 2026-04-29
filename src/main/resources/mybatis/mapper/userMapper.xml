@@ -4,6 +4,32 @@
 
 <mapper namespace="com.spring.home.mapper.UserMapper">
 
-    <!-- 데이터 베이스 테스트 -->
+<!-- 입력 -->
+<insert id="insertData" parameterType="com.spring.home.dto.UserDTO">
+	insert into users (id,pw,type,code,name,email,birth,tel,gender,addr) 
+	values (#{id},#{pw},#{type},#{code},#{name},#{email},#{birth},#{tel},#{gender},#{addr})
+</insert>
+
+<!-- 수정 -->
+<update id="updateData" parameterType="com.spring.home.dto.UserDTO">
+	update users set pw=#{pw},email=#{email},tel=#{tel},addr=#{addr}
+	where id=#{id}
+</update>
+
+<!-- 삭제 -->
+<delete id="deleteData" parameterType="int">
+	delete users where id=#{id}
+</delete>
+
+<!-- 전체 select -->
+<select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.UserDTO">
+	
+</select>
+
+<!-- 1개 select -->
+<select id="getReadData" parameterType="int" resultType="com.spring.home.dto.UserDTO">
+	select id,pw,type,code,name,email,birth,tel,gender,addr
+	from users where id=#{id}
+</select>
 
 </mapper>
