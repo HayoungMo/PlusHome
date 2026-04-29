@@ -18,8 +18,8 @@ public class FurnitureReviewService {
 		furnitureReviewMapper.insertData(dto);
 	}
 	
-	public List<FurnitureReviewDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return furnitureReviewMapper.getLists(start, end, searchKey, SearchValue);
+	public List<FurnitureReviewDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return furnitureReviewMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
 	public FurnitureReviewDTO getReadData(int num) throws Exception{

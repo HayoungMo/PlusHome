@@ -11,7 +11,7 @@ public interface LikeMapper {
 
 	public void insertData(LikeDTO dto) throws Exception;
 	
-	public List<LikeDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<LikeDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
 	public LikeDTO getReadData(int num) throws Exception;
 	

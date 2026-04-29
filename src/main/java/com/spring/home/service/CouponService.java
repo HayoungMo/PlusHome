@@ -18,8 +18,8 @@ public class CouponService {
 		couponMapper.insertData(dto);
 	}
 	
-	public List<CouponDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return couponMapper.getLists(start, end, searchKey, SearchValue);
+	public List<CouponDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return couponMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
 	public CouponDTO getReadData(int num) throws Exception{

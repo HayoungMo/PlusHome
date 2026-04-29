@@ -9,6 +9,7 @@ import com.spring.home.mapper.MypageMapper;
 public class MypageService {
 
 	@Autowired
-	private MypageMapper userMypageMapper;
+	private MypageMapper mypageMapper;
+	
 	
 }
