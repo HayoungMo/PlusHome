@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import loginService from '../service/loginService';
+import LoginService from '../service/loginService';
 
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
@@ -55,7 +55,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
         }
 
         try {
-            const response = await loginService.postLogin(form.id, form.password);
+            const response = await LoginService.postLogin(form.id, form.password);
 
             if (response.data.success) {
                 localStorage.setItem('id', response.data.id);

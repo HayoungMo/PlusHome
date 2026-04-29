@@ -1,32 +1,29 @@
 import http from "../http-common";
 
+//회원가입
 const postJoin = async (data) => {
     try {
         console.log("Service: Sending POST request");
         const response = await http.post("/joinService/joinService", data);
-        return response; // 필요한 데이터만 반환
+        return response.data; // 필요한 데이터만 반환
     } catch (error) {
         console.error("API Error:", error);
         throw error; // 에러를 호출부로 전파
     }
 };
 
-//유저 데이터 조회 (GET)
-const getUser = async (id) => {
-    try {
-        console.log("Service: Sending GET request");
-        const response = await http.get("/joinService/joinService", {  });
-        return response;
-    } catch (error) {
-        console.error("API Error:", error);
-        throw error;
-    }
-};
+//아이디 중복확인(Get)
+const checkId = async(id) =>{
+    const res = await http.get('/joinService/joinService',{params:{id}})
+    return res.data
+}
+
+
 
 // 객체로 묶어서 내보내기
 const joinService = {
     postJoin,
-    getUser,
+    checkId,
 };
 
 export default joinService

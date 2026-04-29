@@ -14,4 +14,6 @@ public interface ImageMapper {
 
 	public List<ImageDTO> getList(ImageQueryDTO queryDTO) throws Exception;
 
+	public void insertImage(ImageDTO dto) throws Exception;
+
 }

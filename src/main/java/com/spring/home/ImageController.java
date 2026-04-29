@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spring.home.dto.FileSaveResult;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.service.ImageService;
+import com.spring.home.util.FileUtilMethod;
 
 @RequestMapping("/image")
 @RestController
@@ -30,21 +32,19 @@ public class ImageController {
 
 	@PostMapping("/getList")
 	public List<ImageDTO> getList(@RequestBody ImageQueryDTO queryDTO) {
-		System.out.println("@@ Image == // == getList");
-		System.out.println(queryDTO);
 		return ImageService.getList(queryDTO);
 	}
 
 	@PostMapping("/insertImage")
-	public void insertImage(@RequestPart("files") List<MultipartFile> files,
-			@RequestPart("dtoList") List<ImageQueryDTO> dtoList) {
-		System.out.println("@@ Image == // == insertImage");
+	public FileSaveResult insertImage(@RequestPart("files") List<MultipartFile> files,
+			@RequestPart("dtoList") List<ImageDTO> dtoList) {
+		FileSaveResult fileSaveResult = FileUtilMethod.fileSaveToServer(files,dtoList);
+		fileSaveResult.getSavedList().forEach(e -> ImageService.insertImage(e));
+		return fileSaveResult;
+		
 	}
-
-	private boolean validateImageCondition(ImageQueryDTO queryDTO) {
-		boolean result = false;
-
-		return result;
-	}
+	
+//	@PostMapping("/DeleteImage")
+//	public 
 
 }

@@ -5,7 +5,7 @@ const IMAGE_RULES = {
 	QUESTION: { required: ["a", "d"], desc: "F_ID, ID 필수" },
 	BOARD: { required: ["a", "d"], desc: "USER ID 필수" },
 	LOGO: { required: ["a,b,c,d"], desc: "Com ID, Tag, Name 등 필수" },
-	FUNITURE: { required: ["a"], desc: "F_ID 필수" },
+	FURNITURE: { required: ["a"], desc: "F_ID 필수" },
 	I_EX: { required: ["a,b,c,d"], desc: "F_ID, ID 필수" },
 	QA: { required: ["a", "d"], desc: "F_ID, ID 필수" },
 	C_PROFILE: { required: ["a,b,c,d"], desc: "Com ID, Tag, Name 등 필수" },

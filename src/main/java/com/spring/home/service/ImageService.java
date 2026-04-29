@@ -40,5 +40,16 @@ public class ImageService {
 		
 		return lists;
 	}
+	
+	public void insertImage(ImageDTO dto) {
+		System.out.println("service insertImage");
+		try {
+			System.out.println("gfdsfdgdfgfdgfgdsfdgfgdfgdfgdsfdghfsdgfdsg");
+			System.out.println(dto);
+			imageMapper.insertImage(dto);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+	}
 
 }

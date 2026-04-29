@@ -5,7 +5,7 @@ const GetImgDlr = async (props = {}) => {
 	if (!props || Object.keys(props).length === 0) {
 		return { error: "데이터가 전달되지 않았습니다.", result: null };
 	}
-	const { kind, view = false, filter, returnType, a, b, c, d, e, idx = -1, tag } = props;
+	const { kind, view = false, returnType, a, b, c, d, e, idx = -1, tag, orgList = null } = props;
 
 	const requiredFields = ["kind", "returnType"];
 	for (const field of requiredFields) {
@@ -27,9 +27,22 @@ const GetImgDlr = async (props = {}) => {
 	let sendObject = { kind, a, b, c, d, e, idx, tag };
 	const result = await ImageService.runGetImage(sendObject, returnType);
 
-	if (view && returnType === "one") return baseDIR + "/" + result.img_name;
-
-	return result;
+	// const result = processedData()
+	if (returnType === "one") {
+		if (view) return baseDIR + "/" + kind + "/" + result.img_name;
+		else
+			return {
+				...result,
+				img_name: baseDIR + "/" + kind + "/" + result.img_name,
+			};
+	} else {
+		return result.map((record) => ({
+			...record,
+			img_name: baseDIR + "/" + kind + "/" + record.img_name,
+		}));
+	}
 };
+
+// const processedData = (props) => {}
 
 export default GetImgDlr;

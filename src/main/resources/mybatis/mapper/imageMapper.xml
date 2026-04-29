@@ -91,8 +91,27 @@
 			<if test="tag != null and tag != ''">
 				AND TAG LIKE '%' || #{tag} || '%'
 			</if>
-	AND img_kind = #{kind}
+			AND img_kind = #{kind}
 		</where>
 	</select>
+
+	<insert id="insertImage"
+		parameterType="com.spring.home.dto.ImageDTO">
+		INSERT into IMG
+		(IMG_KIND,IMG_TAG,IMG_IDX,DIR_A,DIR_B,DIR_C,DIR_D,DIR_E,
+		IMG_NAME)
+		VALUES
+		(
+        #{img_kind, jdbcType=VARCHAR},
+        #{img_tag, jdbcType=VARCHAR},
+        #{img_idx, jdbcType=INTEGER},
+        #{dir_a, jdbcType=VARCHAR},
+        #{dir_b, jdbcType=VARCHAR},
+        #{dir_c, jdbcType=VARCHAR},
+        #{dir_d, jdbcType=VARCHAR},
+        #{dir_e, jdbcType=VARCHAR},
+        #{img_name, jdbcType=VARCHAR}
+    )
+	</insert>
 
 </mapper>
