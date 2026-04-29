@@ -11,7 +11,7 @@ public interface WalletMapper {
 
 	public void insertData(WalletDTO dto) throws Exception;
 	
-	public List<WalletDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<WalletDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
 	public WalletDTO getReadData(int num) throws Exception;
 	

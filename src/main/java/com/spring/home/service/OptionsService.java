@@ -18,8 +18,8 @@ public class OptionsService {
 		optionsMapper.insertData(dto);
 	}
 	
-	public List<OptionsDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return optionsMapper.getLists(start, end, searchKey, SearchValue);
+	public List<OptionsDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return optionsMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
 	public OptionsDTO getReadData(int num) throws Exception{

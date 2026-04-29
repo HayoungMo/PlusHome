@@ -18,8 +18,8 @@ public class QuestionService {
 		questionMapper.insertData(dto);
 	}
 	
-	public List<QuestionDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return questionMapper.getLists(start, end, searchKey, SearchValue);
+	public List<QuestionDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return questionMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
 	public QuestionDTO getReadData(int num) throws Exception{

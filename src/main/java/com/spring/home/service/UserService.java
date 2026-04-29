@@ -18,8 +18,8 @@ public class UserService {
 		userMapper.insertData(dto);
 	}
 	
-	public List<UserDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return userMapper.getLists(start, end, searchKey, SearchValue);
+	public List<UserDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return userMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
 	public UserDTO getReadData(int num) throws Exception{

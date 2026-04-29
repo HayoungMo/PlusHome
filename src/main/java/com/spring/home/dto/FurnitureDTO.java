@@ -18,11 +18,11 @@ public class FurnitureDTO {
 	private int f_dprice;
 	private Date f_createdDate;
 	
-	private String f_category1;
-	private String f_category2;
-	private String f_category3;
-	private String f_category4;
-	private String f_category5;
+	private String f_catagory1;
+	private String f_catagory2;
+	private String f_catagory3;
+	private String f_catagory4;
+	private String f_catagory5;
 	
 	private int f_discount;
 	private int f_point;

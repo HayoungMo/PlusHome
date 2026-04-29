@@ -11,7 +11,7 @@ public class BookingDTO {
 
     private String id;
     
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private Date b_createdDate;
     
     private String c_id;
@@ -20,10 +20,11 @@ public class BookingDTO {
     private String b_kind;
     private String b_long;
     
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Date b_date;
     
     private String b_status;
     private String b_content;
+    private String b_answer;
 
 }

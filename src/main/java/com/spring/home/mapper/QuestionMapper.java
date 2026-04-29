@@ -11,7 +11,7 @@ public interface QuestionMapper {
 
 	public void insertData(QuestionDTO dto) throws Exception;
 	
-	public List<QuestionDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<QuestionDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
 	public QuestionDTO getReadData(int num) throws Exception;
 	

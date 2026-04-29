@@ -11,7 +11,7 @@ public interface CartOptionMapper {
 
 	public void insertData(CartOptionDTO dto) throws Exception;
 	
-	public List<CartOptionDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<CartOptionDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
 	public CartOptionDTO getReadData(int num) throws Exception;
 	

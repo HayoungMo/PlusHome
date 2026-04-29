@@ -11,7 +11,7 @@ public interface OptionsMapper {
 	
 	public void insertData(OptionsDTO dto) throws Exception;
 	
-	public List<OptionsDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<OptionsDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
 	public OptionsDTO getReadData(int num) throws Exception;
 	

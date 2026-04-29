@@ -35,7 +35,10 @@ public class InteriorService {
 		// TODO Auto-generated method stub
 		return interiorMapper.getLists();
 	}
-
+	public List<InteriorDTO> getArticleLists() {
+		// TODO Auto-generated method stub
+		return interiorMapper.getArticleLists();
+	}
 
 	public List<InteriorDTO> getReadData(CompanyDTO companyDTO) throws Exception {
 		// TODO Auto-generated method stub
@@ -44,6 +47,14 @@ public class InteriorService {
 	
 	public List<InteriorExampleDTO> getExamples(CompanyDTO dto) throws Exception{
 		return interiorMapper.getExamples(dto);
+	};	
+	
+	public List<BookingDTO> getBookings(CompanyDTO dto) throws Exception{
+		return interiorMapper.getBookings(dto);
+	};	
+	
+	public List<InvoiceDTO> getInvoices(BookingDTO dto) throws Exception{
+		return interiorMapper.getInvoices(dto);
 	};	
 
 }

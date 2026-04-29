@@ -15,8 +15,8 @@ public class InvoiceDTO {
     
     private String id;
     
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date b_createddate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private Date b_createdDate;
     
     private int invoice_no;
     private String invoice_kind;
