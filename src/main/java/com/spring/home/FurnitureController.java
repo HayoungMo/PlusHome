@@ -6,6 +6,8 @@ import javax.annotation.Resource;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,8 +26,6 @@ public class FurnitureController {
 
 	@Resource
 	private FurnitureService furnitureService;
-	@Resource
-	private UserService userService;
 	
 	@GetMapping("/list")
 	public List<FurnitureDTO> getLists(
@@ -40,4 +40,25 @@ public class FurnitureController {
 		return furnitureService.getLists(start, end, searchKey, searchValue);
 		
 	}
+	
+	@GetMapping("/list/item")
+	public FurnitureDTO getReadData(@RequestParam int num) throws Exception {
+		return furnitureService.getReadData(num);
+	}
+	
+	@PostMapping("/add")
+	public void insertData(@RequestBody FurnitureDTO dto) throws Exception{
+		furnitureService.insertData(dto);
+	}
+	
+	@PostMapping("/update")
+	public void updateData(@RequestBody FurnitureDTO dto) throws Exception{
+		furnitureService.updateData(dto);
+	}
+	
+	@GetMapping("/delete")
+	public void deleteData(int f_code) throws Exception{
+		furnitureService.deleteData(f_code);
+	}
+	
 }
