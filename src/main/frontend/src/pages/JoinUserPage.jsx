@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Await, useNavigate } from 'react-router-dom';
+import JoinService from "../service/joinService";
 
 
 const email_Option =[
@@ -16,9 +17,9 @@ const JoinUserPage = () => {
     const [step,setStep] = useState(3);
     const navigate = useNavigate();
     const [form,setForm]=useState({
-        userId:'', password:'', telHead:'010',telMid:'',telTail:'',code:'',
-        emailId:'', emailDomain:'none', addr:'', birthYear:'',birthMonth:'',
-        birthDay:'',name:''
+        id:'', pw:'',type:'', code:'', name:'',
+        email:'', birth:'', tel:'',gender:'', addr:'',
+        
     });
 
     const [idCheck,setIdCheck] = useState({msg:'', ok:null})
@@ -26,8 +27,60 @@ const JoinUserPage = () => {
     const [pwCheck,setPwCheck] = useState('');
     const [isDirectInput, setIsDirectInput] = useState(false);
     const [errorMsg,setErrorMsg] =useState('');
+    
+    const [email,setEmail] = useState({
+        id:'',
+        domain:'',
+    })
 
-    const{userId,password,emailId,emailDomain,} = form;
+    const onEmail = (evt) =>{
+        const{name,value} = evt.target
+        const newEmail = {...email, [name]:value}
+
+        setEmail(newEmail)
+
+        setForm(prev =>({
+            ...prev,
+            email: newEmail.id + newEmail.domain
+        }))
+    }
+    
+
+    const [birth,setBirth]=useState({
+        year:'',
+        month:'',
+        day:''
+    })
+
+    const onBirth = (evt) =>{
+        const{name,value} = evt.target
+        const newBirth = {...birth,[name]:value}
+        
+        setBirth(newBirth)
+
+        setForm(prev=>({
+            ...prev,
+            birth:`${newBirth.year}-${newBirth.month}-${newBirth.day}`
+        }))
+    }
+
+
+    const [tel,setTel] = useState({
+        head: '010',
+        mid:'',
+        tail:'',
+    })
+
+    const onTel = (evt) => {
+        const {name,value}=evt.target
+        const newTel = {...tel,[name]:value}
+        setTel(newTel);
+
+        setForm(prev =>({
+            ...prev,
+            tel: newTel.head + newTel.mid + newTel.tail
+        }))
+    } 
 
     const onText= (evt) =>{
         const{value,name} = evt.target;
@@ -40,7 +93,7 @@ const JoinUserPage = () => {
         }
 
         if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)) {
-            if (name === 'userId') {
+            if (name === 'id') {
                 if(step===3){
                      setIdFormatMsg('아이디에 한글은 입력할 수 없습니다');
                 } else {
@@ -52,7 +105,7 @@ const JoinUserPage = () => {
             return;
         }
 
-        if (name === 'userId') {
+        if (name === 'id') {
             if (/[^a-zA-Z0-9_]/.test(value)) {
                 setIdFormatMsg('영문, 숫자, 언더스코어(_)만 입력 가능합니다');
                 return;
@@ -62,46 +115,46 @@ const JoinUserPage = () => {
         }
 
         // 이메일 도메인 select 변경
-        if (name === 'emailDomain' && evt.target.tagName === 'SELECT') {
+        if (name === 'newEmail.domain' && evt.target.tagName === 'SELECT') {
             setIsDirectInput(value === '');
             if (value === '') {
-                setForm({ ...form, emailDomain: '' });
+                setForm({ ...form, newEmail: '' });
                 return;
             }
         }
         
-        setForm({ ...form, [name]: value });
+        setForm(prev =>({ ...prev, [name]: value }));
     };
 
     const onCheckId = async () => {
-        if (!userId.trim()) { setErrorMsg('아이디를 입력하세요'); return; }
-        const res = await axios.get("http://localhost:8080/api/join/read");
+        if (!form.id.trim()) { setErrorMsg('아이디를 입력하세요'); return; }
+        const res = await axios.get("http://localhost:8080/api/join/read",{params:{id:form.id}});
         setIdCheck({ msg: res.data.message, ok: res.data.available });
     };
 
     const onNext = async () => {
         if (!idCheck.ok) { setErrorMsg('아이디 중복확인을 해주세요'); return; }
-        if (!userId.trim()) { setErrorMsg('아이디를 입력해주세요'); return; }
-        if (!password.trim()) { setErrorMsg('비밀번호를 입력해주세요'); return; }
-        if (password !== pwCheck) { setErrorMsg('비밀번호가 일치하지 않습니다'); return; }
-        if (!form.birthYear || !form.birthMonth || !form.birthDay) {
-            setErrorMsg('생년월일을 모두 선택해주세요'); return;
-        }
-        if (emailId && (!emailDomain || emailDomain === 'none')) {
-            setErrorMsg('이메일 도메인을 선택하거나 직접 입력해주세요'); return;
+        if (!form.id.trim()) { setErrorMsg('아이디를 입력해주세요'); return; }
+        if (!form.pw.trim()) { setErrorMsg('비밀번호를 입력해주세요'); return; }
+        if (form.pw !== pwCheck) { setErrorMsg('비밀번호가 일치하지 않습니다'); return; }
+        if (!birth.year || !birth.month || !birth.day) {
+            setErrorMsg('생년월일을 모두 선택해주세요'); 
+            return;
         }
 
-        const tel = form.telHead + form.telMid + form.telTail;
-        const birth = String(form.birthYear).slice(2) + form.birthMonth + form.birthDay;
+        const finalForm ={
+            ...form,
+            email:email.id && email.domain && email.domain !=='none'
+            ? email.id + email.domain
+            : '',
+            tel:tel.head + tel.mid + tel.tail,
+            birth: `${birth.year}-${birth.month}-${birth.day}`
+        }        
 
         try {
-            const email = (emailId && emailDomain && emailDomain !== 'none')
-                ? emailId + emailDomain : '';
-            const response = await axios.post('/joinService/joinService', {
-                userId, password, tel, email, addr: form.addr, birth
-            });
-            if (response.data.success) {
-                setErrorMsg(''); // 성공 시 에러 지우기
+           const res = await axios.post('/joinService/joinService',finalForm)
+                     
+            if (res.data.success) {
                 setStep(2);
             }
         } catch (error) {
@@ -109,8 +162,8 @@ const JoinUserPage = () => {
         }
     };
 
-    const year = Number(form.birthYear);
-    const month = Number(form.birthMonth);
+    const year = Number(birth.year);
+    const month = Number(birth.month);
     const lastDay = (year&&month) ? new Date(year,month,0).getDate() : 31;
 
 
@@ -121,7 +174,7 @@ const JoinUserPage = () => {
             </h3>
              <label>아이디</label>   
              <div className=''>
-                <input type='text' name='id' value={userId}
+                <input type='text' name='id' value={form.id}
                 onChange={onText}
                     placeholder='아이디 입력'
                     className=''/>
@@ -131,7 +184,7 @@ const JoinUserPage = () => {
             
              <div className=''>
              <label>비밀번호</label>
-             <input type='password' name='pw' value={password} onChange={onText}
+             <input type='password' name='pw' value={form.pw} onChange={onText}
                 placeholder='비밀번호 입력'
                 className=''/>
             </div>
@@ -146,19 +199,19 @@ const JoinUserPage = () => {
 
             <label>업체명</label>
             <div className=''>
-                <input type='text' name='C_NAME'/>
+                <input type='text' name='C_NAME' value='C_NAME'/>
             <label>업체주소</label>    
-                <input type='text' name='C_ADDR'/>업체주소              
+                <input type='text' name='C_ADDR' value='C_ADDR'/>업체주소              
             </div>
 
             <div>
                 <ul>
                     <li>
-                        <input type='radio' id='userType1' name='userType' value='P'/>
+                        <input type='radio'  name='c_kind' value='interior'/>
                         <label>인테리어</label>
                     </li>
                     <li>
-                        <input type='radio' id='userType2' name='userType' value='C'/>
+                        <input type='radio'  name='c_kind' value='shop'/>
                         <label>가구</label>
                     </li>        
                 </ul>
@@ -167,11 +220,11 @@ const JoinUserPage = () => {
             <div>
                 <ul>
                     <li>
-                        <input type='radio' id='userType1' name='type' value='user'/>
+                        <input type='radio' name='type' value='user' onChange={onText}/>
                         <label>일반</label>
                     </li>
                     <li>
-                        <input type='radio' id='userType2' name='type' value='company'/>
+                        <input type='radio' name='type' value='company' onChange={onText}/>
                         <label>기업</label>
                     </li>        
                 </ul>
@@ -181,25 +234,25 @@ const JoinUserPage = () => {
 
             <div>
                 <label>주민번호(사업자 등록번호)</label>
-                <input type='text' value={form.code}
+                <input type='text' name= 'code' value={form.code} onChange={onText}
                     placeholder='주민번호'
                     className=''/>
             </div>
 
             <div>
-                <label>이름(사업주명)</label>
-                <input type='text' value={form.name}
-                    placeholder='이름(사업주명)'
+                <label>주소</label>
+                <input type='text' name= 'addr' value={form.addr} onChange={onText}
+                    placeholder='주소'
                     className=''/>
             </div>
 
             <div>
                 <label>이메일</label>
-                <input type='email' name='email' value={emailId}
-                    onChange={onText}
+                <input type='email' name='id' value={email.id}
+                    onChange={onEmail}
                     placeholder='이메일 주소'
                     className=''/>
-                     <select name="emailDomain" value={form.emailDomain} onChange={onText} className="custom-select">
+                     <select name="domain" value={email.domain} onChange={onEmail} className="custom-select">
                                     {email_Option.map(opt => (
                                         <option key={opt.label} value={opt.value}>{opt.label}</option>
                                     ))}
@@ -209,18 +262,18 @@ const JoinUserPage = () => {
             
             <label>생년월일</label>
                 <div className=''>
-                <select name='birth' value={form.birthYear}
-                onChange={onText} className=''>
+                <select name='year'
+                onChange={onBirth} className=''>
                     <option value=''>연도</option>
                     {Array.from({ length: 80 }, (_, i) => 2007 - i).map(y =>
                     <option key={y} value={y}>{y}년</option>)}
                 </select>
-                <select name='birth' value={form.birthMonth} onChange={onText}>
+                <select name='month' onChange={onBirth}>
                     <option>월</option>
                     {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(m =>
                         <option key={m} value={m}>{m}월</option>)}
                 </select>
-                <select name="birth" value={form.birthDay} onChange={onText} className="">
+                <select name="day" onChange={onBirth} className="">
                     <option value="">일</option>
                     {Array.from({ length: lastDay }, (_, i) => String(i + 1).padStart(2, '0')).map(d =>
                         <option key={d} value={d}>{d}일</option>)}
@@ -230,30 +283,30 @@ const JoinUserPage = () => {
            
             <label>전화번호</label>
             <div className=''>
-                <select name='tel' value={form.telHead} onChange={onText}
+                <select name='head' value={tel.head} onChange={onTel}
                 className=''>
                     <option value='010'>010</option>
                     <option value='011'>011</option>
                 </select>
-                <input type='text' name='tel' value={form.telMid}
-                onChange={onText} maxLength={4}
+                <input type='text' name='mid' value={tel.mid}
+                onChange={onTel} maxLength={4}
                      className=''/>
-                <input type='text' name='tel' value={form.telTail}
-                onChange={onText} maxLength={4} className=''/>
+                <input type='text' name='tail' value={tel.tail}
+                onChange={onTel} maxLength={4} className=''/>
             </div>
 
             <div>
                 <ul>
                     <li>
-                        <input type='radio' id='gender1' name='gender' value='male'/>
+                        <input type='radio' name='gender' value='male' onChange={onText}/>
                         <label>남자</label>
                     </li>
                     <li>
-                        <input type='radio' id='gender2' name='gender' value='female'/>
+                        <input type='radio' name='gender' value='female' onChange={onText}/>
                         <label>여자</label>
                     </li>
                     <li>
-                        <input type='radio' id='gender3' name='gender' value='none'/>
+                        <input type='radio' id='gender3' name='gender' value='none' onChange={onText}/>
                         <label>선택안함</label>
                     </li>           
                 </ul>
