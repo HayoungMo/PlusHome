@@ -22,15 +22,15 @@ public class CouponService {
 		return couponMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public CouponDTO getReadData(int num) throws Exception{
-		return couponMapper.getReadData(num);
+	public CouponDTO getReadData(String coupon_code) throws Exception{
+		return couponMapper.getReadData(coupon_code);
 	}
 	
 	public void updateData(CouponDTO dto) throws Exception{
 		couponMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		couponMapper.deleteData(num);
+	public void deleteData(String coupon_code) throws Exception{
+		couponMapper.deleteData(coupon_code);
 	}
 }

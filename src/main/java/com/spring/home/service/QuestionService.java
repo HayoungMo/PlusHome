@@ -22,15 +22,24 @@ public class QuestionService {
 		return questionMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public QuestionDTO getReadData(int num) throws Exception{
-		return questionMapper.getReadData(num);
+	public QuestionDTO getReadDataById(String id) throws Exception{
+		return questionMapper.getReadDataById(id);
 	}
 	
-	public void updateData(QuestionDTO dto) throws Exception{
+	public QuestionDTO getReadDataByFCode(String f_code) throws Exception{
+		return questionMapper.getReadDataByFCode(f_code);
+	}
+	
+	public QuestionDTO getReadDataByQIdx(String q_idx) throws Exception{
+		return questionMapper.getReadDataByQIdx(q_idx);
+	}
+
+		public void updateData(QuestionDTO dto) throws Exception{
 		questionMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		questionMapper.deleteData(num);
+	//아이디로 삭제하면 안됨!!!!! -> 이 사람이 쓴 모든 글이 다 삭제됨
+	public void deleteData(String q_idx) throws Exception{
+		questionMapper.deleteData(q_idx);
 	}
 }

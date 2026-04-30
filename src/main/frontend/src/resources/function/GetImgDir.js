@@ -1,7 +1,10 @@
 import ImageService from "../../service/imageService";
+import SetImageInList from "./SetImageInList";
 import validateImageQuery from "./validateKind";
 
-const GetImgDlr = async (props = {}) => {
+const baseDIR = "http://localhost:8080/api/images";
+
+const GetImgDir = async (props = {}) => {
 	if (!props || Object.keys(props).length === 0) {
 		return { error: "데이터가 전달되지 않았습니다.", result: null };
 	}
@@ -23,26 +26,35 @@ const GetImgDlr = async (props = {}) => {
 	if (returnType !== "list" && returnType !== "one") {
 		return { error: "잘못된 반환 형식(returnType) 요청입니다.", result: null };
 	}
-	const baseDIR = "http://localhost:8080/api/images"; // webConfig에 등록된 외부 폴더 접근 디렉토리
+	// webConfig에 등록된 외부 폴더 접근 디렉토리
 	let sendObject = { kind, a, b, c, d, e, idx, tag };
-	const result = await ImageService.runGetImage(sendObject, returnType);
+	const imgData = await ImageService.runGetImage(sendObject, returnType);
 
-	// const result = processedData()
 	if (returnType === "one") {
-		if (view) return baseDIR + "/" + kind + "/" + result.img_name;
+		if (view) return { error: null, result: baseDIR + "/" + kind + "/" + imgData.img_name };
 		else
 			return {
-				...result,
-				img_name: baseDIR + "/" + kind + "/" + result.img_name,
+				error: null,
+				result: { ...imgData, img_name: baseDIR + "/" + kind + "/" + imgData.img_name },
 			};
-	} else {
-		return result.map((record) => ({
+	}
+
+	if (returnType === "list" && view) {
+		const returnViewList = imgData.map((record) => ({
 			...record,
 			img_name: baseDIR + "/" + kind + "/" + record.img_name,
+			img_idx: record.img_idx,
 		}));
+		return { error: null, result: returnViewList };
 	}
+	const result = SetImageInList({ kind, orgList, view, imgData });
+
+	return { error: null, result: result };
 };
 
-// const processedData = (props) => {}
+export const getImgDirSimple = (props) => {
+	const { kind, name } = props;
+	return baseDIR + "/" + kind + "/" + name;
+};
 
-export default GetImgDlr;
+export default GetImgDir;

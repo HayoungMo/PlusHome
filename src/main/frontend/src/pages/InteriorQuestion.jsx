@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import SelectMui from "../components/SelectMui";
 import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 const InteriorQuestion = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const company = location.state.company;
   const [data, setData] = useState({
     housingType: "", // q1 - 주택 유형
     areaSize: "", // q2 - 평수
@@ -97,9 +99,15 @@ const handleCheckChange = (e) => {
 };
 
   const handleNext = () => {
+    if (company==null){
     navigate("/interior/list", {
       state: { answers: data },
-    });
+    });}
+    else{
+      navigate("/interior/article", {
+        state: { answers: data, company:company },
+      });
+    }
   };
 
   return (

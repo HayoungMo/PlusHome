@@ -4,6 +4,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import ComponentEx from "./pages/ComponentEx";
 import TestMyPage from "./pages/TestMyPage";
 import ImageGetTest from "./pages/ImageGetTest";
+import InteriorLists from "./pages/InteriorLists";
 import MainHomePage from "./pages/MainHomePage";
 import InteriorArticle from "./pages/InteriorArticle";
 import InteriorCreated from "./pages/InteriorCreated";
@@ -38,12 +39,11 @@ function App() {
         setLoginUser={setLoginUser}
         setLoginInfo={setLoginInfo} />}/>
         <Route path="/join" element={<JoinUserPage/>}/>
-       
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
-        
-        <Route path="/interiorarticle" element={<InteriorArticle />} />
-        <Route path="/interiorcreated" element={<InteriorCreated />} />
-        <Route path="/interiorquestion" element={<InteriorQuestion />} />
+        <Route path="/interior/list" element={<InteriorLists />} />
+        <Route path="/interior/article" element={<InteriorArticle />} />
+        <Route path="/interior/created" element={<InteriorCreated />} />
+        <Route path="/interior/question" element={<InteriorQuestion />} />
       </Routes>
     </div>
   );
