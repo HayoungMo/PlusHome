@@ -49,9 +49,64 @@ const insertImage = async (dataList) => {
 	}
 };
 
+const getImageData = async (params) => {
+	try {
+		console.log(params);
+		let result;
+		await http.post("/image/getList", params).then((res) => (result = res.data));
+		return result;
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const updateImage = async (params) => {
+	try {
+		const formData = new FormData();
+		params.forEach((element) => {
+			// const ext = element.file.name.includes(".")
+			// 	? element.file.name.substring(element.file.name.lastIndexOf("."))
+			// 	: "";
+
+			const newFileName = `${element.name}`;
+
+			console.log("newFileName");
+			console.log(newFileName);
+
+			const renamedFile = new File([element.file], newFileName, {
+				type: element.file.type,
+				lastModified: element.file.lastModified,
+			});
+
+			formData.append("files", renamedFile);
+		});
+
+		await fileHttp.post("/image/updateImage", formData).then((res) => {
+			console.log(res);
+		});
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const deleteImage = async (params) => {
+	try {
+		console.log(params)
+		await http.post("/image/deleteImage", params);
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
 const ImageService = {
 	runGetImage,
 	insertImage,
+	getImageData,
+	updateImage,
+	deleteImage,
 };
 
 export default ImageService;
