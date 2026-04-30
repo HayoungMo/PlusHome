@@ -11,11 +11,11 @@ public interface CouponMapper {
 
 	public void insertData(CouponDTO dto) throws Exception;
 	
-	public List<CouponDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<CouponDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
-	public CouponDTO getReadData(int num) throws Exception;
+	public CouponDTO getReadData(String coupon_code) throws Exception;
 	
 	public void updateData(CouponDTO dto) throws Exception;
 	
-	public void deleteData(int num) throws Exception;
+	public void deleteData(String coupon_code) throws Exception;
 }

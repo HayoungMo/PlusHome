@@ -18,19 +18,19 @@ public class OptionsService {
 		optionsMapper.insertData(dto);
 	}
 	
-	public List<OptionsDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return optionsMapper.getLists(start, end, searchKey, SearchValue);
+	public List<OptionsDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return optionsMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public OptionsDTO getReadData(int num) throws Exception{
-		return optionsMapper.getReadData(num);
+	public OptionsDTO getReadData(String f_code) throws Exception{
+		return optionsMapper.getReadData(f_code);
 	}
 	
 	public void updateData(OptionsDTO dto) throws Exception{
 		optionsMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		optionsMapper.deleteData(num);
+	public void deleteData(String f_code) throws Exception{
+		optionsMapper.deleteData(f_code);
 	}
 }

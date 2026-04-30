@@ -18,19 +18,19 @@ public class CouponService {
 		couponMapper.insertData(dto);
 	}
 	
-	public List<CouponDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return couponMapper.getLists(start, end, searchKey, SearchValue);
+	public List<CouponDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return couponMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public CouponDTO getReadData(int num) throws Exception{
-		return couponMapper.getReadData(num);
+	public CouponDTO getReadData(String coupon_code) throws Exception{
+		return couponMapper.getReadData(coupon_code);
 	}
 	
 	public void updateData(CouponDTO dto) throws Exception{
 		couponMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		couponMapper.deleteData(num);
+	public void deleteData(String coupon_code) throws Exception{
+		couponMapper.deleteData(coupon_code);
 	}
 }

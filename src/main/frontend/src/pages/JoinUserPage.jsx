@@ -18,7 +18,7 @@ const JoinUserPage = () => {
     const navigate = useNavigate();
     const [form,setForm]=useState({
         id:'', pw:'',type:'', code:'', name:'',
-        email:'', birth:'', tel:'',gender:'', addr:'',
+        email:'', birth:'', tel:'',gender:'', addr:'',c_addr:'',c_name:''
         
     });
 
@@ -43,7 +43,7 @@ const JoinUserPage = () => {
             ...prev,
             email: newEmail.id + newEmail.domain
         }))
-    }
+    }   
     
 
     const [birth,setBirth]=useState({
@@ -82,37 +82,64 @@ const JoinUserPage = () => {
         }))
     } 
 
+    const validate = (name, value) => {
+    switch (name) {
+        case 'id':
+            if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)) {
+                return '아이디에 한글은 입력할 수 없습니다';
+            }
+            if (/[^a-zA-Z0-9_]/.test(value)) {
+                return '영문, 숫자, _ 만 사용 가능합니다';
+            }
+            return '';
+
+        case 'telMid':
+        case 'telTail':
+            if (isNaN(value)) {
+                return '숫자만 입력하세요';
+            }
+            return '';
+
+        default:
+            // 나머지는 제한 없음 (한글 허용)
+            return '';
+    }
+};
+
+    const validateAll = () =>{
+        if(!form.id) return '아이디를 입력하세요.'
+        if(!form.pw) return '비밀번호를 입력하세요.'
+        if(form.pw !==pwCheck) return '비밀번호가 일치하지 않습니다.'
+        if(!birth.year || !birth.month || !birth.day) return '생년월일 선택.'
+
+        return '';
+    }
+
+    
+
     const onText= (evt) =>{
         const{value,name} = evt.target;
-        if(errorMsg) setErrorMsg('');
-        if(name==='userId' && idFormatMsg) setIdFormatMsg('');
 
-        if((name==='telMid' || name==='telTail') && isNaN(value)){
-            setErrorMsg('숫자만 입력하세요.') 
+        const error = validate(name,value)
+
+        if(error){
+            if(name==='id'){
+                setIdFormatMsg(error)
+            }else{
+                setErrorMsg(error)
+            }
             return
         }
 
-        if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)) {
-            if (name === 'id') {
-                if(step===3){
-                     setIdFormatMsg('아이디에 한글은 입력할 수 없습니다');
-                } else {
-                setErrorMsg('한글은 입력할 수 없습니다');
-            }
-        }else{
-            setErrorMsg('한글은 입력할 수 없습니다.')
-            }
-            return;
-        }
+        setErrorMsg('')
+        if (name==='id') setIdFormatMsg('')
 
-        if (name === 'id') {
-            if (/[^a-zA-Z0-9_]/.test(value)) {
-                setIdFormatMsg('영문, 숫자, 언더스코어(_)만 입력 가능합니다');
-                return;
-            }
-            setIdFormatMsg('');
-            setIdCheck({ msg: '', ok: null });
-        }
+            setForm(prev=> ({
+                ...prev,
+                [name]: value
+            }))
+
+       
 
         // 이메일 도메인 select 변경
         if (name === 'newEmail.domain' && evt.target.tagName === 'SELECT') {
@@ -128,19 +155,18 @@ const JoinUserPage = () => {
 
     const onCheckId = async () => {
         if (!form.id.trim()) { setErrorMsg('아이디를 입력하세요'); return; }
-        const res = await axios.get("http://localhost:8080/api/join/read",{params:{id:form.id}});
+        const res = await axios.get("/user/check-id",{params:{id:form.id}});
         setIdCheck({ msg: res.data.message, ok: res.data.available });
     };
 
     const onNext = async () => {
-        if (!idCheck.ok) { setErrorMsg('아이디 중복확인을 해주세요'); return; }
-        if (!form.id.trim()) { setErrorMsg('아이디를 입력해주세요'); return; }
-        if (!form.pw.trim()) { setErrorMsg('비밀번호를 입력해주세요'); return; }
-        if (form.pw !== pwCheck) { setErrorMsg('비밀번호가 일치하지 않습니다'); return; }
-        if (!birth.year || !birth.month || !birth.day) {
-            setErrorMsg('생년월일을 모두 선택해주세요'); 
-            return;
-        }
+       const error = validateAll();
+
+       if(error) {
+        setErrorMsg(error);
+        return
+       }
+    
 
         const finalForm ={
             ...form,
@@ -151,16 +177,17 @@ const JoinUserPage = () => {
             birth: `${birth.year}-${birth.month}-${birth.day}`
         }        
 
-        try {
-           const res = await axios.post('/joinService/joinService',finalForm)
-                     
-            if (res.data.success) {
-                setStep(2);
-            }
-        } catch (error) {
-            setErrorMsg("이미 사용 중인 ID거나 저장에 실패하였습니다.");
-        }
+        
     };
+
+    const onTest= ()=>{
+        console.log("form:" , form)
+        console.log("email:", email)
+        console.log("tel:", tel)
+        console.log("birth:", birth)
+    }
+
+    
 
     const year = Number(birth.year);
     const month = Number(birth.month);
@@ -199,13 +226,14 @@ const JoinUserPage = () => {
 
             <label>업체명</label>
             <div className=''>
-                <input type='text' name='C_NAME' value='C_NAME'/>
+                <input type='text' name='c_name' value={form.c_name} onChange={onText}/>
             <label>업체주소</label>    
-                <input type='text' name='C_ADDR' value='C_ADDR'/>업체주소              
+                <input type='text' name='c_addr' value={form.c_addr} onChange={onText}/>
+                업체주소              
             </div>
 
             <div>
-                <ul>
+               
                     <li>
                         <input type='radio'  name='c_kind' value='interior'/>
                         <label>인테리어</label>
@@ -214,11 +242,11 @@ const JoinUserPage = () => {
                         <input type='radio'  name='c_kind' value='shop'/>
                         <label>가구</label>
                     </li>        
-                </ul>
+                
             </div>
 
             <div>
-                <ul>
+                
                     <li>
                         <input type='radio' name='type' value='user' onChange={onText}/>
                         <label>일반</label>
@@ -227,7 +255,14 @@ const JoinUserPage = () => {
                         <input type='radio' name='type' value='company' onChange={onText}/>
                         <label>기업</label>
                     </li>        
-                </ul>
+               
+            </div>
+
+            <div>
+                <label>이름(사업주명)</label>
+                <input type='text' name= 'name' value={form.name} onChange={onText}
+                    placeholder='이름(사업주명)'
+                    className=''/>
             </div>
 
 
@@ -248,7 +283,7 @@ const JoinUserPage = () => {
 
             <div>
                 <label>이메일</label>
-                <input type='email' name='id' value={email.id}
+                <input type='email' name='email' value={email.id}
                     onChange={onEmail}
                     placeholder='이메일 주소'
                     className=''/>

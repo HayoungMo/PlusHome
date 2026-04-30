@@ -18,19 +18,19 @@ public class UserService {
 		userMapper.insertData(dto);
 	}
 	
-	public List<UserDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return userMapper.getLists(start, end, searchKey, SearchValue);
+	public List<UserDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return userMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public UserDTO getReadData(int num) throws Exception{
-		return userMapper.getReadData(num);
+	public UserDTO getReadData(String id) throws Exception{
+		return userMapper.getReadData(id);
 	}
 	
 	public void updateData(UserDTO dto) throws Exception{
 		userMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		userMapper.deleteData(num);
+	public void deleteData(String id) throws Exception{
+		userMapper.deleteData(id);
 	}
 }

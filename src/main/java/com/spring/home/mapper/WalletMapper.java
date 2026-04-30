@@ -11,11 +11,11 @@ public interface WalletMapper {
 
 	public void insertData(WalletDTO dto) throws Exception;
 	
-	public List<WalletDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<WalletDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
-	public WalletDTO getReadData(int num) throws Exception;
+	public WalletDTO getReadData(String id) throws Exception;
 	
 	public void updateData(WalletDTO dto) throws Exception;
 	
-	public void deleteData(int num) throws Exception;
+	public void deleteData(String id) throws Exception;
 }

@@ -18,18 +18,18 @@ public class LikeService {
 		likeMapper.insertData(dto);
 	}
 	
-	public List<LikeDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return likeMapper.getLists(start, end, searchKey, SearchValue);
+	public List<LikeDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return likeMapper.getLists(start, end, searchKey, searchValue);
 	}
-	public LikeDTO getReadData(int num) throws Exception{
-		return likeMapper.getReadData(num);
+	public LikeDTO getReadData(String id) throws Exception{
+		return likeMapper.getReadData(id);
 	}
 	
 	public void updateData(LikeDTO dto) throws Exception{
-		
+		likeMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		
+	public void deleteData(String id) throws Exception{
+		likeMapper.deleteData(id);
 	}
 }

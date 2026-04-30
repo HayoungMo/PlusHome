@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.WalletMapper">
+
+<!-- 입력 -->
+<insert id="insertData" parameterType="com.spring.home.dto.WalletDTO">
+	insert into wallet (id, money) values (#{id},0) 
+</insert>
+
+<!-- 수정 -->
+<update id="updateData" parameterType="com.spring.home.dto.WalletDTO">
+	update wallet set money= money + #{money} where id=#{id}
+</update>
+
+<!-- 삭제 -->
+<delete id="deleteData" parameterType="String">
+	delete wallet where id=#{id}
+</delete>
+
+<!-- 전체 select -->
+<select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.WalletDTO">
+	select * from (
+	select * rownum rnum, data.* from (
+	select id, money
+	where ${searchKey} like '%' || #{searchValue} || '%'
+	order by id desc
+	) data)
+	<![CDATA[
+    where rnum >= #{start} and rnum <= #{end}
+    ]]>
+</select>
+
+<!-- 1개 select -->
+<select id="getReadData" parameterType="String" resultType="com.spring.home.dto.WalletDTO">
+	select id, money from wallet where id=#{id}
+</select>
+</mapper>
