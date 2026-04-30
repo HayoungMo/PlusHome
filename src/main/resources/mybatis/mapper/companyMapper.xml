@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.CompanyMapper">
+
+<!-- 입력 -->
+<insert id="insertData" parameterType="com.spring.home.dto.CompanyDTO">
+	insert into company (c_id,c_name,c_kind,c_tel,c_addr,c_info,c_boss)
+	values (c_id=#{c_id}, c_name=#{c_name}, c_kind=#{c_kind}, c_tel=#{c_tel}, c_add=#{c_add}, c_info=#{c_info}, c_boss=#{c_boss})
+</insert>
+
+<!-- 수정 -->
+<update id="updateData" parameterType="com.spring.home.dto.CompanyDTO">
+	update company set c_tel=#{c_tel}, c_add=#{c_add}, c_info=#{c_info}, c_boss=#{c_boss}
+	where c_id=#{c_id}
+</update>
+
+<!-- 삭제 -->
+<delete id="deleteData" parameterType="String">
+	delete company where c_id=#{c_id}
+</delete>
+
+<!-- 전체 select -->
+<select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.CompanyDTO">
+	select * from (
+    select rownum rnum, data.* from (
+    select c_id,c_name,c_kind,c_tel,c_addr,c_info,c_boss
+    from company
+    where ${searchKey} like '%' || #{searchValue} || '%'
+    order by c_id desc
+    ) data)
+    <![CDATA[
+    where rnum>=#{start} and rnum<=#{end}
+    ]]>
+</select>
+
+<!-- 1개 select -->
+<select id="getReadData" parameterType="String" resultType="com.spring.home.dto.CompanyDTO">
+	select * from company where c_id=#{c_id}
+</select>
+
+</mapper>

@@ -154,9 +154,25 @@ const JoinUserPage = () => {
     };
 
     const onCheckId = async () => {
-        if (!form.id.trim()) { setErrorMsg('아이디를 입력하세요'); return; }
-        const res = await axios.get("/user/check-id",{params:{id:form.id}});
-        setIdCheck({ msg: res.data.message, ok: res.data.available });
+        if (!form.id.trim()) { 
+            setErrorMsg('아이디를 입력하세요'); 
+            return; 
+        }
+
+        try{
+        const res = await JoinService.checkId(form.id);
+
+        setIdCheck({
+            msg: res.message,
+            ok: res.available
+        })
+        console.log("res:", res)
+        
+        }catch(error){
+            console.log(error);
+            setErrorMsg("중복 확인 실패")
+        }
+
     };
 
     const onNext = async () => {
@@ -175,7 +191,19 @@ const JoinUserPage = () => {
             : '',
             tel:tel.head + tel.mid + tel.tail,
             birth: `${birth.year}-${birth.month}-${birth.day}`
-        }        
+        }
+
+        console.log("데이터가 가는중임:",finalForm)
+        
+        try {
+            const res = await JoinService.postJoin(finalForm);
+            console.log("서버 응답?:",res)
+            alert("회원가입 성공");
+            navigate("/login")
+        } catch (error) {
+            console.log(error)
+            alert("회원가입 실패")
+        }
 
         
     };
@@ -208,6 +236,11 @@ const JoinUserPage = () => {
                     <button type='button' className=''
                     onClick={onCheckId}>중복확인</button>
              </div>
+             {idCheck.msg&&(
+                <div style={{color: idCheck.ok ? 'green' : 'red'}}>
+                    {idCheck.msg}
+                </div>
+             )}
             
              <div className=''>
              <label>비밀번호</label>
@@ -227,9 +260,11 @@ const JoinUserPage = () => {
             <label>업체명</label>
             <div className=''>
                 <input type='text' name='c_name' value={form.c_name} onChange={onText}/>
-            <label>업체주소</label>    
-                <input type='text' name='c_addr' value={form.c_addr} onChange={onText}/>
-                업체주소              
+            </div>
+            
+            <label>업체주소</label>  
+            <div>
+                <input type='text' name='c_addr' value={form.c_addr} onChange={onText}/>             
             </div>
 
             <div>
@@ -283,11 +318,11 @@ const JoinUserPage = () => {
 
             <div>
                 <label>이메일</label>
-                <input type='email' name='email' value={email.id}
+                <input type='text' name='id' value={email.id}
                     onChange={onEmail}
                     placeholder='이메일 주소'
                     className=''/>
-                     <select name="domain" value={email.domain} onChange={onEmail} className="custom-select">
+                     <select name="domain" value={email.domain} onChange={onEmail} className="">
                                     {email_Option.map(opt => (
                                         <option key={opt.label} value={opt.value}>{opt.label}</option>
                                     ))}
@@ -347,14 +382,13 @@ const JoinUserPage = () => {
                 </ul>
             </div>
 
-            <button className=''
+            <button type="button" className=''
                 onClick={onNext}>
                     가입하기
             </button>
 
-            <button className='' onClick={() => {setStep(3)
-                setErrorMsg('')
-            }}>뒤로가기</button>
+            <button className='' 
+            ><a href='/'>뒤로가기</a></button>
 
         이미 아이디가 있으신가요?
         <a href='/login'>로그인</a>    

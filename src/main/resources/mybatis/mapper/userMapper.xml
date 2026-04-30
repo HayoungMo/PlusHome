@@ -18,7 +18,7 @@
 
 <!-- 삭제 -->
 <delete id="deleteData" parameterType="string">
-	delete users where id=#{id}
+	delete from users where id=#{id}
 </delete>
 
 <!-- 전체 select -->
@@ -40,5 +40,34 @@
 	select id,pw,type,code,name,email,birth,tel,gender,addr
 	from users where id=#{id}
 </select>
+
+<!-- 로그인 -->
+<select id='login' parameterType="com.spring.home.dto.UserDTO" resultType="com.spring.home.dto.UserDTO">
+select id,pw,type,code,name,email,birth,tel,gender,addr from users
+where id = #{id} and pw=#{pw}
+</select>
+
+<select id="findById" parameterType="string" resultType="com.spring.home.dto.UserDTO">
+    SELECT *
+    FROM users
+    WHERE id = #{id}
+</select>
+
+
+<!--아이디 찾기  -->
+<select id="findUserId" parameterType="com.spring.home.dto.UserDTO" resultType="string" >
+select id from users where name =#{name} and tel =#{tel}
+</select>
+
+<!--비밀번호 찾기  -->
+<select id="findUserPw" parameterType="com.spring.home.dto.UserDTO" resultType="com.spring.home.dto.UserDTO" >
+select * from users where id =#{id} and email =#{email}
+</select>
+
+<!--비밀번호 변경  -->
+<update id="updatePw" >
+update users set pw = #{pw} where id = #{id}
+</update>
+
 
 </mapper>

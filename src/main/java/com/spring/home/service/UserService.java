@@ -14,6 +14,7 @@ public class UserService {
 	@Autowired
 	private UserMapper userMapper;
 	
+	
 	public void insertData(UserDTO dto) throws Exception{
 		userMapper.insertData(dto);
 	}
@@ -22,15 +23,33 @@ public class UserService {
 		return userMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public UserDTO getReadData(int num) throws Exception{
-		return userMapper.getReadData(num);
+	public UserDTO getReadData(String id) throws Exception{
+		return userMapper.getReadData(id);
 	}
 	
 	public void updateData(UserDTO dto) throws Exception{
 		userMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		userMapper.deleteData(num);
+	public void deleteData(String id) throws Exception{
+		userMapper.deleteData(id);
+	}
+	
+	public UserDTO login(UserDTO dto) throws Exception {
+		return userMapper.login(dto);		
+		
+	}
+	
+	public UserDTO findById(String id) throws Exception{
+		return userMapper.findById(id);
+	}
+	
+	
+		
+	public String findUserId(UserDTO dto) throws Exception {
+		return userMapper.findUserId(dto);
 	}
 }
+	
+	
+
