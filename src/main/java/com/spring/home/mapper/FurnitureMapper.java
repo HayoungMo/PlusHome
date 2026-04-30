@@ -9,13 +9,15 @@ import com.spring.home.dto.FurnitureDTO;
 @Mapper
 public interface FurnitureMapper {
 
+	public int countByFCode(String f_code);
+	
 	public void insertData(FurnitureDTO dto) throws Exception;
 	
 	public List<FurnitureDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
-	public FurnitureDTO getReadData(int num) throws Exception;
+	public FurnitureDTO getReadData(String f_code) throws Exception;
 	
 	public void updateData(FurnitureDTO dto) throws Exception;
 	
-	public void deleteData(int num) throws Exception;
+	public void deleteData(String f_code) throws Exception;
 }

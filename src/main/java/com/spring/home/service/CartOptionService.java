@@ -22,16 +22,16 @@ public class CartOptionService {
 		return cartOptionMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public CartOptionDTO getReadData(int num) throws Exception{
-		return cartOptionMapper.getReadData(num);
+	public CartOptionDTO getReadData(String id) throws Exception{
+		return cartOptionMapper.getReadData(id);
 	}
 	
 	public void updateData(CartOptionDTO dto) throws Exception{
 		cartOptionMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		cartOptionMapper.deleteData(num);
+	public void deleteData(String id) throws Exception{
+		cartOptionMapper.deleteData(id);
 	}
 	
 }
