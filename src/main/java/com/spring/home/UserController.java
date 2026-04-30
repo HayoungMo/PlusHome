@@ -50,7 +50,7 @@ public class UserController {
 	
 	//회원 삭제
 	@GetMapping("/delete")
-	public void deleteData(int id) throws Exception {
+	public void deleteData(String id) throws Exception {
 		userService.deleteData(id);
 	}
 

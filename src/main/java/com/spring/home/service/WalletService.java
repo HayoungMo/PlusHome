@@ -22,16 +22,19 @@ public class WalletService {
 		return walletMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public WalletDTO getReadData(int num) throws Exception{
-		return walletMapper.getReadData(num);
+	public WalletDTO getReadData(String id) throws Exception{
+		return walletMapper.getReadData(id);
 	}
 	
 	public void updateData(WalletDTO dto) throws Exception{
+		if(dto.getMoney()<=0) {
+			throw new IllegalArgumentException("충전 금액은 0보다 커야합니다.");
+		}
 		walletMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		walletMapper.deleteData(num);
+	public void deleteData(String id) throws Exception{
+		walletMapper.deleteData(id);
 	}
 	
 }
