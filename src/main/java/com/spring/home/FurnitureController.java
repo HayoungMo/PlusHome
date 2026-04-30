@@ -19,9 +19,7 @@ import com.spring.home.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/furniture")
-@RequiredArgsConstructor
 @RestController
-@CrossOrigin("http://localhost:3000")
 public class FurnitureController {
 
 	@Resource
@@ -42,8 +40,8 @@ public class FurnitureController {
 	}
 	
 	@GetMapping("/list/item")
-	public FurnitureDTO getReadData(@RequestParam int num) throws Exception {
-		return furnitureService.getReadData(num);
+	public FurnitureDTO getReadData(@RequestParam String f_code) throws Exception {
+		return furnitureService.getReadData(f_code);
 	}
 	
 	@PostMapping("/add")
@@ -57,7 +55,7 @@ public class FurnitureController {
 	}
 	
 	@GetMapping("/delete")
-	public void deleteData(int f_code) throws Exception{
+	public void deleteData(String f_code) throws Exception{
 		furnitureService.deleteData(f_code);
 	}
 	

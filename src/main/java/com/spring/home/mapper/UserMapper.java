@@ -11,7 +11,7 @@ public interface UserMapper {
 
 	public void insertData(UserDTO dto) throws Exception;
 	
-	public List<UserDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<UserDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
 	public UserDTO getReadData(int num) throws Exception;
 	

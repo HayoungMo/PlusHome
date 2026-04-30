@@ -11,11 +11,11 @@ public interface CartOptionMapper {
 
 	public void insertData(CartOptionDTO dto) throws Exception;
 	
-	public List<CartOptionDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception;
+	public List<CartOptionDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
 	
-	public CartOptionDTO getReadData(int num) throws Exception;
+	public CartOptionDTO getReadData(String id) throws Exception;
 	
 	public void updateData(CartOptionDTO dto) throws Exception;
 	
-	public void deleteData(int num) throws Exception;
+	public void deleteData(String id) throws Exception;
 }

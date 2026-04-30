@@ -18,19 +18,19 @@ public class CartService {
 		cartMapper.insertData(dto);
 	}
 	
-	public List<CartDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return cartMapper.getLists(start, end, searchKey, SearchValue);
+	public List<CartDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return cartMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public CartDTO getReadData(int num) throws Exception{
-		return cartMapper.getReadData(num);
+	public CartDTO getReadData(String id) throws Exception{
+		return cartMapper.getReadData(id);
 	}
 	
 	public void updateData(CartDTO dto) throws Exception{
 		cartMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		cartMapper.deleteData(num);
+	public void deleteData(String id) throws Exception{
+		cartMapper.deleteData(id);
 	}
 }

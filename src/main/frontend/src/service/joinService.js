@@ -4,7 +4,7 @@ import http from "../http-common";
 const postJoin = async (data) => {
     try {
         console.log("Service: Sending POST request");
-        const response = await http.post("/joinService/joinService", data);
+        const response = await http.post("/user/joinService", data);
         return response.data; // 필요한 데이터만 반환
     } catch (error) {
         console.error("API Error:", error);
@@ -14,7 +14,7 @@ const postJoin = async (data) => {
 
 //아이디 중복확인(Get)
 const checkId = async(id) =>{
-    const res = await http.get('/joinService/joinService',{params:{id}})
+    const res = await http.get('/user/check-id',{params:{id}})
     return res.data
 }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class FurnitureDTO {
 
+	//조회수 없음
 	private String f_code;
 	
 	private String c_id;
@@ -18,14 +19,18 @@ public class FurnitureDTO {
 	private int f_dprice;
 	private Date f_createdDate;
 	
-	private String f_category1;
-	private String f_category2;
-	private String f_category3;
-	private String f_category4;
-	private String f_category5;
+	private String f_catagory1;
+	private String f_catagory2;
+	private String f_catagory3;
+	private String f_catagory4;
+	private String f_catagory5;
 	
 	private int f_discount;
 	private int f_point;
 	private int f_count;
+	
+	//f_code생성에 사용하는 용도
+	private int companyCode;
+	private int catagoryCode;
 
 }

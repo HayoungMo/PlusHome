@@ -18,8 +18,8 @@ public class WalletService {
 		walletMapper.insertData(dto);
 	}
 	
-	public List<WalletDTO> getLists(int start, int end, String searchKey, String SearchValue) throws Exception{
-		return walletMapper.getLists(start, end, searchKey, SearchValue);
+	public List<WalletDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+		return walletMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
 	public WalletDTO getReadData(int num) throws Exception{
