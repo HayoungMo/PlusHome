@@ -18,6 +18,7 @@ import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
 import com.spring.home.dto.InvoiceDTO;
+import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.service.InteriorService;
 
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,11 @@ public class InteriorController {
 	public List<InvoiceDTO> getInvoices(@RequestBody BookingDTO dto) throws Exception {
 	    return interiorService.getInvoices(dto);
 	}
+	
+	@PostMapping("/invoicedetails")
+	public List<InvoiceDetailDTO> getInvoicedetails(@RequestBody InvoiceDTO dto) throws Exception {
+	    return interiorService.getInvoicedetails(dto);
+	}
 
 	@PostMapping("/add/interior")
 	public void insertInteriorData(@RequestBody InteriorDTO dto) throws Exception {
@@ -80,6 +86,11 @@ public class InteriorController {
 	@PostMapping("/add/invoice")
 	public void insertInvoiceData(@RequestBody InvoiceDTO dto) throws Exception {
 	    interiorService.insertInvoiceData(dto);	    
+	}
+	
+	@PostMapping("/add/invoicedetail")
+	public void insertInvoiceData(@RequestBody InvoiceDetailDTO dto) throws Exception {
+	    interiorService.insertInvoiceDetailData(dto);	    
 	}
 	
 	

@@ -22,8 +22,22 @@
 </insert>
 
 <insert id="insertInvoiceData" parameterType="com.spring.home.dto.InvoiceDTO">
-	insert into INVOICE (id, c_id,c_kind,c_name,b_createdDate,invoice_text,invoice_price) values 
-	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_text},#{invoice_price})	
+	insert into INVOICE (id, c_id,c_kind,c_name,b_createdDate,invoice_no) values 
+	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no})	
+</insert>
+
+<insert id="insertInvoiceDetails" parameterType="com.spring.home.dto.InvoiceDTO">
+    INSERT ALL
+    <foreach collection="details" item="item" index="idx">
+        INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,INVOICE_TEXT,INVOICE_PRICE)
+        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{item.invoice_text}, #{item.invoice_price})
+    </foreach>  
+    SELECT * FROM DUAL  
+</insert>
+
+<insert id="insertInvoiceDetailData" parameterType="com.spring.home.dto.InvoiceDetailDTO">
+    INSERT INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,INVOICE_TEXT,INVOICE_PRICE)
+        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_text}, #{invoice_price})
 </insert>
 
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
@@ -56,12 +70,23 @@
 </select>
 
 <select id="getInvoices"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
-	select id,b_createddate,c_id,c_kind,c_name,invoice_text,invoice_price
+	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind
 	from INVOICE where id like '%' || #{id} || '%'
 		and c_id like '%' || #{c_id} || '%'
       and c_kind like '%' || #{c_kind} || '%'
       and c_name like '%' || #{c_name} || '%' 
       and b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+</select>
+
+<select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
+	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,invoice_text,invoice_price
+	from INVOICE_DETAIL where id like '%' || #{id} || '%'
+		and c_id like '%' || #{c_id} || '%'
+      and c_kind like '%' || #{c_kind} || '%'
+      and c_name like '%' || #{c_name} || '%' 
+      and b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+      and invoice_no like '%' || #{invoice_no} || '%'
+      and invoice_kind like '%' || #{invoice_kind} || '%' 
 </select>
 
 

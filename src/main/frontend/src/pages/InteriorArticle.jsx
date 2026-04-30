@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
 
 import InteriorService from "../service/interiorService";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import InteriorBooking from "../components/InteriorBooking";
 
 //테스트용 파일
 function InteriorArticle() {
   const location = useLocation();
-  const company = location.state.data;
+  const company = location.state.company;
   const answers = location.state.answers;
-
+  const navigate = useNavigate();
   const [article, setArticle] = useState([]);
 
   const [example, setExample] = useState([]);
+
+  const handleNext = () => {
+    navigate("/interior/question", {
+      state: { company: company },
+    });   
+  };
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -43,10 +49,6 @@ function InteriorArticle() {
       </div>
 
       <div>
-        <button onClick={async () => {}}>데이터 조회</button>
-      </div>
-
-      <div>
         <h3>예시 조회 결과</h3>
         {example.map((item, idx) => (
           <div key={idx}>
@@ -60,7 +62,11 @@ function InteriorArticle() {
         ))}
       </div>
 
-      <InteriorBooking company={company} answers={answers} />
+      <div>
+        <button onClick={async () => {handleNext()}}>상담 신청</button>
+      </div>
+
+      {answers && <InteriorBooking company={company} answers={answers} />}
     </div>
   );
 }

@@ -38,8 +38,12 @@ public class ImageController {
 	@PostMapping("/insertImage")
 	public FileSaveResult insertImage(@RequestPart("files") List<MultipartFile> files,
 			@RequestPart("dtoList") List<ImageDTO> dtoList) {
+		dtoList.forEach(e -> System.out.println(e));
 		FileSaveResult fileSaveResult = FileUtilMethod.fileSaveToServer(files,dtoList);
-		fileSaveResult.getSavedList().forEach(e -> ImageService.insertImage(e));
+		if (fileSaveResult.isSuccess()) {
+			fileSaveResult.getSavedList().forEach(e -> ImageService.insertImage(e));
+		}
+
 		return fileSaveResult;
 		
 	}
