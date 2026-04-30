@@ -8,7 +8,7 @@ const InteriorList = () => {
 
   const handleNext = (data) => {
     navigate("/interior/article", {
-      state: { data: data },
+      state: { company: data },
     });
   };
 

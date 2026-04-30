@@ -1,14 +1,13 @@
 package com.spring.home.dto;
 
 import java.util.Date;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
 @Data
-public class InvoiceDTO {
+public class InvoiceDetailDTO {
 
     private String c_id;
     private String c_kind;
@@ -21,7 +20,7 @@ public class InvoiceDTO {
     
     private int invoice_no;
     private String invoice_kind;
-    
-    private List<InvoiceDetailDTO> details;
+    private String invoice_text;
+    private int invoice_price;
 
 }
