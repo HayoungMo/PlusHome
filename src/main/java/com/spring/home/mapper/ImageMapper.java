@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.spring.home.dto.FileSaveResult;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
 
@@ -22,5 +23,11 @@ public interface ImageMapper {
 	int updateImageName(List<Map<String, String>> updateList) throws Exception;
 
 	public void deleteImage(String name) throws Exception;
+
+	public int updateImageInfo(List<ImageQueryDTO> dtoList) throws Exception;
+
+	public int updateImageNameOne(Map<String, String> item) throws Exception;
+
+	public int updateImageInfoOne(ImageQueryDTO imageQueryDTO) throws Exception;
 
 }

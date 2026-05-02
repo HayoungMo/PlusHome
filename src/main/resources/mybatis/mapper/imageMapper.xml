@@ -150,4 +150,62 @@
 		= #{name}
 	</delete>
 
+	<update id="updateImageInfo">
+		BEGIN
+		<foreach collection="list" item="img" separator=";">
+			UPDATE IMG
+			SET
+			IMG_CREATEDDATE = SYSDATE
+			<if test="img.tag != null and img.tag != ''">
+				,IMG_TAG = #{img.tag}
+			</if>
+			<if test="img.filter != 'onlyTag'">
+				,DIR_A = #{img.a},
+				DIR_B = #{img.b},
+				DIR_C = #{img.c},
+				DIR_D= #{img.d},
+				DIR_E = #{img.e}
+				<if test="img.idx != -1">
+					,img_idx = #{img.idx}
+				</if>
+			</if>
+			<where>
+				AND IMG_NAME =#{img.name}
+			</where>
+		</foreach>
+		;
+		END;
+	</update>
+
+	<update id="updateImageNameOne" parameterType="map">
+		UPDATE IMG
+		SET
+		IMG_NAME = #{after},
+		IMG_CREATEDDATE = SYSDATE
+		WHERE
+		IMG_NAME = #{before}
+	</update>
+
+	<update id="updateImageInfoOne"
+		parameterType="com.spring.home.dto.ImageQueryDTO">
+		UPDATE IMG
+		SET
+		IMG_CREATEDDATE = SYSDATE
+		<if test="tag != null and tag != ''">
+			, IMG_TAG = #{tag}
+		</if>
+		<if test="filter != 'onlyTag'">
+			, DIR_A = #{a}
+			, DIR_B = #{b}
+			, DIR_C = #{c}
+			, DIR_D = #{d}
+			, DIR_E =
+			#{e}
+			<if test="idx != -1">
+				, IMG_IDX = #{idx}
+			</if>
+		</if>
+		WHERE IMG_NAME = #{name}
+	</update>
+
 </mapper>

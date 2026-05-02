@@ -61,30 +61,41 @@ const getImageData = async (params) => {
 	}
 };
 
-const updateImage = async (params) => {
+const updateImage = async (fileList, updateInfoList = null) => {
 	try {
 		const formData = new FormData();
-		params.forEach((element) => {
-			// const ext = element.file.name.includes(".")
-			// 	? element.file.name.substring(element.file.name.lastIndexOf("."))
-			// 	: "";
+		fileList.forEach((element) => {
+			const oldName = element.name;
+			const oldDotIndex = oldName.lastIndexOf(".");
+			const oldBaseName = oldDotIndex !== -1 ? oldName.substring(0, oldDotIndex) : oldName;
 
-			const newFileName = `${element.name}`;
+			const newOriginalName = element.file.name;
+			const newDotIndex = newOriginalName.lastIndexOf(".");
+			const newExt = newDotIndex !== -1 ? newOriginalName.substring(newDotIndex) : "";
 
-			console.log("newFileName");
-			console.log(newFileName);
+			const newFileName = oldBaseName + newExt;
 
 			const renamedFile = new File([element.file], newFileName, {
 				type: element.file.type,
 				lastModified: element.file.lastModified,
 			});
-
 			formData.append("files", renamedFile);
 		});
 
-		await fileHttp.post("/image/updateImage", formData).then((res) => {
-			console.log(res);
-		});
+		if (updateInfoList && updateInfoList.length > 0) {
+			console.log();
+			formData.append(
+				"updateInfoList",
+				new Blob([JSON.stringify(updateInfoList)], {
+					type: "application/json",
+				}),
+			);
+		}
+
+		const res = await fileHttp.post("/image/updateImage", formData);
+		console.log(res);
+
+		return res.data;
 	} catch (error) {
 		console.error("API Error:", error);
 		throw error;
@@ -93,8 +104,17 @@ const updateImage = async (params) => {
 
 const deleteImage = async (params) => {
 	try {
-		console.log(params)
+		console.log(params);
 		await http.post("/image/deleteImage", params);
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const updateOnlyInfo = async (params) => {
+	try {
+		await http.post("/image/updateImageInfo", params);
 	} catch (error) {
 		console.error("API Error:", error);
 		throw error;
@@ -107,6 +127,7 @@ const ImageService = {
 	getImageData,
 	updateImage,
 	deleteImage,
+	updateOnlyInfo,
 };
 
 export default ImageService;

@@ -98,6 +98,7 @@ public class FileUtilMethod {
 		case "FURNITURE":
 		case "I_EXAMPLE":
 		case "QA":
+		case "Q&A":
 		case "C_PROFILE":
 		case "DEV":
 			return true;

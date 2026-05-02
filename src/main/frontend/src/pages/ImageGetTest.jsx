@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import ImageService from "../service/imageService";
 import GetImgDir, { getImgDirSimple } from "../resources/function/GetImgDir";
+import SwitchMui from "./../components/SwitchMui";
 
 const ImageGetTest = () => {
 	const [image, setImage] = useState(null);
 	const [imageList, setImageList] = useState([]);
 	const [deleteList, setDeleteList] = useState([]);
+
+	const [infoUpdate, setInfoUpdate] = useState(false);
 
 	const [sendList, setSendList] = useState([]);
 
@@ -38,8 +41,11 @@ const ImageGetTest = () => {
 			{
 				img_kind: insertForm.img_kind.value,
 				img_tag: insertForm.img_tag.value,
-				dir_d: insertForm.dir_d.value,
-				// dir_b: insertForm.dir_b.value,
+				dir_a: insertForm.dir_a?.value,
+				dir_b: insertForm.dir_b?.value,
+				dir_c: insertForm.dir_c?.value,
+				dir_d: insertForm.dir_d?.value,
+				dir_e: insertForm.dir_e?.value,
 				img_idx: insertForm.img_idx.value,
 				file: insertForm.file.files[0],
 			},
@@ -51,6 +57,29 @@ const ImageGetTest = () => {
 	};
 
 	const onClickSelect = async () => {
+		if (infoUpdate) {
+			const updateTest = [
+				{
+					filter: "onlyTag",
+					idx: -1,
+					name: "a03537f7-136f-4903-8308-343377afc582.jpg",
+					tag: "UPDATETAG",
+				},
+				{
+					filter: "onlyTag",
+					idx: -1,
+					name: "850ae4b8-17e6-44a1-8961-975914b34123.png",
+					tag: "UPDATETAG",
+				},
+				{
+					filter: "onlyTag",
+					idx: -1,
+					name: "b11faa69-d5fc-46bf-b2e1-2423944d989e.jpg",
+					tag: "UPDATETAG",
+				},
+			];
+			await ImageService.updateOnlyInfo(updateTest);
+		}
 		const insertForm = document.getElementsByName("imageInsertTestForm")[0];
 		const sendObject = {
 			range: "ALL",
@@ -68,18 +97,28 @@ const ImageGetTest = () => {
 			return;
 		}
 		let fileList = [];
-		console.log(updateList);
+		let updateTest = [];
 		for (const element of updateList) {
-			if (element.files.length !== 0)
+			if (element.files.length !== 0) {
 				fileList.push({ file: element.files[0], name: element.name });
+				updateTest.push({
+					filter: "onlyTag",
+					idx: -1,
+					name: element.name,
+					tag: "TESTUPDATE",
+				});
+			}
 		}
+		console.log("updateTest");
+		console.log(updateTest);
 
 		if (fileList.length === 0) {
 			alert("dumb");
 			return;
 		}
+
+		// await ImageService.updateImage(fileList, updateTest);
 		await ImageService.updateImage(fileList);
-		// debugger;
 	};
 
 	const onClickDeleteImage = async () => {
@@ -91,16 +130,29 @@ const ImageGetTest = () => {
 			<h2>IMAGE</h2>
 			<div>
 				<input type="button" value="ONE" onClick={onClickGetImgDlr} />
+				<SwitchMui
+					label="infoUpdate"
+					checked={infoUpdate}
+					onChange={() => {
+						setInfoUpdate(!infoUpdate);
+					}}
+				/>
 				<input type="button" value="SELECT" onClick={onClickSelect} />
 				<form name="imageInsertTestForm">
 					<br />
 					<input type="text" name="img_kind" placeholder="IMG_KIND" />
 					<br />
-					<input type="text" value="PROFILE" name="img_tag" placeholder="IMG_TAG" />
+					<input type="text" name="img_tag" placeholder="IMG_TAG" />
 					<br />
-					<input type="text" value="test3" name="dir_d" placeholder="DIR_D" />
+					<input type="text" name="dir_a" placeholder="DIR_A" />
 					<br />
-					{/* <input type="text" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
+					<input type="text" name="dir_b" placeholder="DIR_B" />
+					<br />
+					<input type="text" name="dir_c" placeholder="DIR_C" />
+					<br />
+					<input type="text" name="dir_d" placeholder="DIR_D" />
+					<br />
+					<input type="text" name="dir_e" placeholder="DIR_E" />
 					<br />
 					<input type="text" name="img_idx" placeholder="IMG_IDX" />
 					<br />
@@ -141,7 +193,7 @@ const ImageGetTest = () => {
 						/>
 						{record.dir_a},{record.dir_b},{record.img_idx},{record.img_kind},
 						{record.img_tag}
-						{/* <input type="file" name={record.img_name} className="updateFile" /> */}
+						<input type="file" name={record.img_name} className="updateFile" />
 						<input
 							type="button"
 							value="delete"
