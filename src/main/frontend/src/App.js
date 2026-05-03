@@ -13,6 +13,10 @@ import JoinUserPage from "./pages/JoinUserPage";
 import LoginPage from "./pages/LoginPage";
 import { Login } from "@mui/icons-material";
 import { useState } from "react";
+import WalletCharge from "./pages/WalletCharge";
+import FurnitureList from "./pages/FurnitureList";
+import FurnitureAddPage from "./pages/FurnitureAddPage";
+import FurnitureArticle from "./pages/FurnitureArticle";
 
 function App() {
 	const navigate = useNavigate();
@@ -39,6 +43,12 @@ function App() {
         setLoginUser={setLoginUser}
         setLoginInfo={setLoginInfo} />}/>
         <Route path="/join" element={<JoinUserPage/>}/>
+        
+        <Route path="/wallet/charge" element={<WalletCharge/>}/>
+        <Route path="/furniture/list" element={<FurnitureList/>}/>
+        <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
+        <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
+        
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
         <Route path="/interior/list" element={<InteriorLists />} />
         <Route path="/interior/article" element={<InteriorArticle />} />
