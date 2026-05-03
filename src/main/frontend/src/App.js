@@ -25,12 +25,12 @@ function App() {
         {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
         <Route path="/" element={<MainHomePage />} />
         
-        <Route path="/myPage" element={<InteriorList />} />
-        <Route path="/ImageGetTest" element={<ImageGetTest />} />
-        <Route path="/interiorlist" element={<InteriorList />} />
-        <Route path="/interiorarticle" element={<InteriorArticle />} />
-        <Route path="/interiorcreated" element={<InteriorCreated />} />
-        <Route path="/interiorquestion" element={<InteriorQuestion />} />
+            <Route path="/myPage" element={<InteriorList />} />
+            <Route path="/ImageGetTest" element={<ImageGetTest />} />
+            <Route path="/interiorlist" element={<InteriorList />} />
+            <Route path="/interiorarticle" element={<InteriorArticle />} />
+            <Route path="/interiorcreated" element={<InteriorCreated />} />
+            <Route path="/interiorquestion" element={<InteriorQuestion />} />
       </Routes>
     </div>
   );
