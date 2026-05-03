@@ -41,11 +41,6 @@
 	from users where id=#{id}
 </select>
 
-<!-- 로그인 -->
-<select id='login' parameterType="com.spring.home.dto.UserDTO" resultType="com.spring.home.dto.UserDTO">
-select id,pw,type,code,name,email,birth,tel,gender,addr from users
-where id = #{id} and pw=#{pw}
-</select>
 
 <select id="findById" parameterType="string" resultType="com.spring.home.dto.UserDTO">
     SELECT *
