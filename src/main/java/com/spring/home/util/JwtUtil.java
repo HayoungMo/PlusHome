@@ -49,11 +49,10 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createJwt(String id, String role,String type,Long expiredMs) {
+    public String createJwt(String id, String type,Long expiredMs) {
 
         return Jwts.builder()
                 .claim("id", id)
-                .claim("role", role)
                 .claim("type", type)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))

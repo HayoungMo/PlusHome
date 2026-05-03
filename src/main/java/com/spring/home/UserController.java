@@ -79,7 +79,6 @@ public class UserController {
 
 	        // id 꺼내기
 	        String id = jwtUtil.getId(token);
-	        String role = jwtUtil.getRole(token);
 	        String type = jwtUtil.getType(token);
 
 	        // 사용자 조회
