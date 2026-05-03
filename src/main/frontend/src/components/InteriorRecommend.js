@@ -26,9 +26,9 @@ const InteriorRecommend = ({answers}) => {
     }
   }, [answers]);
 
-  const handleNext = (data ,answers) => {
+  const handleNext = (company, answers) => {
     navigate("/interior/article", {
-      state: { data: data, answers:answers },
+      state: { company: company, answers: answers },
     });
   };
 

@@ -5,11 +5,13 @@ import LoginService from '../service/loginService';
 
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
+    console.log("props:",loginUser,setLoginUser)
+
     const navigate = useNavigate();
 
     const [form, setForm] = useState({
-        userId: '',
-        password: ''
+        id: '',
+        pw: ''
     });
 
     const [errorMsg, setErrorMsg] = useState('');
@@ -26,7 +28,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
         // 한글 체크
         if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)) {
-            if (name === 'userId') {
+            if (name === 'id') {
                 setIdFormatMsg('아이디에 한글은 입력할 수 없습니다.');
             } else {
                 setErrorMsg('비밀번호는 영문으로 입력하세요.');
@@ -35,7 +37,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
         }
 
         // 아이디 특수문자 제한
-        if (name === 'userId' && /[^a-zA-Z0-9_]/.test(value)) {
+        if (name === 'id' && /[^a-zA-Z0-9_]/.test(value)) {
             setIdFormatMsg('영문, 숫자, _(언더스코어)만 가능합니다.');
             return;
         }
@@ -49,20 +51,22 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
     // 로그인
     const onLogin = async () => {
-        if (!form.userId || !form.password) {
+        if (!form.id || !form.pw) {
             setErrorMsg('아이디와 비밀번호를 입력하세요.');
             return;
         }
 
         try {
-            const response = await LoginService.postLogin(form.id, form.password);
+            const response = await LoginService.postLogin(form.id, form.pw);
 
-            if (response.data.success) {
-                localStorage.setItem('id', response.data.id);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
+            console.log("로그인 응답:", response)
 
-                setLoginUser(response.data.id);
-                setLoginInfo(response.data.user);
+            if (response.success) {
+                localStorage.setItem('id', response.user.id);
+                localStorage.setItem('user', JSON.stringify(response.user));
+
+                setLoginUser(response.user.id);
+                setLoginInfo(response.user);
 
                 navigate('/');
             } else {
@@ -70,9 +74,21 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
             }
 
         } catch (error) {
+            console.log("에러:",error)
             setErrorMsg('서버 오류가 발생했습니다.');
         }
     };
+
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setLoginUser(null);
+        setLoginInfo(null);
+
+        navigate("/login")
+        
+    }
 
     return (
         <div>
@@ -87,8 +103,8 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
             <label>아이디</label>
             <input
                 type="text"
-                name="userId"
-                value={form.userId}
+                name="id"
+                value={form.id}
                 onChange={onText}
                 placeholder="아이디 입력"
             />
@@ -97,27 +113,36 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
             <label>비밀번호</label>
             <input
                 type="password"
-                name="password"
-                value={form.password}
+                name="pw"
+                value={form.pw}
                 onChange={onText}
                 placeholder="비밀번호 입력"
             />
 
             {errorMsg && <div style={{ color: 'red' }}>{errorMsg}</div>}
 
-            <button type='submit' onClick={onLogin} disabled={!form.userId || !form.password}>
+            <button type='submit' disabled={!form.id || !form.pw}>
                 로그인
             </button>
         </form>
             <p>
                 계정이 없으신가요?
-                <a href="#!"
-                   onClick={(e) => {
-                       e.preventDefault();
-                       setErrorMsg(''); setStep(1); 
+                <a href="/join"
+                   onClick={() => {                     
+                       setErrorMsg(''); 
+                       navigate('/join')
                    }}>
                     회원가입
                 </a>
+                <br/>
+
+                <a href='/findId'>
+                    아이디 찾기
+                </a>
+                <a href='/findPw'>
+                    비밀번호 찾기
+                </a>              
+
             </p>
         </div>
     );

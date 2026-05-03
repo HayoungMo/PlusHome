@@ -57,41 +57,47 @@
 		resultType="com.spring.home.dto.ImageDTO">
 		SELECT * FROM IMG
 		<where>
-			<choose>
-				<when test='kind == "I_REVIEW"'>
-					AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c}
-					AND DIR_D = #{d}
-					AND DIR_E = #{e}
-				</when>
-				<when
-					test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" '>
-					AND DIR_A = #{a} AND DIR_D = #{d}
-				</when>
-				<when test='kind == "U_PROFILE"'>
-					AND DIR_D = #{d}
-				</when>
-				<when
-					test='kind == "LOGO" or kind == "I_EX" or kind == "C_PROFILE"'>
-					AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c} AND DIR_D =
-					#{d}
-				</when>
-				<when test='kind == "FUNITURE"'>
-					AND DIR_A = #{a}
-				</when>
-				<when test='kind == "DEV"'>
-					AND DIR_A = #{a} AND DIR_B = #{b}
-				</when>
-				<when test='kind == "BOARD"'>
-					AND DIR_A = #{a} AND DIR_D = #{d}
-				</when>
-			</choose>
-			<if test="idx != -1">
-				AND img_idx = #{idx}
+			<if test='range != "ALL"'>
+				<choose>
+					<when test='kind == "I_REVIEW"'>
+						AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c}
+						AND DIR_D = #{d}
+						AND DIR_E = #{e}
+					</when>
+					<when
+						test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" '>
+						AND DIR_A = #{a} AND DIR_D = #{d}
+					</when>
+					<when test='kind == "U_PROFILE"'>
+						AND DIR_D = #{d}
+					</when>
+					<when
+						test='kind == "LOGO" or kind == "I_EX" or kind == "C_PROFILE"'>
+						AND DIR_A = #{a} AND DIR_B = #{b} AND DIR_C = #{c} AND DIR_D
+						=
+						#{d}
+					</when>
+					<when test='kind == "FUNITURE"'>
+						AND DIR_A = #{a}
+					</when>
+					<when test='kind == "DEV"'>
+						AND DIR_A = #{a} AND DIR_B = #{b}
+					</when>
+					<when test='kind == "BOARD"'>
+						AND DIR_A = #{a} AND DIR_D = #{d}
+					</when>
+				</choose>
+				<if test="idx != -1">
+					AND img_idx = #{idx}
+				</if>
+				<if test="tag != null and tag != ''">
+					AND TAG LIKE '%' || #{tag} || '%'
+				</if>
+				AND img_kind = #{kind}
 			</if>
-			<if test="tag != null and tag != ''">
-				AND TAG LIKE '%' || #{tag} || '%'
+			<if test='range == "ALL"'>
+				AND img_kind = #{kind}
 			</if>
-			AND img_kind = #{kind}
 		</where>
 	</select>
 
@@ -102,16 +108,104 @@
 		IMG_NAME)
 		VALUES
 		(
-        #{img_kind, jdbcType=VARCHAR},
-        #{img_tag, jdbcType=VARCHAR},
-        #{img_idx, jdbcType=INTEGER},
-        #{dir_a, jdbcType=VARCHAR},
-        #{dir_b, jdbcType=VARCHAR},
-        #{dir_c, jdbcType=VARCHAR},
-        #{dir_d, jdbcType=VARCHAR},
-        #{dir_e, jdbcType=VARCHAR},
-        #{img_name, jdbcType=VARCHAR}
-    )
+		#{img_kind, jdbcType=VARCHAR},
+		#{img_tag, jdbcType=VARCHAR},
+		#{img_idx, jdbcType=INTEGER},
+		#{dir_a, jdbcType=VARCHAR},
+		#{dir_b,
+		jdbcType=VARCHAR},
+		#{dir_c, jdbcType=VARCHAR},
+		#{dir_d,
+		jdbcType=VARCHAR},
+		#{dir_e, jdbcType=VARCHAR},
+		#{img_name,
+		jdbcType=VARCHAR}
+		)
 	</insert>
+
+	<select id="getImgByFileName" parameterType="string"
+		resultType="com.spring.home.dto.ImageDTO">
+		SELECT * FROM IMG
+		WHERE REGEXP_REPLACE(IMG_NAME,
+		'\.[^.]+$','') = #{name}
+	</select>
+
+	<update id="updateImageName">
+		BEGIN
+		<foreach collection="list" item="img" separator=";">
+			UPDATE IMG
+			SET
+			IMG_NAME = #{img.after},
+			IMG_CREATEDDATE = SYSDATE
+			WHERE
+			IMG_NAME =
+			#{img.before}
+		</foreach>
+		;
+		END;
+	</update>
+
+	<delete id="deleteImage" parameterType="string">
+		DELETE IMG WHERE IMG_NAME
+		= #{name}
+	</delete>
+
+	<update id="updateImageInfo">
+		BEGIN
+		<foreach collection="list" item="img" separator=";">
+			UPDATE IMG
+			SET
+			IMG_CREATEDDATE = SYSDATE
+			<if test="img.tag != null and img.tag != ''">
+				,IMG_TAG = #{img.tag}
+			</if>
+			<if test="img.filter != 'onlyTag'">
+				,DIR_A = #{img.a},
+				DIR_B = #{img.b},
+				DIR_C = #{img.c},
+				DIR_D= #{img.d},
+				DIR_E = #{img.e}
+				<if test="img.idx != -1">
+					,img_idx = #{img.idx}
+				</if>
+			</if>
+			<where>
+				AND IMG_NAME =#{img.name}
+			</where>
+		</foreach>
+		;
+		END;
+	</update>
+
+	<update id="updateImageNameOne" parameterType="map">
+		UPDATE IMG
+		SET
+		IMG_NAME = #{after},
+		IMG_CREATEDDATE = SYSDATE
+		WHERE
+		IMG_NAME = #{before}
+	</update>
+
+	<update id="updateImageInfoOne"
+		parameterType="com.spring.home.dto.ImageQueryDTO">
+		UPDATE IMG
+		SET
+		IMG_CREATEDDATE = SYSDATE
+		<if test="tag != null and tag != ''">
+			, IMG_TAG = #{tag}
+		</if>
+		<if test="filter != 'onlyTag'">
+			, DIR_A = #{a}
+			, DIR_B = #{b}
+			, DIR_C = #{c}
+			, DIR_D = #{d}
+			, DIR_E =
+			#{e}
+			<if test="idx != -1">
+				, IMG_IDX = #{idx}
+			</if>
+		</if>
+		WHERE IMG_NAME = #{name}
+	</update>
 
 </mapper>

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ImageQueryDTO {
-	
+
 	private String kind;
 	private String range;
 	private String filter;
@@ -15,5 +15,6 @@ public class ImageQueryDTO {
 	private String e;
 	private int idx;
 	private String tag;
+	private String name;
 
 }

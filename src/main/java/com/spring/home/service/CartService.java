@@ -22,15 +22,15 @@ public class CartService {
 		return cartMapper.getLists(start, end, searchKey, searchValue);
 	}
 	
-	public CartDTO getReadData(int num) throws Exception{
-		return cartMapper.getReadData(num);
+	public CartDTO getReadData(String id) throws Exception{
+		return cartMapper.getReadData(id);
 	}
 	
 	public void updateData(CartDTO dto) throws Exception{
 		cartMapper.updateData(dto);
 	}
 	
-	public void deleteData(int num) throws Exception{
-		cartMapper.deleteData(num);
+	public void deleteData(String id) throws Exception{
+		cartMapper.deleteData(id);
 	}
 }

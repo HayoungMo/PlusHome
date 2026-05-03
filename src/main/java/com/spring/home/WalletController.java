@@ -2,19 +2,16 @@ package com.spring.home;
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.home.dto.WalletDTO;
 import com.spring.home.service.WalletService;
-
-import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/wallet")
 @RestController
@@ -35,10 +32,19 @@ public class WalletController {
 		return walletService.getLists(start, end, searchKey, searchValue);
 	}
 			
-			
+	@GetMapping("/mywallet")
+	public WalletDTO getReadData(@RequestParam String id) throws Exception{
+		return walletService.getReadData(id);
+	}
 	
-//	@GetMapping("/charge")
-//	public insertData
+	@PostMapping("/charge")
+	public void updateData(@RequestBody WalletDTO dto) throws Exception{
+		walletService.updateData(dto);
+	}
 	
+	@GetMapping("/delete")
+	public void deleteData(String id) throws Exception{
+		walletService.deleteData(id);
+	}
 	
 }

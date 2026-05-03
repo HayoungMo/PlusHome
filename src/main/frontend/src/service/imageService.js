@@ -49,9 +49,85 @@ const insertImage = async (dataList) => {
 	}
 };
 
+const getImageData = async (params) => {
+	try {
+		console.log(params);
+		let result;
+		await http.post("/image/getList", params).then((res) => (result = res.data));
+		return result;
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const updateImage = async (fileList, updateInfoList = null) => {
+	try {
+		const formData = new FormData();
+		fileList.forEach((element) => {
+			const oldName = element.name;
+			const oldDotIndex = oldName.lastIndexOf(".");
+			const oldBaseName = oldDotIndex !== -1 ? oldName.substring(0, oldDotIndex) : oldName;
+
+			const newOriginalName = element.file.name;
+			const newDotIndex = newOriginalName.lastIndexOf(".");
+			const newExt = newDotIndex !== -1 ? newOriginalName.substring(newDotIndex) : "";
+
+			const newFileName = oldBaseName + newExt;
+
+			const renamedFile = new File([element.file], newFileName, {
+				type: element.file.type,
+				lastModified: element.file.lastModified,
+			});
+			formData.append("files", renamedFile);
+		});
+
+		if (updateInfoList && updateInfoList.length > 0) {
+			console.log();
+			formData.append(
+				"updateInfoList",
+				new Blob([JSON.stringify(updateInfoList)], {
+					type: "application/json",
+				}),
+			);
+		}
+
+		const res = await fileHttp.post("/image/updateImage", formData);
+		console.log(res);
+
+		return res.data;
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const deleteImage = async (params) => {
+	try {
+		console.log(params);
+		await http.post("/image/deleteImage", params);
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const updateOnlyInfo = async (params) => {
+	try {
+		await http.post("/image/updateImageInfo", params);
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
 const ImageService = {
 	runGetImage,
 	insertImage,
+	getImageData,
+	updateImage,
+	deleteImage,
+	updateOnlyInfo,
 };
 
 export default ImageService;
