@@ -29,73 +29,38 @@ const FurnitureAddPage = () => {
 
     const changeInput = (evt) =>{
         const {name,value} = evt.target
-        
+
         let updatedData= {
             ...data,
             [name]:value
         }
 
         if (name === "f_price" || name === "f_discount"){
-        const price = name === "f_price" ? value : data.f_price
-        const discount = name === "f_discount" ? value : data.f_discount
+            const price = name === "f_price" ? value : data.f_price
+            const discount = name === "f_discount" ? value : data.f_discount
+            
+            if(price && discount){
+                const p = Number(price)
+                const d = Number(discount)
 
-        if(price && discount){
-            const p = Number(price)
-            const d = Number(discount)
-
-            if(!isNaN(p) && !isNaN(d)){
-                updatedData.f_dprice = Math.floor(p-(p*d/100))
+                if(!isNaN(p) && !isNaN(d)){
+                    updatedData.f_dprice = Math.floor(p-(p*d/100))
+                }
             }
         }
-
         setData(updatedData)
-    }
     } 
     
     
     const onSubmit = async () =>{
         try {
-            const formData = new FormData()
-            
-            formData.append("c_id",data.c_id)
-            formData.append("c_kind",data.c_kind)
-            formData.append("c_name",data.c_name)
-
-            formData.append("f_name",data.f_name)
-            formData.append("f_price",data.f_price)
-            formData.append("f_dprice",data.f_dprice)
-
-            formData.append("f_catagory1",data.f_catagory1)
-            formData.append("f_catagory2",data.f_catagory2)
-            formData.append("f_catagory3",data.f_catagory3)
-            formData.append("f_catagory4",data.f_catagory4)
-            formData.append("f_catagory5",data.f_catagory5)
-
-            formData.append("f_discount",data.f_discount)
-            formData.append("f_point",data.f_point)
-            formData.append("f_count",data.f_count)
-
-            if(thumbnail){
-                formData.append("thumbnail", thumbnail)
+            const sendData = {
+                dto:data,
+                thumbnail,
+                infoFiles,
+                detailFiles
             }
-
-            infoFiles.forEach(file=>{
-                formData.append("infoFiles",file)
-            })
-
-            detailFiles.forEach(file=>
-                formData.append("detailFiles", file)
-            )
-
-            console.log()
-            const res = await FurnitureService.insertFurniture(formData)
-
-            const f_code = res.data
-
-            console.log(f_code)
-
-           alert("등록 완료")
-
+            const res = await FurnitureService.insertFurniture(sendData);
         } catch (error) {
             console.error("에러:"+error)
         }

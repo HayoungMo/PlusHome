@@ -24,6 +24,4 @@ public class InvoiceDetailDTO {
     private String invoice_text;
     private int invoice_qty;
     private int invoice_price;
-    
-    private int invoice_qty;
 }

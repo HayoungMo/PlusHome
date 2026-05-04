@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.FurnitureDTO;
+import com.spring.home.dto.ImageDTO;
 import com.spring.home.service.FurnitureService;
 import com.spring.home.service.ImageService;
 import com.spring.home.service.UserService;
@@ -52,15 +53,20 @@ public class FurnitureController {
 		return furnitureService.getReadData(f_code);
 	}
 
-	@PostMapping(value= "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public String insertData(
-			@RequestPart("dto") FurnitureDTO dto, 
-			@RequestPart("thumbnail") MultipartFile thumbnail,
+	@PostMapping("/add")
+	public String insertData(@RequestPart("thumbnail") MultipartFile thumbnail,
 			@RequestPart(value = "infoFiles", required = false) List<MultipartFile> infoFiles,
-			@RequestPart(value = "detailFiles", required = false) List<MultipartFile> detailFiles) throws Exception {
+			@RequestPart(value = "detailFiles", required = false) List<MultipartFile> detailFiles, 
+			@RequestPart("dto") FurnitureDTO dto) throws Exception {
 		
-		return furnitureService.insertData(dto, thumbnail, infoFiles, detailFiles);
-	
+		System.out.println(thumbnail);
+		System.out.println(infoFiles);
+		System.out.println(detailFiles);
+		System.out.println(dto);
+		return "SUCCESS";
+
+//		return furnitureService.insertData(dto, thumbnail, infoFiles, detailFiles);
+
 	}
 
 	@PostMapping("/update")
