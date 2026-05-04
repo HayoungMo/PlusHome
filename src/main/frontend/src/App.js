@@ -21,6 +21,7 @@ import WalletCharge from "./pages/WalletCharge";
 import FurnitureList from "./pages/FurnitureList";
 import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
+import Chatbotpage from "./pages/Chatbotpage";
 
 function App() {
 	const navigate = useNavigate();
@@ -55,6 +56,7 @@ function App() {
         <Route path="/interior/question" element={<InteriorQuestion />} />
 		<Route path="/exportPDF" element={<ExportPDF />} />
 		<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
+    <Route path="/chatbot" element={<Chatbotpage />} />
       </Routes>
     </div>
   );
