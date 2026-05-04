@@ -17,8 +17,11 @@ const JoinUserPage = () => {
     const [step,setStep] = useState(3);
     const navigate = useNavigate();
     const [form,setForm]=useState({
-        id:'', pw:'',type:'', code:'', name:'',
-        email:'', birth:'', tel:'',gender:'', addr:'',c_addr:'',c_name:''
+        id:'', pw:'',type:'user', code:'', name:'',
+        email:'', birth:'', tel:'',gender:'', addr:'',
+        
+        //company
+        c_addr:'',c_name:'',c_kind:''
         
     });
 
@@ -154,6 +157,9 @@ const JoinUserPage = () => {
     };
 
     const onCheckId = async () => {
+        console.log("id 값:",form.id)
+
+        
         if (!form.id.trim()) { 
             setErrorMsg('아이디를 입력하세요'); 
             return; 
@@ -176,7 +182,10 @@ const JoinUserPage = () => {
     };
 
     const onNext = async () => {
+        console.log("클릭이 되긴 하나?")
        const error = validateAll();
+       
+       console.log("검증결과:",error)
 
        if(error) {
         setErrorMsg(error);
@@ -190,20 +199,40 @@ const JoinUserPage = () => {
             ? email.id + email.domain
             : '',
             tel:tel.head + tel.mid + tel.tail,
-            birth: `${birth.year}-${birth.month}-${birth.day}`
+            birth: `${birth.year}-${birth.month}-${birth.day}`,
+
+            companyDto:form.type==='company' ? {
+                c_name: form.c_name,
+                c_addr: form.c_addr,
+                c_kind: form.c_kind,
+                c_boss:form.name
+            }: null
+
+
         }
 
+       
         console.log("데이터가 가는중임:",finalForm)
+         
         
         try {
-            const res = await JoinService.postJoin(finalForm);
-            console.log("서버 응답?:",res)
-            alert("회원가입 성공");
-            navigate("/login")
+            let res;           
+
+            if(finalForm.type==="company") {
+                res = await JoinService.postJoin(finalForm);
+            }else{
+                res = await JoinService.postJoin(finalForm);
+            }
+
+            console.log("서버 응답:",res)
+            alert("회원가입에 성공하였습니다.")
+            navigate("/login")            
         } catch (error) {
             console.log(error)
-            alert("회원가입 실패")
-        }
+            alert("가입에 실패하였습니다.")
+
+            }
+            
 
         
     };
@@ -257,6 +286,10 @@ const JoinUserPage = () => {
                     className=''/>
             </div>
 
+            {form.type==='company' &&(
+            <>
+            
+
             <label>업체명</label>
             <div className=''>
                 <input type='text' name='c_name' value={form.c_name} onChange={onText}/>
@@ -270,15 +303,17 @@ const JoinUserPage = () => {
             <div>
                
                     <li>
-                        <input type='radio'  name='c_kind' value='interior'/>
+                        <input type='radio'  name='c_kind' value='interior' onChange={onText}/>
                         <label>인테리어</label>
                     </li>
                     <li>
-                        <input type='radio'  name='c_kind' value='shop'/>
+                        <input type='radio'  name='c_kind' value='shop' onChange={onText}/>
                         <label>가구</label>
                     </li>        
                 
             </div>
+            </>
+            )}
 
             <div>
                 

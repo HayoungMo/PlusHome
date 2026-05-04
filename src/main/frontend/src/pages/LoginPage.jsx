@@ -60,15 +60,26 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
             const response = await LoginService.postLogin(form.id, form.pw);
 
             console.log("로그인 응답:", response)
+            console.log("토큰:",response.token)
 
             if (response.success) {
+                const user = response.user;
+
                 localStorage.setItem('id', response.user.id);
-                localStorage.setItem('user', JSON.stringify(response.user));
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('token',response.token)
 
-                setLoginUser(response.user.id);
-                setLoginInfo(response.user);
+                console.log("저장된 토큰:",localStorage.getItem("token"))
 
-                navigate('/');
+                setLoginUser(user.id);
+                setLoginInfo(user);
+
+                if(user.type==='company'){
+                    navigate('/interior/list')
+                }else{
+                    navigate('/')
+                }
+                
             } else {
                 setErrorMsg('아이디 또는 비밀번호가 틀렸습니다.');
             }
@@ -79,6 +90,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
         }
     };
 
+    //로그아웃
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");

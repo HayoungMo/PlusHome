@@ -6,19 +6,21 @@
 
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.CompanyDTO">
-	insert into company (c_id,c_name,c_kind,c_tel,c_addr,c_info,c_boss)
-	values (c_id=#{c_id}, c_name=#{c_name}, c_kind=#{c_kind}, c_tel=#{c_tel}, c_add=#{c_add}, c_info=#{c_info}, c_boss=#{c_boss})
+	insert into company 
+	(c_id,c_name,c_kind,c_tel,c_addr,c_info,c_boss)
+	values (#{c_id}, #{c_name}, #{c_kind}, #{c_tel}, #{c_addr}, #{c_info}, #{c_boss})
 </insert>
 
 <!-- 수정 -->
 <update id="updateData" parameterType="com.spring.home.dto.CompanyDTO">
-	update company set c_tel=#{c_tel}, c_add=#{c_add}, c_info=#{c_info}, c_boss=#{c_boss}
+	update company 
+	set c_tel=#{c_tel}, c_addr=#{c_addr}, c_info=#{c_info}, c_boss=#{c_boss}
 	where c_id=#{c_id}
 </update>
 
 <!-- 삭제 -->
 <delete id="deleteData" parameterType="String">
-	delete company where c_id=#{c_id}
+	delete from company where c_id=#{c_id}
 </delete>
 
 <!-- 전체 select -->

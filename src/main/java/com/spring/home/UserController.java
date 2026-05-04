@@ -32,15 +32,18 @@ public class UserController {
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
 	
-	//회원가입
+	//일반 유저 회원가입
 	@PostMapping("/join")
-	public String join(@RequestBody UserDTO dto) throws Exception {
+	public String joinUser(@RequestBody UserDTO dto) throws Exception {
 		
-		System.out.println("DTO:" + dto);
+		System.out.println("DTO:" + dto);		
 		
-		 userService.insertData(dto);
+		 userService.insertUser(dto);
+		 
 		 return "ok";
 	}
+	
+	
 	
 	//아이디 중복검사
 	@GetMapping("/check-id")

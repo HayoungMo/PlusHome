@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.UserDTO;
 
 import groovy.transform.Undefined.EXCEPTION;
@@ -30,5 +31,7 @@ public interface UserMapper {
 	public UserDTO findUserpw(UserDTO dto) throws Exception;
 	
 	public void updatePw(String id, String pw) throws Exception;
+	
+	public void insertCompany(CompanyDTO dto) throws Exception;
 	
 }
