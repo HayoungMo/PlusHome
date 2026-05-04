@@ -10,6 +10,10 @@ const GetImgDir = async (props = {}) => {
 	}
 	const { kind, view = false, returnType, a, b, c, d, e, idx = -1, tag, orgList = null } = props;
 
+	console.log("받은데이터 : ");
+	console.log(props);
+	
+
 	const requiredFields = ["kind", "returnType"];
 	for (const field of requiredFields) {
 		if (!props[field]) {
