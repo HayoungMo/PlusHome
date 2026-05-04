@@ -204,6 +204,26 @@ const AddInvoiceDetail = async (data) => {
   }
 };
 
+const AddInteriorReview = async (data) => {
+  console.log("인테리어 리뷰 들어온 데이터", data);
+  try {
+    const res = await http.post("/interior/add/review", {
+      id: "comp01",
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      b_createdDate: data.b_createdDate,
+      invoice_no: data.invoice_no,
+      invoice_kind: data.invoice_kind,
+      ir_content: data.ir_content,
+    });
+
+    console.log("결과: 좋음");
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const InteriorService = {
   fetchExample,
   fetchArticle,
@@ -217,6 +237,7 @@ const InteriorService = {
   AddBooking,
   AddInvoice,
   AddInvoiceDetail,
+  AddInteriorReview,
 };
 
 export default InteriorService;
