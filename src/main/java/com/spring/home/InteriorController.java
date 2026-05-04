@@ -93,5 +93,10 @@ public class InteriorController {
 	    interiorService.insertInvoiceDetailData(dto);	    
 	}
 	
+	@PostMapping("/getCompany")
+	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
+		return interiorService.getCompany(dto);
+	}
+	
 	
 }

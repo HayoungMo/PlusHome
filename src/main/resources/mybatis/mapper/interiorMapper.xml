@@ -89,5 +89,12 @@
       and invoice_kind like '%' || #{invoice_kind} || '%' 
 </select>
 
+<select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
+	select * from company where 
+	C_ID = #{c_id} and
+	C_NAME = #{c_name} and
+	C_KIND = #{c_kind}
+</select>
+
 
 </mapper>
