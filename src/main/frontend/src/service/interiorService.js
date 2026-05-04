@@ -98,6 +98,7 @@ const fetchInvoiceDetails = async (data) => {
       c_name: data.c_name,
       b_createdDate: data.b_createdDate,
       invoice_no: data.invoice_no,
+      invoice_qty: data.invoice_qty,
       invoice_kind: data.invoice_kind,
     });
 
@@ -111,9 +112,9 @@ const fetchInvoiceDetails = async (data) => {
 const AddInterior = async (data) => {
   try {
     const res = await http.post("/interior/add/interior", {
-      c_id: "111",
-      c_kind: "interior",
-      c_name: "111",
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
       i_tag : data.tag,
       i_text : data.text
     });
@@ -127,12 +128,12 @@ const AddInterior = async (data) => {
 const AddInteriorExample = async (data) => {
   try {
     const res = await http.post("/interior/add/example", {
-      c_id: "111",
-      c_kind: "interior",
-      c_name: "111",
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
       ie_tag: data.tag,
       ie_tag2: data.tag2,
-      ie_content: data.content
+      ie_content: data.content,
     });
 
     console.log("결과:");
@@ -173,7 +174,8 @@ const AddInvoice = async (data) => {
       c_name: data.c_name,
       b_createdDate: data.b_createdDate,
       invoice_no: data.invoice_no,
-      details : data.details
+      invoice_kind: data.invoice_kind,
+      details: data.details,
     });
 
     console.log("결과: 좋음");
@@ -192,7 +194,28 @@ const AddInvoiceDetail = async (data) => {
       c_name: data.c_name,
       b_createdDate: data.b_createdDate,
       invoice_text: data.invoice_text,
+      invoice_qty: data.invoice_qty,
       invoice_price: data.invoice_price
+    });
+
+    console.log("결과: 좋음");
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const AddInteriorReview = async (data) => {
+  console.log("인테리어 리뷰 들어온 데이터", data);
+  try {
+    const res = await http.post("/interior/add/review", {
+      id: "comp01",
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      b_createdDate: data.b_createdDate,
+      invoice_no: data.invoice_no,
+      invoice_kind: data.invoice_kind,
+      ir_content: data.ir_content,
     });
 
     console.log("결과: 좋음");
@@ -214,6 +237,7 @@ const InteriorService = {
   AddBooking,
   AddInvoice,
   AddInvoiceDetail,
+  AddInteriorReview,
 };
 
 export default InteriorService;

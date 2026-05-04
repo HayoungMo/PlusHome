@@ -4,11 +4,11 @@ const IMAGE_RULES = {
 	F_REVIEW: { required: ["a", "d"], desc: "F_ID, ID 필수" },
 	QUESTION: { required: ["a", "d"], desc: "F_ID, ID 필수" },
 	BOARD: { required: ["a", "d"], desc: "USER ID 필수" },
-	LOGO: { required: ["a,b,c,d"], desc: "Com ID, Tag, Name 등 필수" },
+	LOGO: { required: ["a","b","c","d"], desc: "Com ID, Tag, Name 등 필수" },
 	FURNITURE: { required: ["a"], desc: "F_ID 필수" },
-	I_EXAMPLE: { required: ["a,b,c,d"], desc: "F_ID, ID 필수" },
+	I_EXAMPLE: { required: ["a","b","c","d"], desc: "F_ID, ID 필수" },
 	QA: { required: ["a", "d"], desc: "F_ID, ID 필수" },
-	C_PROFILE: { required: ["a,b,c,d"], desc: "Com ID, Tag, Name 등 필수" },
+	C_PROFILE: { required: ["a","b","c","d"], desc: "Com ID, Tag, Name 등 필수" },
 	DEV: { required: ["a", "b"], desc: "Dev_ID, Event Name 필수" },
 };
 

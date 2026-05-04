@@ -1,53 +1,47 @@
 import React, { useState } from "react";
-import SelectMui from "../components/SelectMui";
-import { Button } from "@mui/material";
+import { Button, LinearProgress } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
+
 const InteriorQuestion = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const company = location.state.company;
+  const company = location.state?.company || null;
+
+  const [step, setStep] = useState(0);
+
   const [data, setData] = useState({
-    housingType: "", // q1 - 주택 유형
-    areaSize: "", // q2 - 평수
-    houseCondition: "", // q3 - 집 상태
-    purpose: "", // q4 - 인테리어 목적
-    spaces: [], // q5 - 공사 범위 (복수)
-    budget: "", // q6 - 예산
-    schedule: "", // q7 - 시작 일정
+    housingType: "",
+    areaSize: "",
+    houseCondition: "",
+    purpose: "",
+    spaces: [],
+    budget: "",
+    schedule: "",
   });
 
   const questionOptions = {
-    // q1: 주택 종류
     q1: [
       { value: "apt", title: "아파트" },
       { value: "villa", title: "빌라" },
       { value: "house", title: "단독주택" },
       { value: "officetel", title: "오피스텔" },
     ],
-
-    // q2: 평수
     q2: [
       { value: "10_20", title: "10~20평" },
       { value: "30", title: "30평대" },
       { value: "40", title: "40평대" },
       { value: "50", title: "50평 이상" },
     ],
-
-    // q3: 집 상태
     q3: [
       { value: "new_empty", title: "신축 (공실)" },
       { value: "living", title: "거주 중" },
       { value: "temporary_empty", title: "시공 기간만 공실" },
     ],
-
-    // q4: 인테리어 이유
     q4: [
       { value: "purchase", title: "집 구매 후" },
       { value: "existing", title: "기존 집 리모델링" },
       { value: "new_house", title: "새 집 입주" },
     ],
-
-    // q5: 필요한 공간 (👉 복수 선택 고려 추천)
     q5: [
       { value: "kitchen", title: "키친" },
       { value: "bath", title: "바스" },
@@ -59,8 +53,6 @@ const InteriorQuestion = () => {
       { value: "tile", title: "타일" },
       { value: "floor", title: "마루" },
     ],
-
-    // q6: 예산
     q6: [
       { value: "1000", title: "1000만원 이하" },
       { value: "2000", title: "1000~2000만원" },
@@ -68,8 +60,6 @@ const InteriorQuestion = () => {
       { value: "5000", title: "3000~5000만원" },
       { value: "10000", title: "5000만원 이상" },
     ],
-
-    // q7: 시작일
     q7: [
       { value: "1m", title: "1개월 이내" },
       { value: "3m", title: "3개월 이내" },
@@ -78,127 +68,168 @@ const InteriorQuestion = () => {
     ],
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData({
-      ...data,
-      [name]: value,
-    });
+  const questions = [
+    {
+      key: "housingType",
+      title: "주택 종류를 선택해주세요",
+      options: questionOptions.q1,
+    },
+    {
+      key: "areaSize",
+      title: "평수를 선택해주세요",
+      options: questionOptions.q2,
+    },
+    {
+      key: "houseCondition",
+      title: "집 상태를 선택해주세요",
+      options: questionOptions.q3,
+    },
+    {
+      key: "purpose",
+      title: "인테리어 이유를 선택해주세요",
+      options: questionOptions.q4,
+    },
+    {
+      key: "spaces",
+      title: "필요한 공간을 선택해주세요",
+      options: questionOptions.q5,
+      multi: true,
+    },
+    {
+      key: "budget",
+      title: "예산을 선택해주세요",
+      options: questionOptions.q6,
+    },
+    {
+      key: "schedule",
+      title: "희망 시작일을 선택해주세요",
+      options: questionOptions.q7,
+    },
+  ];
+
+  const isConfirmStep = step === questions.length;
+  const progress = (step / questions.length) * 100;
+
+  const handleSelect = (value) => {
+    const current = questions[step];
+
+    setData((prev) => ({
+      ...prev,
+      [current.key]: value,
+    }));
+
+    setStep((prev) => prev + 1);
   };
 
+  const handleCheckChange = (e) => {
+    const { value, checked } = e.target;
 
-const handleCheckChange = (e) => {
-  const { value, checked } = e.target;
+    setData((prev) => ({
+      ...prev,
+      spaces: checked
+        ? [...prev.spaces, value]
+        : prev.spaces.filter((item) => item !== value),
+    }));
+  };
 
-  setData((prev) => ({
-    ...prev,
-    spaces: checked
-      ? [...prev.spaces, value]
-      : prev.spaces.filter((item) => item !== value),
-  }));
-};
+  const handleBack = () => {
+    if (step > 0) {
+      setStep((prev) => prev - 1);
+    }
+  };
 
-  const handleNext = () => {
-    if (company==null){
-    navigate("/interior/list", {
-      state: { answers: data },
-    });}
-    else{
+  const handleSubmit = () => {
+    if (company == null) {
+      navigate("/interior/list", {
+        state: { answers: data },
+      });
+    } else {
       navigate("/interior/article", {
-        state: { answers: data, company:company },
+        state: { answers: data, company },
       });
     }
   };
 
+  const getTitle = (key, value) => {
+    if (key === "spaces") {
+      return data.spaces
+        .map(
+          (space) =>
+            questionOptions.q5.find((option) => option.value === space)?.title,
+        )
+        .join(", ");
+    }
+
+    const question = questions.find((q) => q.key === key);
+    return (
+      question?.options.find((option) => option.value === value)?.title || ""
+    );
+  };
+
+  if (isConfirmStep) {
+    return (
+      <div>
+        <LinearProgress variant="determinate" value={100} />
+        <h2>선택 내용을 확인해주세요</h2>
+        주택 종류: {getTitle("housingType", data.housingType)}
+        평수: {getTitle("areaSize", data.areaSize)}집 상태:{" "}
+        {getTitle("houseCondition", data.houseCondition)}
+        인테리어 이유: {getTitle("purpose", data.purpose)}
+        필요한 공간: {getTitle("spaces")}
+        예산: {getTitle("budget", data.budget)}
+        희망 시작일: {getTitle("schedule", data.schedule)}
+        <Button onClick={handleBack}>이전</Button>
+        <Button onClick={handleSubmit}>최종 제출</Button>
+      </div>
+    );
+  }
+
+  const current = questions[step];
+
   return (
     <div>
-      <div>
-        주택 종류
-        <SelectMui
-          label="주택 유형"
-          name="housingType"
-          value={data.housingType}
-          onChange={handleChange}
-          option={questionOptions.q1}
-          width="100%"
-        />
-      </div>
+      <LinearProgress variant="determinate" value={progress} />
+      {step + 1} / {questions.length}
+      <h2>{current.title}</h2>
+      {current.multi ? (
+        <div>
+          {current.options.map((option) => (
+            <label key={option.value}>
+              <input
+                type="checkbox"
+                value={option.value}
+                checked={data.spaces.includes(option.value)}
+                onChange={handleCheckChange}
+              />
+              {option.title}
+            </label>
+          ))}
 
-      <div>
-        평수
-        <SelectMui
-          label="평수"
-          name="areaSize"
-          value={data.areaSize}
-          onChange={handleChange}
-          option={questionOptions.q2}
-          width="100%"
-        />
-      </div>
-
-      <div>
-        집 상태
-        <SelectMui
-          label="집 상태"
-          name="houseCondition"
-          value={data.houseCondition}
-          onChange={handleChange}
-          option={questionOptions.q3}
-          width="100%"
-        />
-      </div>
-
-      <div>
-        인테리어 이유
-        <SelectMui
-          label="인테리어 이유"
-          name="purpose"
-          value={data.purpose}
-          onChange={handleChange}
-          option={questionOptions.q4}
-          width="100%"
-        />
-      </div>
-
-      <div>
-        필요한 공간
-        {questionOptions.q5.map((option) => (
-          <label key={option.value} style={{ marginRight: "12px" }}>
-            <input
-              type="checkbox"
-              value={option.value}
-              checked={data.spaces.includes(option.value)}
-              onChange={handleCheckChange}
-            />
-            {option.title}
-          </label>
-        ))}
-      </div>
-
-      <div>
-        예산
-        <SelectMui
-          label="예산"
-          name="budget"
-          value={data.budget}
-          onChange={handleChange}
-          option={questionOptions.q6}
-          width="100%"
-        />
-      </div>
-
-      <div>
-        희망 시작일
-        <SelectMui
-          label="희망 시작일"
-          name="schedule"
-          value={data.schedule}
-          onChange={handleChange}
-          option={questionOptions.q7}
-          width="100%"
-        />
-      </div>
-      <Button onClick={handleNext}>다음으로</Button>
+          <Button
+            disabled={data.spaces.length === 0}
+            onClick={() => setStep(step + 1)}
+          >
+            다음
+          </Button>
+        </div>
+      ) : (
+        <div>
+          {current.options.map((option) => (
+            <Button
+              key={option.value}
+              variant={
+                data[current.key] === option.value ? "contained" : "outlined"
+              }
+              onClick={() => handleSelect(option.value)}
+            >
+              {option.title}
+            </Button>
+          ))}
+        </div>
+      )}
+      <Button disabled={step === 0} onClick={handleBack}>
+        이전
+      </Button>
     </div>
   );
 };

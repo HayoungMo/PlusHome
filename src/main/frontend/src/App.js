@@ -13,26 +13,26 @@ import JoinUserPage from "./pages/JoinUserPage";
 import LoginPage from "./pages/LoginPage";
 import { Login } from "@mui/icons-material";
 import { useState } from "react";
+import ExportPDF from "./pages/ExportPDF";
+import ReactDOM from "react-dom";
+import { PDFViewer } from "@react-pdf/renderer";
+import ExportPDFViewPage from "./pages/ExportPDFViewPage";
 import WalletCharge from "./pages/WalletCharge";
 import FurnitureList from "./pages/FurnitureList";
 import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
+import Chatbotpage from "./pages/Chatbotpage";
 
 function App() {
 	const navigate = useNavigate();
 
-  const [loginUser, setLoginUser] = useState(null);
-  const [loginInfo, setLoginInfo] = useState(null);
+	const [loginUser, setLoginUser] = useState(null);
+	const [loginInfo, setLoginInfo] = useState(null);
 
 	return (
-    <div className="App">
-      <button onClick={() => navigate('/ImageGetTest')}>ImageGetTest</button>
-      
-      
-
-
-      <Routes>
-        {/* Main화면
+		<div className="App">
+			<Routes>
+				{/* Main화면
 					<Route path='/' element={<ComponentEx/>}/> 
 					테스트용 마이페이지 */}
           
@@ -48,12 +48,15 @@ function App() {
         <Route path="/furniture/list" element={<FurnitureList/>}/>
         <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
         <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
-        
+
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
         <Route path="/interior/list" element={<InteriorLists />} />
         <Route path="/interior/article" element={<InteriorArticle />} />
         <Route path="/interior/created" element={<InteriorCreated />} />
         <Route path="/interior/question" element={<InteriorQuestion />} />
+		<Route path="/exportPDF" element={<ExportPDF />} />
+		<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
+    <Route path="/chatbot" element={<Chatbotpage />} />
       </Routes>
     </div>
   );

@@ -9,6 +9,7 @@ import com.spring.home.dto.BookingDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
+import com.spring.home.dto.InteriorReviewDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 
@@ -28,6 +29,8 @@ public interface InteriorMapper {
 	
 	public void insertInvoiceDetailData(InvoiceDetailDTO dto) throws Exception;
 	
+	public void insertInteriorReview(InteriorReviewDTO dto) throws Exception;
+	
 	public List<CompanyDTO> getLists();
 	
 	public List<InteriorDTO> getArticleLists();
@@ -41,6 +44,8 @@ public interface InteriorMapper {
 	public List<InvoiceDTO> getInvoices(BookingDTO dto) throws Exception;
 	
 	public List<InvoiceDetailDTO> getInvoicedetails(InvoiceDTO dto) throws Exception;
+
+	public CompanyDTO getCompany(CompanyDTO dto) throws Exception;
 	
 	
 }
