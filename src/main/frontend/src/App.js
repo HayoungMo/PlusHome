@@ -13,40 +13,47 @@ import JoinUserPage from "./pages/JoinUserPage";
 import LoginPage from "./pages/LoginPage";
 import { Login } from "@mui/icons-material";
 import { useState } from "react";
+import ExportPDF from "./pages/ExportPDF";
+import ReactDOM from "react-dom";
+import { PDFViewer } from "@react-pdf/renderer";
+import ExportPDFViewPage from "./pages/ExportPDFViewPage";
 
 function App() {
 	const navigate = useNavigate();
 
-  const [loginUser, setLoginUser] = useState(null);
-  const [loginInfo, setLoginInfo] = useState(null);
+	const [loginUser, setLoginUser] = useState(null);
+	const [loginInfo, setLoginInfo] = useState(null);
 
 	return (
-    <div className="App">
-      <button onClick={() => navigate('/ImageGetTest')}>ImageGetTest</button>
-      
-      
-
-
-      <Routes>
-        {/* Main화면
+		<div className="App">
+			<Routes>
+				{/* Main화면
 					<Route path='/' element={<ComponentEx/>}/> 
 					테스트용 마이페이지 */}
-          
-        {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
-        <Route path="/" element={<MainHomePage />} />
-        <Route path='/login' element={<LoginPage
-        loginUser={loginUser}
-        setLoginUser={setLoginUser}
-        setLoginInfo={setLoginInfo} />}/>
-        <Route path="/join" element={<JoinUserPage/>}/>
-        <Route path="/ImageGetTest" element={<ImageGetTest />} />
-        <Route path="/interior/list" element={<InteriorLists />} />
-        <Route path="/interior/article" element={<InteriorArticle />} />
-        <Route path="/interior/created" element={<InteriorCreated />} />
-        <Route path="/interior/question" element={<InteriorQuestion />} />
-      </Routes>
-    </div>
-  );
+
+				{/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
+				<Route path="/" element={<MainHomePage />} />
+				<Route
+					path="/login"
+					element={
+						<LoginPage
+							loginUser={loginUser}
+							setLoginUser={setLoginUser}
+							setLoginInfo={setLoginInfo}
+						/>
+					}
+				/>
+				<Route path="/join" element={<JoinUserPage />} />
+				<Route path="/ImageGetTest" element={<ImageGetTest />} />
+				<Route path="/interior/list" element={<InteriorLists />} />
+				<Route path="/interior/article" element={<InteriorArticle />} />
+				<Route path="/interior/created" element={<InteriorCreated />} />
+				<Route path="/interior/question" element={<InteriorQuestion />} />
+				<Route path="/exportPDF" element={<ExportPDF />} />
+				<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
+			</Routes>
+		</div>
+	);
 }
 
 export default App;
