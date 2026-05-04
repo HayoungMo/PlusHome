@@ -97,7 +97,8 @@ public class InteriorController {
 	@PostMapping("/getCompany")
 	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
 		return interiorService.getCompany(dto);
-		
+	}
+	
 	@PostMapping("/add/review")
 	public void insertInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		System.out.println("받은 DTO = " + dto);
