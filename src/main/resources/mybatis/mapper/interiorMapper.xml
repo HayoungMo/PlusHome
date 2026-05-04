@@ -79,7 +79,7 @@
 </select>
 
 <select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
-	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,invoice_text,invoice_price
+	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,invoice_text,invoice_price,invoice_qty
 	from INVOICE_DETAIL where id like '%' || #{id} || '%'
 		and c_id like '%' || #{c_id} || '%'
       and c_kind like '%' || #{c_kind} || '%'
@@ -87,6 +87,13 @@
       and b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
       and invoice_no like '%' || #{invoice_no} || '%'
       and invoice_kind like '%' || #{invoice_kind} || '%' 
+</select>
+
+<select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
+	select * from company where 
+	C_ID = #{c_id} and
+	C_NAME = #{c_name} and
+	C_KIND = #{c_kind}
 </select>
 
 
