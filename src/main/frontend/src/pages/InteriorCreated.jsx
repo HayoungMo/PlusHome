@@ -4,6 +4,8 @@ import InteriorService from "../service/interiorService";
 import TextFieldMui from "../components/TextFieldMui";
 import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
+import { CheckBox } from "@mui/icons-material";
+import CheckboxMui from "../components/CheckboxMui";
 
 //테스트용 파일
 function InteriorCreated(/*{ company }*/) {
@@ -30,13 +32,15 @@ function InteriorCreated(/*{ company }*/) {
     content: "",
   });
 
-  const [details, setDetails] = useState([{ text: "", price: "" }]);
+  const [details, setDetails] = useState([{text: "", price: "" }]);
 
   const [booking, setBooking] = useState([]);
 
   const [invoice, setInvoice] = useState([]);
 
   const [invoiceDetails, setInvoiceDetails] = useState([]);
+
+  const [kind, setKind] = useState({});
 
   const [reload, setReload] = useState(0);
 
@@ -225,6 +229,7 @@ function InteriorCreated(/*{ company }*/) {
     const invoiceData = {
       id: item.id,
       invoice_no: nextInvoiceNo,
+      invoice_kind: kind[item.b_createdDate] || "N",
       c_id: item.c_id,
       c_kind: item.c_kind,
       c_name: item.c_name,
@@ -367,6 +372,16 @@ function InteriorCreated(/*{ company }*/) {
 
             <h5>인테리어 견적 추가</h5>
             <form onSubmit={(e) => handleSubmit4(e, item)}>
+              <CheckboxMui
+                name="invoice_kind"
+                checked={(kind[item.b_createdDate] || "N") === "Y"}
+                onChange={(e) => {
+                  setKind({
+                    ...kind,
+                    [item.b_createdDate]: e.target.checked ? "Y" : "N",
+                  });
+                }}
+              />
               {details.map((detail, index) => (
                 <div key={index}>
                   <TextFieldMui

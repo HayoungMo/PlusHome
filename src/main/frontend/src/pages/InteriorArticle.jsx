@@ -60,13 +60,19 @@ function InteriorArticle() {
             content: {item.ie_content}
           </div>
         ))}
-      </div>
+      </div>  
 
-      <div>
-        <button onClick={async () => {handleNext()}}>상담 신청</button>
-      </div>
-
-      {answers && <InteriorBooking company={company} answers={answers} />}
+      {answers ? (
+        <InteriorBooking company={company} answers={answers} />
+      ) : (
+        <button
+          onClick={async () => {
+            handleNext();
+          }}
+        >
+          상담 신청
+        </button>
+      )}
     </div>
   );
 }
