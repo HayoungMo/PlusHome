@@ -243,7 +243,7 @@ const ComponentEx = () => {
                 <h3>AlertMui</h3>
                 {alertOpen && (
                     <AlertMui
-                        severity="success"
+                        severity="sucess"
                         title="성공"
                         text="저장이 완료되었습니다."
                         onClose={() => setAlertOpen(false)}

@@ -1,12 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import ChatbotModal from '../components/ChatbotModal';
+import { Button } from '@mui/material';
 
 const MainHomePage = () => {
 
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
-    const navigate = useNavigate();
+    const [chatOpen, setChatOpen] = useState(false);
 
     //백엔드 호출
     useEffect(() => {
@@ -79,10 +81,14 @@ const MainHomePage = () => {
             <main>
                 {/* 추천 상품/ 업체 추천/ 할인 -> 알고리즘용 */}
             </main>
-            <button onClick={() => navigate("/chatbot")}>
+            <Button onClick={() => setChatOpen(true)}>
                 AI 챗봇
-            </button>
+            </Button>
+            {
+                chatOpen && (<ChatbotModal onClose={() => setChatOpen(false)} />)
+            }
             {/* footer */}
+            <Link to="/component">MUI 예시</Link>
             <footer>
                 {/* plushome */}
             </footer>
