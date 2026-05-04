@@ -40,6 +40,11 @@
         VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_text},#{invoice_qty}, #{invoice_price})
 </insert>
 
+<insert id="insertInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
+    INSERT INTO I_REVIEW (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,ir_content)
+        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{ir_content})
+</insert>
+
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
 	select c_id,c_kind,c_name,c_tel,c_addr,c_info,c_boss from COMPANY WHERE c_kind like 'interior'
 </select>

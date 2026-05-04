@@ -1,16 +1,38 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const MainHomePage = () => {
 
+    // 가구 리스트 상태 , 처음에는 빈배열
+    const [furniture, setFurniture] = useState([]);
+    const navigate = useNavigate();
 
+    //백엔드 호출
+    useEffect(() => {
+        axios.get("http://localhost:8080/api/main/best")
+            .then(res => {
+                console.log("받아온 데이터:", res.data);
+                setFurniture(res.data);
+            })
+            .catch(err => {
+                console.error("에러:",err);
+            });
+        },[]);
+   
 
     return (
         <div>
             {/* header */}
             <header>
-                <div>로고</div>
-                <div>{/*검색바*/}</div>
-                <div>{/*로그인 회원가입 마이페이지*/}</div>
+                <Link to="/">로고</Link>
+
+                <div>
+                    <input placeholder="검색" />
+                </div>
+                
+                <Link to="/login">로그인</Link>
+
             </header>
 
             {/* 메인 영상 */}
@@ -23,15 +45,43 @@ const MainHomePage = () => {
             {/* 상위 카테고리 (쇼핑/인테리어 상담/자유게시판 등) */}
             <nav>
                 {/* 쇼핑 */}
-                {/* 인테리어 상담 */}
+                <Link to="/furniture/list">| 가구 | </Link>
+                {/* 인테리어 회사 및 예시*/}
+                <Link to="/interior/list">인테리어 예시 | </Link>
+                {/* 인테리어 상담 신청 */}
+                <Link to="/interior/question">인테리어 상담 신청 | </Link>
                 {/* 자유게시판 */}
             </nav>
+
+            {/* 백에서 받아온 메세지 뿌리기 */}
+            {/* 오늘의 추천 가구 목록 */}
+            <section>
+                <h2>오늘 강력 추천 가구</h2>
+                <div>
+                    {furniture.map((item) => (
+                        <Link to={`/furniture/article/${item.f_code}`} key={item.f_code}>
+                            <div>
+                                <p>{item.c_name}</p>
+                                <h3>{item.f_name}</h3>
+                                <p>
+                                    {item.f_discount > 0 && (
+                                        <span>할인 {item.f_discount}% </span>
+                                    )}
+                                    {item.f_dprice.toLocaleString()}원
+                                </p>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </section>
 
             {/* 이벤트 영역 */}
             <main>
                 {/* 추천 상품/ 업체 추천/ 할인 -> 알고리즘용 */}
             </main>
-
+            <button onClick={() => navigate("/chatbot")}>
+                AI 챗봇
+            </button>
             {/* footer */}
             <footer>
                 {/* plushome */}

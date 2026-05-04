@@ -17,6 +17,7 @@ import com.spring.home.dto.BookingDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
+import com.spring.home.dto.InteriorReviewDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.service.InteriorService;
@@ -93,9 +94,16 @@ public class InteriorController {
 	    interiorService.insertInvoiceDetailData(dto);	    
 	}
 	
+<<<<<<< Updated upstream
 	@PostMapping("/getCompany")
 	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
 		return interiorService.getCompany(dto);
+=======
+	@PostMapping("/add/review")
+	public void insertInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
+		System.out.println("받은 DTO = " + dto);
+	    interiorService.insertInteriorReview(dto);	    
+>>>>>>> Stashed changes
 	}
 	
 	
