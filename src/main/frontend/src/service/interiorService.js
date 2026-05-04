@@ -173,7 +173,8 @@ const AddInvoice = async (data) => {
       c_name: data.c_name,
       b_createdDate: data.b_createdDate,
       invoice_no: data.invoice_no,
-      details : data.details
+      invoice_kind: data.invoice_kind,
+      details: data.details,
     });
 
     console.log("결과: 좋음");

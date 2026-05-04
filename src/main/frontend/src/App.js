@@ -17,6 +17,10 @@ import ExportPDF from "./pages/ExportPDF";
 import ReactDOM from "react-dom";
 import { PDFViewer } from "@react-pdf/renderer";
 import ExportPDFViewPage from "./pages/ExportPDFViewPage";
+import WalletCharge from "./pages/WalletCharge";
+import FurnitureList from "./pages/FurnitureList";
+import FurnitureAddPage from "./pages/FurnitureAddPage";
+import FurnitureArticle from "./pages/FurnitureArticle";
 
 function App() {
 	const navigate = useNavigate();
@@ -30,30 +34,30 @@ function App() {
 				{/* Main화면
 					<Route path='/' element={<ComponentEx/>}/> 
 					테스트용 마이페이지 */}
-
-				{/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
-				<Route path="/" element={<MainHomePage />} />
-				<Route
-					path="/login"
-					element={
-						<LoginPage
-							loginUser={loginUser}
-							setLoginUser={setLoginUser}
-							setLoginInfo={setLoginInfo}
-						/>
-					}
-				/>
-				<Route path="/join" element={<JoinUserPage />} />
-				<Route path="/ImageGetTest" element={<ImageGetTest />} />
-				<Route path="/interior/list" element={<InteriorLists />} />
-				<Route path="/interior/article" element={<InteriorArticle />} />
-				<Route path="/interior/created" element={<InteriorCreated />} />
-				<Route path="/interior/question" element={<InteriorQuestion />} />
-				<Route path="/exportPDF" element={<ExportPDF />} />
-				<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
-			</Routes>
-		</div>
-	);
+          
+        {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
+        <Route path="/" element={<MainHomePage />} />
+        <Route path='/login' element={<LoginPage
+        loginUser={loginUser}
+        setLoginUser={setLoginUser}
+        setLoginInfo={setLoginInfo} />}/>
+        <Route path="/join" element={<JoinUserPage/>}/>
+        
+        <Route path="/wallet/charge" element={<WalletCharge/>}/>
+        <Route path="/furniture/list" element={<FurnitureList/>}/>
+        <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
+        <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
+        
+        <Route path="/ImageGetTest" element={<ImageGetTest />} />
+        <Route path="/interior/list" element={<InteriorLists />} />
+        <Route path="/interior/article" element={<InteriorArticle />} />
+        <Route path="/interior/created" element={<InteriorCreated />} />
+        <Route path="/interior/question" element={<InteriorQuestion />} />
+		<Route path="/exportPDF" element={<ExportPDF />} />
+		<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;

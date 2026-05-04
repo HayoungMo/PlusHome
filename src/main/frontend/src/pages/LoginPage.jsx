@@ -79,6 +79,17 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
         }
     };
 
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setLoginUser(null);
+        setLoginInfo(null);
+
+        navigate("/login")
+        
+    }
+
     return (
         <div>
             <h3>로그인

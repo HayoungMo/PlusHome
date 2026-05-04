@@ -10,6 +10,8 @@ public class FurnitureDTO {
 	//조회수 없음
 	private String f_code;
 	
+	private String f_viewCount;
+	
 	private String c_id;
 	private String c_kind;
 	private String c_name;

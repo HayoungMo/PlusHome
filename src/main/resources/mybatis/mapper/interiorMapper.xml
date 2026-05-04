@@ -22,15 +22,15 @@
 </insert>
 
 <insert id="insertInvoiceData" parameterType="com.spring.home.dto.InvoiceDTO">
-	insert into INVOICE (id, c_id,c_kind,c_name,b_createdDate,invoice_no) values 
-	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no})	
+	insert into INVOICE (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind) values 
+	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind})	
 </insert>
 
 <insert id="insertInvoiceDetails" parameterType="com.spring.home.dto.InvoiceDTO">
     INSERT ALL
     <foreach collection="details" item="item" index="idx">
-        INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,INVOICE_TEXT,INVOICE_PRICE)
-        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{item.invoice_text}, #{item.invoice_price})
+        INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,INVOICE_TEXT,INVOICE_PRICE)
+        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_price})
     </foreach>  
     SELECT * FROM DUAL  
 </insert>

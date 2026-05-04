@@ -4,8 +4,10 @@ import { Button } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 const InteriorQuestion = () => {
   const navigate = useNavigate();
+
   const location = useLocation();
-  const company = location.state.company;
+  const company = location.state?.company || null;
+  
   const [data, setData] = useState({
     housingType: "", // q1 - 주택 유형
     areaSize: "", // q2 - 평수
