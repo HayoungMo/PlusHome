@@ -12,8 +12,8 @@
 </insert>
 
 <insert id="insertInteriorExampleData" parameterType="com.spring.home.dto.InteriorExampleDTO">
-	insert into I_EXAMPLE (c_id,c_kind,c_name,ie_tag,ie_tag2,ie_content) values 
-	(#{c_id},#{c_kind},#{c_name},#{ie_tag},#{ie_tag2},#{ie_content})	
+	insert into I_EXAMPLE (c_id,c_name,c_kind,ie_tag,ie_tag2,ie_content) values 
+	(#{c_id},#{c_name},#{c_kind},#{ie_tag},#{ie_tag2},#{ie_content})	
 </insert>
 
 <insert id="insertBookingData" parameterType="com.spring.home.dto.BookingDTO">
@@ -29,15 +29,15 @@
 <insert id="insertInvoiceDetails" parameterType="com.spring.home.dto.InvoiceDTO">
     INSERT ALL
     <foreach collection="details" item="item" index="idx">
-        INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,INVOICE_TEXT,INVOICE_PRICE)
-        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_price})
+        INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,INVOICE_TEXT,invoice_qty,INVOICE_PRICE)
+        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_qty},#{item.invoice_price})
     </foreach>  
     SELECT * FROM DUAL  
 </insert>
 
 <insert id="insertInvoiceDetailData" parameterType="com.spring.home.dto.InvoiceDetailDTO">
-    INSERT INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,INVOICE_TEXT,INVOICE_PRICE)
-        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_text}, #{invoice_price})
+    INSERT INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,INVOICE_TEXT,invoice_qty,INVOICE_PRICE)
+        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_text},#{invoice_qty}, #{invoice_price})
 </insert>
 
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
@@ -79,7 +79,7 @@
 </select>
 
 <select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
-	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,invoice_text,invoice_price
+	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price
 	from INVOICE_DETAIL where id like '%' || #{id} || '%'
 		and c_id like '%' || #{c_id} || '%'
       and c_kind like '%' || #{c_kind} || '%'
