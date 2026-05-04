@@ -34,6 +34,7 @@ const insertImage = async (dataList) => {
 			img_idx: item?.img_idx,
 		}));
 
+		console.log("insertimage:")
 		console.log(dtoList);
 
 		formData.append(

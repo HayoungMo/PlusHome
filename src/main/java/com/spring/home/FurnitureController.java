@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,11 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.service.FurnitureService;
+import com.spring.home.service.ImageService;
 import com.spring.home.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -49,10 +52,15 @@ public class FurnitureController {
 		return furnitureService.getReadData(f_code);
 	}
 
-	@PostMapping("/add")
-	public void insertData(@ModelAttribute FurnitureDTO dto,
-			@RequestParam(value = "images", required = false) List<MultipartFile> images) throws Exception {
-		furnitureService.insertData(dto);
+	@PostMapping(value= "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public String insertData(
+			@RequestPart("dto") FurnitureDTO dto, 
+			@RequestPart("thumbnail") MultipartFile thumbnail,
+			@RequestPart(value = "infoFiles", required = false) List<MultipartFile> infoFiles,
+			@RequestPart(value = "detailFiles", required = false) List<MultipartFile> detailFiles) throws Exception {
+		
+		return furnitureService.insertData(dto, thumbnail, infoFiles, detailFiles);
+	
 	}
 
 	@PostMapping("/update")

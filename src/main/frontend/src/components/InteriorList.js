@@ -7,9 +7,6 @@ const InteriorList = () => {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
 
-    const [image, setImage] = useState(null);
-
-
   const handleNext = (data) => {
     navigate("/interior/article", {
       state: { company: data },
@@ -52,9 +49,9 @@ const InteriorList = () => {
         <h3>결과</h3>
         {list.map((item, idx) => (
           <div key={idx} onClick={() => handleNext(item)}>
-            {item.logo.result && (
+            {item.logo.result[0] && (
               <img
-                src={item.logo.img_name}
+                src={item.logo.result[0].img_name}
                 alt={`${item.c_name} 로고`}
                 style={{ width: "100px", height: "100px", objectFit: "cover" }}
               />

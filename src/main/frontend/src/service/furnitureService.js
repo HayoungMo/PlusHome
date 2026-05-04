@@ -12,9 +12,9 @@ const getFurniture = async ({pageNum=1, searchKey, searchValue}={}) => {
 }
 
 const insertFurniture = async (formData) =>{
-    const res = await http.post('/furniture/add',formData,{
+    const res = await http.post('/furniture/add',formData, {
         headers: {
-            "Content-Type": "multipart/form-data"
+            "Content-Type" : "multipart/form-data"
         }
     })
     return res.data
