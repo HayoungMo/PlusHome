@@ -48,7 +48,7 @@ const insertFurniture = async (params) => {
 // }
 
 const getFurnitureItem = async (f_code) => {
-	const res = await http.get("furniture/list/item", { params: { f_code } });
+	const res = await http.get("/furniture/list/item", { params: { f_code } });
 	return res.data;
 };
 
