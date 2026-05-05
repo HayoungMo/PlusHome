@@ -20,6 +20,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
     // 입력 처리
     const onText = (e) => {
+        
         const { name, value } = e.target;
 
         // 에러 초기화
@@ -41,7 +42,6 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
             setIdFormatMsg('영문, 숫자, _(언더스코어)만 가능합니다.');
             return;
         }
-
         // 정상 입력
         setForm(prev => ({
             ...prev,
@@ -57,11 +57,10 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
         }
 
         try {
-            const response = await LoginService.postLogin(form.id, form.pw);
-
+            const response = await LoginService.postLogin(form);
             console.log("로그인 응답:", response)
             console.log("토큰:",response.token)
-
+            
             if (response.success) {
                 const user = response.user;
 
@@ -81,7 +80,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 }
                 
             } else {
-                setErrorMsg('아이디 또는 비밀번호가 틀렸습니다.');
+                setErrorMsg(response.message);
             }
 
         } catch (error) {

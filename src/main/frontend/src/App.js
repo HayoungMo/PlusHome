@@ -21,6 +21,7 @@ import WalletCharge from "./pages/WalletCharge";
 import FurnitureList from "./pages/FurnitureList";
 import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
+import FindPwPage from "./pages/FindPwPage";
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
         setLoginUser={setLoginUser}
         setLoginInfo={setLoginInfo} />}/>
         <Route path="/join" element={<JoinUserPage/>}/>
+        <Route path="/findPw" element={<FindPwPage/>}/>
         
         <Route path="/wallet/charge" element={<WalletCharge/>}/>
         <Route path="/furniture/list" element={<FurnitureList/>}/>

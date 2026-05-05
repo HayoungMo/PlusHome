@@ -39,8 +39,10 @@ public class UserService {
 		System.out.println("cDto 내용: " + dto.getCompanyDto());
 		
 		if("company".equals(dto.getType())&&dto.getCompanyDto() !=null) {
+			System.out.println("여기 왔어!");
 			CompanyDTO cdto = dto.getCompanyDto();
 			cdto.setC_id(dto.getId());
+			cdto.setC_tel(dto.getTel());
 			companyMapper.insertData(cdto);
 		}
 		
@@ -72,7 +74,9 @@ public class UserService {
 		UserDTO user = userMapper.findById(dto.getId());
 		
 		if(user==null) {
-			return null;
+			dto.setCode("NO_ID");
+			dto.setId(null);
+			return dto;
 		}
 		
 		if (passwordEncoder.matches(dto.getPw(), user.getPw())) {
@@ -91,6 +95,20 @@ public class UserService {
 		
 	public String findUserId(UserDTO dto) throws Exception {
 		return userMapper.findUserId(dto);
+	}
+	
+	
+	public String resetPassword(UserDTO dto) throws Exception {
+		UserDTO udto = userMapper.findUserpw(dto);
+		
+		if(udto==null) {
+			return "Not Found";
+		}
+		
+		String encodePw = passwordEncoder.encode(dto.getPw());
+		userMapper.updatePw(dto.getId(), encodePw);
+		
+		return "success";
 	}
 	
 	
