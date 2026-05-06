@@ -2,8 +2,8 @@ import { useState } from "react";
 
 import InteriorAdd from "../components/InteriorAdd";
 import InteriorExAdd from "../components/InteriorExAdd";
-import InteriorInvoiceAdd from "../components/InteriorInvoiceAdd";
 import InteriorBookingLists from "../components/InteriorBookingLists";
+import InteriorChart from "../components/InteriorChart";
 
 //테스트용 파일
 function InteriorCreated(/*{ company }*/) {
@@ -21,6 +21,8 @@ function InteriorCreated(/*{ company }*/) {
     <InteriorExAdd company={company}/>
 
     <InteriorBookingLists company={company}/>
+
+    <InteriorChart company={company}/>
 
      
     </div>

@@ -17,6 +17,8 @@ function InteriorArticle() {
 
   const [example, setExample] = useState([]);
 
+  const [selectedImg, setSelectedImg] = useState(null);
+
   const handleNext = () => {
     navigate("/interior/question", {
       state: { company: company },
@@ -73,7 +75,6 @@ function InteriorArticle() {
           )}
         </div>
       ))}
-
       <div>
         상세 조회 결과
         {article.map((item, idx) => (
@@ -86,7 +87,6 @@ function InteriorArticle() {
           </div>
         ))}
       </div>
-
       <div>
         예시 조회 결과
         {example.map((item, idx) => (
@@ -101,6 +101,7 @@ function InteriorArticle() {
                   <img
                     src={record.img_name}
                     alt={`${item.c_name} 예시`}
+                    onClick={() => setSelectedImg(record.img_name)}
                     style={{
                       width: "100px",
                       height: "100px",
@@ -109,6 +110,35 @@ function InteriorArticle() {
                   />
                 </div>
               ))}
+            {selectedImg && (
+              <div
+                onClick={() => setSelectedImg(null)}
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100vw",
+                  height: "100vh",
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 9999,
+                }}
+              >
+                <img
+                  src={selectedImg}
+                  alt="확대 이미지"
+                  style={{
+                    minWidth: "80%",
+                    minHeight: "80%",
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            )}
 
             <div>id: {item.c_id}</div>
             <div>name: {item.c_name}</div>
@@ -119,9 +149,7 @@ function InteriorArticle() {
           </div>
         ))}
       </div>
-
-      <InteriorReviewList company={company}/>
-
+      <InteriorReviewList company={company} />
       {answers ? (
         <InteriorBooking company={company} answers={answers} />
       ) : (

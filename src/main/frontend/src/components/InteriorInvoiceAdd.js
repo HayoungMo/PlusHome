@@ -3,6 +3,7 @@ import InteriorService from "../service/interiorService";
 import CheckboxMui from "./CheckboxMui";
 import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
+import TableMui from "./TableMui";
 
 const InteriorInvoiceAdd = ({ booking }) => {
   const [details, setDetails] = useState([{ text: "", qty: "", price: "" }]);
@@ -21,44 +22,17 @@ const InteriorInvoiceAdd = ({ booking }) => {
 
   useEffect(() => {
     const fetchInvoices = async () => {
-      const results = [];
-
       const data = await InteriorService.fetchInvoice(booking);
 
-      if (Array.isArray(data)) {
-        results.push(...data);
-      } else if (data) {
-        results.push(data);
-      }      
-      const merged = results.flat();
+      const merged = Array.isArray(data) ? data.flat() : data ? [data] : [];
+
       setInvoice(merged);
     };
 
-    const fetchInvoiceDetails = async () => {
-      const results = [];
-
-      for (const item of invoice) {
-        const data = await InteriorService.fetchInvoiceDetails(item);
-
-        if (Array.isArray(data)) {
-          results.push(...data);
-        } else if (data) {
-          results.push(data);
-        }
-      }
-      const merged = results.flat();
-      setInvoiceDetails(merged);
-    };
-
-
+    if (booking) {
       fetchInvoices();
-      if (invoice.length > 0) {
-        fetchInvoiceDetails();
-      } else {
-        setInvoiceDetails([]);
-      }
-
-  }, []);
+    }
+  }, [booking, reload]);
 
   useEffect(() => {
     const fetchInvoiceDetails = async () => {
@@ -159,66 +133,68 @@ const InteriorInvoiceAdd = ({ booking }) => {
   return (
     <div>
       <div>
-        <h5>인테리어 견적 추가</h5>
+        <p>인테리어 견적 추가</p>
 
-        {(booking.b_status ==="pending" || booking.b_status ==="quoting")&&(<form onSubmit={(e) => handleSubmit4(e, booking)}>
-          {details.map((detail, index) => (
-            <div key={index}>
-              <TextFieldMui
-                name="text"
-                label="항목"
-                value={detail.text}
-                onChange={(e) => handleDetailChange(index, e)}
-              />
+        {(booking.b_status === "pending" || booking.b_status === "quoting") && (
+          <form onSubmit={(e) => handleSubmit4(e, booking)}>
+            {details.map((detail, index) => (
+              <div key={index}>
+                <CheckboxMui
+                  name="kind"
+                  label="완료 여부"
+                  checked={kind[booking.b_createdDate] === "Y"}
+                  onChange={(e) => {
+                    setKind({
+                      ...kind,
+                      [booking.b_createdDate]: e.target.checked ? "Y" : "N",
+                    });
+                  }}
+                />
 
-              <TextFieldMui
-                name="qty"
-                label="개수"
-                value={detail.qty}
-                onChange={(e) => handleDetailChange(index, e)}
-              />
+                <TextFieldMui
+                  name="text"
+                  label="항목"
+                  value={detail.text}
+                  onChange={(e) => handleDetailChange(index, e)}
+                />
 
-              <TextFieldMui
-                name="price"
-                label="가격"
-                value={detail.price}
-                onChange={(e) => handleDetailChange(index, e)}
-              />
-            </div>
-          ))}
+                <TextFieldMui
+                  name="qty"
+                  label="개수"
+                  value={detail.qty}
+                  onChange={(e) => handleDetailChange(index, e)}
+                />
 
-          <Button type="button" onClick={addDetail}>
-            항목 추가
-          </Button>
-
-          <Button type="submit" variant="contained">
-            견적서 제출
-          </Button>
-        </form>
-)}
-      {invoice.map((invoiceItem, invoiceIdx) => (
-        <div key={invoiceIdx}>
-          {invoiceItem.invoice_no}
-          ///
-          {invoiceItem.invoice_kind}
-          {invoiceDetails
-            .filter(
-              (record) =>
-                record?.invoice_no === invoiceItem?.invoice_no &&
-                record?.invoice_kind === invoiceItem?.invoice_kind,
-            )
-            .map((detailItem, detailIdx) => (
-              <div key={detailIdx}>
-                {detailItem.invoice_text}
-                //
-                {detailItem.invoice_qty}
-                //
-                {detailItem.invoice_price}
+                <TextFieldMui
+                  name="price"
+                  label="가격"
+                  value={detail.price}
+                  onChange={(e) => handleDetailChange(index, e)}
+                />
               </div>
             ))}
-        </div>
-      ))}
-    </div>
+
+            <Button type="button" onClick={addDetail}>
+              항목 추가
+            </Button>
+
+            <Button type="submit" variant="contained">
+              견적서 제출
+            </Button>
+          </form>
+        )}
+        {invoice.map((invoiceItem, invoiceIdx) => (
+          <div key={invoiceIdx}>
+            <TableMui
+              rowData={invoiceDetails.filter(
+                (record) =>
+                  record?.invoice_no === invoiceItem?.invoice_no &&
+                  record?.invoice_kind === invoiceItem?.invoice_kind,
+              )}
+            />           
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
