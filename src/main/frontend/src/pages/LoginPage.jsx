@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginService from '../service/loginService';
-
+//
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
     console.log("props:",loginUser,setLoginUser)
