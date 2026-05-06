@@ -21,7 +21,8 @@ import WalletCharge from "./pages/WalletCharge";
 import FurnitureList from "./pages/FurnitureList";
 import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
-import Chatbotpage from "./pages/Chatbotpage";
+import FindPwPage from "./pages/FindPwPage";
+
 
 function App() {
 	const navigate = useNavigate();
@@ -33,8 +34,8 @@ function App() {
 		<div className="App">
 			<Routes>
 				{/* Main화면
-					<Route path='/' element={<ComponentEx/>}/> 
-					테스트용 마이페이지 */}
+					mui 테스트용 */}
+					<Route path='/component' element={<ComponentEx />}/> 
           
         {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
         <Route path="/" element={<MainHomePage />} />
@@ -43,6 +44,7 @@ function App() {
         setLoginUser={setLoginUser}
         setLoginInfo={setLoginInfo} />}/>
         <Route path="/join" element={<JoinUserPage/>}/>
+        <Route path="/findPw" element={<FindPwPage/>}/>
         
         <Route path="/wallet/charge" element={<WalletCharge/>}/>
         <Route path="/furniture/list" element={<FurnitureList/>}/>
@@ -54,9 +56,9 @@ function App() {
         <Route path="/interior/article" element={<InteriorArticle />} />
         <Route path="/interior/created" element={<InteriorCreated />} />
         <Route path="/interior/question" element={<InteriorQuestion />} />
-		<Route path="/exportPDF" element={<ExportPDF />} />
-		<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
-    <Route path="/chatbot" element={<Chatbotpage />} />
+        <Route path="/exportPDF" element={<ExportPDF />} />
+        <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
+        
       </Routes>
     </div>
   );

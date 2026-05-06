@@ -1,10 +1,10 @@
 import http from "../http-common";
 
 //유저 데이터 조회 (GET)
-const postLogin = async (id,pw) => {
+const postLogin = async (form) => {
     try {
-        console.log("Service: Sending GET request");
-        const res = await http.post("/user/login", { id,pw });
+        console.log("loginService: postLogin");
+        const res = await http.post("/user/login", form);
         return res.data;
     } catch (error) {
         console.error("API Error:", error);

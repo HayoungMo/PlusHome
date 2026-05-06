@@ -4,6 +4,7 @@ import http from "../http-common";
 const postJoin = async (data) => {
     try {
         console.log("Service: Sending POST request");
+        console.log(data)
         const response = await http.post("/user/join", data);
         return response.data; // 필요한 데이터만 반환
     } catch (error) {
