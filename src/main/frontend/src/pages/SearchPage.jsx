@@ -21,7 +21,7 @@ const SearchPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6; //한페이지에 6개씩
 
-    //검색 탭 목록 - 탭으로 쓸지 아니면 다른 방식으로 할지는 고민
+    //검색 탭 목록 - 탭으로 쓸지 아니면 다른 방식으로 할지는 고민 , 현재는 객체로 넘겨줌
     const searchTabs = [
         { value: "all", title: "전체"},
         { value: "f_name", title: "가구명"},
@@ -42,6 +42,12 @@ const SearchPage = () => {
         if(inputKeyword === keyword) return;
 
         const timer = setTimeout(() => {
+            const nextKeyword = inputKeyword.trim();
+
+            if(!nextKeyword){
+                setSearchParams({});
+                return;
+            }
             setSearchParams({keyword: inputKeyword});
         }, 300); //300ms 후에 주소창 한 번 업데이트     
 
@@ -93,7 +99,7 @@ const SearchPage = () => {
                 //같은 가구가 여러 검색 조건에 걸릴 수 있기 때문에 f_code 기준으로 중복을 제거해줌
                 const resultMap = new Map();
 
-                [...nameResult, ...categoryResult,...companyResult].forEach((item)=>{
+                [...nameList, ...categoryList,...companyList].forEach((item)=>{
                     resultMap.set(item.f_code, item);
                 });
 
