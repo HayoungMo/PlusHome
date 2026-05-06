@@ -1,6 +1,7 @@
 package com.spring.home.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -31,8 +32,5 @@ public class FurnitureDTO {
 	private int f_point;
 	private int f_count;
 	
-	//f_code생성에 사용하는 용도
-	private int companyCode;
-	private int catagoryCode;
-
+	private List<ImageDTO> imageList;
 }
