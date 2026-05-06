@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import FurnitureService from "../service/furnitureService";
+import {useNavigate} from 'react-router-dom'
 
 const FurnitureAddPage = () => {
+    const navigate= useNavigate()
+
     const [data, setData] = useState({
-        c_id: "wood_house",
+        c_id: "testCompany",
         c_kind: "shop",
-        c_name: "우드앤하우스",
+        c_name: "테스트업체",
         f_name: "",
         f_price: "0",
         f_dprice: "0",
@@ -21,7 +24,44 @@ const FurnitureAddPage = () => {
 
     const [thumbnail, setThumbnail] = useState(null);
     const [infoFiles, setInfoFiles] = useState([]);
-    const [detailFiles, setDetailFiles] = useState([]);
+    const [othersFiles, setOthersFiles] = useState([]);
+    const [thumbnailPreview, setThumbnailPreview] = useState(null);
+
+    const onChangeThumbnail = (evt) => {
+        const file = evt.target.files[0];
+        if (!file) return;
+
+        console.log("thumbnail:", file);
+
+        setThumbnail(file);
+        setThumbnailPreview(URL.createObjectURL(file));
+    };
+
+    const onChangeInfo = (evt) => {
+        const files = Array.from(evt.target.files);
+
+        console.log("info files:", files);
+
+        const mapped = files.map(file => ({
+            file,
+            preview: URL.createObjectURL(file)
+        }));
+
+        setInfoFiles(mapped);
+    };
+
+    const onChangeOthers = (evt) => {
+        const files = Array.from(evt.target.files);
+
+        console.log("others files:", files);
+
+        const mapped = files.map(file => ({
+            file,
+            preview: URL.createObjectURL(file)
+        }));
+
+        setOthersFiles(mapped);
+    };
 
     const changeInput = (evt) => {
         const { name, value } = evt.target;
@@ -50,6 +90,10 @@ const FurnitureAddPage = () => {
 
     const onSubmit = async () => {
         try {
+            console.log("submit start");
+            console.log("info:", infoFiles);
+            console.log("others:", othersFiles);
+
             if (!thumbnail) {
                 alert("썸네일 이미지를 선택해주세요.");
                 return;
@@ -72,142 +116,112 @@ const FurnitureAddPage = () => {
             const sendData = {
                 dto,
                 thumbnail,
-                infoFiles,
-                detailFiles
+                infoFiles: infoFiles.map(i => i.file),
+                othersFiles: othersFiles.map(i => i.file)
             };
+
+            console.log("sendData:", sendData);
 
             const res = await FurnitureService.insertFurniture(sendData);
             console.log("등록 결과:", res);
+
             alert("가구가 등록되었습니다.");
+            navigate(-1);
+
         } catch (error) {
             console.error("에러:", error);
             alert("가구 등록에 실패했습니다.");
         }
     };
 
+    const onBack = () => {
+        navigate("/furniture/list");
+    };
+
     return (
         <div>
+            <button onClick={onBack}>가구 리스트</button>
             <h3>가구 등록 페이지</h3>
 
             <label>가구 이름:</label>
-            <input
-                name="f_name"
-                placeholder="가구명"
-                value={data.f_name}
-                onChange={changeInput}
-            />
+            <input name="f_name" value={data.f_name} onChange={changeInput} />
             <br />
 
             <label>가구 가격:</label>
-            <input
-                name="f_price"
-                placeholder="가격"
-                value={data.f_price}
-                onChange={changeInput}
-            />
+            <input name="f_price" value={data.f_price} onChange={changeInput} />
             <br />
 
             <p>할인가: {data.f_dprice}</p>
 
             <label>할인율:</label>
-            <input
-                name="f_discount"
-                placeholder="할인율"
-                value={data.f_discount}
-                onChange={changeInput}
-            />
-            <br />
+            <input name="f_discount" value={data.f_discount} onChange={changeInput} />
+            <br/>
 
-            <p>썸네일</p>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={(evt) => setThumbnail(evt.target.files[0])}
-            />
+            <p>대표 이미지</p>
+            <input type="file" accept="image/*" onChange={onChangeThumbnail} />
 
-            <p>정보 이미지</p>
-            <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(evt) => setInfoFiles(Array.from(evt.target.files))}
-            />
+            {thumbnailPreview && (
+                <img
+                    src={thumbnailPreview}
+                    style={{ width: "150px", height: "150px", objectFit: "cover" }}
+                />
+            )}
 
             <p>상세 이미지</p>
-            <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(evt) => setDetailFiles(Array.from(evt.target.files))}
-            />
+            <input type="file" multiple onChange={onChangeInfo} />
 
-            <br /><br />
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {infoFiles.map((image, index) => (
+                    <img
+                        key={index}
+                        src={image.preview}
+                        style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                    />
+                ))}
+            </div>
 
+            <p>이미지</p>
+            <input type="file" multiple onChange={onChangeOthers} />
+
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {othersFiles.map((image, index) => (
+                    <img
+                        key={index}
+                        src={image.preview}
+                        style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                    />
+                ))}
+            </div>
+          
             <label>카테고리1:</label>
-            <input
-                name="f_catagory1"
-                placeholder="카테고리1"
-                value={data.f_catagory1}
-                onChange={changeInput}
-            />
+            <input name="f_catagory1" value={data.f_catagory1} onChange={changeInput} />
             <br />
 
             <label>카테고리2:</label>
-            <input
-                name="f_catagory2"
-                placeholder="카테고리2"
-                value={data.f_catagory2}
-                onChange={changeInput}
-            />
+            <input name="f_catagory2" value={data.f_catagory2} onChange={changeInput} />
             <br />
 
             <label>카테고리3:</label>
-            <input
-                name="f_catagory3"
-                placeholder="카테고리3"
-                value={data.f_catagory3}
-                onChange={changeInput}
-            />
+            <input name="f_catagory3" value={data.f_catagory3} onChange={changeInput} />
             <br />
 
             <label>카테고리4:</label>
-            <input
-                name="f_catagory4"
-                placeholder="카테고리4"
-                value={data.f_catagory4}
-                onChange={changeInput}
-            />
+            <input name="f_catagory4" value={data.f_catagory4} onChange={changeInput} />
             <br />
 
             <label>카테고리5:</label>
-            <input
-                name="f_catagory5"
-                placeholder="카테고리5"
-                value={data.f_catagory5}
-                onChange={changeInput}
-            />
+            <input name="f_catagory5" value={data.f_catagory5} onChange={changeInput} />
             <br />
 
             <label>포인트:</label>
-            <input
-                name="f_point"
-                placeholder="포인트"
-                value={data.f_point}
-                onChange={changeInput}
-            />
+            <input name="f_point" value={data.f_point} onChange={changeInput} />
             <br />
 
             <label>수량:</label>
-            <input
-                name="f_count"
-                placeholder="수량"
-                value={data.f_count}
-                onChange={changeInput}
-            />
+            <input name="f_count" value={data.f_count} onChange={changeInput} />
             <br />
 
             <br />
-
             <button onClick={onSubmit}>등록</button>
         </div>
     );

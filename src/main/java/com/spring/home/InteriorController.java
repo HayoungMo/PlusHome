@@ -31,84 +31,82 @@ import lombok.RequiredArgsConstructor;
 public class InteriorController {
 	@Resource
 	private InteriorService interiorService;
-	
-	
+
 	@GetMapping("/lists")
 	public List<CompanyDTO> getLists() {
 
-	    return interiorService.getLists();
+		return interiorService.getLists();
 	}
-	
+
 	@GetMapping("/articlelists")
 	public List<InteriorDTO> getArticleLists() {
-	    return interiorService.getArticleLists();
+		return interiorService.getArticleLists();
 	}
-	
+
 	@PostMapping("/read")
 	public List<InteriorDTO> getReadData(@RequestBody CompanyDTO dto) throws Exception {
-	    return interiorService.getReadData(dto);
+		return interiorService.getReadData(dto);
 	}
-	
+
 	@PostMapping("/example")
 	public List<InteriorExampleDTO> getExamples(@RequestBody CompanyDTO dto) throws Exception {
-	    return interiorService.getExamples(dto);
+		return interiorService.getExamples(dto);
 	}
-	
+
 	@PostMapping("/bookinglists")
 	public List<BookingDTO> getBookings(@RequestBody CompanyDTO dto) throws Exception {
-	    return interiorService.getBookings(dto);
+		return interiorService.getBookings(dto);
 	}
-	
+
 	@PostMapping("/invoice")
 	public List<InvoiceDTO> getInvoices(@RequestBody BookingDTO dto) throws Exception {
-	    return interiorService.getInvoices(dto);
+		return interiorService.getInvoices(dto);
 	}
-	
+
 	@PostMapping("/invoicedetails")
 	public List<InvoiceDetailDTO> getInvoicedetails(@RequestBody InvoiceDTO dto) throws Exception {
-	    return interiorService.getInvoicedetails(dto);
+		return interiorService.getInvoicedetails(dto);
 	}
-	
+
 	@PostMapping("/interiorreview")
 	public List<InteriorReviewDTO> getInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
-	    return interiorService.getInteriorReviews(dto);
+		return interiorService.getInteriorReviews(dto);
 	}
 
 	@PostMapping("/add/interior")
 	public void insertInteriorData(@RequestBody InteriorDTO dto) throws Exception {
-	    interiorService.insertInteriorData(dto);
+		interiorService.insertInteriorData(dto);
 	}
-	
+
 	@PostMapping("/add/example")
 	public void insertInteriorExampleData(@RequestBody InteriorExampleDTO dto) throws Exception {
-	    interiorService.insertInteriorExampleData(dto);	    
+		interiorService.insertInteriorExampleData(dto);
 	}
-	
+
 	@PostMapping("/add/booking")
 	public void insertBookData(@RequestBody BookingDTO dto) throws Exception {
-	    interiorService.insertBookingData(dto);	    
+		interiorService.insertBookingData(dto);
 	}
-	
+
 	@PostMapping("/add/invoice")
 	public void insertInvoiceData(@RequestBody InvoiceDTO dto) throws Exception {
-	    interiorService.insertInvoiceData(dto);	    
+		interiorService.insertInvoiceData(dto);
 	}
-	
+
 	@PostMapping("/add/invoicedetail")
 	public void insertInvoiceData(@RequestBody InvoiceDetailDTO dto) throws Exception {
-	    interiorService.insertInvoiceDetailData(dto);	    
-	}	
+		interiorService.insertInvoiceDetailData(dto);
+	}
 
 	@PostMapping("/getCompany")
 	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
 		return interiorService.getCompany(dto);
 	}
+
 	@PostMapping("/add/review")
 	public void insertInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		System.out.println("받은 DTO = " + dto);
-	    interiorService.insertInteriorReview(dto);	    
-
+		interiorService.insertInteriorReview(dto);
 	}
-	
-	
+
 }
