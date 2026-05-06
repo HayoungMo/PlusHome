@@ -1,15 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 
 const FurnitureArticle = () => {
     const calledRef = useRef(false);
 
     const { f_code } = useParams();
-    const [furniture, setFurniture] = useState(null);
-    const [mainImage, setMainImage] = useState(null);
-    const navigate = useNavigate();
+    const [furniture, setFurniture] = useState(null)
+    const [mainImage, setMainImage] = useState(null)
     
+    const location = useLocation()
+    const navigate = useNavigate()
+
+    const query = new URLSearchParams(location.search)
+    const page = query.get("page")
+
     useEffect(() => {
         if (calledRef.current) return;
 
@@ -43,7 +48,7 @@ const FurnitureArticle = () => {
     };
 
     const onBack = () => {
-        navigate(-1);
+        navigate(`/furniture/list?page=${page}`);
     };
 
     if (!furniture) {
@@ -52,13 +57,31 @@ const FurnitureArticle = () => {
 
     const imageList = furniture.imageList || [];
 
+    const orderedThumbInfo = [
+    ...imageList.filter(img => img.img_tag === "THUMBNAIL"),
+    ...imageList.filter(img => img.img_tag === "INFO")
+    ]
+
     const infoImages = imageList.filter(img => img.img_tag === "INFO");
     const othersImages = imageList.filter(img => img.img_tag === "OTHERS");
 
+    const onDelete = async (f_code) => {
+        try{
+            await FurnitureService.deleteFurniture(f_code)
+            alert("삭제 완료")
+            navigate(`/furniture/list?page=${page}`);
+            
+        }catch(error){
+            console.error(error)
+            alert("삭제 실패")
+        }
+    }
     return (
         <div style={{ padding: "20px" }}>
 
             <Link to="/">로고</Link><br />
+            <button></button>
+            <button onClick={()=> onDelete(f_code)}>삭제</button>
             <button onClick={onBack}>돌아가기</button>
 
             
@@ -71,8 +94,7 @@ const FurnitureArticle = () => {
 
                         {/* 썸네일 + info */}
                         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                            {imageList.filter(image=> image.img_tag === "THUMBNAIL" || image.img_tag === "INFO")
-                            .map((image, index) => (
+                            {orderedThumbInfo.map((image, index) => (
                                 <img
                                     key={index}
                                     src={`http://localhost:8080/api/images/FURNITURE/${image.img_name}`}

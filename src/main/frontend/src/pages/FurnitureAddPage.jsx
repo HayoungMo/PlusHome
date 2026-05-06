@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FurnitureService from "../service/furnitureService";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 const FurnitureAddPage = () => {
-    const navigate= useNavigate()
+
+    const navigate = useNavigate();
 
     const [data, setData] = useState({
         c_id: "testCompany",
@@ -22,6 +23,22 @@ const FurnitureAddPage = () => {
         f_count: "0"
     });
 
+    // ✅ FIX: data 선언 이후 useEffect 실행
+    useEffect(() => {
+        const price = Number(data.f_price);
+        const discount = Number(data.f_discount);
+
+        const result =
+            (!isNaN(price) && !isNaN(discount))
+                ? Math.floor(price - (price * discount / 100))
+                : 0;
+
+        setData(prev => ({
+            ...prev,
+            f_dprice: String(result)
+        }));
+    }, [data.f_price, data.f_discount]);
+
     const [thumbnail, setThumbnail] = useState(null);
     const [infoFiles, setInfoFiles] = useState([]);
     const [othersFiles, setOthersFiles] = useState([]);
@@ -31,16 +48,12 @@ const FurnitureAddPage = () => {
         const file = evt.target.files[0];
         if (!file) return;
 
-        console.log("thumbnail:", file);
-
         setThumbnail(file);
         setThumbnailPreview(URL.createObjectURL(file));
     };
 
     const onChangeInfo = (evt) => {
         const files = Array.from(evt.target.files);
-
-        console.log("info files:", files);
 
         const mapped = files.map(file => ({
             file,
@@ -53,8 +66,6 @@ const FurnitureAddPage = () => {
     const onChangeOthers = (evt) => {
         const files = Array.from(evt.target.files);
 
-        console.log("others files:", files);
-
         const mapped = files.map(file => ({
             file,
             preview: URL.createObjectURL(file)
@@ -64,36 +75,65 @@ const FurnitureAddPage = () => {
     };
 
     const changeInput = (evt) => {
-        const { name, value } = evt.target;
+    const { name, value } = evt.target;
 
-        let updatedData = {
-            ...data,
-            [name]: value
-        };
+    // 숫자 필드 목록
+    const numberFields = [
+        "f_price",
+        "f_discount",
+        "f_point",
+        "f_count"
+    ];
 
-        if (name === "f_price" || name === "f_discount") {
-            const price = name === "f_price" ? value : data.f_price;
-            const discount = name === "f_discount" ? value : data.f_discount;
+    // 숫자 필드만 필터링
+    if (numberFields.includes(name)) {
+        let numStr = value.replace(/[^0-9]/g, "");
 
-            if (price !== "" && discount !== "") {
-                const p = Number(price);
-                const d = Number(discount);
+        if (numStr === "") {
+            setData(prev => ({
+                ...prev,
+                [name]: ""
+            }));
+            return;
+        }
 
-                if (!isNaN(p) && !isNaN(d)) {
-                    updatedData.f_dprice = String(Math.floor(p - (p * d / 100)));
-                }
-            }
+        let num = Number(numStr);
+
+        let updatedData = { ...data };
+
+        if (name === "f_price") {
+            if (num <= 0) num = 1;
+            updatedData.f_price = String(num);
+        }
+
+        if (name === "f_discount") {
+            if (num < 0) num = 0;
+            if (num > 99) num = 99;
+            updatedData.f_discount = String(num);
+        }
+
+        if (name === "f_point") {
+            if (num < 0) num = 0;
+            updatedData.f_point = String(num);
+        }
+
+        if (name === "f_count") {
+            if (num < 0) num = 0;
+            updatedData.f_count = String(num);
         }
 
         setData(updatedData);
+        return;
+    }
+
+    setData(prev => ({
+        ...prev,
+        [name]: value
+    }));
     };
 
     const onSubmit = async () => {
         try {
-            console.log("submit start");
-            console.log("info:", infoFiles);
-            console.log("others:", othersFiles);
-
             if (!thumbnail) {
                 alert("썸네일 이미지를 선택해주세요.");
                 return;
@@ -120,10 +160,7 @@ const FurnitureAddPage = () => {
                 othersFiles: othersFiles.map(i => i.file)
             };
 
-            console.log("sendData:", sendData);
-
             const res = await FurnitureService.insertFurniture(sendData);
-            console.log("등록 결과:", res);
 
             alert("가구가 등록되었습니다.");
             navigate(-1);
@@ -141,6 +178,7 @@ const FurnitureAddPage = () => {
     return (
         <div>
             <button onClick={onBack}>가구 리스트</button>
+
             <h3>가구 등록 페이지</h3>
 
             <label>가구 이름:</label>
@@ -155,7 +193,7 @@ const FurnitureAddPage = () => {
 
             <label>할인율:</label>
             <input name="f_discount" value={data.f_discount} onChange={changeInput} />
-            <br/>
+            <br />
 
             <p>대표 이미지</p>
             <input type="file" accept="image/*" onChange={onChangeThumbnail} />
@@ -170,29 +208,10 @@ const FurnitureAddPage = () => {
             <p>상세 이미지</p>
             <input type="file" multiple onChange={onChangeInfo} />
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                {infoFiles.map((image, index) => (
-                    <img
-                        key={index}
-                        src={image.preview}
-                        style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                    />
-                ))}
-            </div>
-
             <p>이미지</p>
             <input type="file" multiple onChange={onChangeOthers} />
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                {othersFiles.map((image, index) => (
-                    <img
-                        key={index}
-                        src={image.preview}
-                        style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                    />
-                ))}
-            </div>
-          
+            <br/><br/>
             <label>카테고리1:</label>
             <input name="f_catagory1" value={data.f_catagory1} onChange={changeInput} />
             <br />

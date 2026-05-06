@@ -115,4 +115,12 @@ public class ImageService {
 		return total;
 	}
 
+	//가구 이미지 삭제용 함수 추가
+	public void deleteImageByFCode(String f_code) {
+		try {
+			imageMapper.deleteImageByFCode(f_code);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

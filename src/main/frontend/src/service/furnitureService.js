@@ -52,10 +52,16 @@ const getFurnitureItem = async (f_code) => {
 	return res.data;
 };
 
+const deleteFurniture = async (f_code) => {
+	const res= await http.get(`/furniture/delete?f_code=${f_code}`);
+	return res.data;
+}
+
 const FurnitureService = {
 	getFurniture,
 	insertFurniture,
 	getFurnitureItem,
+	deleteFurniture,
 };
 
 export default FurnitureService;
