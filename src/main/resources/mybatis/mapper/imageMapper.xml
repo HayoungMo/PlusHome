@@ -207,5 +207,12 @@
 		</if>
 		WHERE IMG_NAME = #{name}
 	</update>
+	
+	<delete id="deleteImageByFCode"
+		parameterType="String">
+		DELETE FROM IMG
+		WHERE IMG_KIND = 'FURNITURE'
+		AND DIR_A = #{f_code}
+	</delete>
 
 </mapper>
