@@ -73,7 +73,7 @@ const Chart1 = () => {
 					labels: slicedLabels,
 					datasets: [
 						{
-							label: "월세",
+							label: "임의의 값",
 							borderColor: "rgb(54, 162, 235)",
 							borderWidth: 2,
 							fill: false,
@@ -96,7 +96,7 @@ const Chart1 = () => {
 	};
 
 	return (
-		<div>
+		<div style={{maxWidth:632, maxHeight:316}}>
 			<Chart type="line" data={data2} options={option2} />
 
 			<Chart type="bar" data={data2} options={option1} />

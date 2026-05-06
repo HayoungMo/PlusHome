@@ -88,7 +88,7 @@ const InteriorExAdd = ({ company }) => {
 
   return (
     <div>
-      시공사례 3d 모델 업로드
+      <p>시공사례 3d 모델 업로드</p>
       <form name="imageInsertTestForm3">
         <input
           type="hidden"
@@ -120,12 +120,7 @@ const InteriorExAdd = ({ company }) => {
           name="dir_c"
           placeholder="DIR_C"
         />
-        <input
-          type="hidden"
-          value="LOGO"
-          name="dir_d"
-          placeholder="DIR_D"
-        />
+        <input type="hidden" value="LOGO" name="dir_d" placeholder="DIR_D" />
         {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
@@ -147,7 +142,6 @@ const InteriorExAdd = ({ company }) => {
           </Button>
         </div>
       </form>
-
       <p>시공사례 이미지 업로드</p>
       <form name="imageInsertTestForm2">
         <input

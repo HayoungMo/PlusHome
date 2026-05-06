@@ -4,10 +4,10 @@ import { Button } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import ImageService from "../service/imageService";
 
-const InteriorReview = () => {
+const InteriorReview = (/*{invoice} */) => {
   const [sendList, setSendList] = useState([]);
   const [invoice, setInvoice] = useState({
-    id: "comp01",
+    id: localStorage.getItem('id'),
     c_id: "comp02",
     c_kind: "interior",
     c_name: "감성인테리어",
