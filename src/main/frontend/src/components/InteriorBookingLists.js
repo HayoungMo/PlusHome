@@ -4,6 +4,7 @@ import CheckboxMui from './CheckboxMui';
 import TextFieldMui from './TextFieldMui';
 import { Button } from '@mui/material';
 import InteriorInvoiceAdd from './InteriorInvoiceAdd';
+import TableMui from './TableMui';
 
 const InteriorBookingLists = ({company}) => {
   const [booking, setBooking] = useState([]);
@@ -44,7 +45,7 @@ const InteriorBookingLists = ({company}) => {
   };
 return (
   <div>
-    <h3>상담 조회 결과</h3>
+    <p>상담 조회 결과</p>
 
     {Array.isArray(booking) && booking.length > 0 ? (
       booking.map((item, idx) => (
@@ -52,12 +53,7 @@ return (
             <p>{item.b_content}</p>
             <p>{item.b_createdDate}</p>
 
-            {normalizeAnswers(item?.b_answer).map((record, recordIdx) => (
-              <div key={recordIdx}>
-                tag: {record.tag}
-                /// value: {record.value}
-              </div>
-            ))}         
+            <TableMui rowData = {normalizeAnswers(item?.b_answer)}   />
             <InteriorInvoiceAdd booking={item}/>
 
         </div>

@@ -22,6 +22,7 @@ import FurnitureList from "./pages/FurnitureList";
 import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
+import SearchPage from "./pages/SearchPage";
 
 
 function App() {
@@ -33,17 +34,19 @@ function App() {
 	return (
 		<div className="App">
 			<Routes>
-				{/* Main화면
-					mui 테스트용 */}
-					<Route path='/component' element={<ComponentEx />}/> 
-          
         {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
         <Route path="/" element={<MainHomePage />} />
+        {/* 로그인 */}
         <Route path='/login' element={<LoginPage
         loginUser={loginUser}
         setLoginUser={setLoginUser}
         setLoginInfo={setLoginInfo} />}/>
         <Route path="/join" element={<JoinUserPage/>}/>
+				{/* 검색 */}
+        <Route path="/search" element={<SearchPage />} /> 
+        {/* mui 테스트용 */}
+				<Route path='/component' element={<ComponentEx />}/> 
+          
         <Route path="/findPw" element={<FindPwPage/>}/>
         
         <Route path="/wallet/charge" element={<WalletCharge/>}/>
