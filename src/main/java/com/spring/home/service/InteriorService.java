@@ -79,7 +79,9 @@ public class InteriorService {
 		return interiorMapper.getCompany(dto);
 	};
 	
-	
+	public List<InteriorReviewDTO> getInteriorReviews(InvoiceDTO dto) throws Exception {
+		return interiorMapper.getInteriorReviews(dto);
+	}
 	
 
 }

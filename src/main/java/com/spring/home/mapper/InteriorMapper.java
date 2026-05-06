@@ -31,6 +31,7 @@ public interface InteriorMapper {
 	
 	public void insertInteriorReview(InteriorReviewDTO dto) throws Exception;
 	
+	
 	public List<CompanyDTO> getLists();
 	
 	public List<InteriorDTO> getArticleLists();
@@ -44,6 +45,8 @@ public interface InteriorMapper {
 	public List<InvoiceDTO> getInvoices(BookingDTO dto) throws Exception;
 	
 	public List<InvoiceDetailDTO> getInvoicedetails(InvoiceDTO dto) throws Exception;
+	
+	public List<InteriorReviewDTO> getInteriorReviews(InvoiceDTO dto) throws Exception;
 
 	public CompanyDTO getCompany(CompanyDTO dto) throws Exception;
 	

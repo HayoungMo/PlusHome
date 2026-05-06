@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import InteriorBooking from "../components/InteriorBooking";
 import GetImgDir from "../resources/function/GetImgDir";
 import InteriorModelViewer from "../components/InteriorModelViewer";
+import InteriorReviewList from "../components/InteriorReviewList";
 
 //테스트용 파일
 function InteriorArticle() {
@@ -32,7 +33,6 @@ function InteriorArticle() {
       const companyList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
         companyList.map(async (item) => {
-          console.log("아이템" + item);
           const logo = await GetImgDir({
             kind: "I_EXAMPLE",
             returnType: "list",
@@ -42,6 +42,9 @@ function InteriorArticle() {
             d: item.ie_tag+"_"+item.ie_tag2,
             view: false,
           });
+           if (!logo?.result?.length) {
+             return null;
+           }
           return {
             ...item,
             logo,
@@ -58,16 +61,21 @@ function InteriorArticle() {
 
   return (
     <div>
-      <img
-        src={company.logo.result[0].img_name}
-        alt={`${company.c_name} 로고`}
-        style={{ width: "100px", height: "100px", objectFit: "cover" }}
-      />
-      <h2>업체 상세 페이지</h2>
-      <InteriorModelViewer/>
+      업체 상세 페이지
+      {company?.logo?.result?.map((item, idx) => (
+        <div key={idx}>
+          {item.img_tag === "PROFILE" && (
+            <img src={item.img_name} alt={`${company.c_name} 로고`} />
+          )}
+
+          {item.img_tag === "MODEL" && (
+            <InteriorModelViewer src={item.img_name} />
+          )}
+        </div>
+      ))}
 
       <div>
-        <h3>상세 조회 결과</h3>
+        상세 조회 결과
         {article.map((item, idx) => (
           <div key={idx}>
             id: {item.c_id}
@@ -80,25 +88,39 @@ function InteriorArticle() {
       </div>
 
       <div>
-        <h3>예시 조회 결과</h3>
+        예시 조회 결과
         {example.map((item, idx) => (
-          <div>
-            {item.logo.result.map((record, i) => (
-              <img
-                src={record.img_name}
-                alt={`${item.c_name} 로고`}
-                style={{ width: "100px", height: "100px", objectFit: "cover" }}
-              />
-            ))}
-            id: {item.c_id}
-            name: {item.c_name}
-            kind: {item.c_kind}
-            tag: {item.ie_tag}
-            tag2: {item.ie_tag2}
-            content: {item.ie_content}
+          <div key={idx}>
+            {/* 이미지 출력 */}
+            {item.logo?.result
+              .filter(
+                (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
+              )
+              .map((record, i) => (
+                <div>
+                  <img
+                    src={record.img_name}
+                    alt={`${item.c_name} 예시`}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              ))}
+
+            <div>id: {item.c_id}</div>
+            <div>name: {item.c_name}</div>
+            <div>kind: {item.c_kind}</div>
+            <div>tag: {item.ie_tag}</div>
+            <div>tag2: {item.ie_tag2}</div>
+            <div>content: {item.ie_content}</div>
           </div>
         ))}
       </div>
+
+      <InteriorReviewList company={company}/>
 
       {answers ? (
         <InteriorBooking company={company} answers={answers} />

@@ -22,7 +22,6 @@ import com.spring.home.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin("http://localhost:3000")
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @RestController
@@ -38,10 +37,18 @@ public class UserController {
 		
 		System.out.println("DTO:" + dto);		
 		
+		
+		
+		
 		 userService.insertUser(dto);
+		 
+		 
+		 
 		 
 		 return "ok";
 	}
+	
+	
 	
 	
 	
@@ -110,21 +117,36 @@ public class UserController {
 		return userService.findUserId(dto);
 	}
 	
+	//비밀번호 수정
+	public Map<String, Object> resetPw(@RequestBody UserDTO dto) throws Exception{
+		
+		String result = userService.resetPassword(dto);
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("result", result);
+		
+		return map;
+		
+	}
+	
 	
 	
 	//로그인
 	@PostMapping("/login")
 	public Map<String,Object> login(@RequestBody UserDTO dto) throws Exception {
-		
 		UserDTO user = userService.login(dto);
+		System.out.println(dto);
 		
 		Map<String,Object> result = new HashMap<>();
-		
+				
 		if(user==null) {
 			result.put("success", false);
-			result.put("message", "로그인 실패");
-		}else {
-			
+			result.put("message", "비밀번호가 일치하지 않습니다");
+		} else if(user.getCode().equals("NO_ID") && user.getId() == null) {
+			result.put("success", false);
+			result.put("message", "존재하지 않는 ID 입니다");
+		} else {
 			//JWT 생성
 			 String token = jwtUtil.createJwt(
 					 user.getId(),
@@ -139,7 +161,6 @@ public class UserController {
 			result.put("user", user);
 		}
 		
-	
 		return result;
 	}
 	

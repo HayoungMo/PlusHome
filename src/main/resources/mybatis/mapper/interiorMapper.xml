@@ -94,6 +94,14 @@
       and invoice_kind like '%' || #{invoice_kind} || '%' 
 </select>
 
+<select id="getInteriorReviews"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
+	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,ir_content,ir_createdDate
+	from I_REVIEW where c_id like '%' || #{c_id} || '%'
+      and c_kind like '%' || #{c_kind} || '%'
+      and c_name like '%' || #{c_name} || '%' 
+      and invoice_kind like '%' || #{invoice_kind} || '%' 
+</select>
+
 <select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
 	select * from company where 
 	C_ID = #{c_id} and
