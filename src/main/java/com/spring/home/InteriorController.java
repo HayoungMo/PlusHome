@@ -42,6 +42,11 @@ public class InteriorController {
 	public List<InteriorDTO> getArticleLists() {
 		return interiorService.getArticleLists();
 	}
+	
+	@PostMapping("/getCompany")
+	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
+		return interiorService.getCompany(dto);
+	}
 
 	@PostMapping("/read")
 	public List<InteriorDTO> getReadData(@RequestBody CompanyDTO dto) throws Exception {
@@ -97,16 +102,35 @@ public class InteriorController {
 	public void insertInvoiceData(@RequestBody InvoiceDetailDTO dto) throws Exception {
 		interiorService.insertInvoiceDetailData(dto);
 	}
-
-	@PostMapping("/getCompany")
-	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
-		return interiorService.getCompany(dto);
-	}
-
+	
 	@PostMapping("/add/review")
 	public void insertInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		System.out.println("받은 DTO = " + dto);
 		interiorService.insertInteriorReview(dto);
 	}
+	
+	
+
+	@PostMapping("/update/interior")
+	public void updateInterior(@RequestBody InteriorDTO dto) throws Exception {
+		interiorService.updateInterior(dto);
+	}
+
+	@PostMapping("/update/example")
+	public void updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		interiorService.updateInteriorExample(dto);
+	}
+
+	@PostMapping("/update/booking")
+	public void updateBooking(@RequestBody BookingDTO dto) throws Exception {
+		interiorService.updateBooking(dto);
+	}
+
+	@PostMapping("/update/review")
+	public void updateInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
+		interiorService.updateInteriorReview(dto);
+	}
+
+
 
 }

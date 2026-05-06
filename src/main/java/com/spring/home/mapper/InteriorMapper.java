@@ -50,5 +50,12 @@ public interface InteriorMapper {
 
 	public CompanyDTO getCompany(CompanyDTO dto) throws Exception;
 	
+	public void updateInterior(InteriorDTO dto) throws Exception ;
+
+	public void updateInteriorExample(InteriorExampleDTO dto);
+	
+	public void updateBooking(BookingDTO dto) throws Exception ;
+
+	public void updateInteriorReview(InteriorReviewDTO dto) throws Exception ;
 	
 }
