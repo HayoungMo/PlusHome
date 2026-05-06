@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import InteriorService from '../service/interiorService';
-import CheckboxMui from './CheckboxMui';
-import TextFieldMui from './TextFieldMui';
-import { Button } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import InteriorService from "../service/interiorService";
+import CheckboxMui from "./CheckboxMui";
+import TextFieldMui from "./TextFieldMui";
+import { Button } from "@mui/material";
 
-const InteriorInvoiceAdd = ({company}) => {
-
-    
-
-  const [details, setDetails] = useState([{ text: "", qty:"" ,price: "" }]);
-
-  const [booking, setBooking] = useState([]);
+const InteriorInvoiceAdd = ({ booking }) => {
+  const [details, setDetails] = useState([{ text: "", qty: "", price: "" }]);
 
   const [invoice, setInvoice] = useState([]);
 
@@ -25,27 +20,16 @@ const InteriorInvoiceAdd = ({company}) => {
   };
 
   useEffect(() => {
-    const fetchBooking = async () => {
-      const data = await InteriorService.fetchBookingList(company);
-      setBooking(data);
-    };
-
-    fetchBooking();
-  }, [reload]);
-
-  useEffect(() => {
     const fetchInvoices = async () => {
       const results = [];
 
-      for (const item of booking) {
-        const data = await InteriorService.fetchInvoice(item);
+      const data = await InteriorService.fetchInvoice(booking);
 
-        if (Array.isArray(data)) {
-          results.push(...data);
-        } else if (data) {
-          results.push(data);
-        }
-      }
+      if (Array.isArray(data)) {
+        results.push(...data);
+      } else if (data) {
+        results.push(data);
+      }      
       const merged = results.flat();
       setInvoice(merged);
     };
@@ -66,17 +50,15 @@ const InteriorInvoiceAdd = ({company}) => {
       setInvoiceDetails(merged);
     };
 
-    if (booking.length > 0) {
+
       fetchInvoices();
       if (invoice.length > 0) {
         fetchInvoiceDetails();
       } else {
         setInvoiceDetails([]);
       }
-    } else {
-      setInvoice([]);
-    }
-  }, [booking]);
+
+  }, []);
 
   useEffect(() => {
     const fetchInvoiceDetails = async () => {
@@ -123,7 +105,7 @@ const InteriorInvoiceAdd = ({company}) => {
   }, [invoiceDetails]);
 
   const addDetail = () => {
-    setDetails([...details, { text: "",qty: "" ,price: "" }]);
+    setDetails([...details, { text: "", qty: "", price: "" }]);
   };
 
   const handleDetailChange = (index, e) => {
@@ -173,122 +155,72 @@ const InteriorInvoiceAdd = ({company}) => {
 
     refresh();
   };
-
-  const normalizeAnswers = (answers) => {
-    if (!answers) return []; // ⭐ 추가
-
-    let parsedAnswers;
-    try {
-      parsedAnswers =
-        typeof answers === "string" ? JSON.parse(answers) : answers;
-    } catch (e) {
-      return []; // JSON 깨져도 안전하게
-    }
-
-    return Object.entries(parsedAnswers || {}).flatMap(([key, value]) => {
-      if (Array.isArray(value)) {
-        return value.map((v) => ({
-          tag: key,
-          value: v,
-        }));
-      }
-
-      return {
-        tag: key,
-        value: value ?? "", // ⭐ null 방지
-      };
-    });
-  };
-    return (
+ 
+  return (
+    <div>
       <div>
-        <h3>상담 조회 결과</h3>
-        {Array.isArray(booking) && booking.length > 0 ? (
-          booking.map((item, idx) => (
-            <div key={idx}>
-              <div>
-                <p>{item.b_content}</p>
-                {normalizeAnswers(item?.b_answer).map((record) => (
-                  <div>
-                    tag: {record.tag}
-                    /// value: {record.value}
-                  </div>
-                ))}
-              </div>
+        <h5>인테리어 견적 추가</h5>
 
-              {invoice.map((item, idx) => (
-                <div>
-                  {item.invoice_no}///{item.invoice_kind}
-                  {invoiceDetails
-                    .filter(
-                      (record) =>
-                        record?.invoice_no === item?.invoice_no &&
-                        record?.invoice_kind === item?.invoice_kind,
-                    )
-                    .map((item) => (
-                      <div>
-                        {item.invoice_text}//{item.invoice_qty}//
-                        {item.invoice_price}
-                      </div>
-                    ))}
-                </div>
-              ))}
+        {(booking.b_status ==="pending" || booking.b_status ==="quoting")&&(<form onSubmit={(e) => handleSubmit4(e, booking)}>
+          {details.map((detail, index) => (
+            <div key={index}>
+              <TextFieldMui
+                name="text"
+                label="항목"
+                value={detail.text}
+                onChange={(e) => handleDetailChange(index, e)}
+              />
 
-              {(item.b_status === "pending" || item.b_status === "quoting")&& (
-                <div>
-                  <h5>인테리어 견적 추가</h5>
-                  <form onSubmit={(e) => handleSubmit4(e, item)}>
-                    <CheckboxMui
-                      name="invoice_kind"
-                      checked={(kind[item.b_createdDate] || "N") === "Y"}
-                      onChange={(e) => {
-                        setKind({
-                          ...kind,
-                          [item.b_createdDate]: e.target.checked ? "Y" : "N",
-                        });
-                      }}
-                    />
-                    {details.map((detail, index) => (
-                      <div key={index}>
-                        <TextFieldMui
-                          name="text"
-                          label="항목"
-                          value={detail.text}
-                          onChange={(e) => handleDetailChange(index, e)}
-                        />
+              <TextFieldMui
+                name="qty"
+                label="개수"
+                value={detail.qty}
+                onChange={(e) => handleDetailChange(index, e)}
+              />
 
-                        <TextFieldMui
-                          name="qty"
-                          label="개수"
-                          value={detail.qty}
-                          onChange={(e) => handleDetailChange(index, e)}
-                        />
-
-                        <TextFieldMui
-                          name="price"
-                          label="가격"
-                          value={detail.price}
-                          onChange={(e) => handleDetailChange(index, e)}
-                        />
-                      </div>
-                    ))}
-
-                    <Button type="button" onClick={addDetail}>
-                      항목 추가
-                    </Button>
-
-                    <Button type="submit" variant="contained">
-                      견적서 제출
-                    </Button>
-                  </form>
-                </div>
-              )}
+              <TextFieldMui
+                name="price"
+                label="가격"
+                value={detail.price}
+                onChange={(e) => handleDetailChange(index, e)}
+              />
             </div>
-          ))
-        ) : (
-          <p>상담 데이터가 없습니다.</p>
-        )}
-      </div>
-    );
+          ))}
+
+          <Button type="button" onClick={addDetail}>
+            항목 추가
+          </Button>
+
+          <Button type="submit" variant="contained">
+            견적서 제출
+          </Button>
+        </form>
+)}
+      {invoice.map((invoiceItem, invoiceIdx) => (
+        <div key={invoiceIdx}>
+          {invoiceItem.invoice_no}
+          ///
+          {invoiceItem.invoice_kind}
+          {invoiceDetails
+            .filter(
+              (record) =>
+                record?.invoice_no === invoiceItem?.invoice_no &&
+                record?.invoice_kind === invoiceItem?.invoice_kind,
+            )
+            .map((detailItem, detailIdx) => (
+              <div key={detailIdx}>
+                {detailItem.invoice_text}
+                //
+                {detailItem.invoice_qty}
+                //
+                {detailItem.invoice_price}
+              </div>
+            ))}
+        </div>
+      ))}
+    </div>
+    </div>
+  );
 };
 
 export default InteriorInvoiceAdd;

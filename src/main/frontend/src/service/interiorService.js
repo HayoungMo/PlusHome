@@ -109,6 +109,23 @@ const fetchInvoiceDetails = async (data) => {
   }
 };
 
+const fetchInteriorReview = async (data) => {
+  console.log("인보이스 디테일에 들어온 데이터", data);
+  try {
+    const res = await http.post("interior/interiorreview", {
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      invoice_kind: "Y",
+    });
+
+    console.log("응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
 const AddInterior = async (data) => {
   try {
     const res = await http.post("/interior/add/interior", {
@@ -232,6 +249,7 @@ const InteriorService = {
   fetchBookingList,
   fetchInvoice,
   fetchInvoiceDetails,
+  fetchInteriorReview,
   AddInterior,
   AddInteriorExample,
   AddBooking,

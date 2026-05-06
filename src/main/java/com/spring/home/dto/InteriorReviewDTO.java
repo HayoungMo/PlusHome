@@ -20,5 +20,6 @@ public class InteriorReviewDTO {
     private String invoice_kind;
     
     private String ir_content;
+    private String ir_createdDate;
 
 }

@@ -53,6 +53,7 @@ const GetImgDir = async (props = {}) => {
 	}
 	const result = SetImageInList({ kind, orgList, view, imgData });
 
+
 	return { error: null, result: result };
 };
 

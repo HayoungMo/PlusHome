@@ -68,6 +68,11 @@ public class InteriorController {
 	public List<InvoiceDetailDTO> getInvoicedetails(@RequestBody InvoiceDTO dto) throws Exception {
 	    return interiorService.getInvoicedetails(dto);
 	}
+	
+	@PostMapping("/interiorreview")
+	public List<InteriorReviewDTO> getInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
+	    return interiorService.getInteriorReviews(dto);
+	}
 
 	@PostMapping("/add/interior")
 	public void insertInteriorData(@RequestBody InteriorDTO dto) throws Exception {
@@ -92,18 +97,17 @@ public class InteriorController {
 	@PostMapping("/add/invoicedetail")
 	public void insertInvoiceData(@RequestBody InvoiceDetailDTO dto) throws Exception {
 	    interiorService.insertInvoiceDetailData(dto);	    
-	}
-	
-<<<<<<< Updated upstream
+	}	
+
 	@PostMapping("/getCompany")
 	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
 		return interiorService.getCompany(dto);
-=======
+	}
 	@PostMapping("/add/review")
 	public void insertInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		System.out.println("받은 DTO = " + dto);
 	    interiorService.insertInteriorReview(dto);	    
->>>>>>> Stashed changes
+
 	}
 	
 	
