@@ -5,6 +5,8 @@ import InteriorExAdd from "../components/InteriorExAdd";
 import InteriorBookingLists from "../components/InteriorBookingLists";
 import InteriorChart from "../components/InteriorChart";
 import InteriorUpdate from "../components/InteriorUpdate";
+import InteriorExUpdate from "../components/InteriorExUpdate";
+import BookingUpdate from "../components/BookingUpdate";
 
 //테스트용 파일
 function InteriorCreated(/*{ company }*/) {
@@ -23,7 +25,9 @@ function InteriorCreated(/*{ company }*/) {
 
     <InteriorUpdate company={company}/>
 
-    <InteriorBookingLists company={company}/>
+    <InteriorExUpdate company={company}/>
+
+    <BookingUpdate company={company}/>
 
     <InteriorChart company={company}/>
 

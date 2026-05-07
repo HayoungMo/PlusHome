@@ -7,149 +7,340 @@
     <!-- 데이터 베이스 테스트 -->
     
 <insert id="insertInteriorData" parameterType="com.spring.home.dto.InteriorDTO">
-	insert into INTERIOR (c_id,c_kind,c_name,i_tag,i_text) values 
-	(#{c_id},#{c_kind},#{c_name},#{i_tag},#{i_text})	
+	INSERT INTO interior
+            (c_id,
+             c_kind,
+             c_name,
+             i_tag,
+             i_text)
+VALUES      ( # {c_id},
+              # {c_kind},
+              # {c_name},
+              # {i_tag},
+              # {i_text}) 	
 </insert>
 
 <insert id="insertInteriorExampleData" parameterType="com.spring.home.dto.InteriorExampleDTO">
-	insert into I_EXAMPLE (c_id,c_name,c_kind,ie_tag,ie_tag2,ie_content) values 
-	(#{c_id},#{c_name},#{c_kind},#{ie_tag},#{ie_tag2},#{ie_content})	
+INSERT INTO i_example
+            (c_id,
+             c_name,
+             c_kind,
+             ie_tag,
+             ie_tag2,
+             ie_content)
+VALUES      ( # {c_id},
+              # {c_name},
+              # {c_kind},
+              # {ie_tag},
+              # {ie_tag2},
+              # {ie_content}) 
 </insert>
 
 <insert id="insertBookingData" parameterType="com.spring.home.dto.BookingDTO">
-	insert into Booking (id, c_id,c_kind,c_name,b_kind,b_long,b_date,b_status,b_content,b_answer) values 
-	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_kind},#{b_long},#{b_date},#{b_status},#{b_content},#{b_answer})	
-</insert>
+INSERT INTO booking
+            (id,
+             c_id,
+             c_kind,
+             c_name,
+             b_kind,
+             b_long,
+             b_date,
+             b_status,
+             b_content,
+             b_answer)
+VALUES      ( # {id},
+              # {c_id},
+              # {c_kind},
+              # {c_name},
+              # {b_kind},
+              # {b_long},
+              # {b_date},
+              # {b_status},
+              # {b_content},
+              # {b_answer}) </insert>
 
 <insert id="insertInvoiceData" parameterType="com.spring.home.dto.InvoiceDTO">
-	insert into INVOICE (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind) values 
-	(#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind})	
+INSERT INTO invoice
+            (id,
+             c_id,
+             c_kind,
+             c_name,
+             b_createddate,
+             invoice_no,
+             invoice_kind)
+VALUES      ( # {id},
+              # {c_id},
+              # {c_kind},
+              # {c_name},
+              # {b_createdDate},
+              # {invoice_no},
+              # {invoice_kind}) 	
 </insert>
 
 <insert id="insertInvoiceDetails" parameterType="com.spring.home.dto.InvoiceDTO">
     INSERT ALL
     <foreach collection="details" item="item" index="idx">
-        INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,INVOICE_TEXT,invoice_qty,INVOICE_PRICE)
-        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_qty},#{item.invoice_price})
+ INTO invoice_detail (id, c_id,c_kind,c_name,b_createddate,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price)
+VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createddate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_qty},#{item.invoice_price})
     </foreach>  
     SELECT * FROM DUAL  
 </insert>
 
 <insert id="insertInvoiceDetailData" parameterType="com.spring.home.dto.InvoiceDetailDTO">
-    INSERT INTO INVOICE_DETAIL (id, c_id,c_kind,c_name,b_createdDate,invoice_no,INVOICE_TEXT,invoice_qty,INVOICE_PRICE)
-        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_text},#{invoice_qty}, #{invoice_price})
+  INSERT INTO invoice_detail
+            (id,
+             c_id,
+             c_kind,
+             c_name,
+             b_createddate,
+             invoice_no,
+             invoice_text,
+             invoice_qty,
+             invoice_price)
+VALUES      ( # {id},
+              # {c_id},
+              # {c_kind},
+              # {c_name},
+              # {b_createdDate},
+              # {invoice_no},
+              # {invoice_text},
+              # {invoice_qty},
+              # {invoice_price}) 
 </insert>
 
 <insert id="insertInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
-    INSERT INTO I_REVIEW (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,ir_content)
-        VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{ir_content})
+INSERT INTO i_review
+            (id,
+             c_id,
+             c_kind,
+             c_name,
+             b_createddate,
+             invoice_no,
+             invoice_kind,
+             ir_content)
+VALUES      ( # {id},
+              # {c_id},
+              # {c_kind},
+              # {c_name},
+              # {b_createdDate},
+              # {invoice_no},
+              # {invoice_kind},
+              # {ir_content}) 
 </insert>
 
 <select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
-	select c_id,c_kind,c_name,c_tel,c_addr,c_info,c_boss from COMPANY WHERE c_kind like 'interior'
+	SELECT c_id,
+       c_kind,
+       c_name,
+       c_tel,
+       c_addr,
+       c_info,
+       c_boss
+FROM   company
+WHERE  c_kind LIKE 'interior' 
 </select>
 
 <select id="getArticleLists" resultType="com.spring.home.dto.InteriorDTO">
-	select c_id,c_kind,c_name,i_tag,i_text from INTERIOR
+SELECT c_id,
+       c_kind,
+       c_name,
+       i_tag,
+       i_text
+FROM   interior 
 </select>
 
 <select id="getReadData"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
-	select c_id,c_kind,c_name,i_tag,i_text
-	from INTERIOR where c_id like '%' || #{c_id} || '%'
-      and c_kind like '%' || #{c_kind} || '%'
-      and c_name like '%' || #{c_name} || '%' 
+SELECT c_id,
+       c_kind,
+       c_name,
+       i_tag,
+       i_text
+FROM   interior
+WHERE  c_id LIKE '%'
+                 || # {c_id}
+                 || '%'
+       AND c_kind LIKE '%'
+                       || # {c_kind}
+                       || '%'
+       AND c_name LIKE '%'
+                       || # {c_name}
+                       || '%' 
 </select>
 
 <select id="getExamples"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorExampleDTO">
-	select c_id,c_kind,c_name,ie_content,ie_tag,ie_tag2
-	from I_EXAMPLE where c_id like '%' || #{c_id} || '%'
-      and c_kind like '%' || #{c_kind} || '%'
-      and c_name like '%' || #{c_name} || '%' 
+SELECT c_id,
+       c_kind,
+       c_name,
+       ie_content,
+       ie_tag,
+       ie_tag2
+FROM   i_example
+WHERE  c_id LIKE '%'
+                 || # {c_id}
+                 || '%'
+       AND c_kind LIKE '%'
+                       || # {c_kind}
+                       || '%'
+       AND c_name LIKE '%'
+                       || # {c_name}
+                       || '%' 
 </select>
 
 <select id="getBookings"  parameterType="hashMap" resultType="com.spring.home.dto.BookingDTO">
-	select id,b_createddate,c_id,c_kind,c_name,b_kind,b_date,b_status,b_content,b_answer
-	from Booking where c_id like '%' || #{c_id} || '%'
-      and c_kind like '%' || #{c_kind} || '%'
-      and c_name like '%' || #{c_name} || '%' 
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       b_kind,
+       b_long,
+       b_date,
+       b_status,
+       b_content,
+       b_answer
+FROM   booking
+WHERE  c_id LIKE '%'
+                 || # {c_id}
+                 || '%'
+       AND c_kind LIKE '%'
+                       || # {c_kind}
+                       || '%'
+       AND c_name LIKE '%'
+                       || # {c_name}
+                       || '%' 
 </select>
 
 <select id="getInvoices"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
-	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind
-	from INVOICE where id like '%' || #{id} || '%'
-		and c_id like '%' || #{c_id} || '%'
-      and c_kind like '%' || #{c_kind} || '%'
-      and c_name like '%' || #{c_name} || '%' 
-      and b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       invoice_no,
+       invoice_kind
+FROM   invoice
+WHERE  id LIKE '%'
+               || # {id}
+               || '%'
+       AND c_id LIKE '%'
+                     || # {c_id}
+                     || '%'
+       AND c_kind LIKE '%'
+                       || # {c_kind}
+                       || '%'
+       AND c_name LIKE '%'
+                       || # {c_name}
+                       || '%'
+       AND b_createddate = # {b_createdDate, jdbcType=TIMESTAMP} 
 </select>
 
 <select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
-	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price
-	from INVOICE_DETAIL where id like '%' || #{id} || '%'
-		and c_id like '%' || #{c_id} || '%'
-      and c_kind like '%' || #{c_kind} || '%'
-      and c_name like '%' || #{c_name} || '%' 
-      and b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
-      and invoice_no like '%' || #{invoice_no} || '%'
-      and invoice_kind like '%' || #{invoice_kind} || '%' 
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       invoice_no,
+       invoice_kind,
+       invoice_text,
+       invoice_qty,
+       invoice_price
+FROM   invoice_detail
+WHERE  id LIKE '%'
+               || # {id}
+               || '%'
+       AND c_id LIKE '%'
+                     || # {c_id}
+                     || '%'
+       AND c_kind LIKE '%'
+                       || # {c_kind}
+                       || '%'
+       AND c_name LIKE '%'
+                       || # {c_name}
+                       || '%'
+       AND b_createddate = # {b_createdDate, jdbcType=TIMESTAMP}
+       AND invoice_no LIKE '%'
+                           || # {invoice_no}
+                           || '%'
+       AND invoice_kind LIKE '%'
+                             || # {invoice_kind}
+                             || '%' 
 </select>
 
 <select id="getInteriorReviews"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
-	select id,b_createddate,c_id,c_kind,c_name,invoice_no,invoice_kind,ir_content,ir_createdDate
-	from I_REVIEW where c_id like '%' || #{c_id} || '%'
-      and c_kind like '%' || #{c_kind} || '%'
-      and c_name like '%' || #{c_name} || '%' 
-      and invoice_kind like '%' || #{invoice_kind} || '%' 
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       invoice_no,
+       invoice_kind,
+       ir_content,
+       ir_createddate
+FROM   i_review
+WHERE  c_id LIKE '%'
+                 || # {c_id}
+                 || '%'
+       AND c_kind LIKE '%'
+                       || # {c_kind}
+                       || '%'
+       AND c_name LIKE '%'
+                       || # {c_name}
+                       || '%'
+       AND invoice_kind LIKE '%'
+                             || # {invoice_kind}
+                             || '%' 
 </select>
 
 <select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
-	select * from company where 
-	C_ID = #{c_id} and
-	C_NAME = #{c_name} and
-	C_KIND = #{c_kind}
+SELECT *
+FROM   company
+WHERE  c_id = # {c_id}
+       AND c_name = # {c_name}
+       AND c_kind = # {c_kind} 
 </select>
 
 <update id="updateInterior" parameterType="com.spring.home.dto.InteriorDTO">
-    UPDATE INTERIOR
-    SET I_TEXT = #{i_text}
-    WHERE C_ID = #{c_id}
-      AND C_KIND = #{c_kind}
-      AND C_NAME = #{c_name}
-      AND I_TAG = #{i_tag}
+UPDATE interior
+SET    i_text = # {i_text}
+WHERE  c_id = # {c_id}
+       AND c_kind = # {c_kind}
+       AND c_name = # {c_name}
+       AND i_tag = # {i_tag} 
 </update>
 
 <update id="updateInteriorExample" parameterType="com.spring.home.dto.InteriorExampleDTO">
-    UPDATE I_EXAMPLE
-    SET IE_CONTENT= #{ie_content}
-    WHERE C_ID = #{c_id}
-      AND C_KIND = #{c_kind}
-      AND C_NAME = #{c_name}
-      AND IE_TAG = #{ie_tag}
-      AND IE_TAG2 = #{ie_tag2}
+UPDATE i_example
+SET    ie_content = # {ie_content}
+WHERE  c_id = # {c_id}
+       AND c_kind = # {c_kind}
+       AND c_name = # {c_name}
+       AND ie_tag = # {ie_tag}
+       AND ie_tag2 = # {ie_tag2} 
 </update>
 
 <update id="updateBooking" parameterType="com.spring.home.dto.BookingDTO">
-    UPDATE BOOKING
-    SET B_KIND= #{b_kind},
-    B_LONG = #{b_long},
-    B_STATUS= #{b_status},
-    B_DATE= #{b_date},
-    B_CONTENT= #{b_content},
-    WHERE C_ID = #{c_id}
-      AND C_KIND = #{c_kind}
-      AND C_NAME = #{c_name}
-      AND B_CREATEDDATE = #{b_createdDate}
-      AND ID = #{id}
+UPDATE booking
+SET    b_kind = # {b_kind},
+       b_long = # {b_long},
+       b_status = # {b_status},
+       b_date = # {b_date},
+       b_content = # {b_content}
+WHERE  c_id = # {c_id}
+       AND c_kind = # {c_kind}
+       AND c_name = # {c_name}
+       AND b_createddate = # {b_createdDate}
+       AND id = # {id} 
 </update>
 
 <update id="updateInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
-    UPDATE I_REVIEW
-    SET IR_CONTENT= #{ir_content}
-    WHERE C_ID = #{c_id}
-      AND C_KIND = #{c_kind}
-      AND C_NAME = #{c_name}
-      AND B_CREATEDDATE = #{b_createdDate}
-      AND ID = #{id}
+UPDATE i_review
+SET    ir_content = # {ir_content}
+WHERE  c_id = # {c_id}
+       AND c_kind = # {c_kind}
+       AND c_name = # {c_name}
+       AND b_createddate = # {b_createdDate}
+       AND id = # {id} 
 </update>
 
 
