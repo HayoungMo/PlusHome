@@ -18,4 +18,6 @@ public interface CompanyMapper {
 	public void updateData(CompanyDTO dto) throws Exception;
 	
 	public void deleteData(String c_id) throws Exception;
+
+	public List<CompanyDTO> getReadDataList(String id) throws Exception;
 }

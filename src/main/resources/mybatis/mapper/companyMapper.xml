@@ -42,4 +42,8 @@
 	select * from company where c_id=#{c_id}
 </select>
 
+<select id="getReadDataList" parameterType="String" resultType="com.spring.home.dto.CompanyDTO">
+	select * from company where c_id=#{c_id}
+</select>
+
 </mapper>

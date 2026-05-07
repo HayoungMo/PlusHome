@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.home.dto.ResponseIdDTO;
+import com.spring.home.dto.ResponsePwDTO;
 import com.spring.home.dto.UserDTO;
+import com.spring.home.service.CompanyService;
 import com.spring.home.service.UserService;
 import com.spring.home.util.JwtUtil;
 
@@ -29,6 +32,7 @@ public class UserController {
 	
 	
 	private final UserService userService;
+	private final CompanyService companyService;
 	private final JwtUtil jwtUtil;
 	
 	//일반 유저 회원가입
@@ -112,22 +116,21 @@ public class UserController {
 	}
 	
 	//아이디 찾기
-	@PostMapping("/find-id")
-	public String findId(@RequestBody UserDTO dto) throws Exception {
+	@PostMapping("/find-Id")
+	public ResponseIdDTO findId(@RequestBody UserDTO dto) throws Exception {
+		System.out.println("데이터 확인"+dto);
+
 		return userService.findUserId(dto);
 	}
 	
+	
 	//비밀번호 수정
-	public Map<String, Object> resetPw(@RequestBody UserDTO dto) throws Exception{
+	@PostMapping("/reset-Pw")
+	public ResponsePwDTO resetPw(@RequestBody UserDTO dto) throws Exception{
+		System.out.println("데이터 값 확인:" + dto);
 		
-		String result = userService.resetPassword(dto);
-		
-		Map<String, Object> map = new HashMap<>();
-		
-		map.put("result", result);
-		
-		return map;
-		
+		return userService.resetPassword(dto);
+	
 	}
 	
 	
@@ -158,6 +161,10 @@ public class UserController {
 			
 			result.put("success", true);
 			result.put("token",token);
+			
+			if(user.getType().equals("company"))
+				user.setCompanyList(companyService.getReadDataList(user.getId()));
+			
 			result.put("user", user);
 		}
 		

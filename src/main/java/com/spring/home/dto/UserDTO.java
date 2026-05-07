@@ -1,6 +1,7 @@
 package com.spring.home.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,5 +24,5 @@ public class UserDTO {
 	
 	private CompanyDTO companyDto;
 
-	
+	private List<CompanyDTO> companyList;
 }

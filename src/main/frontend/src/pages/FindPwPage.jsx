@@ -1,5 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import http from '../http-common';
+import findService from '../service/findService';
+import { useNavigate } from 'react-router-dom';
 //
 const FindPwPage = () => {
 
@@ -9,6 +12,8 @@ const FindPwPage = () => {
         pw:'',
         pwCheck:''
     })
+
+    const navigate = useNavigate();
 
     const[msg,setMsg] = useState('');
 
@@ -25,16 +30,22 @@ const FindPwPage = () => {
 
         try {
             
-            const res = await axios.post("/user/reset-pw",{
-                id:form.id,
+            const res = await findService.findPw({
+                id:form.id, 
                 email: form.email,
                 pw: form.pw
             })
 
-            if(res.data.result === "SUCCESS"){
-                alert("비밀번호 변경 완료")
+            console.log("data 넘어오냐고",res)
+
+            if(res.success){
+                alert(res.message)
+
+                navigate('/login')
+
+
             }else{
-                setMsg("정보가 일치하지 않습니다.")
+                setMsg(res.message)
             }
 
         } catch (error) {
@@ -45,14 +56,19 @@ const FindPwPage = () => {
 
     return (
         <div>
+            <a href='/'><h1>로고</h1></a>     
+
+
             <h3>비밀번호 찾기</h3>
 
             <input name='id' placeholder='아이디' onChange={onChange}/>
             <input name='email' placeholder='이메일' onChange={onChange}/>
             <input type='password' name='pw' placeholder='새 비밀번호' onChange={onChange}/>
-            <input type='password' name='pwCheck' placeholder='비밀번호 ghkrdls' onChange={onChange}/>
+            <input type='password' name='pwCheck' placeholder='비밀번호 확인' onChange={onChange}/>
 
             <button onClick={onSubmit}>비밀번호 변경</button>
+
+             <a href='/'><h5>취소하기</h5></a>
 
             {msg && <div style={{color:'red'}}>{msg}</div>}
 

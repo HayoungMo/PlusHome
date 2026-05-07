@@ -23,6 +23,7 @@ import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
+import FindIdPage from "./pages/FindIdPage";
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
         {/* mui 테스트용 */}
 				<Route path='/component' element={<ComponentEx />}/> 
           
+        <Route path="/findId" element={<FindIdPage/>}/>
         <Route path="/findPw" element={<FindPwPage/>}/>
         
         <Route path="/wallet/charge" element={<WalletCharge/>}/>

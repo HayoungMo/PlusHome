@@ -10,7 +10,7 @@ const FindIdPage = () => {
         name:'',
     })
 
-    const navigate = useNavigate('')
+    const navigate = useNavigate()
 
     const onChange = (evt) =>{
         const {name,value} = evt.target
@@ -57,6 +57,7 @@ const FindIdPage = () => {
 
     return (
         <div>
+            <a href='/'><h1>로고</h1></a>
             <h3>아이디 찾기</h3>
             <input name='email' placeholder='이메일' onChange={onChange} value={form.email}/>
             <input name='name' placeholder='이름' onChange={onChange} value={form.name}/>
@@ -67,7 +68,7 @@ const FindIdPage = () => {
                     <p>아이디: {result}</p>
                             ) : (
                     errorMsg && <p style={{color:'red'}}>{errorMsg}</p>
-                )}
+                )}                
 
                 <br/>
 
