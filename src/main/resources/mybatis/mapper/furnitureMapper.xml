@@ -24,22 +24,22 @@
 	             f_point,
 	             f_count,
 	             f_viewcount)
-	values      ( #{f_code},
-	              #{c_id},
-	              #{c_kind},
-	              #{c_name},
-	              #{f_name},
-	              #{f_price},
-	              #{f_dprice},
+	values      ( # {f_code},
+	              # {c_id},
+	              # {c_kind},
+	              # {c_name},
+	              # {f_name},
+	              # {f_price},
+	              # {f_dprice},
 	              sysdate,
-	              #{f_catagory1},
-	              #{f_catagory2},
-	              #{f_catagory3},
-	              #{f_catagory4},
-	              #{f_catagory5},
-	              #{f_discount},
-	              #{f_point},
-	              #{f_count},
+	              # {f_catagory1},
+	              # {f_catagory2},
+	              # {f_catagory3},
+	              # {f_catagory4},
+	              # {f_catagory5},
+	              # {f_discount},
+	              # {f_point},
+	              # {f_count},
 	              0)
 </insert>
 
@@ -47,30 +47,30 @@
 <select id="countByFCode" parameterType="String" resultType="int">
 	select Count(*)
 	from   furniture
-	where  f_code = #{f_code} 
+	where  f_code = # {f_code} 
 </select>
 
 <!-- 수정 -->
 <update id="updateData" parameterType="com.spring.home.dto.FurnitureDTO">
 	update furniture
-	set    f_name = #{f_name},
-	       f_price = #{f_price},
-	       f_dprice = #{f_dprice},
-	       f_catagory1 = #{f_catagory1},
-	       f_catagory2 = #{f_catagory2},
-	       f_catagory3 = #{f_catagory3},
-	       f_catagory4 = #{f_catagory4},
-	       f_catagory5 = #{f_catagory5},
-	       f_discount = #{f_discount},
-	       f_point = #{f_point},
-	       f_count = #{f_count}
-	where  f_code = #{f_code} 
+	set    f_name = # {f_name},
+	       f_price = # {f_price},
+	       f_dprice = # {f_dprice},
+	       f_catagory1 = # {f_catagory1},
+	       f_catagory2 = # {f_catagory2},
+	       f_catagory3 = # {f_catagory3},
+	       f_catagory4 = # {f_catagory4},
+	       f_catagory5 = # {f_catagory5},
+	       f_discount = # {f_discount},
+	       f_point = # {f_point},
+	       f_count = # {f_count}
+	where  f_code = # {f_code} 
 </update>
 
 <!-- 삭제 -->
 <delete id="deleteData" parameterType="String">
 	delete furniture
-	where  f_code = #{f_code} 
+	where  f_code = # {f_code} 
 </delete>
 
 <!-- 전체 select -->
@@ -98,8 +98,8 @@
                                       f_count,
                                       f_viewcount
                              from     furniture
-                             where    ${searchkey} like '%'
-                                               || #{searchvalue}
+                             where    ${searchKey} like '%'
+                                               || #{searchValue}
                                                || '%'
                              order by f_createddate desc ) data)
 
@@ -112,7 +112,7 @@
 <update id="updateViewCount" parameterType="String">
 	update furniture
 	set    f_viewcount = f_viewcount + 1
-	where  f_code = #{f_code} 
+	where  f_code = # {f_code} 
 </update>
 
 <!-- 1개 select -->
@@ -135,14 +135,14 @@
 	       f_count,
 	       f_viewcount
 	from   furniture
-	where  f_code = #{f_code} 
+	where  f_code = # {f_code} 
 </select>
 
 <select id="countSearchData" resultType="int">
 	select Count(*)
 	from   furniture
-	where  ${searchkey} like '%'
-	              || #{searchvalue}
+	where  ${searchKey} like '%'
+	              || #{searchValue}
 	              || '%'
 </select>
 
