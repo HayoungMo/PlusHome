@@ -1,0 +1,76 @@
+/* layouts/CompanyLayout.css */
+
+.company-layout {
+	width: 100%;
+	min-height: 100vh;
+	background-color: #f5f6fa;
+}
+
+.header {
+	height: 64px;
+	background-color: #ffffff;
+	border-bottom: 1px solid #ddd;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 24px;
+	box-sizing: border-box;
+}
+
+.header-tabs {
+	display: flex;
+	gap: 8px;
+}
+
+.tab {
+	border: none;
+	background: transparent;
+	padding: 10px 14px;
+	cursor: pointer;
+	font-size: 15px;
+	border-radius: 6px;
+}
+
+.tab:hover {
+	background-color: #f0f0f0;
+}
+
+.tab.active {
+	background-color: #222831;
+	color: white;
+}
+
+.company-body {
+	display: flex;
+	min-height: calc(100vh - 64px);
+}
+
+.leftbar {
+	width: 240px;
+	background-color: #222831;
+	color: white;
+	padding: 24px 16px;
+	box-sizing: border-box;
+}
+
+.leftbar ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.leftbar li {
+	padding: 12px 8px;
+	cursor: pointer;
+	border-radius: 6px;
+}
+
+.leftbar li:hover {
+	background-color: #393e46;
+}
+
+.company-content {
+	flex: 1;
+	padding: 32px;
+	box-sizing: border-box;
+}

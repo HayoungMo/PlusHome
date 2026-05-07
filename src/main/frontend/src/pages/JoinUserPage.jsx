@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Await, useNavigate } from 'react-router-dom';
 import JoinService from "../service/joinService";
 
-
+//
 const email_Option =[
     {value:'none', label: '--- 선택 ---'},
     {value:'@naver.com', label: '@naver.com'},
@@ -161,7 +161,7 @@ const JoinUserPage = () => {
 
         
         if (!form.id.trim()) { 
-            setErrorMsg('아이디를 입력하세요'); 
+            setIdError('아이디를 입력하세요'); 
             return; 
         }
 
@@ -180,6 +180,8 @@ const JoinUserPage = () => {
         }
 
     };
+
+    const [idError,setIdError] = useState('')
 
     const onNext = async () => {
         console.log("클릭이 되긴 하나?")
@@ -265,6 +267,8 @@ const JoinUserPage = () => {
                     <button type='button' className=''
                     onClick={onCheckId}>중복확인</button>
              </div>
+
+             {idFormatMsg && <div style={{color:'red'}}>{idFormatMsg}</div>}
              {idCheck.msg&&(
                 <div style={{color: idCheck.ok ? 'green' : 'red'}}>
                     {idCheck.msg}

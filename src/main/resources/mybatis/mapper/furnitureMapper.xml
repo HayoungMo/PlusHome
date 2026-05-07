@@ -6,59 +6,144 @@
 
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.FurnitureDTO">
-	insert into furniture (f_code, c_id, c_kind, c_name,f_name,f_price, f_dprice, f_createdDate, f_catagory1,f_catagory2,f_catagory3,f_catagory4,f_catagory5,f_discount,f_point,f_count,f_viewCount)
-	values (#{f_code},#{c_id},#{c_kind},#{c_name},#{f_name},#{f_price},#{f_dprice},sysdate ,#{f_catagory1},#{f_catagory2},#{f_catagory3},#{f_catagory4},#{f_catagory5},#{f_discount},#{f_point},#{f_count},0)
+	insert into furniture
+	            (f_code,
+	             c_id,
+	             c_kind,
+	             c_name,
+	             f_name,
+	             f_price,
+	             f_dprice,
+	             f_createddate,
+	             f_catagory1,
+	             f_catagory2,
+	             f_catagory3,
+	             f_catagory4,
+	             f_catagory5,
+	             f_discount,
+	             f_point,
+	             f_count,
+	             f_viewcount)
+	values      ( #{f_code},
+	              #{c_id},
+	              #{c_kind},
+	              #{c_name},
+	              #{f_name},
+	              #{f_price},
+	              #{f_dprice},
+	              sysdate,
+	              #{f_catagory1},
+	              #{f_catagory2},
+	              #{f_catagory3},
+	              #{f_catagory4},
+	              #{f_catagory5},
+	              #{f_discount},
+	              #{f_point},
+	              #{f_count},
+	              0)
 </insert>
 
 <!-- f_code 중복 확인 -->
 <select id="countByFCode" parameterType="String" resultType="int">
-	select count(*)
-	from furniture
-	where f_code = #{f_code}
+	select Count(*)
+	from   furniture
+	where  f_code = #{f_code} 
 </select>
 
 <!-- 수정 -->
 <update id="updateData" parameterType="com.spring.home.dto.FurnitureDTO">
-	update furniture set f_name=#{f_name}, f_price=#{f_price},f_dprice=#{f_dprice},f_catagory1=#{f_catagory1},f_catagory2=#{f_catagory2},f_catagory3=#{f_catagory3},f_catagory4=#{f_catagory4},f_catagory5=#{f_catagory5},f_discount=#{f_discount},f_point=#{f_point},f_count=#{f_count}
-	where f_code=#{f_code}
+	update furniture
+	set    f_name = #{f_name},
+	       f_price = #{f_price},
+	       f_dprice = #{f_dprice},
+	       f_catagory1 = #{f_catagory1},
+	       f_catagory2 = #{f_catagory2},
+	       f_catagory3 = #{f_catagory3},
+	       f_catagory4 = #{f_catagory4},
+	       f_catagory5 = #{f_catagory5},
+	       f_discount = #{f_discount},
+	       f_point = #{f_point},
+	       f_count = #{f_count}
+	where  f_code = #{f_code} 
 </update>
 
 <!-- 삭제 -->
 <delete id="deleteData" parameterType="String">
-	delete furniture where f_code=#{f_code}
+	delete furniture
+	where  f_code = #{f_code} 
 </delete>
 
 <!-- 전체 select -->
 <select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.FurnitureDTO">
-	select * from (
-    select rownum rnum, data.* from (
-    select f_code, c_id, c_kind, c_name, f_name, f_price, f_dprice,
-    f_createdDate, f_catagory1, f_catagory2, f_catagory3,
-    f_catagory4, f_catagory5, f_discount, f_point, f_count, f_viewCount
-    from furniture
-    where ${searchKey} like '%' || #{searchValue} || '%'
-    order by f_createdDate desc
-    ) data)
-    <![CDATA[
-    where rnum>=#{start} and rnum<=#{end}
-    ]]>
+	select *
+	from   (
+              select rownum rnum,
+                     data.*
+              from   (
+                             select   f_code,
+                                      c_id,
+                                      c_kind,
+                                      c_name,
+                                      f_name,
+                                      f_price,
+                                      f_dprice,
+                                      f_createddate,
+                                      f_catagory1,
+                                      f_catagory2,
+                                      f_catagory3,
+                                      f_catagory4,
+                                      f_catagory5,
+                                      f_discount,
+                                      f_point,
+                                      f_count,
+                                      f_viewcount
+                             from     furniture
+                             where    ${searchKey} like '%'
+                                               || #{searchValue}
+                                               || '%'
+                             order by f_createddate desc ) data)
+
+					      <![CDATA[
+					      where rnum>=#{start} and rnum<=#{end}
+					      ]]>
 </select>
 
 <!-- 조회수+1 -->
 <update id="updateViewCount" parameterType="String">
-	update furniture set f_viewCount = f_viewCount+1 where f_code=#{f_code}
+	update furniture
+	set    f_viewcount = f_viewcount + 1
+	where  f_code = #{f_code} 
 </update>
 
 <!-- 1개 select -->
 <select id="getReadData" parameterType="String" resultType="com.spring.home.dto.FurnitureDTO">
-	select f_code, c_id, c_kind, c_name,f_name,f_price, f_dprice, f_createdDate, f_catagory1,f_catagory2,f_catagory3,f_catagory4,f_catagory5,f_discount,f_point,f_count,f_viewCount
-	from furniture where f_code=#{f_code}
+	select f_code,
+	       c_id,
+	       c_kind,
+	       c_name,
+	       f_name,
+	       f_price,
+	       f_dprice,
+	       f_createddate,
+	       f_catagory1,
+	       f_catagory2,
+	       f_catagory3,
+	       f_catagory4,
+	       f_catagory5,
+	       f_discount,
+	       f_point,
+	       f_count,
+	       f_viewcount
+	from   furniture
+	where  f_code = #{f_code} 
 </select>
 
 <select id="countSearchData" resultType="int">
-    SELECT COUNT(*)
-    FROM FURNITURE
-    WHERE ${searchKey} LIKE '%' || #{searchValue} || '%'
+	select Count(*)
+	from   furniture
+	where  ${searchKey} like '%'
+	              || #{searchValue}
+	              || '%'
 </select>
 
 </mapper>

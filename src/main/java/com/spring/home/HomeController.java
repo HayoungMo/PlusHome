@@ -1,17 +1,45 @@
 package com.spring.home;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.spring.home.dto.FurnitureDTO;
+import com.spring.home.mapper.FurnitureMapper;
 
 @RequestMapping("/main")
 @RestController
 public class HomeController {
+
+	
+	 //DB랑 연결해서 쓸때
+     @Autowired
+     private FurnitureMapper furnitureMapper;
+     
+     @GetMapping("/best")
+     public List<FurnitureDTO> getBest() throws Exception {
+	     
+		return furnitureMapper.getLists(1, 4, "f_name", "");
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 //	@GetMapping("/testService")
 //	public String testServiceGet(@RequestParam("text") String text) {
@@ -28,11 +56,3 @@ public class HomeController {
 //
 //		return "POST 프론트에서 받은 데이터 : : " + text;
 //	}
-	
-	//test용 api
-	@GetMapping("/test")
-	public String test() {
-		return "저쪽 백에서 보낸 메세지 입니다";
-	}
-	
-}
