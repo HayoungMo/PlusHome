@@ -38,6 +38,53 @@ const insertFurniture = async (params) => {
 	}
 };
 
+const updateFurniture = async (params) => {
+	try {
+		const {
+			dto,
+			thumbnail,
+			infoFiles = [],
+			othersFiles = [],
+			deletedImages = []
+		} = params;
+
+		const formData = new FormData();
+
+		if (thumbnail) {
+			formData.append("thumbnail", thumbnail);
+		}
+
+		if (infoFiles.length > 0) {
+			infoFiles.forEach((file) => {
+				formData.append("infoFiles", file);
+			});
+		}
+
+		if (othersFiles.length > 0) {
+			othersFiles.forEach((file) => {
+				formData.append("othersFiles", file);
+			});
+		}
+
+		formData.append(
+			"dto",
+			new Blob([JSON.stringify(dto)], { type: "application/json" })
+		);
+ 
+		if (deletedImages.length > 0) {
+			deletedImages.forEach((name) => {
+				formData.append("deletedImages", name);
+			});
+		}
+
+		const res = await fileHttp.post("/furniture/update", formData);
+		return res.data;
+
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 // const insertFurniture = async (formData) =>{
 //     const res = await http.post('/furniture/add',formData, {
 //         headers: {
@@ -57,11 +104,22 @@ const deleteFurniture = async (f_code) => {
 	return res.data;
 }
 
+
+const increaseView = async (f_code) =>{
+	if(!f_code) return;
+
+	await http.get(`/furniture/viewCount?F_code`,{
+		params: {f_code}
+	})
+}
+
 const FurnitureService = {
 	getFurniture,
 	insertFurniture,
 	getFurnitureItem,
 	deleteFurniture,
+	updateFurniture,
+	increaseView
 };
 
 export default FurnitureService;

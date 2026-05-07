@@ -24,6 +24,7 @@ import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
 import FindIdPage from "./pages/FindIdPage";
+import FurnitureUpdatePage from "./pages/FurnitureUpdatePage";
 import CompanyDashboard from "./dasboardPages/CompanyDashboard";
 
 import InteriorReview from "./pages/InteriorReview";
@@ -60,6 +61,7 @@ function App() {
         <Route path="/furniture/list" element={<FurnitureList/>}/>
         <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
         <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
+        <Route path="/furniture/update/:f_code" element={<FurnitureUpdatePage />} />
 
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
         <Route path="/interior/list" element={<InteriorLists />} />

@@ -23,7 +23,6 @@ const FurnitureAddPage = () => {
         f_count: "0"
     });
 
-    // ✅ FIX: data 선언 이후 useEffect 실행
     useEffect(() => {
         const price = Number(data.f_price);
         const discount = Number(data.f_discount);
@@ -208,8 +207,50 @@ const FurnitureAddPage = () => {
             <p>상세 이미지</p>
             <input type="file" multiple onChange={onChangeInfo} />
 
+            <div
+                style={{
+                    display: "flex",
+                    gap: "10px",
+                    flexWrap: "wrap",
+                    marginTop: "10px"
+                }}
+            >
+                {infoFiles.map((item, index) => (
+                    <img
+                        key={index}
+                        src={item.preview}
+                        style={{
+                            width: "120px",
+                            height: "120px",
+                            objectFit: "cover"
+                        }}
+                    />
+                ))}
+            </div>
+
             <p>이미지</p>
             <input type="file" multiple onChange={onChangeOthers} />
+
+            <div
+                style={{
+                    display: "flex",
+                    gap: "10px",
+                    flexWrap: "wrap",
+                    marginTop: "10px"
+                }}
+            >
+                {othersFiles.map((item, index) => (
+                    <img
+                        key={index}
+                        src={item.preview}
+                        style={{
+                            width: "120px",
+                            height: "120px",
+                            objectFit: "cover"
+                        }}
+                    />
+                ))}
+            </div>
 
             <br/><br/>
             <label>카테고리1:</label>
