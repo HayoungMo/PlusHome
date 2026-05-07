@@ -123,6 +123,7 @@ public class InteriorController {
 
 	@PostMapping("/update/booking")
 	public void updateBooking(@RequestBody BookingDTO dto) throws Exception {
+		System.out.println(dto);
 		interiorService.updateBooking(dto);
 	}
 
