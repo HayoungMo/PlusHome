@@ -221,25 +221,7 @@ const AddInvoiceDetail = async (data) => {
   }
 };
 
-const AddInteriorReview = async (data) => {
-  console.log("인테리어 리뷰 들어온 데이터", data);
-  try {
-    const res = await http.post("/interior/add/review", {
-      id: localStorage.getItem('id'),
-      c_id: data.c_id,
-      c_kind: data.c_kind,
-      c_name: data.c_name,
-      b_createdDate: data.b_createdDate,
-      invoice_no: data.invoice_no,
-      invoice_kind: data.invoice_kind,
-      ir_content: data.ir_content,
-    });
 
-    console.log("결과: 좋음");
-  } catch (err) {
-    console.error(err);
-  }
-};
 
 const UpdateInterior = async (data) => {
   try {
@@ -277,6 +259,7 @@ const UpdateInteriorExample = async (data) => {
 };
 
 const UpdateBooking = async (data) => {
+  console.log("예약 수정 들어간 데이터:", data);
   try {
     const res = await http.post("/interior/update/booking", {
       id: data.id,
@@ -284,8 +267,12 @@ const UpdateBooking = async (data) => {
       c_kind: data.c_kind,
       c_name: data.c_name,
       b_createdDate: data.b_createdDate,
+      b_kind: data.b_kind,
+      b_date: data.b_date,
+      b_long: data.b_long,
       b_status: data.b_status,
       b_content: data.b_content,
+      b_answer: data.b_answer,
     });
 
     console.log("예약 수정 결과:", res.data);
@@ -294,25 +281,7 @@ const UpdateBooking = async (data) => {
     console.error("예약 수정 에러:", err);
   }
 };
-const UpdateInteriorReview= async (data) => {
-  try {
-    const res = await http.post("/interior/update/interiorreview", {
-      id: localStorage.getItem('id'),
-      c_id: data.c_id,
-      c_kind: data.c_kind,
-      c_name: data.c_name,
-      b_createdDate: data.b_createdDate,
-      invoice_no: data.invoice_no,
-      invoice_kind: data.invoice_kind,
-      ir_content: data.ir_content,
-    });
 
-    console.log("예약 수정 결과:", res.data);
-    return res.data;
-  } catch (err) {
-    console.error("예약 수정 에러:", err);
-  }
-};
 
 const InteriorService = {
   fetchExample,
@@ -328,11 +297,9 @@ const InteriorService = {
   AddBooking,
   AddInvoice,
   AddInvoiceDetail,
-  AddInteriorReview,
   UpdateInterior,
   UpdateInteriorExample,
   UpdateBooking,
-  UpdateInteriorReview,
 };
 
 export default InteriorService;

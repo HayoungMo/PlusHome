@@ -135,22 +135,22 @@ const InteriorInvoiceAdd = ({ booking }) => {
       <div>
         <p>인테리어 견적 추가</p>
 
+        <CheckboxMui
+          name="kind"
+          label="완료 여부"
+          checked={kind[booking.b_createdDate] === "Y"}
+          onChange={(e) => {
+            setKind({
+              ...kind,
+              [booking.b_createdDate]: e.target.checked ? "Y" : "N",
+            });
+          }}
+        />
+
         {(booking.b_status === "pending" || booking.b_status === "quoting") && (
           <form onSubmit={(e) => handleSubmit4(e, booking)}>
             {details.map((detail, index) => (
               <div key={index}>
-                <CheckboxMui
-                  name="kind"
-                  label="완료 여부"
-                  checked={kind[booking.b_createdDate] === "Y"}
-                  onChange={(e) => {
-                    setKind({
-                      ...kind,
-                      [booking.b_createdDate]: e.target.checked ? "Y" : "N",
-                    });
-                  }}
-                />
-
                 <TextFieldMui
                   name="text"
                   label="항목"
@@ -191,7 +191,7 @@ const InteriorInvoiceAdd = ({ booking }) => {
                   record?.invoice_no === invoiceItem?.invoice_no &&
                   record?.invoice_kind === invoiceItem?.invoice_kind,
               )}
-            />           
+            />
           </div>
         ))}
       </div>
