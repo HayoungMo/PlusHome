@@ -3,6 +3,7 @@ package com.spring.home.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.UserDTO;
@@ -28,9 +29,10 @@ public interface UserMapper {
 	
 	public String findUserId(UserDTO dto) throws Exception;
 	
-	public UserDTO findUserpw(UserDTO dto) throws Exception;
+	public UserDTO findUserPw(UserDTO dto) throws Exception;
 	
-	public void updatePw(String id, String pw) throws Exception;
+	public void  updatePw(@Param("id") String id,
+            @Param("pw") String pw) throws Exception;
 	
 	public void insertCompany(CompanyDTO dto) throws Exception;
 	

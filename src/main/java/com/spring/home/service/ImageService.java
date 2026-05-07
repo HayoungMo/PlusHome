@@ -123,4 +123,15 @@ public class ImageService {
 			e.printStackTrace();
 		}
 	}
+	
+	public ImageDTO getImgByImgName(String img_name) {
+	    ImageDTO dto = null;
+	    try {
+	        dto = imageMapper.getImgByImgName(img_name);
+	    } catch (Exception e) {
+	        System.out.println(e.toString());
+	        e.printStackTrace();
+	    }
+	    return dto;
+	}
 }

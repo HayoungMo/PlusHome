@@ -88,6 +88,11 @@ public class FurnitureController {
 		return furnitureService.getReadData(f_code);
 	}
 
+	@GetMapping("/viewCount")
+	public void viewCount(@RequestParam String f_code) throws Exception{
+		furnitureService.updateViewCount(f_code);
+	}
+	
 	@PostMapping("/add")
 	public String insertData(@RequestPart("thumbnail") MultipartFile thumbnail,
 			@RequestPart(value = "infoFiles", required = false) List<MultipartFile> infoFiles,
@@ -103,9 +108,22 @@ public class FurnitureController {
 
 	}
 
-	@PostMapping("/update")
-	public void updateData(@RequestBody FurnitureDTO dto) throws Exception {
-		furnitureService.updateData(dto);
+	@PostMapping(value= "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public String updateData(
+			@RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail, 
+			@RequestPart(value = "infoFiles", required = false) List<MultipartFile> infoFiles,
+			@RequestPart(value = "othersFiles", required = false) List<MultipartFile> othersFiles,
+			@RequestParam(value = "deletedImages", required = false) List<String> deletedImages,
+			@RequestPart("dto") FurnitureDTO dto) throws Exception {
+		
+		System.out.println("========== CONTROLLER ==========");
+	    System.out.println("thumbnail = " + thumbnail);
+	    System.out.println("infoFiles = " + infoFiles);
+	    System.out.println("othersFiles = " + othersFiles);
+	    System.out.println("deletedImages = " + deletedImages);
+	    System.out.println("dto = " + dto);
+	    
+		return furnitureService.updateData(dto,thumbnail, infoFiles, othersFiles,deletedImages);
 	}
 
 	@GetMapping("/delete")

@@ -64,6 +64,7 @@ const getImageData = async (params) => {
 
 const updateImage = async (fileList, updateInfoList = null) => {
 	try {
+		console.log(fileList)
 		const formData = new FormData();
 		fileList.forEach((element) => {
 			const oldName = element.name;
@@ -75,7 +76,7 @@ const updateImage = async (fileList, updateInfoList = null) => {
 			const newExt = newDotIndex !== -1 ? newOriginalName.substring(newDotIndex) : "";
 
 			const newFileName = oldBaseName + newExt;
-
+			console.log(newFileName)
 			const renamedFile = new File([element.file], newFileName, {
 				type: element.file.type,
 				lastModified: element.file.lastModified,

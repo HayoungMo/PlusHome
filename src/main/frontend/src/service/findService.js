@@ -25,7 +25,7 @@ const findId = async(data) =>{
     console.log("서비스에 데이터 넘겨주기")
     console.log(data)
 
-    const res = await http.post("user/find-Pw",data)
+    const res = await http.post("/user/reset-Pw",data)
     console.log(res.data)
     return res.data
         

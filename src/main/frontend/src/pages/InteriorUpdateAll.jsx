@@ -8,9 +8,9 @@ import BookingUpdate from "../components/BookingUpdate";
 //테스트용 파일
 function InteriorUpdateAll(/*{ company }*/) {
   const [company, setCompany] = useState({
-    c_id: "comp02",
+    c_id: "test",
     c_kind: "interior",
-    c_name: "감성인테리어",
+    c_name: "인테리어",
   });
   
   return (

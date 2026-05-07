@@ -65,6 +65,7 @@ public class InteriorController {
 
 	@PostMapping("/invoice")
 	public List<InvoiceDTO> getInvoices(@RequestBody BookingDTO dto) throws Exception {
+		System.out.println(dto);
 		return interiorService.getInvoices(dto);
 	}
 

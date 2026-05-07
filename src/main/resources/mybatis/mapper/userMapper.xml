@@ -51,17 +51,22 @@
 
 <!--아이디 찾기  -->
 <select id="findUserId" parameterType="com.spring.home.dto.UserDTO" resultType="string" >
-select id from users where name =#{name} and tel =#{tel}
+select id from users where name =#{name} and email =#{email}
 </select>
 
 <!--비밀번호 찾기  -->
 <select id="findUserPw" parameterType="com.spring.home.dto.UserDTO" resultType="com.spring.home.dto.UserDTO" >
-select * from users where id =#{id} and email =#{email}
+select * 
+from users 
+where id =#{id} 
+and email =#{email}
 </select>
 
 <!--비밀번호 변경  -->
 <update id="updatePw" >
-update users set pw = #{pw} where id = #{id}
+update users 
+   set pw = #{pw} 
+where id = #{id}
 </update>
 
 

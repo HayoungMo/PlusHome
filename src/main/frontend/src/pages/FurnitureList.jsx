@@ -61,12 +61,16 @@ const FurnitureList = () => {
         navigate("/furniture/add");
     };
 
+    const onUpdate = (f_code) => {
+        navigate(`/furniture/update/${f_code}?page=${pageNum}`)
+    }
+
     const onDelete = async (f_code) => {
         try{
             await FurnitureService.deleteFurniture(f_code)
             alert("삭제 완료")
             getList(pageNum)
-            
+
         }catch(error){
             console.error(error)
             alert("삭제 실패")
@@ -74,6 +78,7 @@ const FurnitureList = () => {
     }
     return (
         <div>
+            <Link to="/">로고</Link><br />
             <h3><a href="/furniture/list">가구 목록</a></h3>
 
             <button onClick={onAddPage}>가구 추가</button>
@@ -148,8 +153,11 @@ const FurnitureList = () => {
                                     : `${deliveryPrice.toLocaleString()}원`}
                             </p>
 
-                            <button>
-
+                            <button
+                                onClick={(evt)=> {
+                                    evt.stopPropagation()
+                                    onUpdate(item.f_code)}}>
+                                수정
                             </button>
                             <button
                                 onClick={(evt) => {

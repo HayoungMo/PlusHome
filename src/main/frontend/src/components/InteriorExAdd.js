@@ -3,6 +3,7 @@ import TextFieldMui from './TextFieldMui';
 import { Button } from '@mui/material';
 import InteriorService from '../service/interiorService';
 import ImageService from '../service/imageService';
+import SelectMui from './SelectMui';
 
 const InteriorExAdd = ({ company }) => {
   const [sendList2, setSendList2] = useState([]);
@@ -15,6 +16,24 @@ const InteriorExAdd = ({ company }) => {
     tag2: "",
     content: "",
   });
+
+  const tagOptions1 = [
+    { value: "apt", title: "아파트" },
+    { value: "villa", title: "빌라" },
+    { value: "house", title: "단독주택" },
+    { value: "officetel", title: "오피스텔" },
+  ];
+   const tagOptions2 = [
+     { value: "kitchen", title: "키친" },
+     { value: "bath", title: "바스" },
+     { value: "storage", title: "수납" },
+     { value: "door", title: "중문/문" },
+     { value: "window", title: "창문" },
+     { value: "wallpaper", title: "벽지" },
+     { value: "lighting", title: "조명" },
+     { value: "tile", title: "타일" },
+     { value: "floor", title: "마루" },
+   ];
 
   const handleChange2 = (e) => {
     setForm2({
@@ -130,16 +149,32 @@ const InteriorExAdd = ({ company }) => {
       인테리어 시공 사례 추가
       <form name="example" onSubmit={handleSubmit2}>
         <div>
-          <TextFieldMui name="tag" label="tag" onChange={handleChange2} />
-          <TextFieldMui name="tag2" label="tag2" onChange={handleChange2} />
-          <TextFieldMui
-            name="content"
-            label="content"
+          <SelectMui
+            name="tag"
+            value={form2.tag}
             onChange={handleChange2}
+            option={tagOptions1}
+            required
           />
-          <Button type="submit" variant="contained">
-            제출
-          </Button>
+          <SelectMui
+            name="tag2"
+            value={form2.tag2}
+            onChange={handleChange2}
+            option={tagOptions2}
+            required
+          />
+          {form2.tag && form2.tag2 && (
+            <TextFieldMui
+              name="content"
+              label="content"
+              onChange={handleChange2}
+            />
+          )}
+          {form2.tag && form2.tag2 && form2.content && (
+            <Button type="submit" variant="contained">
+              제출
+            </Button>
+          )}
         </div>
       </form>
       <p>시공사례 이미지 업로드</p>
