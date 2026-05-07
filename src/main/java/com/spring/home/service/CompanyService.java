@@ -33,4 +33,12 @@ public class CompanyService {
 	public void deleteData(String c_id) throws Exception{
 		companyMapper.deleteData(c_id);
 	}
+	
+	public List<CompanyDTO> getReadDataList(String c_id) throws Exception{
+		return companyMapper.getReadDataList(c_id);
+	}
+	
+	public int insertDataDashboard(CompanyDTO dto) throws Exception{
+		return companyMapper.insertDataDashboard(dto);
+	}
 }

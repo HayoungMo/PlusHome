@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.home.dto.UserDTO;
+import com.spring.home.service.CompanyService;
 import com.spring.home.service.UserService;
 import com.spring.home.util.JwtUtil;
 
@@ -27,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class UserController {
 	
-	
+	private final CompanyService companyService;
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
 	
@@ -158,6 +159,10 @@ public class UserController {
 			
 			result.put("success", true);
 			result.put("token",token);
+			
+			if(user.getType().equals("company"))
+				user.setCompanyList(companyService.getReadDataList(user.getId()));
+			
 			result.put("user", user);
 		}
 		
