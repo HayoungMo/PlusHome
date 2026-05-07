@@ -23,6 +23,7 @@ import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
+import CompanyDashboard from "./dasboardPages/CompanyDashboard";
 
 
 function App() {
@@ -61,7 +62,7 @@ function App() {
         <Route path="/interior/question" element={<InteriorQuestion />} />
         <Route path="/exportPDF" element={<ExportPDF />} />
         <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
-        
+        <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
       </Routes>
     </div>
   );
