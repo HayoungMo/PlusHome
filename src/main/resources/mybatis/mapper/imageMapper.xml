@@ -215,4 +215,11 @@
 		AND DIR_A = #{f_code}
 	</delete>
 
+	<select id="getImgByImgName"
+			parameterType="String"
+			resultType="com.spring.home.dto.ImageDTO">
+		SELECT *
+		FROM IMG
+		WHERE IMG_NAME = #{img_name}	
+	</select>
 </mapper>

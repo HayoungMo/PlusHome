@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 
 const FurnitureArticle = () => {
-    const calledRef = useRef(false);
+
+    const called = useRef(false)
 
     const { f_code } = useParams();
     const [furniture, setFurniture] = useState(null)
     const [mainImage, setMainImage] = useState(null)
-    
+    const [tab, setTab] = useState("detail")
+
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -16,10 +18,13 @@ const FurnitureArticle = () => {
     const page = query.get("page")
 
     useEffect(() => {
-        if (calledRef.current) return;
+        if(!f_code) return;
+        if(called.current) return;
 
-        calledRef.current = true;
+        called.current=true;
+        
         getArticle();
+        FurnitureService.increaseView(f_code);
     }, [f_code]);
 
     
@@ -65,6 +70,10 @@ const FurnitureArticle = () => {
     const infoImages = imageList.filter(img => img.img_tag === "INFO");
     const othersImages = imageList.filter(img => img.img_tag === "OTHERS");
 
+    const onUpdate = () => {
+        navigate(`/furniture/update/${f_code}?page=${page}`)
+    }
+
     const onDelete = async (f_code) => {
         try{
             await FurnitureService.deleteFurniture(f_code)
@@ -76,11 +85,12 @@ const FurnitureArticle = () => {
             alert("삭제 실패")
         }
     }
+
     return (
         <div style={{ padding: "20px" }}>
 
             <Link to="/">로고</Link><br />
-            <button></button>
+            <button onClick={()=> onUpdate(f_code)}>수정</button>
             <button onClick={()=> onDelete(f_code)}>삭제</button>
             <button onClick={onBack}>돌아가기</button>
 
@@ -172,15 +182,69 @@ const FurnitureArticle = () => {
                     >
                         구매하기
                     </button>
-
+                
                 </div>
 
             </div>
 
-            
             <hr/>
-            
-            <h3 style={{ marginTop: "50px" }}>상세 설명</h3>
+
+            <div
+                style={{
+                    display: "flex",
+                    marginTop: "10px",
+                    gap: "10px"
+                        }}
+            >
+
+            <button
+                onClick={() => setTab("detail")}
+                style={{
+                    flex: 1,
+                    padding: "15px",
+                    background: tab === "detail" ? "black" : "#eee",
+                    color: tab === "detail" ? "white" : "black",
+                    border: "none",
+                    cursor: "pointer"
+                }}
+            >
+                상세보기
+            </button>
+
+            <button
+                onClick={() => setTab("review")}
+                style={{
+                    flex: 1,
+                    padding: "15px",
+                    background: tab === "review" ? "black" : "#eee",
+                    color: tab === "review" ? "white" : "black",
+                    border: "none",
+                    cursor: "pointer"
+                }}
+            >
+                리뷰
+            </button>
+
+            <button
+                onClick={() => setTab("qna")}
+                style={{
+                    flex: 1,
+                    padding: "15px",
+                    background: tab === "qna" ? "black" : "#eee",
+                    color: tab === "qna" ? "white" : "black",
+                    border: "none",
+                    cursor: "pointer"
+                }}
+            >
+                문의
+            </button>
+        </div>           
+        
+        <div style={{ marginTop: "50px" }}>
+
+    {tab === "detail" && (
+        <div>
+            <h3>상세 설명</h3>
 
             <div>
                 {othersImages.map((img, idx) => (
@@ -194,6 +258,40 @@ const FurnitureArticle = () => {
                     />
                 ))}
             </div>
+        </div>
+    )}
+
+    {tab === "review" && (
+        <div>
+            <h3>리뷰</h3>
+
+            <div
+                style={{
+                    padding: "30px",
+                    border: "1px solid #ddd"
+                }}
+            >
+                아직 등록된 리뷰가 없습니다.
+            </div>
+        </div>
+    )}
+
+    {tab === "qna" && (
+        <div>
+            <h3>문의</h3>
+
+            <div
+                style={{
+                    padding: "30px",
+                    border: "1px solid #ddd"
+                }}
+            >
+                등록된 문의가 없습니다.
+            </div>
+        </div>
+    )}
+
+</div>
 
         </div>
     );

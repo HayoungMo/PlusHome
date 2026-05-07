@@ -22,8 +22,9 @@
 <!-- 전체 select -->
 <select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.WalletDTO">
 	select * from (
-	select * rownum rnum, data.* from (
+	select rownum rnum, data.* from (
 	select id, money
+	from wallet
 	where ${searchKey} like '%' || #{searchValue} || '%'
 	order by id desc
 	) data)

@@ -23,6 +23,7 @@ import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
+import FurnitureUpdatePage from "./pages/FurnitureUpdatePage";
 
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
         <Route path="/furniture/list" element={<FurnitureList/>}/>
         <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
         <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
+        <Route path="/furniture/update/:f_code" element={<FurnitureUpdatePage />} />
 
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
         <Route path="/interior/list" element={<InteriorLists />} />
