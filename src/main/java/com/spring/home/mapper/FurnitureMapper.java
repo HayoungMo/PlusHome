@@ -27,4 +27,7 @@ public interface FurnitureMapper {
 	public void updateData(FurnitureDTO dto) throws Exception;
 	
 	public void deleteData(@Param("f_code") String f_code) throws Exception;
+	
+	public int countSearchData(@Param("searchKey") String searchKey, 
+			@Param("searchValue") String searchValue);
 }

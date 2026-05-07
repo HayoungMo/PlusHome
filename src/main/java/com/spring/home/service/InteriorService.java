@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.spring.home.dto.BookingDTO;
@@ -83,5 +84,20 @@ public class InteriorService {
 		return interiorMapper.getInteriorReviews(dto);
 	}
 	
+	public void updateInterior(@RequestBody InteriorDTO dto) throws Exception {
+		interiorMapper.updateInterior(dto);
+	}
+
+	public void updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		interiorMapper.updateInteriorExample(dto);
+	}
+
+	public void updateBooking(@RequestBody BookingDTO dto) throws Exception {
+		interiorMapper.updateBooking(dto);
+	}
+
+	public void updateInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
+		interiorMapper.updateInteriorReview(dto);
+	}
 
 }

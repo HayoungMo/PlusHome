@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button, LinearProgress } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
+import InteriorCalculator from "../components/InteriorCalculator";
+import CheckboxMui from "../components/CheckboxMui";
 
 const InteriorQuestion = () => {
   const navigate = useNavigate();
@@ -71,38 +73,38 @@ const InteriorQuestion = () => {
   const questions = [
     {
       key: "housingType",
-      title: "주택 종류를 선택해주세요",
+      title: "주택 종류",
       options: questionOptions.q1,
     },
     {
       key: "areaSize",
-      title: "평수를 선택해주세요",
+      title: "평수",
       options: questionOptions.q2,
     },
     {
       key: "houseCondition",
-      title: "집 상태를 선택해주세요",
+      title: "집 상태",
       options: questionOptions.q3,
     },
     {
       key: "purpose",
-      title: "인테리어 이유를 선택해주세요",
+      title: "인테리어 이유",
       options: questionOptions.q4,
     },
     {
       key: "spaces",
-      title: "필요한 공간을 선택해주세요",
+      title: "필요한 공간",
       options: questionOptions.q5,
       multi: true,
     },
     {
       key: "budget",
-      title: "예산을 선택해주세요",
+      title: "예산",
       options: questionOptions.q6,
     },
     {
       key: "schedule",
-      title: "희망 시작일을 선택해주세요",
+      title: "희망 시작일",
       options: questionOptions.q7,
     },
   ];
@@ -121,9 +123,7 @@ const InteriorQuestion = () => {
     setStep((prev) => prev + 1);
   };
 
-  const handleCheckChange = (e) => {
-    const { value, checked } = e.target;
-
+  const handleCheckChange = (value, checked) => {  
     setData((prev) => ({
       ...prev,
       spaces: checked
@@ -150,34 +150,54 @@ const InteriorQuestion = () => {
     }
   };
 
-  const getTitle = (key, value) => {
-    if (key === "spaces") {
-      return data.spaces
-        .map(
-          (space) =>
-            questionOptions.q5.find((option) => option.value === space)?.title,
-        )
-        .join(", ");
-    }
-
-    const question = questions.find((q) => q.key === key);
-    return (
-      question?.options.find((option) => option.value === value)?.title || ""
-    );
-  };
-
   if (isConfirmStep) {
     return (
       <div>
         <LinearProgress variant="determinate" value={100} />
+
         <h2>선택 내용을 확인해주세요</h2>
-        주택 종류: {getTitle("housingType", data.housingType)}
-        평수: {getTitle("areaSize", data.areaSize)}집 상태:{" "}
-        {getTitle("houseCondition", data.houseCondition)}
-        인테리어 이유: {getTitle("purpose", data.purpose)}
-        필요한 공간: {getTitle("spaces")}
-        예산: {getTitle("budget", data.budget)}
-        희망 시작일: {getTitle("schedule", data.schedule)}
+
+        {questions.map((question) => (
+          <div key={question.key} style={{ marginBottom: "20px" }}>
+            <p>{question.title}</p>
+
+            {question.multi ? (
+              <div>
+                {question.options.map((option) => (
+                  <label key={option.value}>
+                    <CheckboxMui
+                      key={option.value}
+                      name="spaces"
+                      value={option.value}
+                      label={option.title}
+                      checked={data.spaces.includes(option.value)}
+                      onChange={(e) => handleCheckChange(option.value,e.target.checked)}
+                    />
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <select
+                value={data[question.key]}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    [question.key]: e.target.value,
+                  }))
+                }
+              >
+                {question.options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.title}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        ))}
+
+        <InteriorCalculator answer={data} />
+
         <Button onClick={handleBack}>이전</Button>
         <Button onClick={handleSubmit}>최종 제출</Button>
       </div>
@@ -195,13 +215,14 @@ const InteriorQuestion = () => {
         <div>
           {current.options.map((option) => (
             <label key={option.value}>
-              <input
-                type="checkbox"
+              <CheckboxMui
+                key={option.value}
+                name="spaces"
                 value={option.value}
+                label={option.title}
                 checked={data.spaces.includes(option.value)}
-                onChange={handleCheckChange}
+                onChange={(e) => handleCheckChange(option.value,e.target.checked)}
               />
-              {option.title}
             </label>
           ))}
 

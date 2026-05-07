@@ -109,5 +109,48 @@
 	C_KIND = #{c_kind}
 </select>
 
+<update id="updateInterior" parameterType="com.spring.home.dto.InteriorDTO">
+    UPDATE INTERIOR
+    SET I_TEXT = #{i_text}
+    WHERE C_ID = #{c_id}
+      AND C_KIND = #{c_kind}
+      AND C_NAME = #{c_name}
+      AND I_TAG = #{i_tag}
+</update>
+
+<update id="updateInteriorExample" parameterType="com.spring.home.dto.InteriorExampleDTO">
+    UPDATE I_EXAMPLE
+    SET IE_CONTENT= #{ie_content}
+    WHERE C_ID = #{c_id}
+      AND C_KIND = #{c_kind}
+      AND C_NAME = #{c_name}
+      AND IE_TAG = #{ie_tag}
+      AND IE_TAG2 = #{ie_tag2}
+</update>
+
+<update id="updateBooking" parameterType="com.spring.home.dto.BookingDTO">
+    UPDATE BOOKING
+    SET B_KIND= #{b_kind},
+    B_LONG = #{b_long},
+    B_STATUS= #{b_status},
+    B_DATE= #{b_date},
+    B_CONTENT= #{b_content},
+    WHERE C_ID = #{c_id}
+      AND C_KIND = #{c_kind}
+      AND C_NAME = #{c_name}
+      AND B_CREATEDDATE = #{b_createdDate}
+      AND ID = #{id}
+</update>
+
+<update id="updateInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
+    UPDATE I_REVIEW
+    SET IR_CONTENT= #{ir_content}
+    WHERE C_ID = #{c_id}
+      AND C_KIND = #{c_kind}
+      AND C_NAME = #{c_name}
+      AND B_CREATEDDATE = #{b_createdDate}
+      AND ID = #{id}
+</update>
+
 
 </mapper>

@@ -13,7 +13,7 @@ const getFurniture = async ({ pageNum = 1, searchKey, searchValue } = {}) => {
 
 const insertFurniture = async (params) => {
 	try {
-		const { dto, thumbnail, infoFiles = [], detailFiles = [] } = params;
+		const { dto, thumbnail, infoFiles = [], othersFiles = [] } = params;
 		const formData = new FormData();
 
 		formData.append("thumbnail", thumbnail);
@@ -23,9 +23,9 @@ const insertFurniture = async (params) => {
 				formData.append("infoFiles", file);
 			});
 		}
-		if (detailFiles !== null && detailFiles.length !== 0) {
-			detailFiles.forEach((file) => {
-				formData.append("detailFiles", file);
+		if (othersFiles !== null && othersFiles.length !== 0) {
+			othersFiles.forEach((file) => {
+				formData.append("othersFiles", file);
 			});
 		}
 
@@ -52,10 +52,16 @@ const getFurnitureItem = async (f_code) => {
 	return res.data;
 };
 
+const deleteFurniture = async (f_code) => {
+	const res= await http.get(`/furniture/delete?f_code=${f_code}`);
+	return res.data;
+}
+
 const FurnitureService = {
 	getFurniture,
 	insertFurniture,
 	getFurnitureItem,
+	deleteFurniture,
 };
 
 export default FurnitureService;

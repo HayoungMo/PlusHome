@@ -37,7 +37,7 @@
     f_catagory4, f_catagory5, f_discount, f_point, f_count, f_viewCount
     from furniture
     where ${searchKey} like '%' || #{searchValue} || '%'
-    order by f_code desc
+    order by f_createdDate desc
     ) data)
     <![CDATA[
     where rnum>=#{start} and rnum<=#{end}
@@ -53,6 +53,12 @@
 <select id="getReadData" parameterType="String" resultType="com.spring.home.dto.FurnitureDTO">
 	select f_code, c_id, c_kind, c_name,f_name,f_price, f_dprice, f_createdDate, f_catagory1,f_catagory2,f_catagory3,f_catagory4,f_catagory5,f_discount,f_point,f_count,f_viewCount
 	from furniture where f_code=#{f_code}
+</select>
+
+<select id="countSearchData" resultType="int">
+    SELECT COUNT(*)
+    FROM FURNITURE
+    WHERE ${searchKey} LIKE '%' || #{searchValue} || '%'
 </select>
 
 </mapper>

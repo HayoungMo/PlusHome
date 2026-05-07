@@ -1,6 +1,8 @@
 import { Button } from '@mui/material';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import AlertMui from "./AlertMui";
+import ButtonGroupMui from "./ButtonGroupMui";
+import RatingMui from "./RatingMui";
 
 const ChatbotModal = ({ onClose }) => {
     const questions = [
@@ -62,14 +64,37 @@ const ChatbotModal = ({ onClose }) => {
     ];
 
     const [step, setStep] = useState(0);
-    const [tags, setTags] = useState([]);
-
-    const selectOption = (tag) => {
-        setTags([...tags,tag]);
+    const [tags, setTags] = useState([]); //tags는 추천 로직용
+    const [answers, setAnswers] = useState([]);
+    
+    const isFinished = step >= questions.length;
+    
+    const selectedText = answers.map((answer) => answer.label).join(" ");
+   
+    
+    const selectOption = (option) => {
+        setTags([...tags,option.tag]);
+        
+        setAnswers([
+            ...answers,
+            {
+                question:questions[step].message,
+                label: option.label,
+                tag:option.tag
+            }
+        ]);
+        
         setStep(step + 1);
     };
-
-    const isFinished = step >= questions.length;
+    
+    const goBack = () => {
+        if (step === 0) { return; }
+        
+        setStep(step - 1);
+        setTags(tags.slice(0,-1));
+        setAnswers(answers.slice(0,-1));
+    };
+    
 
     return (
         // 임의 모달 창
@@ -96,27 +121,54 @@ const ChatbotModal = ({ onClose }) => {
                 padding: "20px"
             }}
         >
-            <Button onClick={onClose}>닫기</Button>
+            <div>
+                <Button onClick={onClose}>닫기</Button>
+
+                {step > 0 && (
+                    <Button onClick={goBack}>이전</Button>
+                )}
+            </div>
+
+            {answers.length > 0 && (
+                <AlertMui
+                    severity="success"
+                    title="선택한 정보"
+                    text={selectedText}
+                />
+            )}
             {
                 !isFinished ? (
                     <div>
-                        <p>{questions[step].message}</p>
-                        {questions[step].options.map((option) => (
-                            <Button 
-                                key={option.tag}
-                                onClick={() => selectOption(option.tag)}
-                            >
-                                {option.label}
-                            </Button>
-                        ))}
+                        <AlertMui
+                            severity="info"
+                            title="AI 챗봇"
+                            text={questions[step].message}
+                        />
+                        
+                        <br/>
+                        
+                        <ButtonGroupMui
+                            button={questions[step].options.map((option) => (
+                              {
+                                  title: option.label,
+                                  onClick: () => selectOption(option)  
+                              }
+                            ))}
+                            variant="contained"
+                            color="primary"
+                            orientation="vertical"
+                        />
                     </div>
                 ) : (
                     <div>
-                        <p>입력하신 정보를 바탕으로 추천 조합을 준비했습니다.</p>
-                        <p>{tags.join(",")}</p>
-                        <Link to="furniture/list">
-                            추천 가구 보러가기
-                        </Link>
+                        <AlertMui
+                            severity="success"
+                            title="추천완료"
+                            text="입력하신 정보를 바탕으로 추천 조합을 준비했습니다."
+                        />
+                        
+                        <p>선택한 정보: {selectedText}</p>
+                        
                     </div>
                 )}
             </div>

@@ -46,12 +46,16 @@ const InteriorAdd = ({company}) => {
         };
       
         const onClickInsert = () => {
+          if (!sendList || sendList.length === 0) {
+            console.log("보낼 이미지 없음");
+            return; // 🚫 요청 안 보냄
+          }
           ImageService.insertImage(sendList);
         };
 
     return (
         <div>
-             <h5>인테리어 업체 추가</h5>
+             <p>인테리어 업체 추가</p>
                   <form name="article" onSubmit={handleSubmit}>
                     <div>
                       <TextFieldMui name="tag" label="tag" onChange={handleChange} />
