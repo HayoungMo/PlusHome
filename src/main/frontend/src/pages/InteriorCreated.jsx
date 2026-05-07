@@ -9,6 +9,10 @@ import BookingUpdate from "../components/BookingUpdate";
 
 //테스트용 파일
 function InteriorCreated(/*{ company }*/) {
+
+  const[user, setUser] = useState(localStorage.getItem("user"));
+
+
   const [company, setCompany] = useState({
     c_id: "test",
     c_kind: "interior",

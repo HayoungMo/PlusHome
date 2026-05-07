@@ -65,7 +65,7 @@ INSERT INTO invoice
              c_id,
              c_kind,
              c_name,
-             b_createddate,
+             b_createdDate,
              invoice_no,
              invoice_kind)
 VALUES      ( #{id},
@@ -80,8 +80,8 @@ VALUES      ( #{id},
 <insert id="insertInvoiceDetails" parameterType="com.spring.home.dto.InvoiceDTO">
     INSERT ALL
     <foreach collection="details" item="item" index="idx">
- INTO invoice_detail (id, c_id,c_kind,c_name,b_createddate,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price)
-VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createddate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_qty},#{item.invoice_price})
+ INTO invoice_detail (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price)
+VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_qty},#{item.invoice_price})
     </foreach>  
     SELECT * FROM DUAL  
 </insert>
@@ -212,7 +212,7 @@ WHERE  c_id LIKE '%'
 
 <select id="getInvoices"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
 SELECT id,
-       b_createddate,
+       b_createdDate,
        c_id,
        c_kind,
        c_name,
@@ -231,7 +231,7 @@ WHERE  id LIKE '%'
        AND c_name LIKE '%'
                        || #{c_name}
                        || '%'
-       AND b_createddate = #{b_createdDate, jdbcType=TIMESTAMP} 
+       AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP} 
 </select>
 
 <select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
@@ -278,17 +278,20 @@ SELECT id,
        ir_content,
        ir_createddate
 FROM   i_review
-WHERE  c_id LIKE '%'
-                 || #{c_id}
+WHERE  id LIKE '%'
+                 || NVL(#{id}, '')
+                 || '%'
+       AND c_id LIKE '%'
+                 || NVL(#{c_id}, '')
                  || '%'
        AND c_kind LIKE '%'
-                       || #{c_kind}
+                       || NVL(#{c_kind}, '')
                        || '%'
        AND c_name LIKE '%'
-                       || #{c_name}
+                       || NVL(#{c_name}, '')
                        || '%'
        AND invoice_kind LIKE '%'
-                             || #{invoice_kind}
+                             || NVL(#{invoice_kind}, '')
                              || '%' 
 </select>
 

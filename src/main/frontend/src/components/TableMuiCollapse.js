@@ -115,7 +115,7 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
           <StyledTableCell key={column} align="right">
             {column === "b_answer" ? null : column !== "b_status" ? (
               row[column]
-            ) : (
+            ) : row[column] !== "pending" && row[column] !== "quoting" ? (
               <SelectMui
                 label="상태"
                 name="b_status"
@@ -123,6 +123,8 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
                 option={statusOption}
                 onChange={(e) => updateBookingRow(row, e.target.value)}
               />
+            ) : (
+              <p>견적서를 작성해주세요</p>
             )}
           </StyledTableCell>
         ))}
