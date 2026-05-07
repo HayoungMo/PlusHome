@@ -4,13 +4,6 @@ import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
 
 const InteriorUpdate = ({ company }) => {
-  const [form, setForm] = useState({
-    c_id: company.c_id,
-    c_kind: company.c_kind,
-    c_name: company.c_name,
-    tag: "",
-    text: "",
-  });
 
   const [article, setArticle] = useState([]);
 
@@ -47,17 +40,13 @@ const InteriorUpdate = ({ company }) => {
 
   return (
     <div>
+    <p>인테리어 수정 예시</p>
       {article.map((item,index) => (
         <form name="article" onSubmit={(e) => handleSubmit(e, item)}>
           <div>
             <TextFieldMui
               name="tag"
               value={item.i_tag}
-              slotProps={{
-                input:{
-                    readOnly : true,
-                }
-              }}
             />
             <TextFieldMui
               name="text"

@@ -24,6 +24,9 @@ import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
 
+import InteriorReview from "./pages/InteriorReview";
+import InteriorChart from "./components/InteriorChart";
+import InteriorUpdateAll from "./pages/InteriorUpdateAll";
 
 function App() {
 	const navigate = useNavigate();
@@ -58,10 +61,15 @@ function App() {
         <Route path="/interior/list" element={<InteriorLists />} />
         <Route path="/interior/article" element={<InteriorArticle />} />
         <Route path="/interior/created" element={<InteriorCreated />} />
+        <Route path="/interior/updated" element={<InteriorUpdateAll />} />
         <Route path="/interior/question" element={<InteriorQuestion />} />
+        <Route path="/interior/chart" element={<InteriorChart />} />
         <Route path="/exportPDF" element={<ExportPDF />} />
         <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
         
+        <Route path="/interior/review" element={<InteriorReview />} />
+		<Route path="/exportPDF" element={<ExportPDF />} />
+		<Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
       </Routes>
     </div>
   );
