@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginService from '../service/loginService';
+import { TextField } from '@mui/material';
 //
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
@@ -74,7 +75,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 setLoginInfo(user);
 
                 if(user.type==='company'){
-                    navigate('')
+                    navigate('/interior/list')
                 }else{
                     navigate('/')
                 }
@@ -112,30 +113,43 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 onLogin();
         }}
         >
-            <label>아이디</label>
-            <input
+            
+            <TextField
+                label="아이디"
                 type="text"
                 name="id"
                 value={form.id}
                 onChange={onText}
-                placeholder="아이디 입력"
             />
             {idFormatMsg && <div style={{ color: 'red' }}>{idFormatMsg}</div>}
 
-            <label>비밀번호</label>
-            <input
+           
+            <TextField
+                label="비밀번호"
                 type="password"
                 name="pw"
                 value={form.pw}
                 onChange={onText}
-                placeholder="비밀번호 입력"
             />
 
             {errorMsg && <div style={{ color: 'red' }}>{errorMsg}</div>}
 
-            <button type='submit' disabled={!form.id || !form.pw}>
-                로그인
-            </button>
+            {loginUser ? (
+                <>
+                    <span>{loginUser}님</span>
+                    <button onClick={logout}>
+                        로그아웃
+                    </button>
+                </>
+            ):(
+                 <button type='submit' disabled={!form.id || !form.pw}>
+                    로그인
+                </button>
+            )}
+
+           
+
+            
         </form>
             <p>
                 계정이 없으신가요?

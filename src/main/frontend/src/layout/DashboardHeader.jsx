@@ -2,11 +2,11 @@ import React from "react";
 
 const DashboardHeader = ({ activeTab, setActiveTab }) => {
 	const tabs = [
-		{ key: "home", label: "메인" },
-		{ key: "userInfo", label: "계정 정보" },
+		{ key: "user", label: "계정 관리" },
 		{ key: "shop", label: "쇼핑몰" },
-		{ key: "interior", label: "인테리어" },
+		{ key: "interior", label: "인테리어 관리" },
 	];
+
 	return (
 		<header className="header">
 			<h2>Company Dashboard</h2>

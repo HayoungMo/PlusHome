@@ -24,6 +24,16 @@ const reloadUserData = async (id) => {
 	}
 };
 
-const CompanyService = { insertImage, reloadUserData };
+const updateCompany = async (dtoList) => {
+	try {
+		const result = await http.post("/company/update", dtoList);
+		return result.data;
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const CompanyService = { insertImage, reloadUserData, updateCompany };
 
 export default CompanyService;

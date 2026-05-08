@@ -32,7 +32,6 @@ public class UserController {
 	
 	private final CompanyService companyService;
 	private final UserService userService;
-	private final CompanyService companyService;
 	private final JwtUtil jwtUtil;
 	
 	//일반 유저 회원가입
@@ -138,38 +137,64 @@ public class UserController {
 	//로그인
 	@PostMapping("/login")
 	public Map<String,Object> login(@RequestBody UserDTO dto) throws Exception {
-		UserDTO user = userService.login(dto);
-		System.out.println(dto);
-		
 		Map<String,Object> result = new HashMap<>();
-				
-		if(user==null) {
-			result.put("success", false);
-			result.put("message", "비밀번호가 일치하지 않습니다");
-		} else if(user.getCode().equals("NO_ID") && user.getId() == null) {
-			result.put("success", false);
-			result.put("message", "존재하지 않는 ID 입니다");
-		} else {
-			//JWT 생성
-			 String token = jwtUtil.createJwt(
-					 user.getId(),
-					 user.getType(),
-					 1000 * 60 * 60L);
-			
-			//비밀번호 제거
-			user.setPw(null);
-			
-			result.put("success", true);
-			result.put("token",token);
-			
-			if(user.getType().equals("company"))
-				user.setCompanyList(companyService.getReadDataList(user.getId()));
-			
-			result.put("user", user);
-		}
 		
+		System.out.println("입력pw" + dto.getPw());		
+		
+		try {
+			UserDTO user = userService.login(dto);
+						
+			System.out.println(dto);
+			System.out.println("여기까지 도달");
+			System.out.println("user" + user);
+			
+			if(user==null) {
+				result.put("success", false);
+				result.put("message", "비밀번호가 일치하지 않습니다");
+			} else if((user.getCode() != null 
+			        && user.getCode().equals("NO_ID"))) {
+				System.out.println("확인용"+ user);
+				result.put("success", false);
+				result.put("message", "존재하지 않는 ID 입니다");
+			} else {
+				
+				//JWT 생성
+				System.out.println("로그인 성공 전");
+				 String token = jwtUtil.createJwt(
+						 user.getId(),
+						 user.getType(),
+						 1000 * 60 * 60L);
+				 
+				 System.out.println("생성토큰:" + token);
+				
+				//비밀번호 제거
+				user.setPw(null);
+				
+				result.put("success", true);
+				result.put("token",token);
+				
+				if(user.getType().equals("company"))
+					user.setCompanyList(companyService.getReadDataList(user.getId()));
+				
+				result.put("user", user);
+			}
+			
+			
+			
+		} catch (Exception e) {
+			System.out.println("====로그인 에러======");
+			System.out.println(e.toString());
+			
+		}
 		return result;
 	}
+		
+		
+		
+		
+		
+				
+		
 	
 	//회원 수정
 	@PostMapping("/update")

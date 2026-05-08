@@ -52,4 +52,19 @@
 	values (#{c_id}, #{c_name}, #{c_kind}, #{c_tel}, #{c_addr}, #{c_boss})
 </insert>
 
+<update id="updateCompanyOne" parameterType="com.spring.home.dto.CompanyDTO">
+	UPDATE company
+	<set>
+	        <if test="c_tel != null and c_tel != ''">c_tel = #{c_tel},</if>
+	        <if test="c_addr != null and c_addr != ''">c_addr = #{c_addr},</if>
+	        <if test="c_info != null and c_info != ''">c_info = #{c_info},</if>
+	        <if test="c_boss != null and c_boss != ''">c_boss = #{c_boss}</if>
+	</set>
+	<where>
+	        <if test="c_id != null">AND c_id = #{c_id}</if>
+	        <if test="c_name != null and c_name != ''">AND c_name = #{c_name}</if>
+	        <if test="c_kind != null and c_kind != ''">AND c_kind = #{c_kind}</if>
+	</where>
+</update>
+
 </mapper>

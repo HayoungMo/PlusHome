@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import http from '../http-common';
 import findService from '../service/findService';
 import { useNavigate } from 'react-router-dom';
+import { TextField } from '@mui/material';
 //
 const FindPwPage = () => {
 
@@ -61,10 +62,10 @@ const FindPwPage = () => {
 
             <h3>비밀번호 찾기</h3>
 
-            <input name='id' placeholder='아이디' onChange={onChange}/>
-            <input name='email' placeholder='이메일' onChange={onChange}/>
-            <input type='password' name='pw' placeholder='새 비밀번호' onChange={onChange}/>
-            <input type='password' name='pwCheck' placeholder='비밀번호 확인' onChange={onChange}/>
+            <TextField name='id' label="아이디" onChange={onChange}/>
+            <TextField name='email' label="이메일"  onChange={onChange}/>
+            <TextField type='password' name='pw' label='새 비밀번호' onChange={onChange}/>
+            <TextField type='password' name='pwCheck' label='비밀번호 확인' onChange={onChange}/>
 
             <button onClick={onSubmit}>비밀번호 변경</button>
 

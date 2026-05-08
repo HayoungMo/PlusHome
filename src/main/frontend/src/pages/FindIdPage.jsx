@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import findService from '../service/findService';
 import { useNavigate } from 'react-router-dom';
+import { TextField } from '@mui/material';
 //
 const FindIdPage = () => {
 
@@ -59,8 +60,8 @@ const FindIdPage = () => {
         <div>
             <a href='/'><h1>로고</h1></a>
             <h3>아이디 찾기</h3>
-            <input name='email' placeholder='이메일' onChange={onChange} value={form.email}/>
-            <input name='name' placeholder='이름' onChange={onChange} value={form.name}/>
+            <TextField name='email' label='이메일' onChange={onChange} value={form.email}/>
+            <TextField name='name' label='이름' onChange={onChange} value={form.name}/>
 
             <button onClick={onSubmit}>아이디 찾기</button>
 

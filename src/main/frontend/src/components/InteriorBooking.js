@@ -3,6 +3,7 @@ import TextFieldMui from "../components/TextFieldMui";
 import DatePickerMui from "../components/DatePickerMui";
 import { Button } from "@mui/material";
 import InteriorService from "../service/interiorService";
+import SelectMui from "./SelectMui";
 
 const InteriorBooking = ({company, answers}) => {
   const [data, setData] = useState({
@@ -27,6 +28,24 @@ const InteriorBooking = ({company, answers}) => {
       date: newValue,
     }));
   };
+  const option = [
+    {
+      value: "byTel",
+      title: "전화상담",
+    },
+    {
+      value: "byKakaoTalk",
+      title: "카톡",
+    },
+    {
+      value: "byemail",
+      title: "이메일",
+    },
+    {
+      value: "byVisit",
+      title: "직접방문",
+    }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
@@ -37,11 +56,17 @@ const InteriorBooking = ({company, answers}) => {
     InteriorService.AddBooking(payload);
   };
   return (
-    <div style={{display:"flex"}}>
+    <div style={{ display: "flex" }}>
       <form onSubmit={handleSubmit}>
         <h5>인테리어 상담 신청</h5>
         <div>
-          <TextFieldMui name="kind" label="kind" onChange={handleChange} />
+          <SelectMui
+            name="kind"
+            value={data.kind}
+            onChange={handleChange}
+            option={option}
+            required
+          />
           <TextFieldMui name="long" label="long" onChange={handleChange} />
           <DatePickerMui value={data.date} onChange={handleDateChange} />
           <TextFieldMui

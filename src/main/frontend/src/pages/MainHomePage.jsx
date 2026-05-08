@@ -8,6 +8,9 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 
 const MainHomePage = ({loginUser,setLoginUser,setLoginInfo}) => {
 
+    const localUserData = localStorage.getItem("user");
+	const userData = JSON.parse(localUserData);
+
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
     const [chatOpen, setChatOpen] = useState(false);
@@ -68,9 +71,9 @@ const MainHomePage = ({loginUser,setLoginUser,setLoginInfo}) => {
                     />
                     <button type="submit">검색</button>
                 </form>
-                {loginUser ? (
+                {userData ? (
                     <>
-                        <span>{loginUser}님 </span>
+                        <span>{userData.id}님 </span>
                         <button onClick={logout}>로그아웃</button>
                         </>
                 ) : (

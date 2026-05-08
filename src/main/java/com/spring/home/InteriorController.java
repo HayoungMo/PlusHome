@@ -43,6 +43,18 @@ public class InteriorController {
 		return interiorService.getArticleLists();
 	}
 	
+	@GetMapping("/reviewlists")
+	public List<InteriorReviewDTO> getAllReviewlists() throws Exception {
+		return interiorService.getAllReviewlists();
+	}
+	
+	@GetMapping("/examplelists")
+	public List<InteriorReviewDTO> getAllExamples() throws Exception {
+		return interiorService.getAllExamples();
+	}
+	
+	
+	
 	@PostMapping("/getCompany")
 	public CompanyDTO getCompany(@RequestBody CompanyDTO dto) throws Exception {
 		return interiorService.getCompany(dto);
@@ -128,9 +140,24 @@ public class InteriorController {
 		interiorService.updateBooking(dto);
 	}
 
-	@PostMapping("/update/review")
+	@PostMapping("/update/interiorreview")
 	public void updateInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		interiorService.updateInteriorReview(dto);
+	}
+	
+	@PostMapping("/delete/interior")
+	public void deleteInterior(@RequestBody InteriorDTO dto) throws Exception {
+		interiorService.deleteInterior(dto);
+	}
+
+	@PostMapping("/delete/example")
+	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		interiorService.deleteInteriorExample(dto);
+	}
+	
+	@PostMapping("/delete/interiorreview")
+	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
+		interiorService.deleteInteriorReview(dto);
 	}
 
 

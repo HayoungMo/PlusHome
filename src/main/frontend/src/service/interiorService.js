@@ -113,12 +113,33 @@ const fetchInteriorReview = async (data) => {
   console.log("인보이스 디테일에 들어온 데이터", data);
   try {
     const res = await http.post("interior/interiorreview", {
+      id: data.id || "",
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,
       invoice_kind: "Y",
     });
 
+    console.log("응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
+const fetchAllInteriorReview = async () => {
+  try {
+    const res = await http.get("interior/reviewlists");
+    console.log("응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
+const fetchAllInteriorExample = async () => {
+  try {
+    const res = await http.get("interior/examplelists");
     console.log("응답 데이터:", res.data);
     return res.data;
   } catch (err) {
@@ -282,6 +303,38 @@ const UpdateBooking = async (data) => {
   }
 };
 
+const DeleteInterior = async (data) => {
+  try {
+    const res = await http.post("/interior/delete/interior", {
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      i_tag: data.tag,
+    });
+
+  } catch (err) {
+    console.error("삭제 에러:", err);
+  }
+};
+
+const DeleteInteriorExample = async (data) => {
+  try {
+    const res = await http.post("/interior/delete/example", {
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      ie_tag: data.tag,
+      ie_tag2: data.tag2,
+    });
+
+    console.log("수정 결과:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("수정 에러:", err);
+  }
+};
+
+
 
 const InteriorService = {
   fetchExample,
@@ -292,6 +345,8 @@ const InteriorService = {
   fetchInvoice,
   fetchInvoiceDetails,
   fetchInteriorReview,
+  fetchAllInteriorReview,
+  fetchAllInteriorExample,
   AddInterior,
   AddInteriorExample,
   AddBooking,
@@ -300,6 +355,8 @@ const InteriorService = {
   UpdateInterior,
   UpdateInteriorExample,
   UpdateBooking,
+  DeleteInterior,
+  DeleteInteriorExample,
 };
 
 export default InteriorService;
