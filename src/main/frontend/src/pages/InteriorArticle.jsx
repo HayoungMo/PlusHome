@@ -6,6 +6,7 @@ import InteriorBooking from "../components/InteriorBooking";
 import GetImgDir from "../resources/function/GetImgDir";
 import InteriorModelViewer from "../components/InteriorModelViewer";
 import InteriorReviewList from "../components/InteriorReviewList";
+import { Button } from "@mui/material";
 
 //테스트용 파일
 function InteriorArticle() {
@@ -25,6 +26,51 @@ function InteriorArticle() {
     });
   };
 
+  const isWished = (company) => {
+    const wishList = JSON.parse(localStorage.getItem("wishList")) || [];
+
+    return wishList.some(
+      (item) =>
+        item.c_id === company.c_id &&
+        item.c_kind === company.c_kind &&
+        item.c_name === company.c_name,
+    );
+  };
+
+  const [like, setLike] = useState(isWished(company));
+
+  const getWishList = () => {
+    return JSON.parse(localStorage.getItem("wishList")) || [];
+  };
+
+  // 찜 토글
+  useEffect(() => {
+    const toggleWish = (company) => {
+      const wishList = getWishList();
+
+      const exists = wishList.some(
+        (item) =>
+          item.c_id === company.c_id &&
+          item.c_kind === company.c_kind &&
+          item.c_name === company.c_name,
+      );
+
+      const newWishList = exists
+        ? wishList.filter(
+            (item) =>
+              !(
+                item.c_id === company.c_id &&
+                item.c_kind === company.c_kind &&
+                item.c_name === company.c_name
+              ),
+          )
+        : [...wishList, company];
+
+      localStorage.setItem("wishList", JSON.stringify(newWishList));
+    };    
+    toggleWish(company);
+  },[like]);
+  
   useEffect(() => {
     const fetchArticle = async () => {
       const data = await InteriorService.fetchArticle(company);
@@ -56,7 +102,7 @@ function InteriorArticle() {
 
       setExample(listWithImages);
     };
-
+    getWishList();
     fetchArticle();
     fetchExample();
   }, []);
@@ -150,6 +196,9 @@ function InteriorArticle() {
         ))}
       </div>
       <InteriorReviewList company={company} />
+      <Button onClick={() => setLike(!like)}>
+        {like ? "찜 취소" : "찜하기"}
+      </Button>
       {answers ? (
         <InteriorBooking company={company} answers={answers} />
       ) : (

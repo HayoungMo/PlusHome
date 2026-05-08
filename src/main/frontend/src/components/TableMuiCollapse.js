@@ -116,15 +116,19 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
             {column === "b_answer" ? null : column !== "b_status" ? (
               row[column]
             ) : row[column] !== "pending" && row[column] !== "quoting" ? (
-              <SelectMui
-                label="상태"
-                name="b_status"
-                value={row[column]}
-                option={statusOption}
-                onChange={(e) => updateBookingRow(row, e.target.value)}
-              />
+              updateBookingRow ? (
+                <SelectMui
+                  label="상태"
+                  name="b_status"
+                  value={row[column]}
+                  option={statusOption}
+                  onChange={(e) => updateBookingRow(row, e.target.value)}
+                />
+              ) : (
+                statusOption.find((item) => item.value === row[column])?.title
+              )
             ) : (
-              <p>견적서를 작성해주세요</p>
+              <p>견적서 작성 중</p>
             )}
           </StyledTableCell>
         ))}

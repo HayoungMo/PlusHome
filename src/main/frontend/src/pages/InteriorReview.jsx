@@ -1,26 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextFieldMui from "../components/TextFieldMui";
 import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import InteriorService from "../service/interiorService";
 
-const InteriorReview = (/*{invoice} */) => {
+const InteriorReview = () => {
   const [sendList, setSendList] = useState([]);
-  const id = localStorage.getItem("id");
+  const navigate = useNavigate();
   const location = useLocation();
   const invoice = location.state?.invoice;
   const [form, setForm] = useState({
-      id: invoice.id,
-      invoice_no: invoice.invoice_no,
-      invoice_kind: invoice.invoice_kind,
-      c_id: invoice.c_id,
-      c_kind: invoice.c_kind,
-      c_name: invoice.c_name,
-      b_createdDate: invoice.b_createdDate,
-    });
+    id: invoice.id,
+    invoice_no: invoice.invoice_no,
+    invoice_kind: invoice.invoice_kind,
+    c_id: invoice.c_id,
+    c_kind: invoice.c_kind,
+    c_name: invoice.c_name,
+    b_createdDate: invoice.b_createdDate,
+  });
 
-
+  const handleBack = () => {
+    navigate(-1);
+  };
+  useEffect(() => {
+    const fetchReview = async () => {
+      const data = await InteriorService.fetchInteriorReview(form);
+      if (data !== null) {
+        alert("이미 작성한 리뷰가 있습니다.");
+        handleBack();
+      }
+    };
+    fetchReview();
+  }, []);
 
   const handleChange = (e) => {
     setForm({
@@ -36,7 +49,6 @@ const InteriorReview = (/*{invoice} */) => {
       if (sendList.length > 0) {
         await ImageService.insertImage(sendList);
       }
-
     } catch (error) {
       console.error(error);
       alert("등록 중 오류가 발생했습니다.");
@@ -61,7 +73,6 @@ const InteriorReview = (/*{invoice} */) => {
     ]);
   };
 
-
   return (
     <div>
       <form name="article" onSubmit={handleSubmit}>
@@ -73,7 +84,7 @@ const InteriorReview = (/*{invoice} */) => {
           />
           <Button type="submit" variant="contained">
             제출
-          </Button>          
+          </Button>
         </div>
       </form>
       <p>이미지 업로드</p>

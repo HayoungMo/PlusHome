@@ -34,6 +34,18 @@ const InteriorExUpdate = ({ company }) => {
     });
   }; 
 
+  const handleDelete = async (e, item) => {
+      e.preventDefault();
+  
+      await InteriorService.DeleteInteriorExample({
+        c_id: company.c_id,
+        c_kind: company.c_kind,
+        c_name: company.c_name,
+        tag: item.ie_tag,
+        tag2: item.ie_tag2,
+      });
+    };
+
   const imageUpload = async (e) => {
     const updateList = document.getElementsByClassName("updateFile");
     if (updateList.length === 0) {
@@ -138,7 +150,7 @@ const InteriorExUpdate = ({ company }) => {
                   <Button onClick={(e) => imageUpload(record, e)}>적용</Button>
                 </form>
                 <Button onClick={() => imageDelete([record.img_originalName])}>
-                  삭제{" "}
+                  삭제
                 </Button>
               </div>
             ))}
@@ -192,7 +204,7 @@ const InteriorExUpdate = ({ company }) => {
             <Button onClick={onClickAdd}>추가</Button>
             <Button onClick={onClickInsert}>제출</Button>
           </form>
-          <form name="example" onSubmit={(e) => handleSubmit(e, item)}>
+          <form name="example">
             <div>
               <TextFieldMui name="tag" value={item.ie_tag} />
               <TextFieldMui name="tag2" value={item.ie_tag2} />
@@ -201,9 +213,8 @@ const InteriorExUpdate = ({ company }) => {
                 value={item.ie_content}
                 onChange={(e) => handleChange(index, e)}
               />
-              <Button type="submit" variant="contained">
-                제출
-              </Button>
+              <Button onClick={(e) => handleSubmit(e, item)}>제출</Button>
+              <Button onClick={(e) => handleDelete(e, item)}>삭제</Button>
             </div>
           </form>
         </div>

@@ -32,7 +32,6 @@ public class UserController {
 	
 	private final CompanyService companyService;
 	private final UserService userService;
-	private final CompanyService companyService;
 	private final JwtUtil jwtUtil;
 	
 	//일반 유저 회원가입

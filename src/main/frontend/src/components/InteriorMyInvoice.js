@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import InteriorService from "../service/interiorService";
 import InteriorUserService from "../service/interiorUserService";
 import TableMui from "./TableMui";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
+import InteriorBooking from "./InteriorBooking";
 
 const InteriorMyInvoice = ({ booking }) => {
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState([]);
+
+  const [reBooking, setReBooking] = useState(false);
 
   const [invoiceDetails, setInvoiceDetails] = useState([]);
 
@@ -17,6 +19,9 @@ const InteriorMyInvoice = ({ booking }) => {
         });
       };
 
+  const BookingAgain = () =>{
+    setReBooking(!reBooking);
+  }
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -57,6 +62,7 @@ const InteriorMyInvoice = ({ booking }) => {
   }, [invoice]);
   return (
     <div>
+      <p>견적서 목록</p>
       {invoice.map((invoiceItem, invoiceIdx) => (
         <div key={invoiceIdx}>
           <TableMui
@@ -67,7 +73,20 @@ const InteriorMyInvoice = ({ booking }) => {
             )}
           />
           {invoiceItem?.invoice_kind === "Y" && (
-            <Button onClick={() => handleNext(invoiceItem)}>리뷰 작성</Button>
+            <div>
+              <Button onClick={() => handleNext(invoiceItem)}>리뷰 작성</Button>
+              <Button onClick={() => BookingAgain()}>{reBooking ? "취소": "재상담 신청"}</Button>
+              {reBooking && (
+                <InteriorBooking
+                  company={{
+                    c_id: booking.c_id,
+                    c_kind: booking.c_kind,
+                    c_name: booking.c_name,
+                  }}
+                  answers={JSON.parse(booking.b_answer)}
+                />
+              )}
+            </div>
           )}
         </div>
       ))}
