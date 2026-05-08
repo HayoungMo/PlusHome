@@ -74,7 +74,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 setLoginInfo(user);
 
                 if(user.type==='company'){
-                    navigate('/interior/list')
+                    navigate('')
                 }else{
                     navigate('/')
                 }
@@ -93,6 +93,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("id");
 
         setLoginUser(null);
         setLoginInfo(null);
@@ -149,7 +150,8 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
                 <a href='/findId'>
                     아이디 찾기
-                </a>
+                </a>  / 
+                
                 <a href='/findPw'>
                     비밀번호 찾기
                 </a>              

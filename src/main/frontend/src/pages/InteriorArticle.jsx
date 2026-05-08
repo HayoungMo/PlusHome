@@ -79,11 +79,11 @@ function InteriorArticle() {
         상세 조회 결과
         {article.map((item, idx) => (
           <div key={idx}>
-            id: {item.c_id}
-            name: {item.c_name}
-            kind: {item.c_kind}
-            tag: {item.i_tag}
-            text: {item.i_text}
+            id: {item?.c_id}
+            name: {item?.c_name}
+            kind: {item?.c_kind}
+            tag: {item?.i_tag}
+            text: {item?.i_text}
           </div>
         ))}
       </div>
@@ -92,7 +92,7 @@ function InteriorArticle() {
         {example.map((item, idx) => (
           <div key={idx}>
             {/* 이미지 출력 */}
-            {item.logo?.result
+            {item?.logo?.result
               .filter(
                 (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
               )
@@ -140,12 +140,12 @@ function InteriorArticle() {
               </div>
             )}
 
-            <div>id: {item.c_id}</div>
-            <div>name: {item.c_name}</div>
-            <div>kind: {item.c_kind}</div>
-            <div>tag: {item.ie_tag}</div>
-            <div>tag2: {item.ie_tag2}</div>
-            <div>content: {item.ie_content}</div>
+            <div>id: {item?.c_id}</div>
+            <div>name: {item?.c_name}</div>
+            <div>kind: {item?.c_kind}</div>
+            <div>tag: {item?.ie_tag}</div>
+            <div>tag2: {item?.ie_tag2}</div>
+            <div>content: {item?.ie_content}</div>
           </div>
         ))}
       </div>

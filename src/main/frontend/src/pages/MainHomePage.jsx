@@ -6,7 +6,7 @@ import { Button } from '@mui/material';
 import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 
-const MainHomePage = () => {
+const MainHomePage = ({loginUser,setLoginUser,setLoginInfo}) => {
 
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
@@ -40,6 +40,18 @@ const MainHomePage = () => {
 
         navigate(`/search?keyword=${encodeURIComponent(keyword)}`);
     };
+
+     //로그아웃
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setLoginUser(null);
+        setLoginInfo(null);
+
+        navigate("/login")
+        
+    }
    
 
     return (
@@ -56,8 +68,15 @@ const MainHomePage = () => {
                     />
                     <button type="submit">검색</button>
                 </form>
-                
+                {loginUser ? (
+                    <>
+                        <span>{loginUser}님 </span>
+                        <button onClick={logout}>로그아웃</button>
+                        </>
+                ) : (
+                   
                 <Link to="/login">로그인</Link>
+                )}
 
             </header>
 

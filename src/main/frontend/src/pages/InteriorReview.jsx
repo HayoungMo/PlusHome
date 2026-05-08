@@ -1,31 +1,26 @@
 import React, { useState } from "react";
 import TextFieldMui from "../components/TextFieldMui";
 import { Button } from "@mui/material";
-import InteriorService from "../service/interiorService";
 import ImageService from "../service/imageService";
+import InteriorUserService from "../service/interiorUserService";
+import { useLocation } from "react-router-dom";
 
 const InteriorReview = (/*{invoice} */) => {
   const [sendList, setSendList] = useState([]);
-  const [invoice, setInvoice] = useState({
-    id: localStorage.getItem('id'),
-    c_id: "comp02",
-    c_kind: "interior",
-    c_name: "감성인테리어",
-    invoice_no: 4,
-    invoice_kind: "Y",
-    b_createdDate: "2026-04-30 10:29:39",
-  });
-
+  const id = localStorage.getItem("id");
+  const location = useLocation();
+  const invoice = location.state?.invoice;
   const [form, setForm] = useState({
-    id: invoice.id,
-    c_id: invoice.c_id,
-    c_kind: invoice.c_kind,
-    c_name: invoice.c_name,
-    invoice_no: invoice.invoice_no,
-    invoice_kind: invoice.invoice_kind,
-    b_createdDate: invoice.b_createdDate,
-    ir_content: "",
-  });
+      id: invoice.id,
+      invoice_no: invoice.invoice_no,
+      invoice_kind: invoice.invoice_kind,
+      c_id: invoice.c_id,
+      c_kind: invoice.c_kind,
+      c_name: invoice.c_name,
+      b_createdDate: invoice.b_createdDate,
+    });
+
+
 
   const handleChange = (e) => {
     setForm({
@@ -36,7 +31,7 @@ const InteriorReview = (/*{invoice} */) => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
     try {
-      await InteriorService.AddInteriorReview(form);
+      await InteriorUserService.AddInteriorReview(form);
 
       if (sendList.length > 0) {
         await ImageService.insertImage(sendList);
@@ -78,7 +73,7 @@ const InteriorReview = (/*{invoice} */) => {
           />
           <Button type="submit" variant="contained">
             제출
-          </Button>
+          </Button>          
         </div>
       </form>
       <p>이미지 업로드</p>

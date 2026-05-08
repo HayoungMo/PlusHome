@@ -23,7 +23,14 @@ import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
 import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
+import FindIdPage from "./pages/FindIdPage";
+import FurnitureUpdatePage from "./pages/FurnitureUpdatePage";
+import CompanyDashboard from "./dasboardPages/CompanyDashboard";
 
+import InteriorReview from "./pages/InteriorReview";
+import InteriorChart from "./components/InteriorChart";
+import InteriorUpdateAll from "./pages/InteriorUpdateAll";
+import InteriorMyPage from "./components/InteriorMyPage";
 
 function App() {
 	const navigate = useNavigate();
@@ -47,21 +54,26 @@ function App() {
         {/* mui 테스트용 */}
 				<Route path='/component' element={<ComponentEx />}/> 
           
+        <Route path="/findId" element={<FindIdPage/>}/>
         <Route path="/findPw" element={<FindPwPage/>}/>
         
         <Route path="/wallet/charge" element={<WalletCharge/>}/>
         <Route path="/furniture/list" element={<FurnitureList/>}/>
         <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
         <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
+        <Route path="/furniture/update/:f_code" element={<FurnitureUpdatePage />} />
 
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
         <Route path="/interior/list" element={<InteriorLists />} />
         <Route path="/interior/article" element={<InteriorArticle />} />
         <Route path="/interior/created" element={<InteriorCreated />} />
+        <Route path="/interior/updated" element={<InteriorUpdateAll />} />
         <Route path="/interior/question" element={<InteriorQuestion />} />
+        <Route path="/interior/review" element={<InteriorReview />} />
+        <Route path="/interior/mypage" element={<InteriorMyPage />} />
         <Route path="/exportPDF" element={<ExportPDF />} />
         <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
-        
+        <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
       </Routes>
     </div>
   );

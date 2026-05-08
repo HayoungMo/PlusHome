@@ -2,8 +2,13 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Await, useNavigate } from 'react-router-dom';
 import JoinService from "../service/joinService";
+import { Select, TextField } from '@mui/material';
+import RadioMui from '../components/RadioMui';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import DatePickerMui from '../components/DatePickerMui';
 
-//
+
+
 const email_Option =[
     {value:'none', label: '--- 선택 ---'},
     {value:'@naver.com', label: '@naver.com'},
@@ -14,7 +19,7 @@ const email_Option =[
 ]
 
 const JoinUserPage = () => {
-    const [step,setStep] = useState(3);
+
     const navigate = useNavigate();
     const [form,setForm]=useState({
         id:'', pw:'',type:'user', code:'', name:'',
@@ -38,34 +43,18 @@ const JoinUserPage = () => {
 
     const onEmail = (evt) =>{
         const{name,value} = evt.target
-        const newEmail = {...email, [name]:value}
+
+        const newEmail = {
+            ...email, 
+            [name]:value
+        }
 
         setEmail(newEmail)
-
-        setForm(prev =>({
-            ...prev,
-            email: newEmail.id + newEmail.domain
-        }))
     }   
     
 
-    const [birth,setBirth]=useState({
-        year:'',
-        month:'',
-        day:''
-    })
+    const [birth,setBirth]=useState(null);
 
-    const onBirth = (evt) =>{
-        const{name,value} = evt.target
-        const newBirth = {...birth,[name]:value}
-        
-        setBirth(newBirth)
-
-        setForm(prev=>({
-            ...prev,
-            birth:`${newBirth.year}-${newBirth.month}-${newBirth.day}`
-        }))
-    }
 
 
     const [tel,setTel] = useState({
@@ -82,6 +71,17 @@ const JoinUserPage = () => {
         setForm(prev =>({
             ...prev,
             tel: newTel.head + newTel.mid + newTel.tail
+        }))
+    } 
+
+    const onBirth = (evt) =>{
+        setBirth(evt);
+
+        setForm(data => ({
+            ...data,
+            birth:evt
+            ? evt.format("YYYY-MM-DD")
+            :''
         }))
     } 
 
@@ -201,7 +201,7 @@ const JoinUserPage = () => {
             ? email.id + email.domain
             : '',
             tel:tel.head + tel.mid + tel.tail,
-            birth: `${birth.year}-${birth.month}-${birth.day}`,
+           birth: birth ? birth.format("YYYY-MM-DD") : '',
 
             companyDto:form.type==='company' ? {
                 c_name: form.c_name,
@@ -248,22 +248,17 @@ const JoinUserPage = () => {
 
     
 
-    const year = Number(birth.year);
-    const month = Number(birth.month);
-    const lastDay = (year&&month) ? new Date(year,month,0).getDate() : 31;
-
 
     return (
         <div>
             <h3>회원가입
                 <span>SIGN UP</span>
             </h3>
-             <label>아이디</label>   
+
              <div className=''>
-                <input type='text' name='id' value={form.id}
+                <TextField label="아이디" name='id' value={form.id}
                 onChange={onText}
-                    placeholder='아이디 입력'
-                    className=''/>
+                  />
                     <button type='button' className=''
                     onClick={onCheckId}>중복확인</button>
              </div>
@@ -276,32 +271,27 @@ const JoinUserPage = () => {
              )}
             
              <div className=''>
-             <label>비밀번호</label>
-             <input type='password' name='pw' value={form.pw} onChange={onText}
-                placeholder='비밀번호 입력'
-                className=''/>
+             <TextField label="비밀번호" type='password' name='pw' value={form.pw} onChange={onText}
+              />
             </div>
 
             <div>
-                <label>비밀번호 확인</label>
-                <input type='password' value={pwCheck}
+                <TextField label="비밀번호 확인" type='password' value={pwCheck}
                     onChange={(e)=>setPwCheck(e.target.value)}
-                    placeholder='비밀번호 재입력'
-                    className=''/>
+                   />
             </div>
 
             {form.type==='company' &&(
             <>
             
 
-            <label>업체명</label>
             <div className=''>
-                <input type='text' name='c_name' value={form.c_name} onChange={onText}/>
+                <TextField label='업체명' type='text' name='c_name' value={form.c_name} onChange={onText}/>
             </div>
             
-            <label>업체주소</label>  
+  
             <div>
-                <input type='text' name='c_addr' value={form.c_addr} onChange={onText}/>             
+                <TextField label='업체주소' type='text' name='c_addr' value={form.c_addr} onChange={onText}/>             
             </div>
 
             <div>
@@ -333,93 +323,72 @@ const JoinUserPage = () => {
             </div>
 
             <div>
-                <label>이름(사업주명)</label>
-                <input type='text' name= 'name' value={form.name} onChange={onText}
-                    placeholder='이름(사업주명)'
-                    className=''/>
+
+                <TextField label='이름(사업주명)' type='text' name= 'name' value={form.name} onChange={onText}
+                   />
             </div>
 
 
 
             <div>
-                <label>주민번호(사업자 등록번호)</label>
-                <input type='text' name= 'code' value={form.code} onChange={onText}
-                    placeholder='주민번호'
-                    className=''/>
+                <TextField label='주민번호(사업자 등록번호)' type='text' name= 'code' value={form.code} onChange={onText}
+                />
             </div>
 
             <div>
-                <label>주소</label>
-                <input type='text' name= 'addr' value={form.addr} onChange={onText}
-                    placeholder='주소'
-                    className=''/>
+                <TextField label='주소' type='text' name= 'addr' value={form.addr} onChange={onText}
+                  />
             </div>
 
             <div>
-                <label>이메일</label>
-                <input type='text' name='id' value={email.id}
+                <TextField label="이메일" name='id' value={email.id}
                     onChange={onEmail}
-                    placeholder='이메일 주소'
-                    className=''/>
-                     <select name="domain" value={email.domain} onChange={onEmail} className="">
-                                    {email_Option.map(opt => (
-                                        <option key={opt.label} value={opt.value}>{opt.label}</option>
-                                    ))}
-                                </select>
+                   />
+                     <Select
+                        label='도메인'
+                        name="domain"
+                        value={email.domain}
+                        option={email_Option || []}
+                        onChange={onEmail}
+                    />
             </div>
 
             
-            <label>생년월일</label>
-                <div className=''>
-                <select name='year'
-                onChange={onBirth} className=''>
-                    <option value=''>연도</option>
-                    {Array.from({ length: 80 }, (_, i) => 2007 - i).map(y =>
-                    <option key={y} value={y}>{y}년</option>)}
-                </select>
-                <select name='month' onChange={onBirth}>
-                    <option>월</option>
-                    {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(m =>
-                        <option key={m} value={m}>{m}월</option>)}
-                </select>
-                <select name="day" onChange={onBirth} className="">
-                    <option value="">일</option>
-                    {Array.from({ length: lastDay }, (_, i) => String(i + 1).padStart(2, '0')).map(d =>
-                        <option key={d} value={d}>{d}일</option>)}
-                </select>                  
-            </div>
+            <DatePickerMui
+            label='생년월일'
+            value={birth}
+            onChange={onBirth}/>
+                
+                                  
 
            
             <label>전화번호</label>
             <div className=''>
-                <select name='head' value={tel.head} onChange={onTel}
+                <Select name='head' value={tel.head} onChange={onTel}
                 className=''>
                     <option value='010'>010</option>
                     <option value='011'>011</option>
-                </select>
-                <input type='text' name='mid' value={tel.mid}
+                </Select>
+                <TextField type='text' name='mid' value={tel.mid}
                 onChange={onTel} maxLength={4}
                      className=''/>
-                <input type='text' name='tail' value={tel.tail}
+                <TextField type='text' name='tail' value={tel.tail}
                 onChange={onTel} maxLength={4} className=''/>
             </div>
 
             <div>
-                <ul>
-                    <li>
-                        <input type='radio' name='gender' value='male' onChange={onText}/>
-                        <label>남자</label>
-                    </li>
-                    <li>
-                        <input type='radio' name='gender' value='female' onChange={onText}/>
-                        <label>여자</label>
-                    </li>
-                    <li>
-                        <input type='radio' id='gender3' name='gender' value='none' onChange={onText}/>
-                        <label>선택안함</label>
-                    </li>           
-                </ul>
-            </div>
+                <RadioMui
+                    label="성별"
+                    name="gender"
+                    value={form.gender}
+                    onChange={onText}
+                    labelList={[
+                        { value: "male", title: "남자" },
+                        { value: "female", title: "여자" },
+                        { value: "none", title: "선택안함" },
+                    ]}
+                />
+        </div>
 
             <button type="button" className=''
                 onClick={onNext}>

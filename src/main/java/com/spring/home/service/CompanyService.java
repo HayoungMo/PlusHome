@@ -13,24 +13,32 @@ public class CompanyService {
 
 	@Autowired
 	private CompanyMapper companyMapper;
-	
-	public void insertData(CompanyDTO dto) throws Exception{
+
+	public void insertData(CompanyDTO dto) throws Exception {
 		companyMapper.insertData(dto);
 	}
-	
-	public List<CompanyDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+
+	public List<CompanyDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception {
 		return companyMapper.getLists(start, end, searchKey, searchValue);
 	}
-	
-	public CompanyDTO getReadData(String c_id) throws Exception{
+
+	public CompanyDTO getReadData(String c_id) throws Exception {
 		return companyMapper.getReadData(c_id);
 	}
-	
-	public void updateData(CompanyDTO dto) throws Exception{
+
+	public void updateData(CompanyDTO dto) throws Exception {
 		companyMapper.updateData(dto);
 	}
-	
-	public void deleteData(String c_id) throws Exception{
+
+	public void deleteData(String c_id) throws Exception {
 		companyMapper.deleteData(c_id);
+	}
+
+	public List<CompanyDTO> getReadDataList(String c_id) throws Exception {
+		return companyMapper.getReadDataList(c_id);
+	}
+
+	public int insertDataDashboard(CompanyDTO dto) throws Exception {
+		return companyMapper.insertDataDashboard(dto);
 	}
 }

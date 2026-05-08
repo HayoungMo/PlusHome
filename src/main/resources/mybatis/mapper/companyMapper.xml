@@ -42,4 +42,14 @@
 	select * from company where c_id=#{c_id}
 </select>
 
+<select id="getReadDataList" parameterType="String" resultType="com.spring.home.dto.CompanyDTO">
+	select * from company where c_id=#{c_id}
+</select>
+
+<insert id="insertDataDashboard" parameterType="com.spring.home.dto.CompanyDTO">
+	insert into company 
+	(c_id,c_name,c_kind,c_tel,c_addr,c_boss)
+	values (#{c_id}, #{c_name}, #{c_kind}, #{c_tel}, #{c_addr}, #{c_boss})
+</insert>
+
 </mapper>

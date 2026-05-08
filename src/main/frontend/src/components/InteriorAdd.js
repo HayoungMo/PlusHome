@@ -3,6 +3,7 @@ import TextFieldMui from './TextFieldMui';
 import { Button } from '@mui/material';
 import ImageService from '../service/imageService';
 import InteriorService from '../service/interiorService';
+import SelectMui from './SelectMui';
 
 const InteriorAdd = ({company}) => {
 
@@ -14,6 +15,18 @@ const InteriorAdd = ({company}) => {
           tag: "",
           text: "",
         });
+
+
+const tagOptions = [
+  { value: "housingType", title: "주거 유형" },
+  { value: "areaSize", title: "평수" },
+  { value: "houseCondition", title: "주택 상태" },
+  { value: "purpose", title: "목적" },
+  { value: "spaces", title: "공간" },
+  { value: "budget", title: "예산" },
+  { value: "schedule", title: "일정" },
+  { value: "location", title: "출장 장소" },
+];
 
       const handleChange = (e) => {
         setForm({
@@ -54,58 +67,63 @@ const InteriorAdd = ({company}) => {
         };
 
     return (
-        <div>
-             <p>인테리어 업체 추가</p>
-                  <form name="article" onSubmit={handleSubmit}>
-                    <div>
-                      <TextFieldMui name="tag" label="tag" onChange={handleChange} />
-                      <TextFieldMui name="text" label="text" onChange={handleChange} />
-                      <Button type="submit" variant="contained">
-                        제출
-                      </Button>
-                    </div>
-                  </form>
-                  <p>이미지 업로드</p>
-                  <form name="imageInsertTestForm">
-                    <input
-                      type="hidden"
-                      value="LOGO"
-                      name="img_kind"
-                      placeholder="IMG_KIND"
-                    />
-                    <input
-                      type="hidden"
-                      value="PROFILE"
-                      name="img_tag"
-                      placeholder="IMG_TAG"
-                    />
-                    <input
-                      type="hidden"
-                      value={company.c_id}
-                      name="dir_a"
-                      placeholder="DIR_A"
-                    />
-                    <input
-                      type="hidden"
-                      value={company.c_kind}
-                      name="dir_b"
-                      placeholder="DIR_B"
-                    />
-                    <input
-                      type="hidden"
-                      value={company.c_name}
-                      name="dir_c"
-                      placeholder="DIR_C"
-                    />
-                    <input type="hidden" value="LOGO" name="dir_d" placeholder="DIR_D" />
-                    {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-                    <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
-                    <input type="file" name="file" />
-                    <br />
-                    <input type="button" onClick={onClickAdd} value="Add" />
-                  </form>
-            
-        </div>
+      <div>
+        <p>인테리어 업체 추가</p>
+        <form name="article" onSubmit={handleSubmit}>
+          <div>
+            <SelectMui
+              name="tag"
+              value={form.tag}
+              onChange={handleChange}
+              option={tagOptions}
+              required
+            />
+            {form.tag&&<TextFieldMui name="text" label="text" onChange={handleChange} />}
+            {form.text && <Button type="submit" variant="contained">
+              제출
+            </Button>}
+          </div>
+        </form>
+        <p>이미지 업로드</p>
+        <form name="imageInsertTestForm">
+          <input
+            type="hidden"
+            value="LOGO"
+            name="img_kind"
+            placeholder="IMG_KIND"
+          />
+          <input
+            type="hidden"
+            value="PROFILE"
+            name="img_tag"
+            placeholder="IMG_TAG"
+          />
+          <input
+            type="hidden"
+            value={company.c_id}
+            name="dir_a"
+            placeholder="DIR_A"
+          />
+          <input
+            type="hidden"
+            value={company.c_kind}
+            name="dir_b"
+            placeholder="DIR_B"
+          />
+          <input
+            type="hidden"
+            value={company.c_name}
+            name="dir_c"
+            placeholder="DIR_C"
+          />
+          <input type="hidden" value="LOGO" name="dir_d" placeholder="DIR_D" />
+          {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
+          <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
+          <input type="file" name="file" />
+          <br />
+          <input type="button" onClick={onClickAdd} value="Add" />
+        </form>
+      </div>
     );
 };
 

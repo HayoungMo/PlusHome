@@ -144,7 +144,6 @@ public class FurnitureService {
 	}
 	
 	public FurnitureDTO getReadData(String f_code) throws Exception{
-		furnitureMapper.updateViewCount(f_code);
 		
 		FurnitureDTO dto = furnitureMapper.getReadData(f_code);
 		
@@ -166,8 +165,141 @@ public class FurnitureService {
 		furnitureMapper.updateViewCount(f_code);
 	}
 	
-	public void updateData(FurnitureDTO dto) throws Exception{
-		furnitureMapper.updateData(dto);
+	public String updateData(
+	        FurnitureDTO dto,
+	        MultipartFile thumbnail,
+	        List<MultipartFile> infoFiles,
+	        List<MultipartFile> othersFiles,
+	        List<String> deletedImages
+	) throws Exception {
+
+		System.out.println("thumbnail = " + thumbnail);
+		System.out.println("infoFiles = " + infoFiles);
+		System.out.println("othersFiles = " + othersFiles);
+		System.out.println("deletedImages = " + deletedImages);
+		System.out.println("dto = " + dto);
+		
+	    furnitureMapper.updateData(dto);
+
+	    String f_code = dto.getF_code();
+
+	    if (deletedImages != null && !deletedImages.isEmpty()) {
+
+	        List<ImageDTO> deleteList = new ArrayList<>();
+
+	        for (String imgName : deletedImages) {
+
+	            if (imgName == null || imgName.trim().isEmpty()) {
+	                continue;
+	            }
+
+	            ImageDTO img =
+	                    imageService.getImgByImgName(imgName);
+
+	            if (img != null) {
+	                deleteList.add(img);
+	            }
+	        }
+
+	        if (!deleteList.isEmpty()) {
+
+	            FileUtilMethod.fileDeleteFromServer(deleteList);
+
+	            for (ImageDTO img : deleteList) {
+	                imageService.deleteImage(img.getImg_name());
+	            }
+	        }
+	    }
+
+	    List<MultipartFile> files = new ArrayList<>();
+	    List<ImageDTO> dtoList = new ArrayList<>();
+
+	    if (thumbnail != null && !thumbnail.isEmpty()) {
+
+	        // 기존 썸네일 조회
+	        ImageQueryDTO queryDTO = new ImageQueryDTO();
+
+	        queryDTO.setA(f_code);
+	        queryDTO.setKind("FURNITURE");
+	        queryDTO.setRange("ONE");
+	        queryDTO.setIdx(-1);
+
+	        List<ImageDTO> oldImages =
+	                imageService.getList(queryDTO);
+
+	        // 기존 썸네일만 추출
+	        List<ImageDTO> oldThumbs = new ArrayList<>();
+
+	        for (ImageDTO oldImg : oldImages) {
+
+	            if ("THUMBNAIL".equals(oldImg.getImg_tag())) {
+	                oldThumbs.add(oldImg);
+	            }
+	        }
+
+	        // 기존 썸네일 삭제
+	        if (!oldThumbs.isEmpty()) {
+
+	            FileUtilMethod.fileDeleteFromServer(oldThumbs);
+
+	            for (ImageDTO oldImg : oldThumbs) {
+	                imageService.deleteImage(oldImg.getImg_name());
+	            }
+	        }
+
+	        // 새 썸네일 저장
+	        ImageDTO img = new ImageDTO();
+	        img.setImg_kind("FURNITURE");
+	        img.setImg_tag("THUMBNAIL");
+	        img.setDir_a(f_code);
+
+	        files.add(thumbnail);
+	        dtoList.add(img);
+	    }
+
+	    if (infoFiles != null) {
+
+	        for (MultipartFile file : infoFiles) {
+
+	            if (file == null || file.isEmpty()) continue;
+
+	            ImageDTO img = new ImageDTO();
+	            img.setImg_kind("FURNITURE");
+	            img.setImg_tag("INFO");
+	            img.setDir_a(f_code);
+
+	            files.add(file);
+	            dtoList.add(img);
+	        }
+	    }
+
+	    if (othersFiles != null) {
+
+	        for (MultipartFile file : othersFiles) {
+
+	            if (file == null || file.isEmpty()) continue;
+
+	            ImageDTO img = new ImageDTO();
+	            img.setImg_kind("FURNITURE");
+	            img.setImg_tag("OTHERS");
+	            img.setDir_a(f_code);
+
+	            files.add(file);
+	            dtoList.add(img);
+	        }
+	    }
+
+	    if (!files.isEmpty()) {
+
+	        FileSaveResult result =
+	                FileUtilMethod.fileSaveFromServer(files, dtoList);
+
+	        if (result.isSuccess()) {
+	            result.getSavedList().forEach(imageService::insertImage);
+	        }
+	    }
+
+	    return f_code;
 	}
 	
 	public void deleteData(String f_code) throws Exception{

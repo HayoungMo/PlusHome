@@ -63,6 +63,7 @@ const SetImageInList = (props) => {
 	const convertedImgData = imgData.map((img) => ({
 		...img,
 		img_name: `${baseDIR}/${kind}/${img.img_name}`,
+		img_originalName: img.img_name,
 	}));
 
 	if (orgList === null || orgList.length === 0) {

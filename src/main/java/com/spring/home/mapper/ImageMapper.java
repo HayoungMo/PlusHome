@@ -32,5 +32,7 @@ public interface ImageMapper {
 	public int updateImageInfoOne(ImageQueryDTO imageQueryDTO) throws Exception;
 	
 	public void deleteImageByFCode(@Param("f_code") String f_code) throws Exception;
+	
+	public ImageDTO getImgByImgName(@Param("img_name") String img_name) throws Exception;
 
 }
