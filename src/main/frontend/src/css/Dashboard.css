@@ -74,3 +74,19 @@
 	padding: 32px;
 	box-sizing: border-box;
 }
+
+.left-menu {
+	padding: 12px 8px;
+	cursor: pointer;
+	border-radius: 6px;
+}
+
+.left-menu:hover {
+	background-color: #393e46;
+}
+
+.left-menu.active {
+	background-color: #ffffff;
+	color: #222831;
+	font-weight: bold;
+}
