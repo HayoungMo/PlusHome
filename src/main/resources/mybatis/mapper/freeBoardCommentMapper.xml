@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.FreeBoardCommentMapper">
+
+    <!-- 댓글 등록 -->
+    <insert id="insertComment"
+            parameterType="com.spring.home.dto.FreeBoardCommentDTO">
+
+        INSERT INTO freeboard_comment (
+            commentid,
+            boardid,
+            userid,
+            username,
+            content,
+            parentid,
+            createdat
+        ) VALUES (
+            seq_freeboard_comment_id.nextval,
+            #{boardId},
+            #{userId},
+            #{userName},
+            #{content},
+            #{parentId, jdbcType=NUMERIC},
+            sysdate
+        )
+
+    </insert>
+
+ 	 <select id="getCommentsByBoardId"
+		        resultType="com.spring.home.dto.FreeBoardCommentDTO">
+
+		    SELECT
+		        c.commentid  AS commentId,
+		        c.boardid    AS boardId,
+		        c.userid     AS userId,
+		        c.username   AS userName,
+		        u.type       AS userType,
+		        c.content,
+		        c.parentid   AS parentId,
+		        c.createdat  AS createdAt,
+		        c.updatedat  AS updatedAt
+		    FROM freeboard_comment c
+		    LEFT JOIN users u ON u.id = c.userid
+		    WHERE c.boardid = #{boardId}
+		    ORDER BY c.createdat ASC
+
+		</select>
+		
+    <!-- 단건 댓글 조회 (권한 체크용) -->
+    <select id="getCommentById"
+            resultType="com.spring.home.dto.FreeBoardCommentDTO">
+
+        SELECT
+            commentid AS commentId,
+            boardid AS boardId,
+            userid AS userId,
+            username AS userName,
+            content,
+            parentid AS parentId,
+            createdat AS createdAt,
+            updatedat AS updatedAt
+        FROM freeboard_comment
+        WHERE commentid = #{commentId}
+
+    </select>
+
+	<delete id="deleteComment">
+	    DELETE FROM freeboard_comment
+	    WHERE commentid = #{commentId}
+	</delete>
+
+    <!-- 댓글 수정 -->
+    <update id="updateComment"
+            parameterType="com.spring.home.dto.FreeBoardCommentDTO">
+
+        UPDATE freeboard_comment
+
+        SET
+            content = #{content},
+            updatedat = sysdate
+
+        WHERE commentid = #{commentId}
+
+    </update>
+
+    <!-- 댓글 수 증가 -->
+    <update id="increaseCommentCount">
+
+        UPDATE freeboard
+
+        SET commentcount = commentcount + 1
+
+        WHERE boardid = #{boardId}
+
+    </update>
+
+    <!-- 댓글 수 감소 -->
+    <update id="decreaseCommentCount">
+
+        UPDATE freeboard
+
+        SET commentcount = commentcount - 1
+
+        WHERE boardid = #{boardId}
+
+    </update>
+
+</mapper>

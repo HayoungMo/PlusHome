@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.FreeBoardMapper">
+
+    <!-- [공통] 검색 및 필터링 조건 -->
+    <sql id="searchWhere">
+        <where>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="searchValue != null and searchValue != ''">
+                <choose>
+                    <when test="searchKey == 'title'">
+                        AND title LIKE '%' || #{searchValue} || '%'
+                    </when>
+                    <when test="searchKey == 'userName'">
+                        AND userName LIKE '%' || #{searchValue} || '%'
+                    </when>
+                    <when test="searchKey == 'content'">
+                        AND content LIKE '%' || #{searchValue} || '%'
+                    </when>
+                    <otherwise>
+                        AND title LIKE '%' || #{searchValue} || '%'
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </sql>
+
+    <!-- 1. 목록 조회: 공지사항 우선 정렬 + 페이징 -->
+    <select id="getLists" parameterType="map" resultType="com.spring.home.dto.FreeBoardDTO">
+        SELECT * FROM (
+            SELECT rownum rnum, data.* FROM (
+                SELECT
+                    boardId, userId, userName, category, title,
+                    viewCount, likeCount, commentCount,
+                    TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt
+                FROM freeboard
+                <include refid="searchWhere"/>
+                ORDER BY 
+                   CASE WHEN category = '공지' THEN 1 ELSE 2 END ASC, 
+                    boardId DESC
+            ) data
+        )
+        WHERE rnum &gt;= #{start} AND rnum &lt;= #{end}
+    </select>
+
+    <!-- 2. 전체 데이터 개수 조회 -->
+    <select id="getDataCount" parameterType="map" resultType="int">
+        SELECT COUNT(*) FROM freeboard
+        <include refid="searchWhere"/>
+    </select>
+
+    <!-- 3. 상세 조회 -->
+    <select id="getReadData" parameterType="long" resultType="com.spring.home.dto.FreeBoardDTO">
+        SELECT
+            boardId, userId, userName, category, title, content,
+            viewCount, likeCount, commentCount,
+            TO_CHAR(createdAt, 'YYYY-MM-DD HH24:MI') as createdAt,
+            TO_CHAR(updatedAt, 'YYYY-MM-DD HH24:MI') as updatedAt
+        FROM freeboard
+        WHERE boardId = #{boardId}
+    </select>
+
+    <!-- 4. 게시글 등록 -->
+    <insert id="insertData" parameterType="com.spring.home.dto.FreeBoardDTO">
+        INSERT INTO freeboard (
+            BOARDID, USERID, USERNAME, CATEGORY, TITLE, CONTENT,
+            VIEWCOUNT, LIKECOUNT, COMMENTCOUNT, CREATEDAT, UPDATEDAT
+        ) VALUES (
+            freeBoard_seq.nextval,
+            #{userId},
+            #{userName},
+            #{category},
+            #{title},
+            #{content},
+            0, 0, 0, SYSDATE, SYSDATE
+        )
+        <selectKey keyProperty="boardId" resultType="long" order="AFTER">
+            SELECT freeBoard_seq.currval FROM dual
+        </selectKey>
+    </insert>
+
+    <!-- 5. 수정 (제목, 내용, 카테고리) -->
+    <update id="updateData" parameterType="com.spring.home.dto.FreeBoardDTO">
+        UPDATE freeboard
+        SET
+            category  = #{category},
+            title     = #{title},
+            content   = #{content},
+            updatedAt = SYSDATE
+        WHERE boardId = #{boardId}
+    </update>
+
+    <!-- 6. 삭제 -->
+    <delete id="deleteData" parameterType="long">
+       DELETE FROM freeboard
+		WHERE  boardid = #{boardId}
+    </delete>
+
+    <!-- 7. 조회수 증가 -->
+    <update id="updateViewCount" parameterType="long">
+        UPDATE freeboard
+        SET viewCount = viewCount + 1
+        WHERE boardId = #{boardId}
+    </update>
+
+    <!-- 7-1. 좋아요 수 증가 -->
+    <update id="updateLikeCount" parameterType="long">
+        UPDATE freeboard
+        SET likeCount = likeCount + 1
+        WHERE boardId = #{boardId}
+    </update>
+
+    <!-- 8. 이전글 조회 -->
+    <select id="getPrev" parameterType="long" resultType="com.spring.home.dto.FreeBoardDTO">
+        SELECT * FROM (
+            SELECT boardId, title
+            FROM freeboard
+            WHERE boardId &gt; #{boardId}
+            ORDER BY boardId ASC
+        )
+        WHERE rownum = 1
+    </select>
+
+    <!-- 9. 다음글 조회 -->
+    <select id="getNext" parameterType="long" resultType="com.spring.home.dto.FreeBoardDTO">
+        SELECT * FROM (
+            SELECT boardId, title
+            FROM freeboard
+            WHERE boardId &lt; #{boardId}
+            ORDER BY boardId DESC
+        )
+        WHERE rownum = 1
+    </select>
+
+</mapper>
