@@ -3,6 +3,7 @@ import InteriorService from "../service/interiorService";
 import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
 import InteriorInvoiceAdd from "./InteriorInvoiceAdd";
+import { Button } from "@mui/material";
 
 const BookingUpdate = ({ company }) => {
   const [booking, setBooking] = useState([]);
@@ -44,6 +45,7 @@ const BookingUpdate = ({ company }) => {
               rowData={item}
               updateBookingRow={updateBookingRow}
             />
+            <Button onClick={()=>updateBookingRow(item,"cancel")}>상담 취소</Button>
             <InteriorInvoiceAdd booking={item} />
           </div>
         ))

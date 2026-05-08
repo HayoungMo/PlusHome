@@ -191,12 +191,12 @@ const JoinUserPage = () => {
           email: finalEmail,
           tel: tel.head + tel.mid + tel.tail,
           birth: birth ? birth.format("YYYY-MM-DD") : "",
-          addr: form.addr1 +"__" +form.addr2,
+          addr: form.addr1 + "__" + form.addr2,
           companyDto:
             form.type === "company"
               ? {
                   c_name: form.c_name,
-                  c_addr: form.c_addr1 + form.c_addr2,
+                  c_addr: form.c_addr1 + "__" + form.c_addr2,
                   c_kind: form.c_kind,
                   c_boss: form.name,
                 }

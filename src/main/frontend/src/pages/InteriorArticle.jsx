@@ -7,9 +7,12 @@ import GetImgDir from "../resources/function/GetImgDir";
 import InteriorModelViewer from "../components/InteriorModelViewer";
 import InteriorReviewList from "../components/InteriorReviewList";
 import { Button } from "@mui/material";
+import Maps from "../maps/Maps";
 
 //테스트용 파일
 function InteriorArticle() {
+
+  const { naver } = window; 
   const location = useLocation();
   const company = location.state.company;
   const answers = location.state.answers;
@@ -19,6 +22,26 @@ function InteriorArticle() {
   const [example, setExample] = useState([]);
 
   const [selectedImg, setSelectedImg] = useState(null);
+  const getCoordsFromAddress = (address) => {
+    naver.maps.Service.geocode(
+      {
+        query: address,
+      },
+      function (status, response) {
+        if (status !== naver.maps.Service.Status.OK) {
+          console.error("주소 검색 실패");
+          return;
+        }
+
+        const result = response.v2.addresses[0];
+
+        const lat = parseFloat(result.y);
+        const lng = parseFloat(result.x);
+
+        console.log(lat, lng);
+      },
+    );
+  };
 
   const handleNext = () => {
     navigate("/interior/question", {
@@ -125,6 +148,7 @@ function InteriorArticle() {
       ))}
       <div>
         상세 조회 결과
+        <Maps c_addr={company.c_addr.split("__")[0]}/>
         {article.map((item, idx) => (
           <div key={idx}>
             id: {item?.c_id}

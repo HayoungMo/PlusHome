@@ -90,7 +90,6 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
     { value: "confirmed", title: "확정" },
     { value: "working", title: "시공 중" },
     { value: "done", title: "시공 완료" },
-    { value: "cancel", title: "상담 중단" },
   ];
 
     const kindOption = [
@@ -142,7 +141,7 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
                   return <p>견적서 작성 중</p>;
                 }
 
-                if (updateBookingRow) {
+                if (updateBookingRow && row[column] !== "cancel") {
                   return (
                     <SelectMui
                       label="상태"
@@ -154,8 +153,8 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
                   );
                 }
 
-                return statusOption.find((item) => item.value === row[column])
-                  ?.title;
+
+                return <p>취소된 상담</p>
               }
 
               if (column === "b_kind") {
