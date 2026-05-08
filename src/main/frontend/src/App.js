@@ -33,6 +33,7 @@ import InteriorUpdateAll from "./pages/InteriorUpdateAll";
 import InteriorMyPage from "./components/InteriorMyPage";
 import InteriorAllReivew from "./pages/InteriorAllReivew";
 import InteriorAllExample from "./pages/InteriorAllExample";
+import MapPractice from "./pages/MapPractice";
 
 function App() {
 	const navigate = useNavigate();
@@ -41,43 +42,64 @@ function App() {
 	const [loginInfo, setLoginInfo] = useState(null);
 
 	return (
-		<div className="App">
-			<Routes>
+    <div className="App">
+      <Routes>
         {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
-        <Route path="/" element={<MainHomePage
-          loginUser={loginUser}
-          setLoginUser={setLoginUser}
-          setLoginInfo={setLoginInfo} />} />
+        <Route
+          path="/"
+          element={
+            <MainHomePage
+              loginUser={loginUser}
+              setLoginUser={setLoginUser}
+              setLoginInfo={setLoginInfo}
+            />
+          }
+        />
         {/* 로그인 */}
-        <Route path='/login' element={<LoginPage
-        loginUser={loginUser}
-        setLoginUser={setLoginUser}
-        setLoginInfo={setLoginInfo} />}/>
-        <Route path="/join" element={<JoinUserPage/>}/>
-				{/* 검색 */}
-        <Route path="/search" element={<SearchPage />} /> 
+        <Route
+          path="/login"
+          element={
+            <LoginPage
+              loginUser={loginUser}
+              setLoginUser={setLoginUser}
+              setLoginInfo={setLoginInfo}
+            />
+          }
+        />
+        <Route path="/join" element={<JoinUserPage />} />
+        {/* 검색 */}
+        <Route path="/search" element={<SearchPage />} />
         {/* mui 테스트용 */}
-				<Route path='/component' element={<ComponentEx />}/> 
-          
-        <Route path="/findId" element={<FindIdPage/>}/>
-        <Route path="/findPw" element={<FindPwPage/>}/>
-        
-        <Route path="/wallet/charge" element={<WalletCharge/>}/>
-        <Route path="/furniture/list" element={<FurnitureList/>}/>
-        <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
-        <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
-        <Route path="/furniture/update/:f_code" element={<FurnitureUpdatePage />} />
+        <Route path="/component" element={<ComponentEx />} />
+
+        <Route path="/findId" element={<FindIdPage />} />
+        <Route path="/findPw" element={<FindPwPage />} />
+
+        <Route path="/wallet/charge" element={<WalletCharge />} />
+        <Route path="/furniture/list" element={<FurnitureList />} />
+        <Route path="/furniture/add" element={<FurnitureAddPage />} />
+        <Route
+          path="/furniture/article/:f_code"
+          element={<FurnitureArticle />}
+        />
+        <Route
+          path="/furniture/update/:f_code"
+          element={<FurnitureUpdatePage />}
+        />
 
         <Route path="/ImageGetTest" element={<ImageGetTest />} />
         <Route path="/interior/list/company" element={<InteriorLists />} />
         <Route path="/interior/list/review" element={<InteriorAllReivew />} />
-        <Route path="/interior/list/example" element={<InteriorAllExample/>} />
+        <Route path="/interior/list/example" element={<InteriorAllExample />} />
         <Route path="/interior/article" element={<InteriorArticle />} />
         <Route path="/interior/created" element={<InteriorCreated />} />
         <Route path="/interior/updated" element={<InteriorUpdateAll />} />
         <Route path="/interior/question" element={<InteriorQuestion />} />
         <Route path="/interior/review" element={<InteriorReview />} />
         <Route path="/interior/mypage" element={<InteriorMyPage />} />
+
+        <Route path="/map" element={<MapPractice />} />
+
         <Route path="/exportPDF" element={<ExportPDF />} />
         <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
         <Route path="/CompanyDashboard" element={<CompanyDashboard />} />

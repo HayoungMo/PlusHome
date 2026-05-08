@@ -7,6 +7,7 @@ import RadioMui from '../components/RadioMui';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import DatePickerMui from '../components/DatePickerMui';
 import SelectMui from '../components/SelectMui';
+import Address from '../maps/Address';
 
 
 
@@ -24,10 +25,10 @@ const JoinUserPage = () => {
     const navigate = useNavigate();
     const [form,setForm]=useState({
         id:'', pw:'',type:'user', code:'', name:'',
-        email:'', birth:'', tel:'',gender:'', addr:'',
+        email:'', birth:'', tel:'',gender:'', addr1:'',addr2:'',
         
         //company
-        c_addr:'',c_name:'',c_kind:''
+        c_addr1:'',c_addr2:'',c_name:'',c_kind:''
         
     });
 
@@ -185,21 +186,22 @@ const JoinUserPage = () => {
        }
     
 
-        const finalForm ={
-            ...form,
-            email:finalEmail,
-            tel:tel.head + tel.mid + tel.tail,
-           birth: birth ? birth.format("YYYY-MM-DD") : '',
-
-            companyDto:form.type==='company' ? {
-                c_name: form.c_name,
-                c_addr: form.c_addr,
-                c_kind: form.c_kind,
-                c_boss:form.name
-            }: null
-
-
-        }
+        const finalForm = {
+          ...form,
+          email: finalEmail,
+          tel: tel.head + tel.mid + tel.tail,
+          birth: birth ? birth.format("YYYY-MM-DD") : "",
+          addr: form.addr1 +"__" +form.addr2,
+          companyDto:
+            form.type === "company"
+              ? {
+                  c_name: form.c_name,
+                  c_addr: form.c_addr1 + form.c_addr2,
+                  c_kind: form.c_kind,
+                  c_boss: form.name,
+                }
+              : null,
+        };
 
        
         console.log("데이터가 가는중임:",finalForm)
@@ -229,175 +231,204 @@ const JoinUserPage = () => {
 
 
     return (
+      <div>
+        <h3>
+          <a href="/">로고</a>
+        </h3>
+        <h3>
+          회원가입
+          <span>SIGN UP</span>
+        </h3>
+        <div className="">
+          <TextField
+            label="아이디"
+            name="id"
+            value={form.id}
+            onChange={onText}
+          />
+          <button type="button" className="" onClick={onCheckId}>
+            중복확인
+          </button>
+        </div>
+        {idFormatMsg && <div style={{ color: "red" }}>{idFormatMsg}</div>}
+        {idCheck.msg && (
+          <div style={{ color: idCheck.ok ? "green" : "red" }}>
+            {idCheck.msg}
+          </div>
+        )}
+        <div className="">
+          <TextField
+            label="비밀번호"
+            type="password"
+            name="pw"
+            value={form.pw}
+            onChange={onText}
+          />
+        </div>
         <div>
-            <h3><a href='/'>로고</a></h3>
-            <h3>회원가입
-                <span>SIGN UP</span>
-            </h3>
-
-             <div className=''>
-                <TextField label="아이디" name='id' value={form.id}
+          <TextField
+            label="비밀번호 확인"
+            type="password"
+            value={pwCheck}
+            onChange={(e) => setPwCheck(e.target.value)}
+          />
+        </div>
+        {form.type === "company" && (
+          <>
+            <div className="">
+              <TextField
+                label="업체명"
+                type="text"
+                name="c_name"
+                value={form.c_name}
                 onChange={onText}
-                  />
-                    <button type='button' className=''
-                    onClick={onCheckId}>중복확인</button>
-             </div>
-
-             {idFormatMsg && <div style={{color:'red'}}>{idFormatMsg}</div>}
-             {idCheck.msg&&(
-                <div style={{color: idCheck.ok ? 'green' : 'red'}}>
-                    {idCheck.msg}
-                </div>
-             )}
-            
-             <div className=''>
-             <TextField label="비밀번호" type='password' name='pw' value={form.pw} onChange={onText}
               />
             </div>
 
             <div>
-                <TextField label="비밀번호 확인" type='password' value={pwCheck}
-                    onChange={(e)=>setPwCheck(e.target.value)}
-                   />
-            </div>
-
-            {form.type==='company' &&(
-            <>
-            
-
-            <div className=''>
-                <TextField label='업체명' type='text' name='c_name' value={form.c_name} onChange={onText}/>
-            </div>
-            
-  
-            <div>
-                <TextField label='업체주소' type='text' name='c_addr' value={form.c_addr} onChange={onText}/>             
+              <Address isC={true} form={form} setForm={setForm} />
+              <TextField
+                label="업체주소"
+                type="text"
+                name="c_addr2"
+                value={form.c_addr2}
+                onChange={onText}
+              />
             </div>
 
             <div>
-               
-                    <li>
-                        <input type='radio'  name='c_kind' value='interior' onChange={onText}/>
-                        <label>인테리어</label>
-                    </li>
-                    <li>
-                        <input type='radio'  name='c_kind' value='shop' onChange={onText}/>
-                        <label>가구</label>
-                    </li>        
-                
-            </div>
-            </>
-            )}
-
-            <div>
-                
-                    <li>
-                        <input type='radio' name='type' value='user' onChange={onText}/>
-                        <label>일반</label>
-                    </li>
-                    <li>
-                        <input type='radio' name='type' value='company' onChange={onText}/>
-                        <label>기업</label>
-                    </li>        
-               
-            </div>
-
-            <div>
-
-                <TextField label='이름(사업주명)' type='text' name= 'name' value={form.name} onChange={onText}
-                   />
-            </div>
-
-
-
-            <div>
-                <TextField label='주민번호(사업자 등록번호)' type='text' name= 'code' value={form.code} onChange={onText}
+              <li>
+                <input
+                  type="radio"
+                  name="c_kind"
+                  value="interior"
+                  onChange={onText}
                 />
-            </div>
-
-            <div>
-                <TextField label='주소' type='text' name= 'addr' value={form.addr} onChange={onText}
-                  />
-            </div>
-
-            <div style={{display:"flex", gap:"10px", alignItems:"center"}}>
-               <TextField
-    label='이메일'
-    placeholder={
-        email.domain === 'direct'
-            ? 'example@domain.com'
-            : '아이디 입력'
-    }
-    value={email.id}
-    onChange={(e) =>
-        setEmail(prev => ({
-            ...prev,
-            id: e.target.value
-        }))
-    }
-/>
-
-                   <SelectMui
-                        label="도메인"
-                        value={email.domain}
-                        option={email_Option}
-                        onChange={(e) =>
-                            setEmail(prev => ({
-                                ...prev,
-                                domain: e.target.value
-                            }))
-                        }
-                    />
-            </div>
-
-            
-            <DatePickerMui
-            label='생년월일'
-            value={birth}
-            onChange={onBirth}/>
-                
-                                  
-
-           
-            <label>전화번호</label>
-            <div className=''>
-                <Select name='head' value={tel.head} onChange={onTel}
-                className=''>
-                    <option value='010'>010</option>
-                    <option value='011'>011</option>
-                </Select>
-                <TextField type='text' name='mid' value={tel.mid}
-                onChange={onTel} maxLength={4}
-                     className=''/>
-                <TextField type='text' name='tail' value={tel.tail}
-                onChange={onTel} maxLength={4} className=''/>
-            </div>
-
-            <div>
-                <RadioMui
-                    label="성별"
-                    name="gender"
-                    value={form.gender}
-                    onChange={onText}
-                    labelList={[
-                        { value: "male", title: "남자" },
-                        { value: "female", title: "여자" },
-                        { value: "none", title: "선택안함" },
-                    ]}
+                <label>인테리어</label>
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  name="c_kind"
+                  value="shop"
+                  onChange={onText}
                 />
+                <label>가구</label>
+              </li>
+            </div>
+          </>
+        )}
+        <div>
+          <li>
+            <input type="radio" name="type" value="user" onChange={onText} />
+            <label>일반</label>
+          </li>
+          <li>
+            <input type="radio" name="type" value="company" onChange={onText} />
+            <label>기업</label>
+          </li>
         </div>
+        <div>
+          <TextField
+            label="이름(사업주명)"
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={onText}
+          />
+        </div>
+        <div>
+          <TextField
+            label="주민번호(사업자 등록번호)"
+            type="text"
+            name="code"
+            value={form.code}
+            onChange={onText}
+          />
+        </div>
+        <div>
+          <Address isC={false}  form={form} setForm={setForm} />
+          <TextField
+            label="상세주소"
+            type="text"
+            name="addr2"
+            value={form.addr2}
+            onChange={onText}
+          />
+        </div>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <TextField
+            label="이메일"
+            placeholder={
+              email.domain === "direct" ? "example@domain.com" : "아이디 입력"
+            }
+            value={email.id}
+            onChange={(e) =>
+              setEmail((prev) => ({
+                ...prev,
+                id: e.target.value,
+              }))
+            }
+          />
 
-            <button type="button" className=''
-                onClick={onNext}>
-                    가입하기
-            </button>
-
-            <button className='' 
-            ><a href='/'>뒤로가기</a></button>
-
+          <SelectMui
+            label="도메인"
+            value={email.domain}
+            option={email_Option}
+            onChange={(e) =>
+              setEmail((prev) => ({
+                ...prev,
+                domain: e.target.value,
+              }))
+            }
+          />
+        </div>
+        <DatePickerMui label="생년월일" value={birth} onChange={onBirth} />
+        <label>전화번호</label>
+        <div className="">
+          <Select name="head" value={tel.head} onChange={onTel} className="">
+            <option value="010">010</option>
+            <option value="011">011</option>
+          </Select>
+          <TextField
+            type="text"
+            name="mid"
+            value={tel.mid}
+            onChange={onTel}
+            maxLength={4}
+            className=""
+          />
+          <TextField
+            type="text"
+            name="tail"
+            value={tel.tail}
+            onChange={onTel}
+            maxLength={4}
+            className=""
+          />
+        </div>
+        <div>
+          <RadioMui
+            label="성별"
+            name="gender"
+            value={form.gender}
+            onChange={onText}
+            labelList={[
+              { value: "male", title: "남자" },
+              { value: "female", title: "여자" },
+              { value: "none", title: "선택안함" },
+            ]}
+          />
+        </div>
+        <button type="button" className="" onClick={onNext}>
+          가입하기
+        </button>
+        <button className="">
+          <a href="/">뒤로가기</a>
+        </button>
         이미 아이디가 있으신가요?
-        <a href='/login'>로그인</a>    
-        </div>
+        <a href="/login">로그인</a>
+      </div>
     );
 };
 
