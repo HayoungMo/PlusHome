@@ -2,8 +2,8 @@ import { NavLink } from "react-router-dom";
 
 const NavBar = () => {
 	return (
-		<nav className="site-nav">
-			<div className="site-nav-inner">
+		<nav className="shop-nav">
+			<div className="shop-nav-inner">
 				<NavLink to="/furniture/list">쇼핑</NavLink>
 				<NavLink to="/interior/list/company">인테리어</NavLink>
 				<NavLink to="/interior/question">상담신청</NavLink>

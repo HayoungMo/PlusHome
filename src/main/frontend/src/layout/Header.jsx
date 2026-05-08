@@ -9,7 +9,6 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	const userData = savedUser ? JSON.parse(savedUser) : null;
 	const displayUser = loginUser || userData?.id;
 
-	//검색
 	const onSearch = (evt) => {
 		evt.preventDefault();
 
@@ -23,8 +22,7 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 		navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=all&page=1`);
 		setSearchKeyword("");
 	};
-	
-	// 로그아웃
+
 	const logout = () => {
 		localStorage.removeItem("token");
 		localStorage.removeItem("user");
@@ -36,13 +34,13 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	};
 
 	return (
-		<header className="site-header">
-			<div className="site-header-inner">
-				<Link to="/" className="site-logo">
+		<header className="shop-header">
+			<div className="shop-header-inner">
+				<Link to="/" className="shop-logo">
 					PlusHome
 				</Link>
 
-				<form className="site-search" onSubmit={onSearch}>
+				<form className="shop-search" onSubmit={onSearch}>
 					<input
 						placeholder="검색어를 입력하세요"
 						value={searchKeyword}
@@ -51,7 +49,7 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 					<button type="submit">검색</button>
 				</form>
 
-				<div className="site-user">
+				<div className="shop-user">
 					{displayUser ? (
 						<>
 							<span>{displayUser}님</span>
