@@ -1,23 +1,26 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import NavBar from "./NavBar";
-import LeftBar from "./LeftBar";
+import Footer from "./Footer";
 import "../css/PageLayout.css";
 
-const PageLayout = () => {
+const PageLayout = ({ loginUser, setLoginUser, setLoginInfo }) => {
+	// 로그인
 	return (
 		<div className="page-layout">
-			<Header />
+			<Header
+				loginUser={loginUser}
+				setLoginUser={setLoginUser}
+				setLoginInfo={setLoginInfo}
+			/>
 
 			<NavBar />
 
-			<div className="layout-body">
-				<LeftBar />
+			<main className="layout-content">
+				<Outlet />
+			</main>
 
-				<main className="layout-content">
-					<Outlet />
-				</main>
-			</div>
+			<Footer />
 		</div>
 	);
 };

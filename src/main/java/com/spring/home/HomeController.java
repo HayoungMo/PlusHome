@@ -8,10 +8,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.mapper.FurnitureMapper;
+import com.spring.home.service.HomeService;
 
 @RequestMapping("/main")
 @RestController
@@ -20,13 +22,18 @@ public class HomeController {
 	
 	 //DB랑 연결해서 쓸때
      @Autowired
-     private FurnitureMapper furnitureMapper;
+     private HomeService homeService;
      
      @GetMapping("/best")
-     public List<FurnitureDTO> getBest() throws Exception {
+     public List<FurnitureDTO> getBestFurniture() throws Exception {
 	     
-		return furnitureMapper.getLists(1, 4, "f_name", "");
+		return homeService.getBestFurniture();
 	}
+     
+     @GetMapping("/search/total")
+     public Map<String, Object> searchTotal(@RequestParam String keyword) throws Exception{
+    	 return homeService.searchTotal(keyword);
+     }
 
 }
 
