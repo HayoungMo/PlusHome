@@ -55,6 +55,14 @@ public class InteriorService {
 		// TODO Auto-generated method stub
 		return interiorMapper.getArticleLists();
 	}
+	
+	public List<InteriorReviewDTO> getAllReviewlists() throws Exception{
+		return interiorMapper.getAllReviewlists(); 
+	}
+	
+	public List<InteriorReviewDTO> getAllExamples() {
+		return interiorMapper.getAllExamples();
+	}
 
 	public List<InteriorDTO> getReadData(CompanyDTO companyDTO) throws Exception {
 		// TODO Auto-generated method stub
@@ -99,5 +107,19 @@ public class InteriorService {
 	public void updateInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		interiorMapper.updateInteriorReview(dto);
 	}
+	
+
+	public void deleteInterior(@RequestBody InteriorDTO dto) throws Exception {
+		interiorMapper.deleteInterior(dto);
+	}
+
+	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		interiorMapper.deleteInteriorExample(dto);
+	}
+	
+	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
+		interiorMapper.deleteInteriorReview(dto);
+	}
+
 
 }

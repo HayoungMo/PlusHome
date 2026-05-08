@@ -55,15 +55,14 @@ const fetchInvoiceDetails = async (data) => {
   }
 };
 
-const fetchInteriorReview = async (data) => {
-  console.log("인보이스 디테일에 들어온 데이터", data);
+const fetchInteriorReview = async () => {
   try {
     const res = await http.post("interior/interiorreview", {
       id: localStorage.getItem("id"),
       c_id: "",
       c_kind: "",
       c_name: "",
-      b_createdDate: data.b_createdDate,
+      b_createdDate: "",
       invoice_kind: "Y",
     });
 
@@ -97,10 +96,10 @@ const AddInteriorReview = async (data) => {
 const UpdateInteriorReview = async (data) => {
   try {
     const res = await http.post("/interior/update/interiorreview", {
-      id: localStorage.getItem("id"),
-      c_id: "",
-      c_kind: "",
-      c_name: "",
+      id: data.id,
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
       b_createdDate: data.b_createdDate,
       invoice_no: data.invoice_no,
       invoice_kind: data.invoice_kind,
@@ -114,6 +113,23 @@ const UpdateInteriorReview = async (data) => {
   }
 };
 
+const DeleteInteriorReview = async (data) => {
+  try {
+    const res = await http.post("/interior/delete/interiorreview", {
+      id: data.id,
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      b_createdDate: data.b_createdDate,
+      invoice_no: data.invoice_no,
+      invoice_kind: data.invoice_kind,
+    });
+  } catch (err) {
+    console.error("삭제 에러:", err);
+  }
+};
+
+
 const InteriorUserService = {
   fetchBookingList,
   fetchInvoice,
@@ -121,6 +137,7 @@ const InteriorUserService = {
   fetchInteriorReview,
   AddInteriorReview,
   UpdateInteriorReview,
+  DeleteInteriorReview,
 };
 
 export default InteriorUserService;

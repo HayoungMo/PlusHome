@@ -24,9 +24,9 @@ const UserBookingLists = ({ id }) => {
       {Array.isArray(booking) && booking.length > 0 ? (
         booking.map((item, idx) => (
           <div>
+            <p>상담 기록</p>
             <TableMuiCollapse rowData={item} />
-            <InteriorMyInvoice booking={item}/>
-            
+            <InteriorMyInvoice booking={item} />
           </div>
         ))
       ) : (
