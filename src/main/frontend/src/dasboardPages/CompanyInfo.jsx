@@ -4,13 +4,17 @@ import SwitchMui from "./../components/SwitchMui";
 import { Button } from "@mui/material";
 import RadioMui from "../components/RadioMui";
 import CompanyService from "../service/CompanyService";
+import TableMui from "./../components/TableMui";
+import TableMuiEditable from "../components/TableMuiEditable";
+import AlertMui from "../components/AlertMui";
+import Alert from "@mui/material/Alert";
+import DialogMui from "../components/DialogMui";
 
-const CompanyInfo = ({ userData }) => {
+const CompanyInfo = () => {
+	const localUserData = localStorage.getItem("user");
+	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
-
-	const [companyAdd, setCompanyAdd] = useState(false);
-
-	const [newCompanyInfo, setNewCompanyInfo] = useState({
+	const initCompanyInfo = {
 		c_id: id,
 		c_name: "",
 		c_kind: "",
@@ -18,7 +22,27 @@ const CompanyInfo = ({ userData }) => {
 		c_addr: "",
 		c_info: "",
 		c_boss: "",
-	});
+	};
+
+	const initAlertInfo = {
+		severity: "",
+		title: "",
+		text: "",
+	};
+
+	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
+
+	const [companyAdd, setCompanyAdd] = useState(false);
+
+	const [companyUpdate, setCompanyUpdate] = useState(false);
+
+	const [companyStateList, setCompanyStateList] = useState([]);
+	const [editedCompanyList, setEditedCompanyList] = useState([]);
+
+	const [newCompanyInfo, setNewCompanyInfo] = useState(initCompanyInfo);
+
+	const [alertOpen, setAlertOpen] = useState(false);
+	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const onChangeNewCompanyInfo = (e) => {
 		const { name, value } = e.target;
@@ -44,6 +68,7 @@ const CompanyInfo = ({ userData }) => {
 
 	const reloadDataFunc = async () => {
 		if (!id) return;
+		console.log(" @ reloadDataFunc @");
 
 		try {
 			const response = await CompanyService.reloadUserData(id);
@@ -55,13 +80,96 @@ const CompanyInfo = ({ userData }) => {
 
 				localStorage.setItem("user", JSON.stringify(user));
 				localStorage.setItem("token", token);
-
+				setCompanyStateList(user.companyList);
 				debugger;
 			}
 		} catch (error) {
 			console.error("유저 데이터 갱신 실패:", error);
 		}
 	};
+
+	const handleRowUpdateInTable = async () => {
+		const changedRows = getChangedRowsDetail(companyStateList, editedCompanyList);
+
+		try {
+			console.log(changedRows);
+			const result = await CompanyService.updateCompany(changedRows);
+			if (result.success) {
+				setAlertInfo({
+					severity: "success",
+					title: "수정 성공",
+					text: result.message,
+				});
+			} else {
+				setAlertInfo({
+					severity: "error",
+					title: "수정 실패",
+					text: result.message,
+				});
+			}
+			console.log(result);
+		} catch (error) {
+			console.log(error);
+		}
+		reloadDataFunc();
+
+		setConfirmOpen(!confirmOpen);
+		setAlertOpen(!alertOpen);
+	};
+
+	const makeCompanyKey = (row) => {
+		return `${row.c_id}__${row.c_name}__${row.c_kind}`;
+	};
+
+	const getChangedRowsDetail = (originRows, editedRows) => {
+		return editedRows
+			.map((editedRow) => {
+				const originRow = originRows.find(
+					(originRow) => makeCompanyKey(originRow) === makeCompanyKey(editedRow),
+				);
+
+				if (!originRow) return null;
+
+				const changedFields = {};
+
+				Object.keys(editedRow).forEach((key) => {
+					if (editedRow[key] !== originRow[key]) {
+						changedFields[key] = editedRow[key];
+					}
+				});
+
+				if (Object.keys(changedFields).length === 0) {
+					return null;
+				}
+
+				return {
+					c_id: editedRow.c_id,
+					c_name: editedRow.c_name,
+					c_kind: editedRow.c_kind,
+					...changedFields,
+				};
+			})
+			.filter(Boolean);
+	};
+
+	const dialogConfirmButtonList = [
+		{
+			title: "Cancel",
+			color: "error",
+			variant: "outlined",
+			onClick: () => setConfirmOpen(!confirmOpen),
+		},
+		{
+			title: "Save",
+			color: "primary",
+			variant: "outlined",
+			onClick: () => handleRowUpdateInTable(),
+		},
+	];
+
+	useEffect(() => {
+		setCompanyStateList(companyList);
+	}, []);
 
 	return (
 		<div>
@@ -76,24 +184,43 @@ const CompanyInfo = ({ userData }) => {
 				<TextFieldMui label="개인연락처" value={tel} />
 				<TextFieldMui label="이메일" value={email} />
 			</div>
-			{companyList?.map((record, index) => {
-				return (
-					<div style={{ border: "1px solid black", display: "flex", flexWrap: "wrap" }}>
-						<TextFieldMui label="업체명" value={record.c_name} />
-						<TextFieldMui label="사무실 전화번호" value={record.c_tel} />
-						<TextFieldMui label="업체 주소" value={record.c_addr} />
-						<TextFieldMui label="사업주명" value={record.c_boss} />
-					</div>
-				);
-			})}
-
-			<SwitchMui checked={companyAdd} onChange={() => setCompanyAdd(!companyAdd)} />
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "row",
+					alignItems: "center",
+				}}>
+				<SwitchMui
+					label="Update"
+					checked={companyUpdate}
+					onChange={() => setCompanyUpdate(!companyUpdate)}
+				/>
+				{companyUpdate && (
+					<Button
+						color="secondary"
+						variant="outlined"
+						onClick={() => setConfirmOpen(!confirmOpen)}>
+						Save
+					</Button>
+				)}
+			</div>
+			<TableMuiEditable
+				rowData={companyStateList}
+				onChange={(updatedRows) => {
+					setEditedCompanyList(updatedRows);
+				}}
+				updateAvailable={companyUpdate}
+				readOnlyColumns={["c_id", "c_name", "c_kind"]}
+			/>
 
 			{companyAdd && (
 				<div
 					style={{
 						display: "flex",
 						flexWrap: "wrap",
+						border: "1px solid black",
+						margin: "15px",
+						padding: "15px",
 					}}>
 					<TextFieldMui
 						onChange={onChangeNewCompanyInfo}
@@ -137,6 +264,41 @@ const CompanyInfo = ({ userData }) => {
 						ADD
 					</Button>
 				</div>
+			)}
+			{companyAdd ? (
+				<Button
+					color="error"
+					variant="contained"
+					onClick={() => {
+						setCompanyAdd(false);
+						setNewCompanyInfo(initCompanyInfo);
+					}}>
+					Cancel
+				</Button>
+			) : (
+				<Button color="primary" variant="contained" onClick={() => setCompanyAdd(true)}>
+					ADD
+				</Button>
+			)}
+			{confirmOpen && (
+				<DialogMui
+					open={confirmOpen}
+					onClose={() => setConfirmOpen(!confirmOpen)}
+					title="Save changes?"
+					text="Unsaved changes will be lost. Save now"
+					buttons={dialogConfirmButtonList}
+				/>
+			)}
+			{alertOpen && (
+				<AlertMui
+					severity={alertInfo?.severity}
+					variant="standard"
+					title={alertInfo?.title}
+					text={alertInfo?.text}
+					onClose={() => setAlertOpen(!alertOpen)}
+					autoHideDuration={3000}
+					icon={true}
+				/>
 			)}
 		</div>
 	);

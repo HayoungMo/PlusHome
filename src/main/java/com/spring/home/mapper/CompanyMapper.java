@@ -22,4 +22,6 @@ public interface CompanyMapper {
 	public List<CompanyDTO> getReadDataList(String c_id) throws Exception;
 	
 	public int insertDataDashboard(CompanyDTO dto) throws Exception;
+	
+	public int updateCompanyOne(CompanyDTO dto) throws Exception;
 }

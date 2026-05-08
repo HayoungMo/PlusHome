@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.mapper.CompanyMapper;
 
 @Service
@@ -40,5 +41,19 @@ public class CompanyService {
 
 	public int insertDataDashboard(CompanyDTO dto) throws Exception {
 		return companyMapper.insertDataDashboard(dto);
+	}
+
+	public int updateCompany(List<CompanyDTO> dtoList) {
+		int total = 0;
+		for (CompanyDTO dto : dtoList) {
+			try {
+				int result = companyMapper.updateCompanyOne(dto);
+				total += result;
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+		}
+		return total;
 	}
 }

@@ -1,17 +1,21 @@
 import React from "react";
 
-const DashboardLeftbar = () => {
+const DashBoardLeftbar = ({ menus, activeMenu, setActiveMenu }) => {
+
 	return (
 		<aside className="leftbar">
 			<ul>
-				<li>내 정보 관리</li>
-				<li>업체 정보</li>
-				<li>시공 관리</li>
-				<li>문의 관리</li>
-				<li>설정</li>
+				{menus.map((menu) => (
+					<li
+						key={menu.key}
+						className={activeMenu === menu.key ? "left-menu active" : "left-menu"}
+						onClick={() => setActiveMenu(menu.key)}>
+						{menu.label}
+					</li>
+				))}
 			</ul>
 		</aside>
 	);
 };
 
-export default DashboardLeftbar;
+export default DashBoardLeftbar;
