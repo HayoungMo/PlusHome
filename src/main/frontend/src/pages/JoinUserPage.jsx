@@ -6,16 +6,17 @@ import { Select, TextField } from '@mui/material';
 import RadioMui from '../components/RadioMui';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import DatePickerMui from '../components/DatePickerMui';
+import SelectMui from '../components/SelectMui';
 
 
 
 const email_Option =[
-    {value:'none', label: '--- 선택 ---'},
-    {value:'@naver.com', label: '@naver.com'},
-    {value:'@gmail.com', label: '@gmail.com'},
-    {value:'@daum.net', label: '@daum.net'},
-    {value:'@nate.com', label: '@nate.com'},
-    {value:'',label: '직접입력'}
+    {value:'none', title: '--- 선택 ---'},
+    {value:'@naver.com', title: '@naver.com'},
+    {value:'@gmail.com', title: '@gmail.com'},
+    {value:'@daum.net', title: '@daum.net'},
+    {value:'@nate.com', title: '@nate.com'},
+    {value:'direct',title: '직접입력'}
 ]
 
 const JoinUserPage = () => {
@@ -38,23 +39,13 @@ const JoinUserPage = () => {
     
     const [email,setEmail] = useState({
         id:'',
-        domain:'',
+        domain:'none',
+        direct:''
     })
 
-    const onEmail = (evt) =>{
-        const{name,value} = evt.target
-
-        const newEmail = {
-            ...email, 
-            [name]:value
-        }
-
-        setEmail(newEmail)
-    }   
-    
+      
 
     const [birth,setBirth]=useState(null);
-
 
 
     const [tel,setTel] = useState({
@@ -73,6 +64,14 @@ const JoinUserPage = () => {
             tel: newTel.head + newTel.mid + newTel.tail
         }))
     } 
+
+   const finalEmail =
+    email.domain === 'none'
+        ? ''
+        : email.domain === 'direct'
+        ? email.id.trim()
+        : email.id + email.domain;
+   
 
     const onBirth = (evt) =>{
         setBirth(evt);
@@ -113,7 +112,7 @@ const JoinUserPage = () => {
         if(!form.id) return '아이디를 입력하세요.'
         if(!form.pw) return '비밀번호를 입력하세요.'
         if(form.pw !==pwCheck) return '비밀번호가 일치하지 않습니다.'
-        if(!birth.year || !birth.month || !birth.day) return '생년월일 선택.'
+        if(!birth) return '생년월일 선택.'
 
         return '';
     }
@@ -142,19 +141,9 @@ const JoinUserPage = () => {
                 [name]: value
             }))
 
-       
+        }      
 
-        // 이메일 도메인 select 변경
-        if (name === 'newEmail.domain' && evt.target.tagName === 'SELECT') {
-            setIsDirectInput(value === '');
-            if (value === '') {
-                setForm({ ...form, newEmail: '' });
-                return;
-            }
-        }
         
-        setForm(prev =>({ ...prev, [name]: value }));
-    };
 
     const onCheckId = async () => {
         console.log("id 값:",form.id)
@@ -181,6 +170,7 @@ const JoinUserPage = () => {
 
     };
 
+
     const [idError,setIdError] = useState('')
 
     const onNext = async () => {
@@ -197,9 +187,7 @@ const JoinUserPage = () => {
 
         const finalForm ={
             ...form,
-            email:email.id && email.domain && email.domain !=='none'
-            ? email.id + email.domain
-            : '',
+            email:finalEmail,
             tel:tel.head + tel.mid + tel.tail,
            birth: birth ? birth.format("YYYY-MM-DD") : '',
 
@@ -239,18 +227,10 @@ const JoinUserPage = () => {
         
     };
 
-    const onTest= ()=>{
-        console.log("form:" , form)
-        console.log("email:", email)
-        console.log("tel:", tel)
-        console.log("birth:", birth)
-    }
-
-    
-
 
     return (
         <div>
+            <h3><a href='/'>로고</a></h3>
             <h3>회원가입
                 <span>SIGN UP</span>
             </h3>
@@ -340,16 +320,33 @@ const JoinUserPage = () => {
                   />
             </div>
 
-            <div>
-                <TextField label="이메일" name='id' value={email.id}
-                    onChange={onEmail}
-                   />
-                     <Select
-                        label='도메인'
-                        name="domain"
+            <div style={{display:"flex", gap:"10px", alignItems:"center"}}>
+               <TextField
+    label='이메일'
+    placeholder={
+        email.domain === 'direct'
+            ? 'example@domain.com'
+            : '아이디 입력'
+    }
+    value={email.id}
+    onChange={(e) =>
+        setEmail(prev => ({
+            ...prev,
+            id: e.target.value
+        }))
+    }
+/>
+
+                   <SelectMui
+                        label="도메인"
                         value={email.domain}
-                        option={email_Option || []}
-                        onChange={onEmail}
+                        option={email_Option}
+                        onChange={(e) =>
+                            setEmail(prev => ({
+                                ...prev,
+                                domain: e.target.value
+                            }))
+                        }
                     />
             </div>
 

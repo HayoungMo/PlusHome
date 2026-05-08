@@ -42,7 +42,10 @@ function App() {
 		<div className="App">
 			<Routes>
         {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
-        <Route path="/" element={<MainHomePage />} />
+        <Route path="/" element={<MainHomePage
+          loginUser={loginUser}
+          setLoginUser={setLoginUser}
+          setLoginInfo={setLoginInfo} />} />
         {/* 로그인 */}
         <Route path='/login' element={<LoginPage
         loginUser={loginUser}

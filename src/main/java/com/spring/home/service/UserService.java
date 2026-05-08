@@ -75,6 +75,8 @@ public class UserService {
 		
 		UserDTO user = userMapper.findById(dto.getId());
 		
+		System.out.println("서비스 내 조회 user" + user);
+		
 		if(user==null) {
 			dto.setCode("NO_ID");
 			dto.setId(null);
