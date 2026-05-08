@@ -31,10 +31,13 @@ public interface InteriorMapper {
 	
 	public void insertInteriorReview(InteriorReviewDTO dto) throws Exception;
 	
-	
 	public List<CompanyDTO> getLists();
 	
 	public List<InteriorDTO> getArticleLists();
+	
+	public List<InteriorReviewDTO> getAllReviewlists();	
+	
+	public List<InteriorReviewDTO> getAllExamples();
 	
 	public List<InteriorDTO> getReadData(CompanyDTO dto) throws Exception;	
 	
@@ -57,5 +60,11 @@ public interface InteriorMapper {
 	public void updateBooking(BookingDTO dto) throws Exception ;
 
 	public void updateInteriorReview(InteriorReviewDTO dto) throws Exception ;
+	
+	public void deleteInterior(@RequestBody InteriorDTO dto) throws Exception ;
+
+	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception;
+	
+	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception;
 	
 }

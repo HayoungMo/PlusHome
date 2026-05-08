@@ -295,6 +295,30 @@ WHERE  id LIKE '%'
                              || '%' 
 </select>
 
+<select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       invoice_no,
+       invoice_kind,
+       ir_content,
+       ir_createddate
+FROM   i_review
+</select>
+
+<select id="getAllExamples"  resultType="com.spring.home.dto.InteriorExampleDTO">
+SELECT c_id,
+       c_kind,
+       c_name,
+       ie_content,
+       ie_tag,
+       ie_tag2
+FROM   i_example
+</select>
+
+
 <select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
 SELECT *
 FROM   company
@@ -345,6 +369,32 @@ WHERE  c_id = #{c_id}
        AND b_createddate = #{b_createdDate}
        AND id = #{id} 
 </update>
+
+<delete id="deleteInterior" parameterType="com.spring.home.dto.InteriorDTO">
+DELETE FROM interior
+WHERE  c_id = #{c_id}
+       AND c_kind = #{c_kind}
+       AND c_name = #{c_name}
+       AND i_tag = #{i_tag} 
+</delete>
+
+<delete id="deleteInteriorExample" parameterType="com.spring.home.dto.InteriorExampleDTO">
+DELETE FROM i_example
+WHERE  c_id = #{c_id}
+       AND c_kind = #{c_kind}
+       AND c_name = #{c_name}
+       AND ie_tag = #{ie_tag}
+       AND ie_tag2 = #{ie_tag2}  
+</delete>
+
+<delete id="deleteInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
+DELETE FROM i_review
+WHERE  c_id = #{c_id}
+       AND c_kind = #{c_kind}
+       AND c_name = #{c_name}
+       AND b_createddate = #{b_createdDate}
+       AND id = #{id} 
+</delete>
 
 
 </mapper>
