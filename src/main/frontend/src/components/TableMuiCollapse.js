@@ -93,6 +93,25 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
     { value: "cancel", title: "상담 중단" },
   ];
 
+    const kindOption = [
+      {
+        value: "byTel",
+        title: "전화상담",
+      },
+      {
+        value: "byKakaoTalk",
+        title: "카톡",
+      },
+      {
+        value: "byemail",
+        title: "이메일",
+      },
+      {
+        value: "byVisit",
+        title: "직접방문",
+      },
+    ];
+
   let answer = {};
   try {
     answer = row.b_answer ? JSON.parse(row.b_answer) : {};
@@ -113,23 +132,39 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
 
         {tableColumns.map((column) => (
           <StyledTableCell key={column} align="right">
-            {column === "b_answer" ? null : column !== "b_status" ? (
-              row[column]
-            ) : row[column] !== "pending" && row[column] !== "quoting" ? (
-              updateBookingRow ? (
-                <SelectMui
-                  label="상태"
-                  name="b_status"
-                  value={row[column]}
-                  option={statusOption}
-                  onChange={(e) => updateBookingRow(row, e.target.value)}
-                />
-              ) : (
-                statusOption.find((item) => item.value === row[column])?.title
-              )
-            ) : (
-              <p>견적서 작성 중</p>
-            )}
+            {(() => {
+              if (column === "b_answer") {
+                return null;
+              }
+
+              if (column === "b_status") {
+                if (row[column] === "pending" || row[column] === "quoting") {
+                  return <p>견적서 작성 중</p>;
+                }
+
+                if (updateBookingRow) {
+                  return (
+                    <SelectMui
+                      label="상태"
+                      name="b_status"
+                      value={row[column]}
+                      option={statusOption}
+                      onChange={(e) => updateBookingRow(row, e.target.value)}
+                    />
+                  );
+                }
+
+                return statusOption.find((item) => item.value === row[column])
+                  ?.title;
+              }
+
+              if (column === "b_kind") {
+                return kindOption.find((item) => item.value === row[column])
+                  ?.title;
+              }
+
+              return row[column];
+            })()}
           </StyledTableCell>
         ))}
       </StyledTableRow>

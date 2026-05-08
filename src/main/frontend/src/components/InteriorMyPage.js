@@ -25,9 +25,12 @@ const InteriorMyPage = () => {
       <UserBookingLists id={id} />
       <InteriorMyReview />
       <p>찜 목록</p>
-      {like.map((item) => {
+      {Array.isArray(like) && like.length > 0 ? (
+      like.map((item) => {
         return <div onClick={()=>handleNext(item)}>{item.c_name}</div>;
-      })}
+      })):(
+        <p> 찜 목록에 업체가 없습니다</p>
+      )}
     </div>
   );
 };

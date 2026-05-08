@@ -13,15 +13,15 @@ const InteriorMyInvoice = ({ booking }) => {
 
   const [invoiceDetails, setInvoiceDetails] = useState([]);
 
-      const handleNext = (invoice) => {
-        navigate("/interior/review", {
-          state: { invoice },
-        });
-      };
+  const handleNext = (invoice) => {
+    navigate("/interior/review", {
+      state: { invoice },
+    });
+  };
 
-  const BookingAgain = () =>{
+  const BookingAgain = () => {
     setReBooking(!reBooking);
-  }
+  };
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -63,33 +63,41 @@ const InteriorMyInvoice = ({ booking }) => {
   return (
     <div>
       <p>견적서 목록</p>
-      {invoice.map((invoiceItem, invoiceIdx) => (
-        <div key={invoiceIdx}>
-          <TableMui
-            rowData={invoiceDetails.filter(
-              (record) =>
-                record?.invoice_no === invoiceItem?.invoice_no &&
-                record?.invoice_kind === invoiceItem?.invoice_kind,
-            )}
-          />
-          {invoiceItem?.invoice_kind === "Y" && (
-            <div>
-              <Button onClick={() => handleNext(invoiceItem)}>리뷰 작성</Button>
-              <Button onClick={() => BookingAgain()}>{reBooking ? "취소": "재상담 신청"}</Button>
-              {reBooking && (
-                <InteriorBooking
-                  company={{
-                    c_id: booking.c_id,
-                    c_kind: booking.c_kind,
-                    c_name: booking.c_name,
-                  }}
-                  answers={JSON.parse(booking.b_answer)}
-                />
+      {Array.isArray(invoice) && invoice.length > 0 ? (
+        invoice.map((invoiceItem, invoiceIdx) => (
+          <div key={invoiceIdx}>
+            <TableMui
+              rowData={invoiceDetails.filter(
+                (record) =>
+                  record?.invoice_no === invoiceItem?.invoice_no &&
+                  record?.invoice_kind === invoiceItem?.invoice_kind,
               )}
-            </div>
-          )}
-        </div>
-      ))}
+            />
+            {invoiceItem?.invoice_kind === "Y" && (
+              <div>
+                <Button onClick={() => handleNext(invoiceItem)}>
+                  리뷰 작성
+                </Button>
+                <Button onClick={() => BookingAgain()}>
+                  {reBooking ? "취소" : "재상담 신청"}
+                </Button>
+                {reBooking && (
+                  <InteriorBooking
+                    company={{
+                      c_id: booking.c_id,
+                      c_kind: booking.c_kind,
+                      c_name: booking.c_name,
+                    }}
+                    answers={JSON.parse(booking.b_answer)}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <p>작성된 견적서가 없습니다.</p>
+      )}
     </div>
   );
 };

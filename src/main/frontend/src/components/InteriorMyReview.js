@@ -127,7 +127,8 @@ const InteriorMyReview = () => {
 
   return (
     <div>
-      {review.map((item, idx) => (
+      {Array.isArray(review) && review.length > 0 ? (
+      review.map((item, idx) => (
         <div>
           <p>내가 작성한 인테리어 리뷰 모음</p>
           {item.logo.result
@@ -240,7 +241,9 @@ const InteriorMyReview = () => {
             리뷰 삭제
           </Button>
         </div>
-      ))}
+      ))) : (
+        <p>작성한 리뷰가 없습니다.</p>
+      )}
     </div>
   );
 };

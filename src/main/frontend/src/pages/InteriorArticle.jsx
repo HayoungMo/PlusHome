@@ -26,6 +26,8 @@ function InteriorArticle() {
     });
   };
 
+  const [bookingPossible,setBookingPossible] = useState(answers !== null);
+
   const isWished = (company) => {
     const wishList = JSON.parse(localStorage.getItem("wishList")) || [];
 
@@ -186,12 +188,14 @@ function InteriorArticle() {
               </div>
             )}
 
-            <div>id: {item?.c_id}</div>
-            <div>name: {item?.c_name}</div>
-            <div>kind: {item?.c_kind}</div>
-            <div>tag: {item?.ie_tag}</div>
-            <div>tag2: {item?.ie_tag2}</div>
-            <div>content: {item?.ie_content}</div>
+            <div>
+              id: {item?.c_id}
+              name: {item?.c_name}
+              kind: {item?.c_kind}
+              tag: {item?.ie_tag}
+              tag2: {item?.ie_tag2}
+              content: {item?.ie_content}
+            </div>
           </div>
         ))}
       </div>
@@ -200,15 +204,26 @@ function InteriorArticle() {
         {like ? "찜 취소" : "찜하기"}
       </Button>
       {answers ? (
-        <InteriorBooking company={company} answers={answers} />
+        <div>
+          {bookingPossible && (
+            <InteriorBooking company={company} answers={answers} />
+          )}
+          <Button
+            onClick={() => {
+              setBookingPossible(!bookingPossible);
+            }}
+          >
+            {bookingPossible ? "취소" : "상담 신청"}
+          </Button>
+        </div>
       ) : (
-        <button
-          onClick={async () => {
+        <Button
+          onClick={() => {
             handleNext();
           }}
         >
-          상담 신청
-        </button>
+          상담을 위한 질의응답
+        </Button>
       )}
     </div>
   );
