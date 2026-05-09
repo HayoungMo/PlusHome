@@ -9,8 +9,9 @@ import TableMuiEditable from "../components/TableMuiEditable";
 import AlertMui from "../components/AlertMui";
 import Alert from "@mui/material/Alert";
 import DialogMui from "../components/DialogMui";
+import CompanySection from "./CompanySection";
 
-const CompanyInfo = () => {
+const CompanyInfo = (props) => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
@@ -32,7 +33,9 @@ const CompanyInfo = () => {
 
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
 
-	const [companyAdd, setCompanyAdd] = useState(false);
+	const { companyAddInfo, setCompanyAddInfo } = props;
+
+	const companyAdd = companyAddInfo.open;
 
 	const [companyUpdate, setCompanyUpdate] = useState(false);
 
@@ -76,12 +79,25 @@ const CompanyInfo = () => {
 			if (response.status === 200) {
 				const { user, token } = response.data;
 
-				if (!user || !token) return;
+				if (!user) return;
+
+				const serverCompanyList = user.companyList || [];
 
 				localStorage.setItem("user", JSON.stringify(user));
-				localStorage.setItem("token", token);
-				setCompanyStateList(user.companyList);
-				debugger;
+
+				if (token) {
+					localStorage.setItem("token", token);
+				}
+
+				setCompanyStateList(serverCompanyList);
+
+				setEditedCompanyList((prevEditedList) => {
+					if (prevEditedList.length === 0) {
+						return serverCompanyList;
+					}
+
+					return mergeEditedListWithServerList(serverCompanyList, prevEditedList);
+				});
 			}
 		} catch (error) {
 			console.error("유저 데이터 갱신 실패:", error);
@@ -152,6 +168,27 @@ const CompanyInfo = () => {
 			.filter(Boolean);
 	};
 
+	const tableMuiEditableOnChange = (data) => {
+		setEditedCompanyList((prevList) => {
+			return prevList.map((prevRow) => {
+				const updatedRow = data.find(
+					(row) => makeCompanyKey(row) === makeCompanyKey(prevRow),
+				);
+				return updatedRow ? updatedRow : prevRow;
+			});
+		});
+	};
+
+	const mergeEditedListWithServerList = (serverList, editedList) => {
+		return serverList.map((serverRow) => {
+			const editedRow = editedList.find(
+				(row) => makeCompanyKey(row) === makeCompanyKey(serverRow),
+			);
+
+			return editedRow ? editedRow : serverRow;
+		});
+	};
+
 	const dialogConfirmButtonList = [
 		{
 			title: "Cancel",
@@ -168,28 +205,28 @@ const CompanyInfo = () => {
 	];
 
 	useEffect(() => {
-		setCompanyStateList(companyList);
-	}, []);
+		reloadDataFunc();
+	}, [id]);
+
+	useEffect(() => {
+		if (companyAddInfo.open) {
+			setNewCompanyInfo({
+				...initCompanyInfo,
+				c_kind: companyAddInfo.type,
+			});
+		}
+	}, [companyAddInfo]);
 
 	return (
 		<div>
-			<div
-				style={{
-					display: "flex",
-					flexWrap: "wrap",
-				}}>
+			<div style={{ display: "flex", flexWrap: "wrap" }}>
 				<TextFieldMui label="아이디" value={id} />
 				<TextFieldMui label="이름" value={name} />
 				<TextFieldMui label="개인주소" value={addr} />
 				<TextFieldMui label="개인연락처" value={tel} />
 				<TextFieldMui label="이메일" value={email} />
 			</div>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "row",
-					alignItems: "center",
-				}}>
+			<div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
 				<SwitchMui
 					label="Update"
 					checked={companyUpdate}
@@ -204,11 +241,30 @@ const CompanyInfo = () => {
 					</Button>
 				)}
 			</div>
-			<TableMuiEditable
-				rowData={companyStateList}
-				onChange={(updatedRows) => {
-					setEditedCompanyList(updatedRows);
+			{/* <TableMuiEditable rowData={editedCompanyList} onChange={tableMuiEditableOnChange} updateAvailable={companyUpdate} readOnlyColumns={["c_id", "c_name", "c_kind"]}/> */}
+
+			<CompanySection
+				type="shop"
+				title="쇼핑몰 업체"
+				onAddClick={() => {
+					setCompanyAddInfo({ open: true, type: "shop" });
+					setNewCompanyInfo({ ...initCompanyInfo, c_kind: "shop" });
 				}}
+				companyList={editedCompanyList}
+				onChange={tableMuiEditableOnChange}
+				updateAvailable={companyUpdate}
+				readOnlyColumns={["c_id", "c_name", "c_kind"]}
+			/>
+
+			<CompanySection
+				type="interior"
+				title="인테리어 업체"
+				onAddClick={() => {
+					setCompanyAddInfo({ open: true, type: "interior" });
+					setNewCompanyInfo({ ...initCompanyInfo, c_kind: "interior" });
+				}}
+				companyList={editedCompanyList}
+				onChange={tableMuiEditableOnChange}
 				updateAvailable={companyUpdate}
 				readOnlyColumns={["c_id", "c_name", "c_kind"]}
 			/>
@@ -270,13 +326,16 @@ const CompanyInfo = () => {
 					color="error"
 					variant="contained"
 					onClick={() => {
-						setCompanyAdd(false);
+						setCompanyAddInfo({ open: false, type });
 						setNewCompanyInfo(initCompanyInfo);
 					}}>
 					Cancel
 				</Button>
 			) : (
-				<Button color="primary" variant="contained" onClick={() => setCompanyAdd(true)}>
+				<Button
+					color="primary"
+					variant="contained"
+					onClick={() => setCompanyAddInfo({ open: true, type: "" })}>
 					ADD
 				</Button>
 			)}

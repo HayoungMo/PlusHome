@@ -5,11 +5,12 @@ import TableMuiEditable from "../components/TableMuiEditable";
 const CompanySection = ({
 	type,
 	title,
-	companyList = [],
-	updateAvailable,
-	readOnlyColumns = [],
-	onChange,
 	onAddClick,
+	companyList = [],
+	columns = [],
+	onChange,
+	updateAvailable = true,
+	readOnlyColumns = [],
 }) => {
 	const filteredList = companyList.filter((company) => company.c_kind === type);
 
@@ -23,6 +24,7 @@ const CompanySection = ({
 					onChange={onChange}
 					updateAvailable={updateAvailable}
 					readOnlyColumns={readOnlyColumns}
+					columns={columns}
 				/>
 			) : (
 				<EmptyCompanyGuide type={type} onClick={onAddClick} />

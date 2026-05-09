@@ -30,11 +30,31 @@ const DashboardLayout = () => {
 	const shoppingMall = companyList.filter((data) => data.c_kind === "shop");
 	const hasShoppingMall = shoppingMall.length > 0;
 
+	const [companyAddInfo, setCompanyAddInfo] = useState({
+		open: false,
+		type: "",
+	});
+
 	const menuMap = {
-		user: [{ key: "userInfo", label: "계정 정보", component: <CompanyInfo /> }],
+		user: [
+			{
+				key: "userInfo",
+				label: "계정 정보",
+				component: (
+					<CompanyInfo
+						companyAddInfo={companyAddInfo}
+						setCompanyAddInfo={setCompanyAddInfo}
+					/>
+				),
+			},
+		],
 		shop: hasShoppingMall
 			? [
-					{ key: "product", label: "상품 관리", component: <ShoppingMallFurnitureInfo /> },
+					{
+						key: "product",
+						label: "상품 관리",
+						component: <ShoppingMallFurnitureInfo />,
+					},
 					{ key: "order", label: "주문 관리", component: <ShoppingMallOrderControl /> },
 					{ key: "review", label: "리뷰 관리", component: <ShoppingMallReviewControl /> },
 					{
@@ -80,13 +100,24 @@ const DashboardLayout = () => {
 
 	let currentContent = null;
 
+	const moveToCompanyAddPage = (type) => {
+		setActiveTab("user");
+		setActiveMenu("userInfo");
+
+		setCompanyAddInfo({
+			open: true,
+			type,
+		});
+	};
+
 	if (activeTab === "shop" && !hasShoppingMall) {
-		currentContent = <EmptyCompanyGuide type="shop" />;
+		currentContent = <EmptyCompanyGuide onClick={() => moveToCompanyAddPage("shop")} type="shop" />;
 	} else if (activeTab === "interior" && !hasInterior) {
-		currentContent = <EmptyCompanyGuide type="interior" />;
+		currentContent = <EmptyCompanyGuide onClick={() => moveToCompanyAddPage("interior")} type="interior" />;
 	} else {
 		currentContent = currentMenus.find((menu) => menu.key === activeMenu)?.component || null;
 	}
+
 	return (
 		<div className="company-layout">
 			<DashboardHeader activeTab={activeTab} setActiveTab={handleTabChange} />
