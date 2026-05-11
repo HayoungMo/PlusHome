@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
+import LikeService from '../service/likeService';
 
 const FurnitureArticle = () => {
 
@@ -10,6 +11,7 @@ const FurnitureArticle = () => {
     const [furniture, setFurniture] = useState(null)
     const [mainImage, setMainImage] = useState(null)
     const [tab, setTab] = useState("detail")
+    const [liked, setLiked] = useState(false)
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -27,7 +29,24 @@ const FurnitureArticle = () => {
         FurnitureService.increaseView(f_code);
     }, [f_code]);
 
-    
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        if (!token || !f_code) {
+            setLiked(false);
+            return;
+        }
+
+        LikeService.checkFurnitureLike(f_code)
+            .then((res) => {
+                setLiked(res.data?.liked || false);
+            })
+            .catch((error) => {
+                console.error("찜 여부 확인 실패", error);
+                setLiked(false);
+            });
+    }, [f_code]);
+
     useEffect(() => {
         if (furniture?.imageList?.length > 0) {
             const thumb = furniture.imageList.find(
@@ -46,6 +65,25 @@ const FurnitureArticle = () => {
             console.error("가구 상세 조회 실패", error);
             alert("가구 상세 조회에 실패했습니다.");
         }
+    };
+
+    const onToggleLike = () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            navigate("/login");
+            return;
+        }
+
+        LikeService.toggleFurnitureLike(f_code)
+            .then((res) => {
+                setLiked(res.data?.liked || false);
+            })
+            .catch((error) => {
+                console.error("찜 처리 실패", error);
+                alert("찜 처리에 실패했습니다.");
+            });
     };
 
     const onPayment = () => {
@@ -168,6 +206,24 @@ const FurnitureArticle = () => {
 
 
                     <hr />
+
+                    <button
+                        type="button"
+                        onClick={onToggleLike}
+                        style={{
+                            width: "100%",
+                            padding: "15px",
+                            background: liked ? "#ffdddd" : "white",
+                            color: liked ? "red" : "black",
+                            border: "1px solid #ddd",
+                            fontSize: "16px",
+                            cursor: "pointer",
+                            marginBottom: "10px"
+                        }}
+                    >
+                        {liked ? "♥ 찜 해제" : "♡ 찜하기"}
+                    </button>
+
 
                     <button
                         onClick={onPayment}

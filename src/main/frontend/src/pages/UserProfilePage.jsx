@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import UserPageService from '../service/UserPageService';
+import UserPageService from '../service/userPageService';
 
 const UserProfilePage = ({user, setUser, setLoginUser}) => {
     const [mode, setMode] = useState("view")
@@ -78,7 +78,7 @@ const UserProfilePage = ({user, setUser, setLoginUser}) => {
         UserPageService.updateMyPageUser(updateData)
         .then((res)=>{
             setUser(res.data)
-            setLoginUser?.(res.data)
+            setLoginUser?.(res.data.id)
             localStorage.setItem("user", JSON.stringify(res.data))
 
             alert("회원 정보가 수정되었습니다.")

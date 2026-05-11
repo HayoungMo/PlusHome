@@ -3,7 +3,9 @@ package com.spring.home.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.LikeDTO;
 
 @Mapper
@@ -18,4 +20,10 @@ public interface LikeMapper {
 	public void updateData(LikeDTO dto) throws Exception;
 	
 	public void deleteData(String id) throws Exception;
+	
+	public int countFurnitureLike(LikeDTO dto) throws Exception;
+
+    public void deleteFurnitureLike(LikeDTO dto) throws Exception;
+
+    public List<FurnitureDTO> getMyFurnitureLikes(@Param("id") String id) throws Exception;
 }
