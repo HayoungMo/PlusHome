@@ -4,8 +4,19 @@ import DatePickerMui from "../components/DatePickerMui";
 import { Button } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
+import DialogMui from "./DialogMui";
 
 const InteriorBooking = ({company, answers}) => {
+
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
   const [data, setData] = useState({
     ...company,
     kind: "",
@@ -74,9 +85,29 @@ const InteriorBooking = ({company, answers}) => {
             label="content"
             onChange={handleChange}
           />
-          <Button type="submit" label="submit" variant="contained">
-            제출
-          </Button>
+          <Button onClick={handleOpen}>제출</Button>
+          <DialogMui
+            open={open}
+            onClose={handleClose}
+            title="제출 확인"
+            text="정말 제출하시겠습니까?"
+            buttons={[
+              {
+                title: "취소",
+                color: "inherit",
+                onClick: handleClose,
+              },
+              {
+                title: "제출",  
+                variant: "contained",
+                onClick: (e) => {
+                  console.log("제출 실행");
+                  handleSubmit(e);
+                  handleClose();
+                },
+              },
+            ]}
+          />
         </div>
       </form>
     </div>

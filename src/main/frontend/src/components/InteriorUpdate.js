@@ -4,10 +4,37 @@ import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
 import SelectMui from "./SelectMui";
+import DialogMui from "./DialogMui";
 
 const InteriorUpdate = ({ company }) => {
   const [article, setArticle] = useState([]);
   const [sendList, setSendList] = useState([]);
+
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [open1, setOpen1] = useState(false);
+
+  const handleOpen1 = () => {
+    setOpen1(true);
+  };
+
+  const handleClose1 = () => {
+    setOpen1(false);
+  };
+
+  const [reload, setReload] = useState(0);
+  
+    const refresh = () => {
+      setReload((prev) => prev + 1);
+    };
 
   const questionOptions = {
     q1: [
@@ -81,6 +108,7 @@ const InteriorUpdate = ({ company }) => {
       tag: item.i_tag,
       text: item.i_text,
     });
+    refresh();
   };
 
   const handleDelete = async (e, item) => {
@@ -92,6 +120,8 @@ const InteriorUpdate = ({ company }) => {
       c_name: company.c_name,
       tag: item.i_tag,
     });
+
+    refresh();
   };
 
   const onClickAdd = () => {
@@ -126,7 +156,7 @@ const InteriorUpdate = ({ company }) => {
       setArticle(Array.isArray(data) ? data : []);
     };
     fetchArticle();
-  }, []);
+  }, [reload]);
 
   return (
     <div>
@@ -154,55 +184,65 @@ const InteriorUpdate = ({ company }) => {
                 required
               />
             )}
-            <Button onClick={(e) => handleSubmit(e, item)} variant="contained">
+            <Button onClick={() => handleOpen()} variant="contained">
               제출
             </Button>
-            <Button onClick={(e)=>{handleDelete(e,item)}} variant="contained">
+            <DialogMui
+              open={open}
+              onClose={handleClose}
+              title="제출 확인"
+              text="정말 제출하시겠습니까?"
+              buttons={[
+                {
+                  title: "취소",
+                  color: "inherit",
+                  onClick: handleClose,
+                },
+                {
+                  title: "제출",
+                  variant: "contained",
+                  onClick: (e) => {
+                    console.log("제출 실행");
+                    handleSubmit(e, item);
+                    handleClose();
+                  },
+                },
+              ]}
+            />
+            <Button
+              onClick={(e) => {
+                handleOpen1();
+              }}
+              variant="contained"
+            >
               삭제
             </Button>
+            <DialogMui
+              open={open1}
+              onClose={handleClose1}
+              title="삭제 확인"
+              text="정말 삭제하시겠습니까?"
+              buttons={[
+                {
+                  title: "취소",
+                  color: "inherit",
+                  onClick: handleClose1,
+                },
+                {
+                  title: "삭제",
+                  color: "error",
+                  variant: "contained",
+                  onClick: (e) => {
+                    console.log("삭제 실행");
+                    handleDelete(e, item);
+                    handleClose1();
+                  },
+                },
+              ]}
+            />
           </div>
         </form>
       ))}
-
-      <p>이미지 업로드</p>
-      <form name="imageInsertTestForm">
-        <input
-          type="hidden"
-          value="LOGO"
-          name="img_kind"
-          placeholder="IMG_KIND"
-        />
-        <input
-          type="hidden"
-          value="PROFILE"
-          name="img_tag"
-          placeholder="IMG_TAG"
-        />
-        <input
-          type="hidden"
-          value={company.c_id}
-          name="dir_a"
-          placeholder="DIR_A"
-        />
-        <input
-          type="hidden"
-          value={company.c_kind}
-          name="dir_b"
-          placeholder="DIR_B"
-        />
-        <input
-          type="hidden"
-          value={company.c_name}
-          name="dir_c"
-          placeholder="DIR_C"
-        />
-        <input type="hidden" value="LOGO" name="dir_d" placeholder="DIR_D" />
-        {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-        <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
-        <input type="file" name="file" />
-        <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
-      </form>
     </div>
   );
 };

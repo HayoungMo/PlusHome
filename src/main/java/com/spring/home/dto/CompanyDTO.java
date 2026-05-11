@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class CompanyDTO {
+	
+	private String id;
 
     private String c_id;
     private String c_name;

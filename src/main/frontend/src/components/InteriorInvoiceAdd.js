@@ -4,6 +4,7 @@ import CheckboxMui from "./CheckboxMui";
 import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
 import TableMui from "./TableMui";
+import TableMuiCollapse from "./TableMuiCollapse";
 
 const InteriorInvoiceAdd = ({ booking }) => {
   const [details, setDetails] = useState([{ text: "", qty: "", price: "" }]);
@@ -11,6 +12,8 @@ const InteriorInvoiceAdd = ({ booking }) => {
   const [invoice, setInvoice] = useState([]);
 
   const [invoiceDetails, setInvoiceDetails] = useState([]);
+
+  const [invoiceWithDetails, setInvoiceWithDetails] = useState([]);
 
   const [kind, setKind] = useState({});
 
@@ -36,25 +39,48 @@ const InteriorInvoiceAdd = ({ booking }) => {
 
   useEffect(() => {
     const fetchInvoiceDetails = async () => {
-      const results = [];
+      const result = await Promise.all(
+        invoice.map(async (item) => {
+          const data = await InteriorService.fetchInvoiceDetails(item);
 
-      for (const item of invoice) {
-        const data = await InteriorService.fetchInvoiceDetails(item);
+          const details = Array.isArray(data) ? data : data ? [data] : [];
 
-        if (Array.isArray(data)) {
-          results.push(...data);
-        } else if (data) {
-          results.push(data);
-        }
-      }
-      const merged = results.flat();
-      setInvoiceDetails(merged);
+          const mappedDetails = details.map((detail) => {
+            const qty = Number(detail.invoice_qty || 0);
+            const price = Number(detail.invoice_price || 0);
+
+            return {
+              ...detail,
+              line_total: qty * price,
+            };
+          });
+
+          const total_qty = mappedDetails.reduce(
+            (sum, detail) => sum + Number(detail.invoice_qty || 0),
+            0,
+          );
+
+          const total_price = mappedDetails.reduce(
+            (sum, detail) => sum + Number(detail.line_total || 0),
+            0,
+          );
+
+          return {
+            ...item,
+            detail: mappedDetails,
+            total_qty,
+            total_price,
+          };
+        }),
+      );
+
+      setInvoiceWithDetails(result);
     };
 
-    if (invoice.length > 0) {
+    if (Array.isArray(invoice) && invoice.length > 0) {
       fetchInvoiceDetails();
     } else {
-      setInvoiceDetails([]);
+      setInvoiceWithDetails([]);
     }
   }, [invoice]);
 
@@ -129,11 +155,19 @@ const InteriorInvoiceAdd = ({ booking }) => {
 
     refresh();
   };
- 
+
   return (
     <div>
       <div>
         <p>인테리어 견적 추가</p>
+
+            <TableMuiCollapse
+              rowData={invoiceWithDetails}
+              hiddenColumns={["detail", "details"]}
+              collapseKey="detail"
+              collapseTitle="견적 상세 내역"
+              collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
+            />
 
         {(booking.b_status === "pending" || booking.b_status === "quoting") && (
           <form onSubmit={(e) => handleSubmit4(e, booking)}>
@@ -182,17 +216,6 @@ const InteriorInvoiceAdd = ({ booking }) => {
             </Button>
           </form>
         )}
-        {invoice.map((invoiceItem, invoiceIdx) => (
-          <div key={invoiceIdx}>
-            <TableMui
-              rowData={invoiceDetails.filter(
-                (record) =>
-                  record?.invoice_no === invoiceItem?.invoice_no &&
-                  record?.invoice_kind === invoiceItem?.invoice_kind,
-              )}
-            />
-          </div>
-        ))}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import http from "../http-common";
 
 const fetchBookingList = async (id) => {
+  console.log("유저 예약 목록");
   try {
     const res = await http.post("interior/bookinglists", {
        id: id,
@@ -55,10 +56,10 @@ const fetchInvoiceDetails = async (data) => {
   }
 };
 
-const fetchInteriorReview = async () => {
+const fetchInteriorReview = async (data) => {
   try {
-    const res = await http.post("interior/interiorreview", {
-      id: localStorage.getItem("id"),
+    const res = await http.post("interior/userreview", {
+      id: data.id,
       c_id: "",
       c_kind: "",
       c_name: "",

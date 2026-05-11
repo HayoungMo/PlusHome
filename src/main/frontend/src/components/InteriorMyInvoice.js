@@ -4,6 +4,7 @@ import TableMui from "./TableMui";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import InteriorBooking from "./InteriorBooking";
+import TableMuiCollapse from "./TableMuiCollapse";
 
 const InteriorMyInvoice = ({ booking }) => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const InteriorMyInvoice = ({ booking }) => {
 
   const [reBooking, setReBooking] = useState(false);
 
-  const [invoiceDetails, setInvoiceDetails] = useState([]);
+    const [invoiceWithDetails, setInvoiceWithDetails] = useState([]);
 
   const handleNext = (invoice) => {
     navigate("/interior/review", {
@@ -37,64 +38,69 @@ const InteriorMyInvoice = ({ booking }) => {
     }
   }, [booking]);
 
-  useEffect(() => {
-    const fetchInvoiceDetails = async () => {
-      const results = [];
-
-      for (const item of invoice) {
-        const data = await InteriorUserService.fetchInvoiceDetails(item);
-
-        if (Array.isArray(data)) {
-          results.push(...data);
-        } else if (data) {
-          results.push(data);
-        }
+   useEffect(() => {
+      const fetchInvoiceDetails = async () => {
+        const result = await Promise.all(
+          invoice.map(async (item) => {
+            const data = await InteriorUserService.fetchInvoiceDetails(item);
+  
+            return {
+              ...item,
+              detail: Array.isArray(data) ? data : data ? [data] : [],
+            };
+          }),
+        );
+  
+        setInvoiceWithDetails(result);
+      };
+  
+      if (Array.isArray(invoice) && invoice.length > 0) {
+        fetchInvoiceDetails();
+      } else {
+        setInvoiceWithDetails([]);
       }
-      const merged = results.flat();
-      setInvoiceDetails(merged);
-    };
+    }, [invoice]);
 
-    if (invoice.length > 0) {
-      fetchInvoiceDetails();
-    } else {
-      setInvoiceDetails([]);
-    }
-  }, [invoice]);
   return (
     <div>
       <p>견적서 목록</p>
+
       {Array.isArray(invoice) && invoice.length > 0 ? (
-        invoice.map((invoiceItem, invoiceIdx) => (
-          <div key={invoiceIdx}>
-            <TableMui
-              rowData={invoiceDetails.filter(
-                (record) =>
-                  record?.invoice_no === invoiceItem?.invoice_no &&
-                  record?.invoice_kind === invoiceItem?.invoice_kind,
+        <div>
+          <TableMuiCollapse
+            rowData={invoiceWithDetails}
+            hiddenColumns={["detail", "details"]}
+            collapseKey="detail"
+            collapseTitle="견적 상세 내역"
+            collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
+          />
+          {invoice.map((invoiceItem, invoiceIdx) => (
+            <div key={invoiceIdx}>
+              {booking?.b_status === "done" && (
+                <div>
+                  <Button onClick={() => handleNext(invoiceItem)}>
+                    리뷰 작성
+                  </Button>
+
+                  <Button onClick={() => BookingAgain()}>
+                    {reBooking ? "취소" : "재상담 신청"}
+                  </Button>
+
+                  {reBooking && (
+                    <InteriorBooking
+                      company={{
+                        c_id: booking.c_id,
+                        c_kind: booking.c_kind,
+                        c_name: booking.c_name,
+                      }}
+                      answers={JSON.parse(booking.b_answer)}
+                    />
+                  )}
+                </div>
               )}
-            />
-            {invoiceItem?.invoice_kind === "Y" && (
-              <div>
-                <Button onClick={() => handleNext(invoiceItem)}>
-                  리뷰 작성
-                </Button>
-                <Button onClick={() => BookingAgain()}>
-                  {reBooking ? "취소" : "재상담 신청"}
-                </Button>
-                {reBooking && (
-                  <InteriorBooking
-                    company={{
-                      c_id: booking.c_id,
-                      c_kind: booking.c_kind,
-                      c_name: booking.c_name,
-                    }}
-                    answers={JSON.parse(booking.b_answer)}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        ))
+            </div>
+          ))}
+        </div>
       ) : (
         <p>작성된 견적서가 없습니다.</p>
       )}

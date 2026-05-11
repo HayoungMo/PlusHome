@@ -3,11 +3,22 @@ import { Button, LinearProgress } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import InteriorCalculator from "../components/InteriorCalculator";
 import CheckboxMui from "../components/CheckboxMui";
+import DialogMui from "../components/DialogMui";
 
 const InteriorQuestion = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const company = location.state?.company || null;
+
+   const [open, setOpen] = useState(false);
+
+   const handleOpen = () => {
+     setOpen(true);
+   };
+
+   const handleClose = () => {
+     setOpen(false);
+   };
 
   const [step, setStep] = useState(0);
 
@@ -171,7 +182,9 @@ const InteriorQuestion = () => {
                       value={option.value}
                       label={option.title}
                       checked={data.spaces.includes(option.value)}
-                      onChange={(e) => handleCheckChange(option.value,e.target.checked)}
+                      onChange={(e) =>
+                        handleCheckChange(option.value, e.target.checked)
+                      }
                     />
                   </label>
                 ))}
@@ -199,7 +212,28 @@ const InteriorQuestion = () => {
         <InteriorCalculator answer={data} />
 
         <Button onClick={handleBack}>이전</Button>
-        <Button onClick={handleSubmit}>최종 제출</Button>
+        <Button onClick={handleOpen}>최종 제출</Button>
+        <DialogMui
+          open={open}
+          onClose={handleClose}
+          title="제출 확인"
+          text="정말 제출하시겠습니까?"
+          buttons={[
+            {
+              title: "취소",
+              color: "inherit",
+              onClick: handleClose,
+            },
+            {
+              title: "제출",
+              variant: "contained",
+              onClick: () => {
+                console.log("제출");
+                handleSubmit();
+              },
+            },
+          ]}
+        />
       </div>
     );
   }
