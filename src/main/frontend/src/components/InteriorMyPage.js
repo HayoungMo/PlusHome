@@ -15,17 +15,17 @@ const InteriorMyPage = () => {
     });
   };
 
-   const getWishList = () => {
-     return JSON.parse(localStorage.getItem(`wishList_${id}`)) || [];
-   };
+  const getWishList = () => {
+    return JSON.parse(localStorage.getItem(`wishList_${id}`)) || [];
+  };
 
-   const [like, setLike] = useState(getWishList());
+  const [like, setLike] = useState(getWishList());
 
-     const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(0);
 
-     const handleChange = (event, newValue) => {
-       setTab(newValue);
-     };
+  const handleChange = (event, newValue) => {
+    setTab(newValue);
+  };
   return (
     <Box>
       <Tabs value={tab} onChange={handleChange}>
@@ -37,7 +37,7 @@ const InteriorMyPage = () => {
       <Box sx={{ mt: 2 }}>
         {tab === 0 && <UserBookingLists id={id} />}
 
-        {tab === 1 && <InteriorMyReview />}
+        {tab === 1 && <InteriorMyReview id={id} />}
 
         {tab === 2 && (
           <>
@@ -46,6 +46,7 @@ const InteriorMyPage = () => {
             {Array.isArray(like) && like.length > 0 ? (
               like.map((item, idx) => (
                 <div key={idx} onClick={() => handleNext(item)}>
+                  <img src={item.logo.result.img_name} alt="" />
                   {item.c_name}
                 </div>
               ))

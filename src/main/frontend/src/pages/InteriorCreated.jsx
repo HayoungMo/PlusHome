@@ -14,7 +14,7 @@ function InteriorCreated(/*{ company }*/) {
 
 
   const [company, setCompany] = useState({
-    c_id: "test",
+    c_id: "test1",
     c_kind: "interior",
     c_name: "인테리어",
   });

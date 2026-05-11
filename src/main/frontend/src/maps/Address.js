@@ -2,7 +2,7 @@ import React, { useContext, useRef, useState } from "react";
 import { SggCodeMap } from "../components/SggCodeMap";
 import DefaultMaps from "./DefaultMaps";
 
-const Address = ({ isC, form, setForm }) => {
+const Address = ({ isC, form, setForm }) => { //company의 경우 isC에 True, 아니면 false (boolean)
   const addressInputRef = useRef(null); // 주소 검색창
 
   const [keyword, setKeyword] = useState("");
@@ -20,10 +20,22 @@ const Address = ({ isC, form, setForm }) => {
       ? setForm((prev) => ({
           ...prev,
           c_addr1: item.roadAddress || item.jibunAddress,
+          c_addr:
+            prev.c_addr !== null && prev.c_addr?.includes("__")
+              ? (item.roadAddress || item.jibunAddress) +
+                "__" +
+                prev.c_addr.split("__")[1]
+              : item.roadAddress || item.jibunAddress,
         }))
       : setForm((prev) => ({
           ...prev,
           addr1: item.roadAddress || item.jibunAddress,
+          addr:
+            prev.addr !== null && prev.c_addr?.includes("__")
+              ? (item.roadAddress || item.jibunAddress) +
+                "__" +
+                prev.addr.split("__")[1]
+              : item.roadAddress || item.jibunAddress,
         }));
 
     setMapCenter({ lat: newLat, lng: newLng });

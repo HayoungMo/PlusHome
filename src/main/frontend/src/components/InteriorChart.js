@@ -26,25 +26,31 @@ ChartJS.register(
 );
 
 const InteriorChart = ({ company }) => {
-  const slicedLabels = [10, 20, 30, 40];
   const [booking, setBooking] = useState([]);
+  const [companyBooking, setCompanyBooking] = useState([]);
   const [housingTypeData, setHousingTypeData] = useState();
   const [budgetData, setBudgetData] = useState();
-  const [scheduleData, setScheduleData] = useState();
+  const [spaceData, setSpaceData] = useState();
+  const [customerData, setCustomerData] = useState();
 
   useEffect(() => {
     const fetchBooking = async () => {
-      const data = await InteriorService.fetchBookingList(company);
+      const data = await InteriorService.fetchAllBookingList(company);
       setBooking(data);
     };
-
+    const fetchCompanyBooking = async () => {
+      const data = await InteriorService.fetchBookingList(company);
+      setCompanyBooking(data);
+    };
     fetchBooking();
+    fetchCompanyBooking();
   }, []);
 
   useEffect(() => {
     setHousingTypeData(makeCountChartData(booking, "housingType"));
     setBudgetData(makeCountChartData(booking, "budget"));
-    setScheduleData(makeCountChartData(booking, "schedule"));
+    setSpaceData(makeArrayCountChartData(booking, "spaces"));
+    setCustomerData(makeCustomerTypeData(booking));
   }, [booking]);
 
   const parseAnswer = (b_answer) => {
@@ -55,10 +61,31 @@ const InteriorChart = ({ company }) => {
     }
   };
 
+  const makeArrayCountChartData = (bookingList, key) => {
+    const countMap = {};
+
+    bookingList?.forEach((booking) => {
+      const answer = parseAnswer(booking.b_answer);
+      if (!answer) return;
+
+      const values = answer[key];
+      if (!Array.isArray(values)) return;
+
+      values.forEach((value) => {
+        countMap[value] = (countMap[value] || 0) + 1;
+      });
+    });
+
+    return Object.entries(countMap).map(([name, count]) => ({
+      name,
+      count,
+    }));
+  };
+
   const makeCountChartData = (bookingList, key) => {
     const countMap = {};
 
-    bookingList.forEach((booking) => {
+    bookingList?.forEach((booking) => {
       const answer = parseAnswer(booking.b_answer);
       if (!answer) return;
 
@@ -66,6 +93,29 @@ const InteriorChart = ({ company }) => {
       if (!value) return;
 
       countMap[value] = (countMap[value] || 0) + 1;
+    });
+
+    return Object.entries(countMap).map(([name, count]) => ({
+      name,
+      count,
+    }));
+  };
+
+  const makeCustomerTypeData = (bookingList) => {
+    const countMap = {};
+
+    bookingList?.forEach((booking) => {
+      const answer = parseAnswer(booking.b_answer);
+      if (!answer) return;
+
+      const key =
+        answer.housingType +
+        "_" +
+        answer.areaSize +
+        "_" +
+        answer.houseCondition;
+
+      countMap[key] = (countMap[key] || 0) + 1;
     });
 
     return Object.entries(countMap).map(([name, count]) => ({
@@ -95,28 +145,16 @@ const InteriorChart = ({ company }) => {
 
   const budgetChart = makeChartData("예산 요청 통계", budgetData);
 
-  const scheduleChart = makeChartData("희망 일정 요청 통계", scheduleData);
+  const spaceChart = makeChartData("공간 요청 통계", spaceData);
 
-
-  const data3 = {
-    labels: ["리스크", "안전", "asd"],
-    datasets: [
-      {
-        data: [50, 40, 10],
-        backgroundColor: ["#008d0c", "#e0e0e0", "#ffae00"],
-        borderWidth: 0,
-      },
-    ],
-  };
+  const customerChart = makeChartData("고객 유형 분석", customerData);
 
   return (
-    <div style={{ maxWidth: 632, maxHeight: 316 }}>
+    <div>
       <Chart type="bar" data={housingChart} />
       <Chart type="bar" data={budgetChart} />
-      <Chart type="bar" data={scheduleChart} />
-
-
-      <Chart type="doughnut" data={data3} />
+      <Chart type="bar" data={spaceChart} />
+      <Chart type="bar" data={customerChart} />
     </div>
   );
 };

@@ -76,7 +76,7 @@ const InteriorMyInvoice = ({ booking }) => {
           />
           {invoice.map((invoiceItem, invoiceIdx) => (
             <div key={invoiceIdx}>
-              {booking?.b_status === "done" && (
+              {(booking?.b_status === "done" && invoiceItem.invoice_kind==="Y") && (
                 <div>
                   <Button onClick={() => handleNext(invoiceItem)}>
                     리뷰 작성

@@ -342,6 +342,21 @@ SELECT c_id,
 FROM   i_example
 </select>
 
+<select id="getAllBookings"  resultType="com.spring.home.dto.BookingDTO">
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       b_kind,
+       b_long,
+       b_date,
+       b_status,
+       b_content,
+       b_answer
+FROM   booking
+</select>
+
 
 <select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
 SELECT *

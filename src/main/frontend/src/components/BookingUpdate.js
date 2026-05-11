@@ -5,6 +5,7 @@ import TableMuiCollapse from "./TableMuiCollapse";
 import InteriorInvoiceAdd from "./InteriorInvoiceAdd";
 import { Button, Table, TableBody, TableCell, TableRow } from "@mui/material";
 import DialogMui from "./DialogMui";
+import SelectMui from "./SelectMui";
 
 const BookingUpdate = ({ company }) => {
   const [booking, setBooking] = useState([]);
@@ -15,6 +16,13 @@ const BookingUpdate = ({ company }) => {
     };
     fetchBooking();
   }, []);
+
+  const statusOption = [
+    { value: "confirmed", title: "견적확정 " },
+    { value: "working", title: "시공중" },
+    { value: "done", title: "완료" },
+  ];
+
     const [open1, setOpen1] = useState(false);
   
     const handleOpen1 = () => {
@@ -54,7 +62,6 @@ const BookingUpdate = ({ company }) => {
               rowData={item}
               hiddenColumns={["b_answer"]}
               collapseTitle="상담 상세 정보"
-              updateBookingRow={updateBookingRow}
               renderCollapse={(row) => {
                 let answer = {};
 
@@ -82,10 +89,16 @@ const BookingUpdate = ({ company }) => {
                 );
               }}
             />
-            {booking.b_status !== "cancel" ||
-              (booking.b_status !== "done" && (
-                <Button onClick={() => handleOpen1()}>상담 취소</Button>
-              ))}
+            <SelectMui
+              label="상태"
+              name="b_status"
+              value={item.b_status || ""}
+              option={statusOption}
+              onChange={(e) => updateBookingRow(item, e.target.value)}
+            />
+            {(booking.b_status !== "cancel" || booking.b_status !== "done") && (
+              <Button onClick={() => handleOpen1()}>상담 취소</Button>
+            )}
             <DialogMui
               open={open1}
               onClose={handleClose1}
