@@ -21,6 +21,7 @@ public class UserDTO {
 	private String tel;
 	private String gender;
 	private String addr;
+	private String joined;
 	
 	private CompanyDTO companyDto;
 

@@ -82,6 +82,11 @@ where id = #{id}
     WHERE id = #{id}
 </update>
 
+<update id="deleteUser" parameterType="com.spring.home.dto.UserDTO">
+update users 
+set joined = #{joined}
+where id = #{id}
+</update>
 
 
 </mapper>

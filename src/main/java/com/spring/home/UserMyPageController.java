@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
+import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.service.ImageService;
 import com.spring.home.service.UserService;
@@ -175,6 +176,9 @@ public class UserMyPageController {
 	    return ResponseEntity.ok(updatedUser);
 	}
 
-	
+	@PostMapping("/delete/user")
+	public void deleteUser(@RequestBody UserDTO dto) throws Exception {
+		userService.deleteUser(dto);
+	}
 	
 }

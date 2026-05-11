@@ -56,6 +56,18 @@ const updateProfileImage = async (file) => {
   return res.data;
 };
 
+const deleteUser = async(id) => {
+    try {
+      const res = await http.post("/mypage/delete/user", {
+        id: id,        
+        joined :"N",
+      });
+    } catch (err) {
+      console.error("삭제 에러:", err);
+    }
+
+}
+
 const UserPageService = {
   getMyPageUser,
   updateMyPageUser,
@@ -63,6 +75,7 @@ const UserPageService = {
   verifyMyPagePassword,
   getProfileImage,
   updateProfileImage,
+  deleteUser,
 };
 
 export default UserPageService;

@@ -19,8 +19,6 @@ const checkId = async(id) =>{
     return res.data
 }
 
-
-
 // 객체로 묶어서 내보내기
 const joinService = {
     postJoin,

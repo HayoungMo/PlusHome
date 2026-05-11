@@ -63,6 +63,10 @@ public class InteriorService {
 	public List<InteriorReviewDTO> getAllExamples() {
 		return interiorMapper.getAllExamples();
 	}
+	
+	public List<BookingDTO> getAllBookings() throws Exception {
+		return interiorMapper.getAllBookings();
+	}
 
 	public List<InteriorDTO> getReadData(CompanyDTO companyDTO) throws Exception {
 		// TODO Auto-generated method stub

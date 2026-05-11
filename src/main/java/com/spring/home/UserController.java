@@ -156,6 +156,9 @@ public class UserController {
 				System.out.println("확인용"+ user);
 				result.put("success", false);
 				result.put("message", "존재하지 않는 ID 입니다");
+			} else if (user.getJoined().equals("N")) {
+				result.put("success", false);
+				result.put("message", "탈퇴한 ID 입니다");
 			} else {
 				
 				//JWT 생성

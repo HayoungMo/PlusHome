@@ -6,7 +6,7 @@ import TextFieldMui from "./TextFieldMui";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
 
-const InteriorMyReview = () => {
+const InteriorMyReview = ({id}) => {
   const [review, setReview] = useState([]);
   const [change, setChange] = useState([]);
   const [sendList, setSendList] = useState([]);
@@ -37,7 +37,7 @@ const InteriorMyReview = () => {
 
   useEffect(() => {
     const fetchReview = async () => {
-      const data = await InteriorUserService.fetchInteriorReview();
+      const data = await InteriorUserService.fetchInteriorReview(id);
       const companyList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
         companyList.map(async (item) => {

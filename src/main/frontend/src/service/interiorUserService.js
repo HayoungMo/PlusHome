@@ -56,10 +56,10 @@ const fetchInvoiceDetails = async (data) => {
   }
 };
 
-const fetchInteriorReview = async (data) => {
+const fetchInteriorReview = async (id) => {
   try {
     const res = await http.post("interior/userreview", {
-      id: data.id,
+      id: id,
       c_id: "",
       c_kind: "",
       c_name: "",

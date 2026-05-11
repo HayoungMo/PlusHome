@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.CompanyDTO;
@@ -210,6 +211,10 @@ public class UserService {
 	    imageService.insertImage(savedImage);
 
 	    return savedImage;
+	}
+	
+	public void deleteUser(UserDTO dto) throws Exception {
+		userMapper.deleteUser(dto);
 	}
 
 }

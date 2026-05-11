@@ -148,6 +148,16 @@ const fetchAllInteriorExample = async () => {
   }
 };
 
+const fetchAllBookingList = async () => {
+  try {
+    const res = await http.get("interior/bookinglists");
+    console.log("응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
 const AddInterior = async (data) => {
   try {
     const res = await http.post("/interior/add/interior", {
@@ -348,6 +358,7 @@ const InteriorService = {
   fetchInteriorReview,
   fetchAllInteriorReview,
   fetchAllInteriorExample,
+  fetchAllBookingList,
   AddInterior,
   AddInteriorExample,
   AddBooking,

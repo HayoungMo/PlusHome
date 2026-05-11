@@ -53,6 +53,11 @@ public class InteriorController {
 		return interiorService.getAllExamples();
 	}
 	
+	@GetMapping("/bookinglists")
+	public List<BookingDTO> getAllBookings() throws Exception {
+		return interiorService.getAllBookings();
+	}
+	
 	
 	
 	@PostMapping("/getCompany")
