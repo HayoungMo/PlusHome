@@ -69,6 +69,18 @@ update users
 where id = #{id}
 </update>
 
+<update id="updateMyPageUser" parameterType="com.spring.home.dto.UserDTO">
+    UPDATE users
+    <set>
+        email = #{email},
+        tel = #{tel},
+        addr = #{addr}
+        <if test="pw != null and pw != ''">
+            , pw = #{pw}
+        </if>
+    </set>
+    WHERE id = #{id}
+</update>
 
 
 

@@ -7,7 +7,7 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
 	const savedUser = localStorage.getItem("user");
 	const userData = savedUser ? JSON.parse(savedUser) : null;
-	const displayUser = loginUser || userData?.id;
+	const displayUser = loginUser?.id || loginUser?.u_id || userData?.id || userData?.u_id;
 
 	const onSearch = (evt) => {
 		evt.preventDefault();
@@ -52,7 +52,10 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 				<div className="shop-user">
 					{displayUser ? (
 						<>
-							<span>{displayUser}님</span>
+							<span>
+								<Link to="/userpage">
+								{displayUser}님</Link>
+							</span>
 							<button type="button" onClick={logout}>
 								로그아웃
 							</button>

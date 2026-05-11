@@ -39,6 +39,7 @@ import FreeBoardListPage from "./pages/FreeBoardListPage";
 import FreeBoardWritePage from "./pages/FreeBoardWritePage";
 import FreeBoardArticlePage from "./pages/FreeBoardArticlePage";
 import FreeBoardEditPage from "./pages/FreeBoardEditPage";
+import UserMyPage from "./pages/UserMyPage";
 
 
 function App() {
@@ -71,6 +72,14 @@ function App() {
               }
             />
 				
+        {/* 유저 마이페이지 */}
+        <Route path="/userpage" element={
+          <UserMyPage 
+            loginUser={loginUser}
+            setLoginUser={setLoginUser} 
+            loginInfo={loginInfo} 
+            setLoginInfo={setLoginInfo}/>}/>
+        
         {/* 검색링크 */}
         <Route path="/search" element={<SearchPage />} /> 
         
@@ -99,6 +108,7 @@ function App() {
         <Route path="/freeboard/write" element={<FreeBoardWritePage />} />
         <Route path="/freeboard/article/:fb_code" element={<FreeBoardArticlePage />} />
         <Route path="/freeboard/edit/:fb_code" element={<FreeBoardEditPage />} />
+
         {/* component = mui 테스트용 과 이미지테스트, pdf */}
 				<Route path='/component' element={<ComponentEx />}/> 
         <Route path="/ImageGetTest" element={<ImageGetTest />} />

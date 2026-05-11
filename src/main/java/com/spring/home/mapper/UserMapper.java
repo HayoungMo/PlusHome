@@ -36,4 +36,6 @@ public interface UserMapper {
 	
 	public void insertCompany(CompanyDTO dto) throws Exception;
 	
+	public void updateMyPageUser(UserDTO dto) throws Exception;
+	
 }

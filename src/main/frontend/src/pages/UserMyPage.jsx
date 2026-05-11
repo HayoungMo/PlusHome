@@ -1,0 +1,186 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {getImgDirSimple} from "../resources/function/GetImgDir"
+import UserPageService from "../service/UserPageService";
+import  Loading  from "./Loading"
+
+import UserProfilePage from './UserProfilePage';
+import UserWishListPage from './UserWishListPage';
+import UserOrderPage from './UserOrderPage';
+import UserQuestionPage from './UserQuestionPage';
+import UserReviewPage from './UserReviewPage';
+import UserDeletePage from './UserDeletePage';
+
+const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
+    const navigate = useNavigate()
+    const fileInputRef = useRef(null)
+    const [user, setUser] = useState(loginUser)
+    const [loading, setLoading] = useState(true)
+    const [activeMenu, setActiveMenu] = useState("edit");
+    const [profileImage, setProfileImage] = useState(null);
+
+    useEffect(()=>{
+        const token = localStorage.getItem("token")
+
+        if(!token){
+            alert("로그인이 필요합니다.")
+            navigate("/login")
+            return
+        }
+
+        UserPageService.getMyPageUser()
+        .then((res)=> {
+            setUser(res.data)
+            setLoginUser?.(res.data)
+            localStorage.setItem("user", JSON.stringify(res.data))
+        })
+        .catch((error)=> {
+            console.error(error)
+
+            const savedUser = localStorage.getItem("user");
+
+            if (savedUser) {
+            const parsedUser = JSON.parse(savedUser);
+            setUser(parsedUser);
+            setLoginUser?.(parsedUser);
+            }else{
+                alert("사용자 정보를 불러오지 못했습니다.")
+                navigate("/login")
+            }
+        })
+        .finally(()=>{
+            setLoading(false)
+        })
+
+        UserPageService.getProfileImage()
+        .then((res)=>{
+            setProfileImage(res.data)
+        })
+        .catch(()=>{
+            setProfileImage(null)
+        })
+
+    },[navigate, setLoginUser])
+
+    const onClickProfileImage = () => {
+        if(profileImage) {
+            const ok = window.confirm("프로필 이미지 수정?")
+            if (!ok) return
+        }
+
+        fileInputRef.current.click()
+    }
+
+    const onChangeProfileImage = async (evt) => {
+        const file = evt.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        try {
+            const savedImage = await UserPageService.updateProfileImage(file);
+            setProfileImage(savedImage);
+            alert("프로필 이미지가 저장되었습니다.");
+        } catch (error) {
+            console.error(error);
+            alert("프로필 이미지 저장에 실패했습니다.");
+        } finally {
+            evt.target.value = "";
+        }
+    };
+
+    if(loading) 
+        return <Loading/>
+
+    return (
+        <div className='user-mypage'>
+            <aside className='user-mypage-menu'>
+                <div>
+                    <h2>프로필</h2>
+                    <div className="user-profile-image-box" onClick={onClickProfileImage}>
+                    {profileImage?.img_name ? (
+                        <img
+                        src={getImgDirSimple({
+                            kind: profileImage.img_kind,
+                            name: profileImage.img_name,
+                        })}
+                        alt="프로필"
+                        style={{
+                            width: "120px",
+                            height: "120px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            cursor: "pointer",
+                        }}
+                        />
+                    ) : (
+                        <div
+                        style={{
+                            width: "120px",
+                            height: "120px",
+                            borderRadius: "50%",
+                            border: "1px solid #ccc",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                        }}
+                        >
+                        사진 추가
+                        </div>
+                    )}
+                    </div>
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        onChange={onChangeProfileImage}
+                        />
+
+                    <p>
+                        <strong>id: </strong>
+                        <span>{user?.id}</span>
+                    </p>
+                    <p>
+                        <strong>이름: </strong>
+                        <span>{user?.name}</span>
+                    </p>
+                </div>
+                <button onClick={()=> setActiveMenu("edit")}>회원 정보</button>
+                <button onClick={()=> setActiveMenu("orders")}>배송 정보 확인</button>
+                <button onClick={() => setActiveMenu("wishlist")}>찜목록</button>
+                <button onClick={() => setActiveMenu("inquiries")}>문의 확인</button>
+                <button onClick={() => setActiveMenu("reviews")}>리뷰 확인</button>
+                <button onClick={() => setActiveMenu("delete")}>회원 탈퇴</button>
+            </aside>
+
+            <main className='user-mypage-content'>
+                {activeMenu === "edit" && (
+                    <UserProfilePage
+                        user={user}
+                        setUser={setUser}
+                        setLoginUser={setLoginUser}
+                    />
+                    )}
+
+                    {activeMenu === "orders" && <UserOrderPage user={user} />}
+                    {activeMenu === "wishlist" && <UserWishListPage user={user} />}
+                    {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
+                    {activeMenu === "reviews" && <UserReviewPage user={user} />}
+
+                    {activeMenu === "delete" && (
+                    <UserDeletePage
+                        user={user}
+                        setLoginUser={setLoginUser}
+                        setLoginInfo={setLoginInfo}
+                    />
+                    )}
+            </main>
+        </div>
+    );
+};
+
+export default UserMyPage;
