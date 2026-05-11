@@ -31,10 +31,17 @@ public class HomeController {
 	}
      
      @GetMapping("/search/total")
-     public Map<String, Object> searchTotal(@RequestParam String keyword) throws Exception{
+     public Map<String, Object> searchTotal(@RequestParam(defaultValue = "") String keyword) throws Exception{
     	 return homeService.searchTotal(keyword);
      }
-
+     
+     @GetMapping("/search/list")
+     public Map<String, Object> searchList(
+    		 @RequestParam(defaultValue = "all") String type,
+    		 @RequestParam(defaultValue = "") String keyword,
+    		 @RequestParam(defaultValue = "1") int pageNum) throws Exception {
+    	 return homeService.searchList(type,keyword,pageNum);
+     }
 }
 
 
