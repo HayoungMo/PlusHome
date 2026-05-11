@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
+import com.spring.home.dto.OptionsDTO;
 import com.spring.home.service.FurnitureService;
 import com.spring.home.service.ImageService;
 import com.spring.home.service.UserService;
@@ -97,14 +98,16 @@ public class FurnitureController {
 	public String insertData(@RequestPart("thumbnail") MultipartFile thumbnail,
 			@RequestPart(value = "infoFiles", required = false) List<MultipartFile> infoFiles,
 			@RequestPart(value = "othersFiles", required = false) List<MultipartFile> othersFiles, 
-			@RequestPart("dto") FurnitureDTO dto) throws Exception {
+			@RequestPart("dto") FurnitureDTO dto,
+			@RequestPart(value = "options", required = false) List<OptionsDTO> options) throws Exception {
 		
 		System.out.println(thumbnail);
 		System.out.println(infoFiles);
 		System.out.println(othersFiles);
 		System.out.println(dto);
+		System.out.println(options);
 
-		return furnitureService.insertData(dto, thumbnail, infoFiles, othersFiles);
+		return furnitureService.insertData(dto, thumbnail, infoFiles, othersFiles,options);
 
 	}
 

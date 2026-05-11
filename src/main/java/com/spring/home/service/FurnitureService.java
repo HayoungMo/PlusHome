@@ -11,6 +11,7 @@ import com.spring.home.dto.FileSaveResult;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
+import com.spring.home.dto.OptionsDTO;
 import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.util.FileUtilMethod;
 import com.spring.home.util.furnitureCode;
@@ -22,12 +23,14 @@ public class FurnitureService {
 	private FurnitureMapper furnitureMapper;
 	@Autowired
 	private ImageService imageService;
+	@Autowired
+	private OptionsService optionsService;
 	
 	public int countByFCode(String f_code) throws Exception {
 		return furnitureMapper.countByFCode(f_code);
 	}
 	
-	public String insertData(FurnitureDTO dto, MultipartFile thumbnail, List<MultipartFile> infoFiles, List<MultipartFile> othersFiles) throws Exception{
+	public String insertData(FurnitureDTO dto, MultipartFile thumbnail, List<MultipartFile> infoFiles, List<MultipartFile> othersFiles, List<OptionsDTO> options) throws Exception{
 		
 		String f_code = null;
 		
@@ -48,6 +51,15 @@ public class FurnitureService {
 		
 		furnitureMapper.insertData(dto);
 
+		if (options != null && !options.isEmpty()) {
+		    for (OptionsDTO option : options) {
+		        if (option == null) continue;
+
+		        option.setF_code(f_code);
+		        optionsService.insertData(option);
+		    }
+		}
+		
 		//이미지
 		List<MultipartFile> files = new ArrayList<>();
 		List<ImageDTO> dtoList = new ArrayList<>();

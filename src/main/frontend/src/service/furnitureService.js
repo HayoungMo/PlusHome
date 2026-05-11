@@ -13,7 +13,10 @@ const getFurniture = async ({ pageNum = 1, searchKey, searchValue } = {}) => {
 
 const insertFurniture = async (params) => {
 	try {
-		const { dto, thumbnail, infoFiles = [], othersFiles = [] } = params;
+		const { dto, thumbnail, infoFiles = [], othersFiles = [], 
+				options = []
+		 } = params;
+
 		const formData = new FormData();
 
 		formData.append("thumbnail", thumbnail);
@@ -31,6 +34,11 @@ const insertFurniture = async (params) => {
 
 		formData.append("dto", new Blob([JSON.stringify(dto)], { type: "application/json" }));
 
+		formData.append(
+			"options",
+			new Blob([JSON.stringify(options)], {type:"application/json"})
+		)
+		
 		const res = await fileHttp.post("/furniture/add", formData);
 		return res.data;
 	} catch (error) {

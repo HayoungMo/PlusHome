@@ -18,4 +18,9 @@ public interface OptionsMapper {
 	public void updateData(OptionsDTO dto) throws Exception;
 	
 	public void deleteData(String f_code) throws Exception;
+	
+	public void deleteOne(String o_code) throws Exception;
+	
+	public List<OptionsDTO> getListByFcode(String f_code) throws Exception;
+	
 }
