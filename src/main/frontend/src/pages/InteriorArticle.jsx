@@ -11,7 +11,7 @@ import Maps from "../maps/Maps";
 
 //테스트용 파일
 function InteriorArticle() {
-
+  const id = localStorage.getItem("id");
   const { naver } = window; 
   const location = useLocation();
   const company = location.state.company;
@@ -91,7 +91,7 @@ function InteriorArticle() {
           )
         : [...wishList, company];
 
-      localStorage.setItem("wishList", JSON.stringify(newWishList));
+      localStorage.setItem(`wishList_${id}`, JSON.stringify(newWishList));
     };    
     toggleWish(company);
   },[like]);

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TextFieldMui from "../components/TextFieldMui";
 import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
 import { useLocation, useNavigate } from "react-router-dom";
 import InteriorService from "../service/interiorService";
+import DialogMui from "../components/DialogMui";
 
 const InteriorReview = () => {
   const [sendList, setSendList] = useState([]);
@@ -21,17 +22,35 @@ const InteriorReview = () => {
     b_createdDate: invoice.b_createdDate,
   });
 
+   const [open, setOpen] = useState(false);
+
+   const handleOpen = () => {
+     setOpen(true);
+   };
+
+   const handleClose = () => {
+     setOpen(false);
+   };
+
   const handleBack = () => {
     navigate(-1);
   };
+
+  const didRun = useRef(false);
+
   useEffect(() => {
+    if (didRun.current) return;
+    didRun.current = true;
+
     const fetchReview = async () => {
       const data = await InteriorService.fetchInteriorReview(form);
-      if (data !== null) {
+
+      if (data.length !== 0) {
         alert("이미 작성한 리뷰가 있습니다.");
-        handleBack();
+        navigate("../interior/mypage");
       }
     };
+
     fetchReview();
   }, []);
 
@@ -42,13 +61,15 @@ const InteriorReview = () => {
     });
   };
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 🔥 페이지 새로고침 막기
+
     try {
       await InteriorUserService.AddInteriorReview(form);
 
       if (sendList.length > 0) {
         await ImageService.insertImage(sendList);
       }
+      handleBack();
+
     } catch (error) {
       console.error(error);
       alert("등록 중 오류가 발생했습니다.");
@@ -75,16 +96,38 @@ const InteriorReview = () => {
 
   return (
     <div>
-      <form name="article" onSubmit={handleSubmit}>
+      <form name="article">
         <div>
           <TextFieldMui
             name="ir_content"
             label="content"
             onChange={handleChange}
           />
-          <Button type="submit" variant="contained">
+          <Button onClick={handleOpen} variant="contained">
             제출
           </Button>
+          <DialogMui
+            open={open}
+            onClose={handleClose}
+            title="제출 확인"
+            text="정말 제출하시겠습니까?"
+            buttons={[
+              {
+                title: "취소",
+                color: "inherit",
+                onClick: handleClose,
+              },
+              {
+                title: "제출",
+                variant: "contained",
+                onClick: (e) => {
+                  console.log("제출");
+                  handleSubmit(e);
+                  handleClose();
+                },
+              },
+            ]}
+          />
         </div>
       </form>
       <p>이미지 업로드</p>

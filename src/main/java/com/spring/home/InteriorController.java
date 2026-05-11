@@ -86,9 +86,14 @@ public class InteriorController {
 		return interiorService.getInvoicedetails(dto);
 	}
 
-	@PostMapping("/interiorreview")
-	public List<InteriorReviewDTO> getInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
-		return interiorService.getInteriorReviews(dto);
+	@PostMapping("/userreview")
+	public List<InteriorReviewDTO> getUserInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
+		return interiorService.getUserInteriorReviews(dto);
+	}
+	
+	@PostMapping("/companyreview")
+	public List<InteriorReviewDTO> getCompanyInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
+		return interiorService.getCompanyInteriorReviews(dto);
 	}
 
 	@PostMapping("/add/interior")

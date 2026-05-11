@@ -4,10 +4,37 @@ import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
 import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
+import DialogMui from "./DialogMui";
 
 const InteriorExUpdate = ({ company }) => {
   const [sendList, setSendList] = useState([]);
   const [example, setExample] = useState([]);
+
+   const [open, setOpen] = useState(false);
+  
+    const handleOpen = () => {
+      setOpen(true);
+    };
+  
+    const handleClose = () => {
+      setOpen(false);
+    };
+  
+    const [open1, setOpen1] = useState(false);
+  
+    const handleOpen1 = () => {
+      setOpen1(true);
+    };
+  
+    const handleClose1 = () => {
+      setOpen1(false);
+    };
+  
+    const [reload, setReload] = useState(0);
+    
+      const refresh = () => {
+        setReload((prev) => prev + 1);
+      };
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
@@ -32,6 +59,7 @@ const InteriorExUpdate = ({ company }) => {
       tag2: item.ie_tag2,
       content: item.ie_content,
     });
+          refresh();
   }; 
 
   const handleDelete = async (e, item) => {
@@ -44,6 +72,11 @@ const InteriorExUpdate = ({ company }) => {
         tag: item.ie_tag,
         tag2: item.ie_tag2,
       });
+
+      item?.logo?.result
+        .filter((record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2)
+        .map((record, i) => imageDelete([record.img_originalName]));
+      refresh();
     };
 
   const imageUpload = async (e) => {
@@ -127,7 +160,7 @@ const InteriorExUpdate = ({ company }) => {
       setExample(listWithImages);
     };
     fetchExample();
-  }, []);
+  }, [reload]);
 
   return (
     <div>
@@ -213,8 +246,62 @@ const InteriorExUpdate = ({ company }) => {
                 value={item.ie_content}
                 onChange={(e) => handleChange(index, e)}
               />
-              <Button onClick={(e) => handleSubmit(e, item)}>제출</Button>
-              <Button onClick={(e) => handleDelete(e, item)}>삭제</Button>
+              <Button onClick={() => handleOpen()} variant="contained">
+                제출
+              </Button>
+              <DialogMui
+                open={open}
+                onClose={handleClose}
+                title="제출 확인"
+                text="정말 제출하시겠습니까?"
+                buttons={[
+                  {
+                    title: "취소",
+                    color: "inherit",
+                    onClick: handleClose,
+                  },
+                  {
+                    title: "제출",
+                    variant: "contained",
+                    onClick: (e) => {
+                      console.log("제출 실행");
+                      handleSubmit(e, item);
+                      handleClose();
+                    },
+                  },
+                ]}
+              />
+              <Button
+                onClick={(e) => {
+                  handleOpen1();
+                }}
+                variant="contained"
+              >
+                삭제
+              </Button>
+              <DialogMui
+                open={open1}
+                onClose={handleClose1}
+                title="삭제 확인"
+                text="정말 삭제하시겠습니까?"
+                buttons={[
+                  {
+                    title: "취소",
+                    color: "inherit",
+                    onClick: handleClose1,
+                  },
+                  {
+                    title: "삭제",
+                    color: "error",
+                    variant: "contained",
+                    onClick: (e) => {
+                      console.log("삭제 실행");
+                      handleDelete(e, item);
+                      handleClose1();
+                    },
+                  },
+                ]}
+              />
             </div>
           </form>
         </div>

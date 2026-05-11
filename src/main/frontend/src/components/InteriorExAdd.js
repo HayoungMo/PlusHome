@@ -4,10 +4,21 @@ import { Button } from '@mui/material';
 import InteriorService from '../service/interiorService';
 import ImageService from '../service/imageService';
 import SelectMui from './SelectMui';
+import DialogMui from './DialogMui';
 
 const InteriorExAdd = ({ company }) => {
   const [sendList2, setSendList2] = useState([]);
   const [sendList3, setSendList3] = useState([]);
+
+    const [open, setOpen] = useState(false);
+    
+      const handleOpen = () => {
+        setOpen(true);
+      };
+    
+      const handleClose = () => {
+        setOpen(false);
+      };
   const [form2, setForm2] = useState({
     c_id: company.c_id,
     c_kind: company.c_kind,
@@ -171,9 +182,33 @@ const InteriorExAdd = ({ company }) => {
             />
           )}
           {form2.tag && form2.tag2 && form2.content && (
-            <Button type="submit" variant="contained">
-              제출
-            </Button>
+            <div>
+              <Button onClick={() => handleOpen()} variant="contained">
+                제출
+              </Button>
+              <DialogMui
+                open={open}
+                onClose={handleClose}
+                title="제출 확인"
+                text="정말 제출하시겠습니까?"
+                buttons={[
+                  {
+                    title: "취소",
+                    color: "inherit",
+                    onClick: handleClose,
+                  },
+                  {
+                    title: "제출",
+                    variant: "contained",
+                    onClick: (e) => {
+                      console.log("제출 실행");
+                      handleSubmit2(e);
+                      handleClose();
+                    },
+                  },
+                ]}
+              />
+            </div>
           )}
         </div>
       </form>

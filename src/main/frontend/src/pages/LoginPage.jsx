@@ -92,10 +92,11 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
     //로그아웃
     const logout = () => {
+        localStorage.removeItem(`wishList_${loginUser}`);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         localStorage.removeItem("id");
-
+        
         setLoginUser(null);
         setLoginInfo(null);
 

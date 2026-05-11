@@ -88,8 +88,12 @@ public class InteriorService {
 		return interiorMapper.getCompany(dto);
 	};
 	
-	public List<InteriorReviewDTO> getInteriorReviews(InvoiceDTO dto) throws Exception {
-		return interiorMapper.getInteriorReviews(dto);
+	public List<InteriorReviewDTO> getUserInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
+		return interiorMapper.getUserInteriorReviews(dto);
+	}
+	
+	public List<InteriorReviewDTO> getCompanyInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
+		return interiorMapper.getCompanyInteriorReviews(dto);
 	}
 	
 	public void updateInterior(@RequestBody InteriorDTO dto) throws Exception {
