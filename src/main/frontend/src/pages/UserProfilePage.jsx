@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import UserPageService from '../service/UserPageService';
+import UserPageService from '../service/userPageService';
 
 const UserProfilePage = ({user, setUser, setLoginUser}) => {
     const [mode, setMode] = useState("view")

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {getImgDirSimple} from "../resources/function/GetImgDir"
-import UserPageService from "../service/UserPageService";
+import UserPageService from "../service/userPageService";
 import  Loading  from "./Loading"
 
 import UserProfilePage from './UserProfilePage';

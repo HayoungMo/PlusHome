@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DialogMui from "../components/DialogMui";
 import { Button } from "@mui/material";
-import UserPageService from "../service/UserPageService";
+import UserPageService from "../service/userPageService";
 import { useNavigate } from "react-router-dom";
 
 const UserDeletePage = ({ user,setLoginInfo,setLoginUser }) => {
