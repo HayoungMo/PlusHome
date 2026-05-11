@@ -191,7 +191,6 @@ public class UserService {
 
 	    ImageDTO imageDTO = new ImageDTO();
 	    imageDTO.setImg_kind("U_PROFILE");
-	    imageDTO.setImg_tag("PROFILE");
 	    imageDTO.setDir_d(id);
 
 	    ArrayList<MultipartFile> files = new ArrayList<>();
