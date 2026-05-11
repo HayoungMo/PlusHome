@@ -43,12 +43,17 @@ public class UserMyPageController {
 	private ImageService imageService;
 	
 	private String getTokenUserId(String authorization) {
-		if (authorization == null || !authorization.startsWith("Bearer ")) {
-			return null;
-		}
-		
-		String token = authorization.substring(7);
-		return jwtUtil.getId(token);
+	    if (authorization == null || !authorization.startsWith("Bearer ")) {
+	        return null;
+	    }
+
+	    try {
+	        String token = authorization.substring(7);
+	        return jwtUtil.getId(token);
+	    } catch (Exception e) {
+	        System.out.println("토큰 처리 오류: " + e.getMessage());
+	        return null;
+	    }
 	}
 	
 	@GetMapping("/profile-image")

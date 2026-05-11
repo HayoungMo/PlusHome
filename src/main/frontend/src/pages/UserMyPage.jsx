@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {getImgDirSimple} from "../resources/function/GetImgDir"
-import UserPageService from "../service/UserPageService";
+import UserPageService from "../service/userPageService";
 import  Loading  from "./Loading"
 
 import UserProfilePage from './UserProfilePage';
@@ -14,7 +14,7 @@ import UserDeletePage from './UserDeletePage';
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
     const fileInputRef = useRef(null)
-    const [user, setUser] = useState(loginUser)
+    const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [activeMenu, setActiveMenu] = useState("edit");
     const [profileImage, setProfileImage] = useState(null);
@@ -31,7 +31,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         UserPageService.getMyPageUser()
         .then((res)=> {
             setUser(res.data)
-            setLoginUser?.(res.data)
+            setLoginUser?.(res.data.id)
             localStorage.setItem("user", JSON.stringify(res.data))
         })
         .catch((error)=> {
@@ -42,7 +42,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             if (savedUser) {
             const parsedUser = JSON.parse(savedUser);
             setUser(parsedUser);
-            setLoginUser?.(parsedUser);
+            setLoginUser?.(parsedUser.id);
             }else{
                 alert("사용자 정보를 불러오지 못했습니다.")
                 navigate("/login")

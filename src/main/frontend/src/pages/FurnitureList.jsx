@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import FurnitureService from "../service/furnitureService";
+import LikeService from "../service/likeService";
 
 const FurnitureList = () => {
     const location = useLocation();
@@ -20,12 +21,35 @@ const FurnitureList = () => {
     const [endPage, setEndPage] = useState(1);
     const [prevPage, setPrevPage] = useState(1);
     const [nextPage, setNextPage] = useState(1);
+    const [likedMap, setLikedMap] = useState({});
 
     const pageCount = Math.max(0, endPage - startPage + 1);
 
     useEffect(() => {
         getList(pageNum);
     }, [pageNum, searchKey, searchValue]);
+
+    useEffect(()=>{
+        const token = localStorage.getItem("token")
+
+        if(!token || list.length === 0){
+            setLikedMap({})
+            return
+        }
+
+        list.forEach((item)=>{
+            LikeService.checkFurnitureLike(item.f_code)
+            .then((res)=>{
+                setLikedMap((prev)=>({
+                    ...prev,
+                    [item.f_code]: res.data?.liked || false
+                }))
+            })
+            .catch((error)=>{
+                console.error("찜 여부 확인 실패",error)
+            })
+        })
+    },[list])
 
     const getList = async (page = pageNum) => {
         try {
@@ -76,6 +100,31 @@ const FurnitureList = () => {
             alert("삭제 실패")
         }
     }
+
+    const onToggleLike = (evt, f_code) => {
+        evt.stopPropagation();
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        LikeService.toggleFurnitureLike(f_code)
+            .then((res) => {
+                setLikedMap((prev) => ({
+                    ...prev,
+                    [f_code]: res.data?.liked || false,
+                }));
+            })
+            .catch((error) => {
+                console.error("찜 처리 실패", error);
+                alert("찜 처리에 실패했습니다.");
+            });
+    };
+
+
     return (
         <div>
             <Link to="/">로고</Link><br />
@@ -152,6 +201,21 @@ const FurnitureList = () => {
                                     ? "무료배송"
                                     : `${deliveryPrice.toLocaleString()}원`}
                             </p>
+                            
+                            <button
+                                type="button"
+                                onClick={(evt) => onToggleLike(evt, item.f_code)}
+                                style={{
+                                    border: "1px solid #ddd",
+                                    background: likedMap[item.f_code] ? "#ffdddd" : "white",
+                                    color: likedMap[item.f_code] ? "red" : "black",
+                                    padding: "8px 12px",
+                                    cursor: "pointer",
+                                    marginRight: "6px"
+                                }}
+                            >
+                                {likedMap[item.f_code] ? "♥ 찜" : "♡ 찜"}
+                            </button>
 
                             <button
                                 onClick={(evt)=> {
