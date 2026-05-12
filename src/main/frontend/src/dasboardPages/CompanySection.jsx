@@ -1,22 +1,57 @@
-import React from "react";
+import React, { useState } from "react";
+import { Tabs, Tab, Box } from "@mui/material";
 import EmptyCompanyGuide from "./EmptyCompanyGuide";
 import TableMuiEditable from "../components/TableMuiEditable";
 
 const CompanySection = ({
-	type,
-	title,
-	onAddClick,
+	// type,
+	// title,
+	// onAddClick,
+	setCompanyAddInfo,
+	newCompanyInfo,
+	setNewCompanyInfo,
+	initCompanyInfo,
 	companyList = [],
 	columns = [],
 	onChange,
 	updateAvailable = true,
 	readOnlyColumns = [],
+	selectable = false,
+	selectedRows = [],
+	onSelectionChange,
+	getRowKey,
 }) => {
-	const filteredList = companyList.filter((company) => company.c_kind === type);
+	const [tabValue, setTabValue] = useState("shop");
+
+	// const filteredList = companyList.filter((company) => company.c_kind === type);
+	const filteredList = companyList.filter((row) => {
+		if (tabValue === "all") return true;
+		return row.c_kind === tabValue;
+	});
+
+	const handleTabChange = (event, newValue) => {
+		setTabValue(newValue);
+	};
+
+	const tabTitle = [
+		{ label: "전체", value: "all" },
+		{ label: "쇼핑몰", value: "shop" },
+		{ label: "인테리어", value: "interior" },
+	];
 
 	return (
 		<div style={{ marginTop: "24px" }}>
-			<h2>{title}</h2>
+			<Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+				<Tabs value={tabValue} onChange={handleTabChange}>
+					<Tab label="전체" value="all" />
+					<Tab label="쇼핑몰" value="shop" />
+					<Tab label="인테리어" value="interior" />
+				</Tabs>
+			</Box>
+
+			<h2>{tabTitle.filter((item) => item.value === tabValue)[0].label}</h2>
+
+			{/* <h2>{title}</h2> */}
 
 			{filteredList.length > 0 ? (
 				<TableMuiEditable
@@ -25,9 +60,19 @@ const CompanySection = ({
 					updateAvailable={updateAvailable}
 					readOnlyColumns={readOnlyColumns}
 					columns={columns}
+					selectable={selectable}
+					selectedRows={selectedRows}
+					onSelectionChange={onSelectionChange}
+					getRowKey={getRowKey}
 				/>
 			) : (
-				<EmptyCompanyGuide type={type} onClick={onAddClick} />
+				<EmptyCompanyGuide
+					type={tabValue}
+					onClick={() => {
+						setCompanyAddInfo({ open: true, type: tabValue });
+						setNewCompanyInfo({ ...initCompanyInfo, c_kind: tabValue });
+					}}
+				/>
 			)}
 		</div>
 	);

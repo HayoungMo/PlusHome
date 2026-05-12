@@ -146,4 +146,16 @@
 	              || '%'
 </select>
 
+<select id="getFurnitureByCompany" parameterType="com.spring.home.dto.FurnitureDTO" resultType="com.spring.home.dto.FurnitureDTO">
+	SELECT * FROM furniture
+	<where>
+		C_ID = #{c_id}
+		<if test="c_kind != null and c_name != null">
+			C_KIND = #{c_kind}
+			C_NAME = #{c_name}
+		</if>
+	</where>
+	ORDER BY f_createddate DESC
+</select>
+
 </mapper>

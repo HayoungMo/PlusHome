@@ -5,14 +5,16 @@ import ChatbotModal from '../components/ChatbotModal';
 import { Button } from '@mui/material';
 import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
+import InteriorService from '../service/interiorService';
 
 const MainHomePage = () => {
 
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
     const [chatOpen, setChatOpen] = useState(false);
+    const [interiorCompanies, setInteriorCompanies] = useState([]);
 
-    //백엔드 호출
+    //백엔드 호출 (가구, 인테리어 업체)
     useEffect(() => {
         axios.get("http://localhost:8080/api/main/best")
              .then((res) =>{
@@ -22,6 +24,16 @@ const MainHomePage = () => {
                 console.error("추천 가구 조회 실패했습니다:",err);
             });
         },[]);
+    
+    useEffect(() => {
+        InteriorService.fetchList()
+            .then((data) => {
+                setInteriorCompanies(Array.isArray(data) ? data.slice(0,4) : []);
+            })
+            .catch((err) => {
+                console.error("인테리어 업체 조회 실패:", err);
+            });
+    },[]);
 
     return (
         <div>
@@ -103,7 +115,7 @@ const MainHomePage = () => {
                                 {item.f_discount > 0 && (
                                     <span>할인 {item.f_discount}% </span>
                                 )}
-                                배송비 {Number(item.f_dprice || 0).toLocaleString()}원
+                                배송비 {Number(item.f_deliveryprice || 0).toLocaleString()}원
                             </p>
                             </div>
                         </Link>
@@ -112,30 +124,52 @@ const MainHomePage = () => {
             </section>
 
             {/* 추천 상품/ 업체 추천/ 할인 -> 알고리즘용 */}
-            <section
-                style={{
-                    marginTop: "36px",
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                    gap: "16px"
-                }}
-            >
-                <Link
-                    to="/interior/list/company"
-                    style={{ textDecoration: "none", color: "inherit" }}
+            <section style={{ marginTop: "36px" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "16px"
+                    }}
                 >
-                    <div
-                        style={{
-                            backgroundColor: "white",
-                            border: "1px solid #e5e1da",
-                            borderRadius: "8px",
-                            padding: "20px"
-                        }}
-                    >
-                        <h3>인테리어 업체 찾기</h3>
-                        <p>우리 집에 어울리는 인테리어 업체를 둘러보세요.</p>
-                    </div>
-                </Link>
+                    <h2 style={{ margin: 0 }}>추천 인테리어 업체</h2>
+                    <Link to="/interior/list/company">전체보기</Link>
+                </div>
+
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                        gap: "16px"
+                    }}
+                >
+                    {interiorCompanies.map((company) => (
+                        <Link
+                            key={`${company.c_id}-${company.c_kind}-${company.c_name}`}
+                            to="/interior/list/company"
+                            style={{
+                                color: "inherit",
+                                textDecoration: "none"
+                            }}
+                        >
+                            <div
+                                style={{
+                                    minHeight: "120px",
+                                    backgroundColor: "white",
+                                    border: "1px solid #e5e1da",
+                                    borderRadius: "8px",
+                                    padding: "16px",
+                                    boxSizing: "border-box"
+                                }}
+                            >
+                                <h3>{company.c_name}</h3>
+                                <p>{company.c_kind}</p>
+                                <p>{company.c_addr}</p>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
 
                 <Link
                     to="/interior/question"

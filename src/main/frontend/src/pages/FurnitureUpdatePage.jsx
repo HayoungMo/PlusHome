@@ -1,19 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import FurnitureService from "../service/furnitureService";
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { getImgDirSimple } from '../resources/function/GetImgDir';
+import OptionsService from "../service/optionService";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { getImgDirSimple } from "../resources/function/GetImgDir";
 
-const FurnitureUpdatePage = () => {
-
+const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
     const navigate = useNavigate();
-    const { f_code } = useParams();
+    const params = useParams();
+
+    const routeFCode = params.f_code;
+    const f_code = routeFCode || furniture?.f_code;
+
     const [searchParams] = useSearchParams();
-    const page = searchParams.get("page") || "1"
+    const page = searchParams.get("page") || "1";
+
+    const routeCName = params.c_name;
+    const c_name = routeCName || furniture?.c_name;
+
+    const localUserData = localStorage.getItem("user");
+    const userData = localUserData ? JSON.parse(localUserData) : {};
+    const { id } = userData;
 
     const [data, setData] = useState({
-        c_id: "testCompany",
+        c_id: id,
         c_kind: "shop",
-        c_name: "테스트업체",
+        c_name: c_name,
         f_name: "",
         f_price: "0",
         f_dprice: "0",
@@ -24,48 +35,59 @@ const FurnitureUpdatePage = () => {
         f_catagory5: "",
         f_discount: "0",
         f_point: "0",
-        f_count: "0"
+        f_count: "0",
     });
+
+    const [options, setOptions] = useState([]);
+    const [deletedOptions, setDeletedOptions] = useState([]);
 
     const [thumbnail, setThumbnail] = useState(null);
     const [infoFiles, setInfoFiles] = useState([]);
     const [othersFiles, setOthersFiles] = useState([]);
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
-    const [oldThumbnail, setOldThumbnail] = useState(null)
-    const [oldInfoImages, setOldInfoImages] = useState([])
-    const [oldOthersImages, setOldOthersImages] = useState([])
-    const [deletedImages, setDeletedImages] = useState([])
+    const [oldThumbnail, setOldThumbnail] = useState(null);
+    const [oldInfoImages, setOldInfoImages] = useState([]);
+    const [oldOthersImages, setOldOthersImages] = useState([]);
+    const [deletedImages, setDeletedImages] = useState([]);
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                const res = await FurnitureService.getFurnitureItem(f_code)
-                setData(res)
+                if (!f_code) return;
 
-                const imageList = res.imageList || []
+                const res = await FurnitureService.getFurnitureItem(f_code);
+                setData(res);
+
+                const optionRes = await OptionsService.getFurnitureOptions(f_code);
+                setOptions(
+                    (optionRes.data || []).map((option) => ({
+                        ...option,
+                        o_count: String(option.o_count || 0),
+                        o_price: String(option.o_price || 0),
+                        isNew: false,
+                    }))
+                );
+
+                const imageList = res.imageList || [];
 
                 const thumbnailImg = imageList.find(
-                    img=> img.img_tag === "THUMBNAIL")
-                
-                setOldThumbnail(thumbnailImg || null)
+                    (img) => img.img_tag === "THUMBNAIL"
+                );
 
-                if(thumbnailImg){
+                setOldThumbnail(thumbnailImg || null);
+
+                if (thumbnailImg) {
                     setThumbnailPreview(
                         getImgDirSimple({
                             kind: thumbnailImg.img_kind,
-                            name: thumbnailImg.img_name
+                            name: thumbnailImg.img_name,
                         })
                     );
                 }
 
-                setOldInfoImages(
-                    imageList.filter(img=> img.img_tag === "INFO")
-                )
-
-                setOldOthersImages(
-                    imageList.filter(img=> img.img_tag === "OTHERS")
-                )
+                setOldInfoImages(imageList.filter((img) => img.img_tag === "INFO"));
+                setOldOthersImages(imageList.filter((img) => img.img_tag === "OTHERS"));
             } catch (error) {
                 console.error(error);
                 alert("데이터 불러오기 실패");
@@ -80,13 +102,13 @@ const FurnitureUpdatePage = () => {
         const discount = Number(data.f_discount);
 
         const result =
-            (!isNaN(price) && !isNaN(discount))
-                ? Math.floor(price - (price * discount / 100))
+            !isNaN(price) && !isNaN(discount)
+                ? Math.floor(price - (price * discount) / 100)
                 : 0;
 
-        setData(prev => ({
+        setData((prev) => ({
             ...prev,
-            f_dprice: String(result)
+            f_dprice: String(result),
         }));
     }, [data.f_price, data.f_discount]);
 
@@ -98,86 +120,78 @@ const FurnitureUpdatePage = () => {
         setThumbnailPreview(URL.createObjectURL(file));
     };
 
-    const onChangeInfo = (evt) => {
-        const files = Array.from(evt.target.files);
-
-        oldInfoImages.forEach(img => {
-            addDeletedImage(img.img_name);
-        });
-
-        setOldInfoImages([]);
-
-        const mapped = files.map(file => ({
-            file,
-            preview: URL.createObjectURL(file)
-        }));
-
-        setInfoFiles(mapped);
-    };
-
-    const onChangeOthers = (evt) => {
-        const files = Array.from(evt.target.files);
-
-        oldOthersImages.forEach(img => {
-            addDeletedImage(img.img_name);
-        });
-
-        setOldOthersImages([]);
-
-        const mapped = files.map(file => ({
-            file,
-            preview: URL.createObjectURL(file)
-        }));
-
-        setOthersFiles(mapped);
-    };
-
     const addDeletedImage = (img_name) => {
-        setDeletedImages(prev => {
+        setDeletedImages((prev) => {
             if (prev.includes(img_name)) return prev;
             return [...prev, img_name];
         });
     };
 
+    const onChangeInfo = (evt) => {
+        const files = Array.from(evt.target.files);
+
+        oldInfoImages.forEach((img) => {
+            addDeletedImage(img.img_name);
+        });
+
+        setOldInfoImages([]);
+
+        setInfoFiles(
+            files.map((file) => ({
+                file,
+                preview: URL.createObjectURL(file),
+            }))
+        );
+    };
+
+    const onChangeOthers = (evt) => {
+        const files = Array.from(evt.target.files);
+
+        oldOthersImages.forEach((img) => {
+            addDeletedImage(img.img_name);
+        });
+
+        setOldOthersImages([]);
+
+        setOthersFiles(
+            files.map((file) => ({
+                file,
+                preview: URL.createObjectURL(file),
+            }))
+        );
+    };
+
     const onDeleteOldInfoImage = (img) => {
         addDeletedImage(img.img_name);
-
-        setOldInfoImages(prev =>
-            prev.filter(item => item.img_name !== img.img_name)
+        setOldInfoImages((prev) =>
+            prev.filter((item) => item.img_name !== img.img_name)
         );
     };
 
     const onDeleteOldOthersImage = (img) => {
         addDeletedImage(img.img_name);
-
-        setOldOthersImages(prev =>
-            prev.filter(item => item.img_name !== img.img_name)
+        setOldOthersImages((prev) =>
+            prev.filter((item) => item.img_name !== img.img_name)
         );
     };
 
     const changeInput = (evt) => {
         const { name, value } = evt.target;
 
-        const numberFields = [
-            "f_price",
-            "f_discount",
-            "f_point",
-            "f_count"
-        ];
+        const numberFields = ["f_price", "f_discount", "f_point"];
 
         if (numberFields.includes(name)) {
             let numStr = value.replace(/[^0-9]/g, "");
 
             if (numStr === "") {
-                setData(prev => ({
+                setData((prev) => ({
                     ...prev,
-                    [name]: ""
+                    [name]: "",
                 }));
                 return;
             }
 
             let num = Number(numStr);
-
             let updatedData = { ...data };
 
             if (name === "f_price") {
@@ -196,19 +210,63 @@ const FurnitureUpdatePage = () => {
                 updatedData.f_point = String(num);
             }
 
-            if (name === "f_count") {
-                if (num < 0) num = 0;
-                updatedData.f_count = String(num);
-            }
-
             setData(updatedData);
             return;
         }
 
-        setData(prev => ({
+        setData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
+    };
+
+    const changeOption = (index, evt) => {
+        const { name, value } = evt.target;
+
+        setOptions((prev) =>
+            prev.map((option, i) => {
+                if (i !== index) return option;
+
+                if (["o_count", "o_price"].includes(name)) {
+                    return {
+                        ...option,
+                        [name]: value.replace(/[^0-9]/g, ""),
+                    };
+                }
+
+                return {
+                    ...option,
+                    [name]: value,
+                };
+            })
+        );
+    };
+
+    const addOption = () => {
+        setOptions((prev) => [
+            ...prev,
+            {
+                o_select: "",
+                o_text: "",
+                o_count: "0",
+                o_price: "0",
+                o_important: "N",
+                isNew: true,
+            },
+        ]);
+    };
+
+    const removeOption = (index) => {
+        const target = options[index];
+
+        if (target?.o_code) {
+            setDeletedOptions((prev) => {
+                if (prev.includes(target.o_code)) return prev;
+                return [...prev, target.o_code];
+            });
+        }
+
+        setOptions((prev) => prev.filter((_, i) => i !== index));
     };
 
     const onUpdate = async () => {
@@ -218,6 +276,26 @@ const FurnitureUpdatePage = () => {
                 return;
             }
 
+            const optionList = options
+                .filter(
+                    (option) =>
+                        option.o_select.trim() !== "" || option.o_text.trim() !== ""
+                )
+                .map((option) => ({
+                    o_code: option.o_code,
+                    f_code,
+                    o_select: option.o_select,
+                    o_text: option.o_text,
+                    o_count: Number(option.o_count || 0),
+                    o_price: Number(option.o_price || 0),
+                    o_important: option.o_important,
+                }));
+
+            const totalOptionCount = optionList.reduce(
+                (sum, option) => sum + Number(option.o_count || 0),
+                0
+            );
+
             const dto = {
                 ...data,
                 f_code,
@@ -225,22 +303,28 @@ const FurnitureUpdatePage = () => {
                 f_dprice: Number(data.f_dprice),
                 f_discount: Number(data.f_discount),
                 f_point: Number(data.f_point),
-                f_count: Number(data.f_count)
+                f_count: totalOptionCount,
             };
 
             const sendData = {
                 dto,
                 thumbnail,
-                infoFiles: infoFiles.map(i => i.file),
-                othersFiles: othersFiles.map(i => i.file),
-                deletedImages
+                infoFiles: infoFiles.map((i) => i.file),
+                othersFiles: othersFiles.map((i) => i.file),
+                deletedImages,
+                options: optionList,
+                deletedOptions,
             };
 
             await FurnitureService.updateFurniture(sendData);
 
             alert("수정 완료");
-            navigate(`/furniture/article/${f_code}?page=${page}`);
 
+            if (onSuccess) {
+                await onSuccess();
+            } else {
+                navigate(`/furniture/article/${f_code}?page=${page}`);
+            }
         } catch (error) {
             console.error(error);
             alert("수정 실패");
@@ -276,7 +360,7 @@ const FurnitureUpdatePage = () => {
                 <img
                     src={getImgDirSimple({
                         kind: oldThumbnail.img_kind,
-                        name: oldThumbnail.img_name
+                        name: oldThumbnail.img_name,
                     })}
                     style={{ width: "150px", height: "150px", objectFit: "cover" }}
                     alt=""
@@ -301,7 +385,7 @@ const FurnitureUpdatePage = () => {
                         <img
                             src={getImgDirSimple({
                                 kind: img.img_kind,
-                                name: img.img_name
+                                name: img.img_name,
                             })}
                             style={{ width: "120px", height: "120px", objectFit: "cover" }}
                             alt=""
@@ -334,7 +418,7 @@ const FurnitureUpdatePage = () => {
                         <img
                             src={getImgDirSimple({
                                 kind: img.img_kind,
-                                name: img.img_name
+                                name: img.img_name,
                             })}
                             style={{ width: "120px", height: "120px", objectFit: "cover" }}
                             alt=""
@@ -360,35 +444,106 @@ const FurnitureUpdatePage = () => {
                 ))}
             </div>
 
-            <br /><br />
+            <br />
+            <br />
 
             <label>카테고리1:</label>
-            <input name="f_catagory1" value={data.f_catagory1} onChange={changeInput} />
+            <input name="f_catagory1" value={data.f_catagory1 || ""} onChange={changeInput} />
             <br />
 
             <label>카테고리2:</label>
-            <input name="f_catagory2" value={data.f_catagory2} onChange={changeInput} />
+            <input name="f_catagory2" value={data.f_catagory2 || ""} onChange={changeInput} />
             <br />
 
             <label>카테고리3:</label>
-            <input name="f_catagory3" value={data.f_catagory3} onChange={changeInput} />
+            <input name="f_catagory3" value={data.f_catagory3 || ""} onChange={changeInput} />
             <br />
 
             <label>카테고리4:</label>
-            <input name="f_catagory4" value={data.f_catagory4} onChange={changeInput} />
+            <input name="f_catagory4" value={data.f_catagory4 || ""} onChange={changeInput} />
             <br />
 
             <label>카테고리5:</label>
-            <input name="f_catagory5" value={data.f_catagory5} onChange={changeInput} />
+            <input name="f_catagory5" value={data.f_catagory5 || ""} onChange={changeInput} />
             <br />
 
             <label>포인트:</label>
             <input name="f_point" value={data.f_point} onChange={changeInput} />
             <br />
 
-            <label>수량:</label>
-            <input name="f_count" value={data.f_count} onChange={changeInput} />
-            <br />
+            <p>
+                전체 수량:{" "}
+                {options.reduce((sum, option) => sum + Number(option.o_count || 0), 0)}
+            </p>
+
+            <hr />
+
+            <h3>옵션 수정</h3>
+
+            {options.map((option, index) => (
+                <div
+                    key={option.o_code || index}
+                    style={{
+                        border: "1px solid #ddd",
+                        padding: "10px",
+                        marginBottom: "10px",
+                    }}
+                >
+                    <label>옵션명:</label>
+                    <input
+                        name="o_select"
+                        value={option.o_select}
+                        onChange={(evt) => changeOption(index, evt)}
+                        placeholder="예: 색상"
+                    />
+                    <br />
+
+                    <label>옵션값:</label>
+                    <input
+                        name="o_text"
+                        value={option.o_text}
+                        onChange={(evt) => changeOption(index, evt)}
+                        placeholder="예: 화이트"
+                    />
+                    <br />
+
+                    <label>옵션 재고:</label>
+                    <input
+                        name="o_count"
+                        value={option.o_count}
+                        onChange={(evt) => changeOption(index, evt)}
+                    />
+                    <br />
+
+                    <label>추가 금액:</label>
+                    <input
+                        name="o_price"
+                        value={option.o_price}
+                        onChange={(evt) => changeOption(index, evt)}
+                    />
+                    <br />
+
+                    <label>필수 옵션:</label>
+                    <select
+                        name="o_important"
+                        value={option.o_important}
+                        onChange={(evt) => changeOption(index, evt)}
+                    >
+                        <option value="Y">필수</option>
+                        <option value="N">선택</option>
+                    </select>
+
+                    <br />
+
+                    <button type="button" onClick={() => removeOption(index)}>
+                        옵션 삭제
+                    </button>
+                </div>
+            ))}
+
+            <button type="button" onClick={addOption}>
+                옵션 추가
+            </button>
 
             <br />
             <button onClick={onUpdate}>수정</button>

@@ -20,9 +20,18 @@ import "../css/Dashboard.css";
 const DashboardLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
 	const [activeMenu, setActiveMenu] = useState("userInfo");
-	const localUserData = localStorage.getItem("user");
-	const userData = JSON.parse(localUserData);
+
+	const getUserDataFromLocalStorage = () => {
+		const localUserData = localStorage.getItem("user");
+		return localUserData ? JSON.parse(localUserData) : {};
+	};
+	const [userData, setUserData] = useState(getUserDataFromLocalStorage);
+
 	const { companyList = [] } = userData;
+
+	const refreshUserData = () => {
+		setUserData(getUserDataFromLocalStorage());
+	};
 
 	const interior = companyList.filter((data) => data.c_kind === "interior");
 	const hasInterior = interior.length > 0;
@@ -44,6 +53,7 @@ const DashboardLayout = () => {
 					<CompanyInfo
 						companyAddInfo={companyAddInfo}
 						setCompanyAddInfo={setCompanyAddInfo}
+						refreshUserData={refreshUserData}
 					/>
 				),
 			},
@@ -111,9 +121,13 @@ const DashboardLayout = () => {
 	};
 
 	if (activeTab === "shop" && !hasShoppingMall) {
-		currentContent = <EmptyCompanyGuide onClick={() => moveToCompanyAddPage("shop")} type="shop" />;
+		currentContent = (
+			<EmptyCompanyGuide onClick={() => moveToCompanyAddPage("shop")} type="shop" />
+		);
 	} else if (activeTab === "interior" && !hasInterior) {
-		currentContent = <EmptyCompanyGuide onClick={() => moveToCompanyAddPage("interior")} type="interior" />;
+		currentContent = (
+			<EmptyCompanyGuide onClick={() => moveToCompanyAddPage("interior")} type="interior" />
+		);
 	} else {
 		currentContent = currentMenus.find((menu) => menu.key === activeMenu)?.component || null;
 	}

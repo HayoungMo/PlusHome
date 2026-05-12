@@ -30,4 +30,6 @@ public interface FurnitureMapper {
 	
 	public int countSearchData(@Param("searchKey") String searchKey, 
 			@Param("searchValue") String searchValue);
+
+	public List<FurnitureDTO> getFurnitureByCompany(FurnitureDTO dto) throws Exception;
 }

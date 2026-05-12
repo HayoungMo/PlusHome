@@ -127,7 +127,6 @@ const FurnitureList = () => {
 
     return (
         <div>
-            <Link to="/">로고</Link><br />
             <h3><a href="/furniture/list">가구 목록</a></h3>
 
             <button onClick={onAddPage}>가구 추가</button>
@@ -152,6 +151,20 @@ const FurnitureList = () => {
 
             <br /><br />
 
+            {list.length === 0? (
+            <div
+                style={{
+                    padding: "40px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    marginTop: "20px"
+                }}
+            >
+                가구 목록을 불러올 수 없습니다
+            </div>   
+
+            ):(
+            <>
             <div style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
@@ -276,9 +289,13 @@ const FurnitureList = () => {
                 >
                     다음 ▶
                 </a>
-
+                    
             </div>
+        </>
+        )}
+        
         </div>
+
     );
 };
 

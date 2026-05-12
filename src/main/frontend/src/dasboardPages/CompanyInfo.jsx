@@ -3,7 +3,7 @@ import TextFieldMui from "../components/TextFieldMui";
 import SwitchMui from "./../components/SwitchMui";
 import { Button } from "@mui/material";
 import RadioMui from "../components/RadioMui";
-import CompanyService from "../service/CompanyService";
+import CompanyService from "../service/companyService";
 import TableMui from "./../components/TableMui";
 import TableMuiEditable from "../components/TableMuiEditable";
 import AlertMui from "../components/AlertMui";
@@ -33,7 +33,7 @@ const CompanyInfo = (props) => {
 
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
 
-	const { companyAddInfo, setCompanyAddInfo } = props;
+	const { companyAddInfo, setCompanyAddInfo, refreshUserData } = props;
 
 	const companyAdd = companyAddInfo.open;
 
@@ -41,10 +41,12 @@ const CompanyInfo = (props) => {
 
 	const [companyStateList, setCompanyStateList] = useState([]);
 	const [editedCompanyList, setEditedCompanyList] = useState([]);
+	const [selectedCompanyKeys, setSelectedCompanyKeys] = useState([]);
 
 	const [newCompanyInfo, setNewCompanyInfo] = useState(initCompanyInfo);
 
 	const [alertOpen, setAlertOpen] = useState(false);
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const onChangeNewCompanyInfo = (e) => {
@@ -62,11 +64,32 @@ const CompanyInfo = (props) => {
 	];
 
 	const onClickAddNewCompany = async (e) => {
-		console.log(e);
-		console.log(newCompanyInfo);
-		await CompanyService.insertImage(newCompanyInfo).then((res) => {
-			reloadDataFunc();
-		});
+		try {
+			const res = await CompanyService.insertCompany(newCompanyInfo);
+			await reloadDataFunc();
+			setCompanyAddInfo({
+				open: false,
+				type: newCompanyInfo.c_kind,
+			});
+
+			setNewCompanyInfo(initCompanyInfo);
+
+			setAlertInfo({
+				severity: "success",
+				title: "등록 성공",
+				text: "업체 정보가 등록되었습니다.",
+			});
+
+			setAlertOpen(!alertOpen);
+		} catch (error) {
+			setAlertInfo({
+				severity: "error",
+				title: "등록 실패",
+				text: String(error),
+			});
+
+			setAlertOpen(!alertOpen);
+		}
 	};
 
 	const reloadDataFunc = async () => {
@@ -88,7 +111,7 @@ const CompanyInfo = (props) => {
 				if (token) {
 					localStorage.setItem("token", token);
 				}
-
+				refreshUserData?.();
 				setCompanyStateList(serverCompanyList);
 
 				setEditedCompanyList((prevEditedList) => {
@@ -125,11 +148,49 @@ const CompanyInfo = (props) => {
 			}
 			console.log(result);
 		} catch (error) {
+			setAlertInfo({
+				severity: "error",
+				title: "에러 발생",
+				text: error,
+			});
 			console.log(error);
 		}
 		reloadDataFunc();
 
 		setConfirmOpen(!confirmOpen);
+		setAlertOpen(!alertOpen);
+	};
+
+	const handleRowDeleteInTable = async () => {
+		const selectedCompanyList = editedCompanyList.filter((row) =>
+			selectedCompanyKeys.includes(makeCompanyKey(row)),
+		);
+		try {
+			const result = await CompanyService.deleteCompany(selectedCompanyList);
+			if (result.success) {
+				setAlertInfo({
+					severity: "success",
+					title: "삭제 성공",
+					text: result.message,
+				});
+			} else {
+				setAlertInfo({
+					severity: "error",
+					title: "삭제 실패",
+					text: result.message,
+				});
+			}
+			console.log(result);
+		} catch (error) {
+			setAlertInfo({
+				severity: "error",
+				title: "에러 발생",
+				text: error,
+			});
+			console.log(error);
+		}
+		reloadDataFunc();
+		setDeleteConfirmOpen(!deleteConfirmOpen);
 		setAlertOpen(!alertOpen);
 	};
 
@@ -204,6 +265,21 @@ const CompanyInfo = (props) => {
 		},
 	];
 
+	const dialogDeleteConfirmButtonList = [
+		{
+			title: "Cancel",
+			color: "error",
+			variant: "outlined",
+			onClick: () => setDeleteConfirmOpen(!deleteConfirmOpen),
+		},
+		{
+			title: "Save",
+			color: "primary",
+			variant: "outlined",
+			onClick: () => handleRowDeleteInTable(),
+		},
+	];
+
 	useEffect(() => {
 		reloadDataFunc();
 	}, [id]);
@@ -216,6 +292,14 @@ const CompanyInfo = (props) => {
 			});
 		}
 	}, [companyAddInfo]);
+
+	useEffect(() => {}, [selectedCompanyKeys]);
+
+	useEffect(() => {
+		const currentKeys = editedCompanyList.map((row) => makeCompanyKey(row));
+
+		setSelectedCompanyKeys((prevKeys) => prevKeys.filter((key) => currentKeys.includes(key)));
+	}, [editedCompanyList]);
 
 	return (
 		<div>
@@ -233,17 +317,37 @@ const CompanyInfo = (props) => {
 					onChange={() => setCompanyUpdate(!companyUpdate)}
 				/>
 				{companyUpdate && (
-					<Button
-						color="secondary"
-						variant="outlined"
-						onClick={() => setConfirmOpen(!confirmOpen)}>
-						Save
-					</Button>
+					<>
+						<Button
+							color="secondary"
+							variant="outlined"
+							onClick={() => setConfirmOpen(!confirmOpen)}>
+							Save
+						</Button>
+						<Button
+							color="error"
+							variant="contained"
+							onClick={() => {
+								const selectedCompanyList = editedCompanyList.filter((row) =>
+									selectedCompanyKeys.includes(makeCompanyKey(row)),
+								);
+								if (selectedCompanyList.length === 0) {
+									setAlertInfo({
+										severity: "error",
+										title: "오류",
+										text: "선택된 데이터가 없습니다",
+									});
+									setAlertOpen(!alertOpen);
+								} else setDeleteConfirmOpen(!deleteConfirmOpen);
+							}}>
+							Delete
+						</Button>
+					</>
 				)}
 			</div>
 			{/* <TableMuiEditable rowData={editedCompanyList} onChange={tableMuiEditableOnChange} updateAvailable={companyUpdate} readOnlyColumns={["c_id", "c_name", "c_kind"]}/> */}
 
-			<CompanySection
+			{/* <CompanySection
 				type="shop"
 				title="쇼핑몰 업체"
 				onAddClick={() => {
@@ -254,19 +358,31 @@ const CompanyInfo = (props) => {
 				onChange={tableMuiEditableOnChange}
 				updateAvailable={companyUpdate}
 				readOnlyColumns={["c_id", "c_name", "c_kind"]}
-			/>
+				selectable={true}
+				selectedRows={selectedCompanyKeys}
+				onSelectionChange={setSelectedCompanyKeys}
+				getRowKey={makeCompanyKey}
+			/> */}
 
 			<CompanySection
-				type="interior"
-				title="인테리어 업체"
-				onAddClick={() => {
-					setCompanyAddInfo({ open: true, type: "interior" });
-					setNewCompanyInfo({ ...initCompanyInfo, c_kind: "interior" });
-				}}
+				// type="interior"
+				// title="인테리어 업체"
+				// onAddClick={() => {
+				// 	setCompanyAddInfo({ open: true, type: "interior" });
+				// 	setNewCompanyInfo({ ...initCompanyInfo, c_kind: "interior" });
+				// }}
+				setCompanyAddInfo={setCompanyAddInfo}
+				newCompanyInfo={newCompanyInfo}
+				setNewCompanyInfo={setNewCompanyInfo}
+				initCompanyInfo={initCompanyInfo}
 				companyList={editedCompanyList}
 				onChange={tableMuiEditableOnChange}
 				updateAvailable={companyUpdate}
 				readOnlyColumns={["c_id", "c_name", "c_kind"]}
+				selectable={true}
+				selectedRows={selectedCompanyKeys}
+				onSelectionChange={setSelectedCompanyKeys}
+				getRowKey={makeCompanyKey}
 			/>
 
 			{companyAdd && (
@@ -346,6 +462,15 @@ const CompanyInfo = (props) => {
 					title="Save changes?"
 					text="Unsaved changes will be lost. Save now"
 					buttons={dialogConfirmButtonList}
+				/>
+			)}
+			{deleteConfirmOpen && (
+				<DialogMui
+					open={deleteConfirmOpen}
+					onClose={() => setDeleteConfirmOpen(!deleteConfirmOpen)}
+					title="Data delete?"
+					text="Are you sure? Once deleted, this data cannot be recovered."
+					buttons={dialogDeleteConfirmButtonList}
 				/>
 			)}
 			{alertOpen && (

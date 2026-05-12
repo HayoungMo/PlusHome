@@ -28,8 +28,8 @@ const SearchPage = () => {
     
     //페이징 처리
     //const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 9; //한페이지에 6개씩
-    const previewCount = 4;
+    const itemsPerPage = 9; //한페이지에 9개씩
+    const previewCount = 3;
 
     const onClickTab = (nextType) => {
         setSearchParams({

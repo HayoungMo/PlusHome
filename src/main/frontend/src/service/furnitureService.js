@@ -13,7 +13,10 @@ const getFurniture = async ({ pageNum = 1, searchKey, searchValue } = {}) => {
 
 const insertFurniture = async (params) => {
 	try {
-		const { dto, thumbnail, infoFiles = [], othersFiles = [] } = params;
+		const { dto, thumbnail, infoFiles = [], othersFiles = [], 
+				options = []
+		 } = params;
+
 		const formData = new FormData();
 
 		formData.append("thumbnail", thumbnail);
@@ -31,6 +34,11 @@ const insertFurniture = async (params) => {
 
 		formData.append("dto", new Blob([JSON.stringify(dto)], { type: "application/json" }));
 
+		formData.append(
+			"options",
+			new Blob([JSON.stringify(options)], {type:"application/json"})
+		)
+		
 		const res = await fileHttp.post("/furniture/add", formData);
 		return res.data;
 	} catch (error) {
@@ -45,7 +53,9 @@ const updateFurniture = async (params) => {
 			thumbnail,
 			infoFiles = [],
 			othersFiles = [],
-			deletedImages = []
+			deletedImages = [],
+			options = [],
+			deletedOptions = [] 
 		} = params;
 
 		const formData = new FormData();
@@ -71,6 +81,16 @@ const updateFurniture = async (params) => {
 			new Blob([JSON.stringify(dto)], { type: "application/json" })
 		);
  
+		formData.append(
+			"options",
+			new Blob([JSON.stringify(options)], {type: "application/json"})
+		)
+
+		formData.append(
+			"deletedOptions",
+			new Blob([JSON.stringify(deletedOptions)], {type: "application/json"})
+		)
+		
 		if (deletedImages.length > 0) {
 			deletedImages.forEach((name) => {
 				formData.append("deletedImages", name);
@@ -79,7 +99,6 @@ const updateFurniture = async (params) => {
 
 		const res = await fileHttp.post("/furniture/update", formData);
 		return res.data;
-
 	} catch (error) {
 		console.log(error);
 	}
@@ -100,18 +119,37 @@ const getFurnitureItem = async (f_code) => {
 };
 
 const deleteFurniture = async (f_code) => {
-	const res= await http.get(`/furniture/delete?f_code=${f_code}`);
+	const res = await http.get(`/furniture/delete?f_code=${f_code}`);
 	return res.data;
-}
+};
 
+const increaseView = async (f_code) => {
+	if (!f_code) return;
 
-const increaseView = async (f_code) =>{
-	if(!f_code) return;
+	await http.get(`/furniture/viewCount?F_code`, {
+		params: { f_code },
+	});
+};
 
-	await http.get(`/furniture/viewCount?F_code`,{
-		params: {f_code}
-	})
-}
+const getFurnitureByUserId = async (id) => {
+	try {
+		console.log(id);
+		const result = await http.post("furniture/getFurnitureByUserId", { c_id: id });
+		return result.data;
+	} catch (error) {
+		return error;
+	}
+};
+
+const deleteFurnitureOnDashboard = async (id) => {
+	try {
+		console.log(id);
+		const result = await http.post("furniture/deleteFurnitureOnDashboard", { f_code: id });
+		return result.data;
+	} catch (error) {
+		return error;
+	}
+};
 
 const FurnitureService = {
 	getFurniture,
@@ -119,7 +157,9 @@ const FurnitureService = {
 	getFurnitureItem,
 	deleteFurniture,
 	updateFurniture,
-	increaseView
+	increaseView,
+	getFurnitureByUserId,
+	deleteFurnitureOnDashboard,
 };
 
 export default FurnitureService;

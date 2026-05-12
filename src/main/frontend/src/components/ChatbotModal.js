@@ -173,9 +173,23 @@ const ChatbotModal = ({ onClose }) => {
         setStep(step + 1);
     };
     
+    const furnitureKeywordMap = {
+        living_room: "소파", //더미데이터로 언더바 사용중
+        bedroom: "침대",
+        kitchen: "식탁", 
+        study_room: "책상",
+        simple: "심플",
+        modern: "모던",
+        vintage: "빈티지",
+        antique: "앤틱",
+        natural: "원목",
+    };
+
     //가구 추천 완료 후 검색으로 보내는 함수
     const goFurnitureSearch = () => {
-        const keyword = answers.space || answers.style;
+        const keyword = 
+            furnitureKeywordMap[answers.space] 
+            || furnitureKeywordMap[answers.style];
 
         if(!keyword) {
             alert("추천 검색어가 없습니다");

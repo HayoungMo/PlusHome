@@ -1,6 +1,6 @@
 import http, { fileHttp } from "../http-common";
 
-const insertImage = async (dto) => {
+const insertCompany = async (dto) => {
 	try {
 		console.log(dto);
 		await http.post("/company/add", dto).then((res) => {
@@ -34,6 +34,16 @@ const updateCompany = async (dtoList) => {
 	}
 };
 
-const CompanyService = { insertImage, reloadUserData, updateCompany };
+const deleteCompany = async (dtoList) => {
+	try {
+		const result = await http.post("/company/delete", dtoList);
+		return result.data;
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
+};
+
+const CompanyService = { insertCompany, reloadUserData, updateCompany, deleteCompany };
 
 export default CompanyService;
