@@ -10,11 +10,11 @@ const IMAGE_MATCH_RULES = {
 		dir_d: "id",
 	},
 	F_REVIEW: {
-		dir_a: "f_id",
+		dir_a: "f_code",
 		dir_d: "id",
 	},
 	QUESTION: {
-		dir_a: "f_id",
+		dir_a: "f_code",
 		dir_d: "id",
 	},
 	BOARD: {
@@ -27,7 +27,7 @@ const IMAGE_MATCH_RULES = {
 		dir_d: "logo",
 	},
 	FURNITURE: {
-		dir_a: "f_id",
+		dir_a: "f_code",
 	},
 	I_EXAMPLE: {
 		dir_a: "com_id",
@@ -36,7 +36,7 @@ const IMAGE_MATCH_RULES = {
 		dir_d: "tag",
 	},
 	QA: {
-		dir_a: "f_id",
+		dir_a: "f_code",
 		dir_d: "id",
 	},
 	C_PROFILE: {

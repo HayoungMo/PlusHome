@@ -67,4 +67,10 @@
 	</where>
 </update>
 
+<delete id="deleteCompanyOne" parameterType="com.spring.home.dto.CompanyDTO">
+	DELETE company
+	WHERE  c_id = #{c_id}
+       AND c_name = #{c_name}
+       AND c_kind = #{c_kind} 
+</delete>
 </mapper>

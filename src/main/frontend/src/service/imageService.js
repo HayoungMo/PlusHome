@@ -1,6 +1,7 @@
 import http, { fileHttp } from "../http-common";
 
 const runGetImage = async (object, type) => {
+	console.log("ImageService ==================== [ runGetImage ]")
 	try {
 		let result;
 		let apiURL = `/image/get${type.charAt(0).toUpperCase()}${type.slice(1)}`;

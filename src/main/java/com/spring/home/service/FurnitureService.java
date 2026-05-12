@@ -309,4 +309,8 @@ public class FurnitureService {
 	public int countSearchData(String searchKey, String searchValue) {
 		return furnitureMapper.countSearchData(searchKey, searchValue);
 	}
+
+	public List<FurnitureDTO> getFurnitureByCompany(FurnitureDTO dto) throws Exception {
+		return furnitureMapper.getFurnitureByCompany(dto);
+	}
 }

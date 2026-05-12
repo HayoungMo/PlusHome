@@ -3,6 +3,11 @@ import { Button } from "@mui/material";
 
 const EmptyCompanyGuide = ({ type, onClick }) => {
 	const textMap = {
+		all: {
+			title: "등록된 사업체가 없습니다.",
+			desc: "원활한 PlusHome 이용을 위해 업체 정보를 입력 해 주세요.",
+			button: "등록하기",
+		},
 		shop: {
 			title: "등록된 쇼핑몰 업체가 없습니다.",
 			desc: "쇼핑몰 관리 기능을 사용하려면 먼저 쇼핑몰 정보를 등록해주세요.",

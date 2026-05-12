@@ -10,10 +10,6 @@ const GetImgDir = async (props = {}) => {
 	}
 	const { kind, view = false, returnType, a, b, c, d, e, idx = -1, tag, orgList = null } = props;
 
-	console.log("받은데이터 : ");
-	console.log(props);
-	
-
 	const requiredFields = ["kind", "returnType"];
 	for (const field of requiredFields) {
 		if (!props[field]) {
@@ -53,13 +49,38 @@ const GetImgDir = async (props = {}) => {
 	}
 	const result = SetImageInList({ kind, orgList, view, imgData });
 
-
 	return { error: null, result: result };
 };
 
 export const getImgDirSimple = (props) => {
 	const { kind, name } = props;
 	return baseDIR + "/" + kind + "/" + name;
+};
+
+// export const getImgFurnitureThumbnail = (props) => {
+// 	const { f_code } = props;
+// };
+
+export const getImgFurnitureList = async (furnitureList = []) => {
+	const prm = furnitureList.map(async (record) => {
+		const img = await ImageService.runGetImage({ kind: "FURNITURE", a: record.f_code }, "list");
+		return { ...record, imageList: img };
+	});
+
+	const beforeMakeDir = await Promise.all(prm);
+
+	const nowMakingDirInThisList = beforeMakeDir.map((record) => {
+		const thisGotRealDir = record.imageList.map((imgData) => {
+			return { ...imgData, img_src: `${baseDIR}/${imgData.img_kind}/${imgData.img_name}` };
+		});
+		return {
+			...record,
+			imageList: thisGotRealDir,
+			thumbnail: thisGotRealDir.filter((thumb) => thumb.img_tag === "THUMBNAIL")[0].img_src,
+		};
+	});
+
+	return nowMakingDirInThisList;
 };
 
 export default GetImgDir;
