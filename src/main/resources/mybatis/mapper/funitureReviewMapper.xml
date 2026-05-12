@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.FurnitureReviewMapper">
+
+<!-- 입력 -->
+<insert id="insertData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
+	insert into f_review
+	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content)
+	values 
+	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content})	            
+</insert>
+
+<update id="updateData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
+	update f_review
+	set
+		fr_subject = #{fr_subject},
+		fr_star = #{fr_star},
+		fr_content = #{fr_content}
+	where
+		id = #{id}
+		and f_code = #{f_code}
+</update>
+
+<select id="getLists" parameterType="com.spring.home.dto.FurnitureReviewDTO"
+        resultType="com.spring.home.dto.FurnitureReviewDTO">
+	select
+		id,
+		f_code,
+		fr_subject,
+		fr_star,
+		fr_createdDate,
+		fr_content
+	from
+		f_review
+	where
+	<if test="id != null and id != ''">
+		id = #{id}
+	</if>
+
+	<if test="f_code != null and f_code != ''">
+		and f_code = #{f_code}
+	</if>
+</select>
+
+<delete id="deleteData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
+	delete from f_review
+	where
+		id = #{id}
+		and f_code = #{f_code}
+</delete>
+
+</mapper>

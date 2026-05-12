@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import FurnitureService from "../service/furnitureService";
 import { useNavigate, useParams } from "react-router-dom";
 
-const FurnitureAddPage = ({ cName = null, onSuccess }) => {
+const FurnitureAddPage = ({ cName = "가구점1", onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
@@ -12,21 +12,21 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 	const c_name = routeCName || cName;
 
 	const [data, setData] = useState({
-		c_id: id,
-		c_kind: "shop",
-		c_name: c_name,
-		f_name: "",
-		f_price: "0",
-		f_dprice: "0",
-		f_catagory1: "",
-		f_catagory2: "",
-		f_catagory3: "",
-		f_catagory4: "",
-		f_catagory5: "",
-		f_discount: "0",
-		f_point: "0",
-		f_count: "0",
-	});
+    c_id: id,
+    c_kind: "shop",
+    c_name: "가구점1",
+    f_name: "",
+    f_price: "0",
+    f_dprice: "0",
+    f_catagory1: "",
+    f_catagory2: "",
+    f_catagory3: "",
+    f_catagory4: "",
+    f_catagory5: "",
+    f_discount: "0",
+    f_point: "0",
+    f_count: "0",
+  });
 
 	const [options, setOptions] = useState([
         {

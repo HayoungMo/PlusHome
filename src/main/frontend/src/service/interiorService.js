@@ -168,7 +168,9 @@ const AddInterior = async (data) => {
       i_text : data.text
     });
 
-    console.log("결과:");
+        return {
+          success: true,
+        };
   } catch (err) {
     console.error(err);
   }
@@ -185,7 +187,10 @@ const AddInteriorExample = async (data) => {
       ie_content: data.content,
     });
 
-    console.log("결과:");
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error(data, err);
   }
@@ -206,8 +211,10 @@ const AddBooking = async (data) => {
       b_answer: data.answers,
     });
 
-    console.log("결과:");
-    return res.data
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error(err);
   }
@@ -227,7 +234,10 @@ const AddInvoice = async (data) => {
       details: data.details,
     });
 
-    console.log("결과: 좋음");
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error(err);
   }
@@ -247,7 +257,10 @@ const AddInvoiceDetail = async (data) => {
       invoice_price: data.invoice_price
     });
 
-    console.log("결과: 좋음");
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error(err);
   }
@@ -266,7 +279,10 @@ const UpdateInterior = async (data) => {
     });
 
     console.log("수정 결과:", res.data);
-    return res.data;
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error("수정 에러:", err);
   }
@@ -284,7 +300,10 @@ const UpdateInteriorExample = async (data) => {
     });
 
     console.log("수정 결과:", res.data);
-    return res.data;
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error("수정 에러:", err);
   }
@@ -308,7 +327,10 @@ const UpdateBooking = async (data) => {
     });
 
     console.log("예약 수정 결과:", res.data);
-    return res.data;
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error("예약 수정 에러:", err);
   }
@@ -322,7 +344,10 @@ const DeleteInterior = async (data) => {
       c_name: data.c_name,
       i_tag: data.tag,
     });
-
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error("삭제 에러:", err);
   }
@@ -339,7 +364,10 @@ const DeleteInteriorExample = async (data) => {
     });
 
     console.log("수정 결과:", res.data);
-    return res.data;
+        return {
+          success: true,
+          data: res.data,
+        };
   } catch (err) {
     console.error("수정 에러:", err);
   }

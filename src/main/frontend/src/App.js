@@ -40,6 +40,7 @@ import FreeBoardWritePage from "./pages/FreeBoardWritePage";
 import FreeBoardArticlePage from "./pages/FreeBoardArticlePage";
 import FreeBoardEditPage from "./pages/FreeBoardEditPage";
 import UserMyPage from "./pages/UserMyPage";
+import FurnitureAddReview from "./pages/FurnitureAddReview";
 
 
 function App() {
@@ -91,6 +92,7 @@ function App() {
         <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
         <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
         <Route path="/furniture/update/:f_code" element={<FurnitureUpdatePage />} />
+        <Route path="/furniture/review/:f_code" element={<FurnitureAddReview />} />
 
         {/* 인테리어 */}
         <Route path="/interior/list/company" element={<InteriorLists />} />

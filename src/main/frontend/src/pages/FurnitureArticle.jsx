@@ -144,6 +144,10 @@ const FurnitureArticle = () => {
         navigate(`/furniture/update/${f_code}?page=${page}`)
     }
 
+    const onReview = () => {
+      navigate(`/furniture/review/${f_code}`);
+    };
+
     const onDelete = async (f_code) => {
         try{
             await FurnitureService.deleteFurniture(f_code)
@@ -161,6 +165,7 @@ const FurnitureArticle = () => {
 
             <button onClick={()=> onUpdate(f_code)}>수정</button>
             <button onClick={()=> onDelete(f_code)}>삭제</button>
+            <button onClick={()=> onReview(f_code)}>리뷰등록</button>
             <button onClick={onBack}>list로 돌아가기</button>
 
             

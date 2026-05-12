@@ -11,7 +11,7 @@ public interface FurnitureReviewMapper {
 
 	public void insertData(FurnitureReviewDTO dto) throws Exception;
 	
-	public List<FurnitureReviewDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
+	public List<FurnitureReviewDTO> getLists() throws Exception;
 	
 	public FurnitureReviewDTO getReadDataById(String id) throws Exception;
 	

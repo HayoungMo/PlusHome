@@ -4,7 +4,7 @@ const fetchBookingList = async (id) => {
   console.log("유저 예약 목록");
   try {
     const res = await http.post("interior/bookinglists", {
-       id: id,
+      id: id,
       c_id: "",
       c_kind: "",
       c_name: "",
@@ -88,7 +88,10 @@ const AddInteriorReview = async (data) => {
       ir_content: data.ir_content,
     });
 
-    console.log("결과: 좋음");
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error(err);
   }
@@ -108,9 +111,15 @@ const UpdateInteriorReview = async (data) => {
     });
 
     console.log("예약 수정 결과:", res.data);
-    return res.data;
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error("예약 수정 에러:", err);
+        return {
+      success: false
+    }
   }
 };
 
@@ -129,7 +138,6 @@ const DeleteInteriorReview = async (data) => {
     console.error("삭제 에러:", err);
   }
 };
-
 
 const InteriorUserService = {
   fetchBookingList,
