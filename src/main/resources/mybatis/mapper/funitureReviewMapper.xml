@@ -40,7 +40,7 @@
 	</if>
 
 	<if test="f_code != null and f_code != ''">
-		and f_code = #{f_code}
+		f_code = #{f_code}
 	</if>
 </select>
 

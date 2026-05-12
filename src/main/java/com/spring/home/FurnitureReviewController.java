@@ -30,24 +30,17 @@ public class FurnitureReviewController {
 		furnitureReviewService.insertData(dto);
 	}
 	@PostMapping("/getLists")
-	public List<FurnitureReviewDTO> getLists() throws Exception{
-		return furnitureReviewService.getLists();
+	public List<FurnitureReviewDTO> getLists(@RequestBody FurnitureReviewDTO dto) throws Exception{
+		return furnitureReviewService.getLists(dto);
 	}
-	@PostMapping("/read")
-	public FurnitureReviewDTO getReadDataById(@RequestBody String id) throws Exception{
-		return furnitureReviewService.getReadDataById(id);
-	}
-	@PostMapping("/getReview")
-	public FurnitureReviewDTO getReadDataByFCode(@RequestBody String f_code) throws Exception{
-		return furnitureReviewService.getReadDataByFCode(f_code);
-	}
+
 	@PostMapping("/update")
 	public void updateData(@RequestBody FurnitureReviewDTO dto) throws Exception{
 		furnitureReviewService.updateData(dto);
 	}
 	@PostMapping("/delete")
-	public void deleteData(@RequestBody String id) throws Exception{
-		furnitureReviewService.deleteData(id);
+	public void deleteData(@RequestBody FurnitureReviewDTO dto) throws Exception{
+		furnitureReviewService.deleteData(dto);
 	}
 
 }

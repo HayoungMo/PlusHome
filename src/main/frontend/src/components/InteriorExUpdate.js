@@ -173,7 +173,7 @@ const InteriorExUpdate = ({ company }) => {
             view: false,
           });
           if (!logo?.result?.length) {
-            return null;
+            return item;
           }
           return {
             ...item,

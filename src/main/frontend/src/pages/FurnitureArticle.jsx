@@ -4,6 +4,7 @@ import FurnitureService from "../service/furnitureService";
 import LikeService from "../service/likeService";
 import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
+import FurnitureReview from "../components/FurnitureReview";
 
 const FurnitureArticle = () => {
     const called = useRef(false);
@@ -643,7 +644,7 @@ const FurnitureArticle = () => {
                                 border: "1px solid #ddd"
                             }}
                         >
-                            아직 등록된 리뷰가 없습니다.
+                            <FurnitureReview f_code={f_code}/>
                         </div>
                     </div>
                 )}

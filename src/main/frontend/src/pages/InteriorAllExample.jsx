@@ -28,7 +28,7 @@ const [selectedImg, setSelectedImg] = useState(null);
                 view: false,
               });
                if (!logo?.result?.length) {
-                 return null;
+                 return item;
                }
               return {
                 ...item,

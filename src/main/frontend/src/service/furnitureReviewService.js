@@ -23,7 +23,7 @@ const insertReview = async (data) => {
 
 // 조회
 const selectReview = async (data) => {
-  const res = await http.post("/freview/select", {
+  const res = await http.post("/freview/getLists", {
     id: data.id,
     f_code: data.f_code,
   });
