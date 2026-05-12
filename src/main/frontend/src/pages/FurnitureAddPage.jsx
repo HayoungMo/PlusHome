@@ -39,7 +39,6 @@ const FurnitureAddPage = ({ cName = "가구점1", onSuccess }) => {
     ])
 
 	
-	
     useEffect(() => {
 		const price = Number(data.f_price);
         const discount = Number(data.f_discount);
@@ -207,10 +206,11 @@ const FurnitureAddPage = ({ cName = "가구점1", onSuccess }) => {
             const optionList = options
             .filter(option => 
                 option.o_select.trim() !== "" || 
-                option.o_text.trim() !== "")
+                option.o_text.trim() !== ""
+            )
             .map(option => ({
-                o_select: option.o_select,
-                o_text: option.o_text,
+                o_select: option.o_select.trim(),
+                o_text: option.o_text.trim(),
                 o_count: Number(option.o_count || 0),
                 o_price: Number(option.o_price || 0),
                 o_important: option.o_important

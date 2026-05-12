@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class CartOptionDTO {
 
+	private String c_code;
 	private String id;
 	private String f_code;
 	private String co_select;

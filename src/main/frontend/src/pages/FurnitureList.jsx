@@ -25,6 +25,30 @@ const FurnitureList = () => {
 
     const pageCount = Math.max(0, endPage - startPage + 1);
 
+    const getLoginUser = () => {
+        const user = localStorage.getItem("user");
+        return user ? JSON.parse(user) : null;
+    };
+
+    const getLoginFurnitureCompany = () => {
+        const loginUser = getLoginUser();
+
+        if (!loginUser || loginUser.type !== "company") return null;
+
+        return (
+            loginUser.companyList?.find(company => company.c_kind === "shop") ||
+            null
+        );
+    };
+
+    const canManageFurniture = (furnitureItem) => {
+        const furnitureCompany = getLoginFurnitureCompany();
+
+        if (!furnitureCompany || !furnitureItem) return false;
+
+        return furnitureItem.c_id === furnitureCompany.c_id;
+    };
+
     useEffect(() => {
         getList(pageNum);
     }, [pageNum, searchKey, searchValue]);
@@ -129,7 +153,10 @@ const FurnitureList = () => {
         <div>
             <h3><a href="/furniture/list">가구 목록</a></h3>
 
-            <button onClick={onAddPage}>가구 추가</button>
+            {getLoginFurnitureCompany() &&
+            <button onClick={onAddPage}>가구 추가</button> 
+            }
+
             <br />
 
             <select
@@ -230,6 +257,8 @@ const FurnitureList = () => {
                                 {likedMap[item.f_code] ? "♥ 찜" : "♡ 찜"}
                             </button>
 
+                        {canManageFurniture(item) && (
+                            <>
                             <button
                                 onClick={(evt)=> {
                                     evt.stopPropagation()
@@ -243,6 +272,9 @@ const FurnitureList = () => {
                                 }}>
                                 삭제
                             </button>
+                            </>
+                        )}
+
                         </div>
                     );
                 })}

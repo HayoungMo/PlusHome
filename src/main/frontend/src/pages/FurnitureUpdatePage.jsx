@@ -284,8 +284,8 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                 .map((option) => ({
                     o_code: option.o_code,
                     f_code,
-                    o_select: option.o_select,
-                    o_text: option.o_text,
+                    o_select: option.o_select.trim(),
+                    o_text: option.o_text.trim(),
                     o_count: Number(option.o_count || 0),
                     o_price: Number(option.o_price || 0),
                     o_important: option.o_important,

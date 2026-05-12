@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { GiShoppingCart } from "react-icons/gi";
 
 const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	const navigate = useNavigate();
@@ -50,11 +51,26 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 				</form>
 
 				<div className="shop-user">
+					<Link
+						to="/cart"
+						title="장바구니"
+						style={{
+							display: "inline-flex",
+							alignItems: "center",
+							color: "inherit",
+							textDecoration: "none",
+							marginRight: "12px"
+						}}
+					>
+						<GiShoppingCart size={32} />
+					</Link>
+
 					{displayUser ? (
 						<>
 							<span>
 								<Link to="/userpage">
-								{displayUser}님</Link>
+									{displayUser}님
+								</Link>
 							</span>
 							<button type="button" onClick={logout}>
 								로그아웃
