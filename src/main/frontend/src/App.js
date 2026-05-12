@@ -40,6 +40,7 @@ import FreeBoardWritePage from "./pages/FreeBoardWritePage";
 import FreeBoardArticlePage from "./pages/FreeBoardArticlePage";
 import FreeBoardEditPage from "./pages/FreeBoardEditPage";
 import UserMyPage from "./pages/UserMyPage";
+import CartPage from "./pages/CartPage";
 
 
 function App() {
@@ -85,6 +86,9 @@ function App() {
         
         {/* 가상 머니 충전 */}
         <Route path="/wallet/charge" element={<WalletCharge/>}/>
+        
+        {/* 장바구니 */}
+        <Route path="/cart" element={<CartPage/>}/>
         
         {/* 가구,쇼핑 */}
         <Route path="/furniture/list" element={<FurnitureList/>}/>

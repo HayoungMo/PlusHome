@@ -18,14 +18,6 @@ public class CartOptionService {
 		cartOptionMapper.insertData(dto);
 	}
 	
-	public List<CartOptionDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
-		return cartOptionMapper.getLists(start, end, searchKey, searchValue);
-	}
-	
-	public CartOptionDTO getReadData(String id) throws Exception{
-		return cartOptionMapper.getReadData(id);
-	}
-	
 	public void updateData(CartOptionDTO dto) throws Exception{
 		cartOptionMapper.updateData(dto);
 	}
