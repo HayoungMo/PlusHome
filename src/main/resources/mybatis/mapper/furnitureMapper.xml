@@ -23,7 +23,8 @@
 	             f_discount,
 	             f_point,
 	             f_count,
-	             f_viewcount)
+	             f_viewcount,
+	             f_deliveryprice)
 	values      ( #{f_code},
 	              #{c_id},
 	              #{c_kind},
@@ -40,7 +41,8 @@
 	              #{f_discount},
 	              #{f_point},
 	              #{f_count},
-	              0)
+	              0,
+	              #{f_deliveryprice})
 </insert>
 
 <!-- f_code 중복 확인 -->
@@ -63,7 +65,8 @@
 	       f_catagory5 = #{f_catagory5},
 	       f_discount = #{f_discount},
 	       f_point = #{f_point},
-	       f_count = #{f_count}
+	       f_count = #{f_count},
+	       f_deliveryprice = #{f_deliveryprice}
 	where  f_code = #{f_code} 
 </update>
 
@@ -96,7 +99,8 @@
                                       f_discount,
                                       f_point,
                                       f_count,
-                                      f_viewcount
+                                      f_viewcount,
+                                      f_deliveryprice
                              from     furniture
                              where    ${searchKey} like '%'
                                                || #{searchValue}

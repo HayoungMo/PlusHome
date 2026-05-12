@@ -26,6 +26,7 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 		f_discount: "0",
 		f_point: "0",
 		f_count: "0",
+		f_deliveryprice: "0"
 	});
 
 	const [options, setOptions] = useState([
@@ -100,7 +101,12 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 		const { name, value } = evt.target;
 
 		// 숫자 필드 목록
-		const numberFields = ["f_price", "f_discount", "f_point", "f_count"];
+		const numberFields = [
+			"f_price", 
+			"f_discount", 
+			"f_point", 
+			"f_count",
+			"f_deliveryprice"];
 
 		// 숫자 필드만 필터링
 		if (numberFields.includes(name)) {
@@ -137,6 +143,11 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 			if (name === "f_count") {
 				if (num < 0) num = 0;
 				updatedData.f_count = String(num);
+			}
+
+			if (name === "f_deliveryprice") {
+				if (num < 0) num = 0;
+				updatedData.f_deliveryprice = String(num);
 			}
 
 			setData(updatedData);
@@ -227,6 +238,7 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
                 f_dprice: Number(data.f_dprice),
                 f_discount: Number(data.f_discount),
                 f_point: Number(data.f_point),
+				f_deliveryprice: Number(data.f_deliveryprice || 0),
                 f_count: totalOptionCount
             };
 
@@ -360,6 +372,14 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 
 			<label>포인트:</label>
 			<input name="f_point" value={data.f_point} onChange={changeInput} />
+			<br />
+
+			<label>배송비:</label>
+			<input
+				name="f_deliveryprice"
+				value={data.f_deliveryprice}
+				onChange={changeInput}
+			/>
 			<br />
 
             <p>

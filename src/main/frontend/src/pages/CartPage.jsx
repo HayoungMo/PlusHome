@@ -9,9 +9,6 @@ const CartPage = () => {
     const [cart, setCart] = useState([]);
     const [selectedMap, setSelectedMap] = useState({});
 
-    const DELIVERY_FEE = 3000;
-    const FREE_DELIVERY_PRICE = 50000;
-
     const allSelected =
         cart.length > 0 && cart.every(item => selectedMap[item.c_code]);
 
@@ -87,8 +84,9 @@ const CartPage = () => {
 
     const getItemDeliveryFee = (item) => {
         const productPrice = getItemProductPrice(item);
+        const deliveryPrice = Number(item.furniture?.f_deliveryprice || 0)
 
-        return productPrice >= FREE_DELIVERY_PRICE ? 0 : DELIVERY_FEE;
+        return productPrice >= 50000 ? 0 : deliveryPrice;
     };
 
 
@@ -235,7 +233,7 @@ const CartPage = () => {
                             ))}
 
                             <p>수량: {item.f_count}</p>
-                            <p>상품금액: {getItemProductPrice(item).toLocaleString()}원</p>
+                            <p>상품 금액: {getItemProductPrice(item).toLocaleString()}원</p>
                             <p>
                                 배송비:{" "}
                                 {getItemDeliveryFee(item) === 0

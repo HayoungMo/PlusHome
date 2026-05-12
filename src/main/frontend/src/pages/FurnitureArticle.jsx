@@ -263,7 +263,7 @@ const FurnitureArticle = () => {
                         f_name: user.name || "",
                         f_tel: user.tel || "",
                         f_price: furniture.f_dprice,
-                        f_point: furniture.f_point
+                        f_point: furniture.f_point,
                     },
                     options: selectedOptionList.map(option => ({
                         co_select: option.o_select,
