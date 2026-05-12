@@ -1,6 +1,7 @@
 package com.spring.home;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -107,6 +108,32 @@ public class CompanyController {
 		} else {
 			result.put("success", true);
 			result.put("message", "성공적으로 수정되었습니다");
+		}
+
+		return result;
+	}
+
+	@PostMapping("/delete")
+	public Map<String, Object> deleteCompany(@RequestBody List<CompanyDTO> dtoList) {
+		Map<String, Object> result = new HashMap<>();
+
+		if (dtoList.size() == 0) {
+			result.put("success", false);
+			result.put("message", "데이터를 전달받지 못했습니다");
+			return result;
+		}
+
+		int deleteCompany = companyService.deleteCompany(dtoList);
+
+		if (deleteCompany == 0) {
+			result.put("success", false);
+			result.put("message", "삭제에 실패했습니다");
+		} else if (deleteCompany != dtoList.size()) {
+			result.put("success", false);
+			result.put("message", "일부 데이터가 삭제되지 않았습니다");
+		} else {
+		result.put("success", true);
+		result.put("message", "성공적으로 삭제되었습니다");
 		}
 
 		return result;

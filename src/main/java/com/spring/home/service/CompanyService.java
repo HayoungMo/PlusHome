@@ -56,4 +56,18 @@ public class CompanyService {
 		}
 		return total;
 	}
+
+	public int deleteCompany(List<CompanyDTO> dtoList) {
+		int total = 0;
+		for (CompanyDTO dto : dtoList) {
+			try {
+				int result = companyMapper.deleteCompanyOne(dto);
+				total += result;
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+		}
+		return total;
+	}
 }

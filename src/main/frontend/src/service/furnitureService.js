@@ -99,7 +99,6 @@ const updateFurniture = async (params) => {
 
 		const res = await fileHttp.post("/furniture/update", formData);
 		return res.data;
-
 	} catch (error) {
 		console.log(error);
 	}
@@ -120,18 +119,37 @@ const getFurnitureItem = async (f_code) => {
 };
 
 const deleteFurniture = async (f_code) => {
-	const res= await http.get(`/furniture/delete?f_code=${f_code}`);
+	const res = await http.get(`/furniture/delete?f_code=${f_code}`);
 	return res.data;
-}
+};
 
+const increaseView = async (f_code) => {
+	if (!f_code) return;
 
-const increaseView = async (f_code) =>{
-	if(!f_code) return;
+	await http.get(`/furniture/viewCount?F_code`, {
+		params: { f_code },
+	});
+};
 
-	await http.get(`/furniture/viewCount?F_code`,{
-		params: {f_code}
-	})
-}
+const getFurnitureByUserId = async (id) => {
+	try {
+		console.log(id);
+		const result = await http.post("furniture/getFurnitureByUserId", { c_id: id });
+		return result.data;
+	} catch (error) {
+		return error;
+	}
+};
+
+const deleteFurnitureOnDashboard = async (id) => {
+	try {
+		console.log(id);
+		const result = await http.post("furniture/deleteFurnitureOnDashboard", { f_code: id });
+		return result.data;
+	} catch (error) {
+		return error;
+	}
+};
 
 const FurnitureService = {
 	getFurniture,
@@ -139,7 +157,9 @@ const FurnitureService = {
 	getFurnitureItem,
 	deleteFurniture,
 	updateFurniture,
-	increaseView
+	increaseView,
+	getFurnitureByUserId,
+	deleteFurnitureOnDashboard,
 };
 
 export default FurnitureService;
