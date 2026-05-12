@@ -182,7 +182,9 @@ public class FurnitureService {
 	        MultipartFile thumbnail,
 	        List<MultipartFile> infoFiles,
 	        List<MultipartFile> othersFiles,
-	        List<String> deletedImages
+	        List<String> deletedImages,
+	        List<OptionsDTO> options,
+	        List<String> deletedOptions
 	) throws Exception {
 
 		System.out.println("thumbnail = " + thumbnail);
@@ -194,6 +196,28 @@ public class FurnitureService {
 	    furnitureMapper.updateData(dto);
 
 	    String f_code = dto.getF_code();
+
+	    if (deletedOptions != null && !deletedOptions.isEmpty()) {
+	        for (String o_code : deletedOptions) {
+	            if (o_code == null || o_code.trim().isEmpty()) continue;
+
+	            optionsService.deleteOne(o_code);
+	        }
+	    }
+
+	    if (options != null && !options.isEmpty()) {
+	        for (OptionsDTO option : options) {
+	            if (option == null) continue;
+
+	            option.setF_code(f_code);
+
+	            if (option.getO_code() == null || option.getO_code().trim().isEmpty()) {
+	                optionsService.insertData(option);
+	            } else {
+	                optionsService.updateData(option);
+	            }
+	        }
+	    }
 
 	    if (deletedImages != null && !deletedImages.isEmpty()) {
 

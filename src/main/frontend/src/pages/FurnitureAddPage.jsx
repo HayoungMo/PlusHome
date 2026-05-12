@@ -195,15 +195,6 @@ const FurnitureAddPage = () => {
                 return;
             }
 
-            const dto = {
-                ...data,
-                f_price: Number(data.f_price),
-                f_dprice: Number(data.f_dprice),
-                f_discount: Number(data.f_discount),
-                f_point: Number(data.f_point),
-                f_count: Number(data.f_count)
-            };
-
             const optionList = options
             .filter(option => 
                 option.o_select.trim() !== "" || 
@@ -215,6 +206,22 @@ const FurnitureAddPage = () => {
                 o_price: Number(option.o_price || 0),
                 o_important: option.o_important
             }))
+
+            const totalOptionCount = optionList.reduce(
+                (sum, option) => sum + Number(option.o_count || 0),
+                0
+            )
+
+            const dto = {
+                ...data,
+                f_price: Number(data.f_price),
+                f_dprice: Number(data.f_dprice),
+                f_discount: Number(data.f_discount),
+                f_point: Number(data.f_point),
+                f_count: totalOptionCount
+            };
+
+
 
             const sendData = {
                 dto,
@@ -342,11 +349,12 @@ const FurnitureAddPage = () => {
             <input name="f_point" value={data.f_point} onChange={changeInput} />
             <br />
 
-            <label>수량:</label>
-            <input name="f_count" value={data.f_count} onChange={changeInput} />
-            <br />
-
-           <hr />
+            <p>
+                전체 수량:{" "}
+                {options.reduce((sum, option) => sum + Number(option.o_count || 0), 0)}
+            </p>    
+              
+            <hr />
 
             <h3>옵션 등록</h3>
 

@@ -117,6 +117,8 @@ public class FurnitureController {
 			@RequestPart(value = "infoFiles", required = false) List<MultipartFile> infoFiles,
 			@RequestPart(value = "othersFiles", required = false) List<MultipartFile> othersFiles,
 			@RequestParam(value = "deletedImages", required = false) List<String> deletedImages,
+			@RequestPart(value = "options", required = false) List<OptionsDTO> options,
+			@RequestPart(value = "deletedOptions", required = false) List<String> deletedOptions,
 			@RequestPart("dto") FurnitureDTO dto) throws Exception {
 		
 		System.out.println("========== CONTROLLER ==========");
@@ -126,7 +128,7 @@ public class FurnitureController {
 	    System.out.println("deletedImages = " + deletedImages);
 	    System.out.println("dto = " + dto);
 	    
-		return furnitureService.updateData(dto,thumbnail, infoFiles, othersFiles,deletedImages);
+		return furnitureService.updateData(dto,thumbnail, infoFiles, othersFiles,deletedImages,options,deletedOptions);
 	}
 
 	@GetMapping("/delete")

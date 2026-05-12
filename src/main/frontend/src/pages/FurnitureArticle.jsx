@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import LikeService from '../service/likeService';
+import OptionsService from '../service/optionService';
 
 const FurnitureArticle = () => {
 
@@ -12,6 +13,9 @@ const FurnitureArticle = () => {
     const [mainImage, setMainImage] = useState(null)
     const [tab, setTab] = useState("detail")
     const [liked, setLiked] = useState(false)
+    const [options, setOptions] = useState([]);
+    const [selectedOptionIndex, setSelectedOptionIndex] = useState("");
+    const [quantity, setQuantity] = useState(1);
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -57,6 +61,20 @@ const FurnitureArticle = () => {
         }
     }, [furniture]);
 
+    useEffect(() => {
+        if (!f_code) return;
+
+        OptionsService.getFurnitureOptions(f_code)
+            .then((res) => {
+                setOptions(res.data || []);
+            })
+            .catch((error) => {
+                console.error("옵션 조회 실패", error);
+                setOptions([]);
+            });
+    }, [f_code]);
+
+
     const getArticle = async () => {
         try {
             const data = await FurnitureService.getFurnitureItem(f_code);
@@ -87,7 +105,21 @@ const FurnitureArticle = () => {
     };
 
     const onPayment = () => {
-        navigate(`/payment/${f_code}`);
+        if(options.length > 0 && selectedOptionIndex === ""){
+            alert("옵션을 선택해주세요.")
+            return
+        }
+        const selectedOption = 
+            selectedOptionIndex !== ""
+            ? options[Number(selectedOptionIndex)]
+            : null
+
+        navigate(`/payment/${f_code}`,{
+            state:{
+                option: selectedOption,
+                quantity
+            }
+        });
     };
 
     const onBack = () => {
@@ -127,10 +159,9 @@ const FurnitureArticle = () => {
     return (
         <div style={{ padding: "20px" }}>
 
-            <Link to="/">로고</Link><br />
             <button onClick={()=> onUpdate(f_code)}>수정</button>
             <button onClick={()=> onDelete(f_code)}>삭제</button>
-            <button onClick={onBack}>돌아가기</button>
+            <button onClick={onBack}>list로 돌아가기</button>
 
             
             <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
@@ -176,6 +207,23 @@ const FurnitureArticle = () => {
 
                     </div>
 
+                <hr/>
+                    <button
+                        type="button"
+                        onClick={onToggleLike}
+                        style={{
+                            width: "100%",
+                            padding: "15px",
+                            background: liked ? "#ffdddd" : "white",
+                            color: liked ? "red" : "black",
+                            border: "1px solid #ddd",
+                            fontSize: "16px",
+                            cursor: "pointer",
+                            marginBottom: "10px"
+                        }}
+                    >
+                        {liked ? "♥ 찜 해제" : "♡ 찜하기"}
+                    </button>
                 </div>
 
                 <div style={{ flex: 1 }}>
@@ -205,24 +253,57 @@ const FurnitureArticle = () => {
                     <p>배송기간: 2~3일</p>
 
 
-                    <hr />
 
-                    <button
-                        type="button"
-                        onClick={onToggleLike}
-                        style={{
-                            width: "100%",
-                            padding: "15px",
-                            background: liked ? "#ffdddd" : "white",
-                            color: liked ? "red" : "black",
-                            border: "1px solid #ddd",
-                            fontSize: "16px",
-                            cursor: "pointer",
-                            marginBottom: "10px"
-                        }}
-                    >
-                        {liked ? "♥ 찜 해제" : "♡ 찜하기"}
-                    </button>
+            <h3>옵션 선택</h3>
+
+            {options.length === 0 ? (
+                <p>선택 가능한 옵션이 없습니다.</p>
+            ) : (
+                <select
+                    value={selectedOptionIndex}
+                    onChange={(evt) => setSelectedOptionIndex(evt.target.value)}
+                    style={{
+                        width: "100%",
+                        padding: "12px",
+                        marginBottom: "10px"
+                    }}
+                >
+                    <option value="">옵션을 선택하세요</option>
+
+                    {options.map((option, index) => (
+                        <option
+                            key={option.o_code || index}
+                            value={index}
+                            disabled={option.o_count <= 0}
+                        >
+                            {option.o_select} - {option.o_text}
+                            {option.o_price > 0
+                                ? ` (+${option.o_price.toLocaleString()}원)`
+                                : ""}
+                            {Number(option.o_count)===1 ? " 마지막 한 개":""}
+                            {Number(option.o_count) <= 0 ? " 품절" : ""}
+                        </option>
+                    ))}
+                </select>
+            )}
+
+            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                <button
+                    type="button"
+                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                >
+                    -
+                </button>
+
+                <span>{quantity}</span>
+
+                <button
+                    type="button"
+                    onClick={() => setQuantity(prev => prev + 1)}
+                >
+                    +
+                </button>
+            </div>
 
 
                     <button
