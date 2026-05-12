@@ -199,14 +199,17 @@ SELECT id,
        b_content,
        b_answer
 FROM   booking
-WHERE  c_id LIKE '%'
-                 || #{c_id}
+WHERE  id LIKE '%'
+                 || NVL(#{id}, '')
+                 || '%'
+       AND c_id LIKE '%'
+                 ||  NVL(#{c_id}, '')
                  || '%'
        AND c_kind LIKE '%'
-                       || #{c_kind}
+                       ||  NVL(#{c_kind}, '')
                        || '%'
        AND c_name LIKE '%'
-                       || #{c_name}
+                       ||  NVL(#{c_name}, '')
                        || '%' 
 </select>
 
@@ -236,7 +239,7 @@ WHERE  id LIKE '%'
 
 <select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
 SELECT id,
-       b_createddate,
+       b_createdDate,
        c_id,
        c_kind,
        c_name,
@@ -258,7 +261,7 @@ WHERE  id LIKE '%'
        AND c_name LIKE '%'
                        || #{c_name}
                        || '%'
-       AND b_createddate = #{b_createdDate, jdbcType=TIMESTAMP}
+       AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
        AND invoice_no LIKE '%'
                            || #{invoice_no}
                            || '%'
@@ -267,7 +270,7 @@ WHERE  id LIKE '%'
                              || '%' 
 </select>
 
-<select id="getInteriorReviews"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
+<select id="getUserInteriorReviews"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
 SELECT id,
        b_createddate,
        c_id,
@@ -276,23 +279,44 @@ SELECT id,
        invoice_no,
        invoice_kind,
        ir_content,
-       ir_createddate
+       ir_createdDate
 FROM   i_review
-WHERE  id LIKE '%'
-                 || NVL(#{id}, '')
-                 || '%'
-       AND c_id LIKE '%'
-                 || NVL(#{c_id}, '')
-                 || '%'
-       AND c_kind LIKE '%'
-                       || NVL(#{c_kind}, '')
-                       || '%'
-       AND c_name LIKE '%'
-                       || NVL(#{c_name}, '')
-                       || '%'
-       AND invoice_kind LIKE '%'
-                             || NVL(#{invoice_kind}, '')
-                             || '%' 
+WHERE id = NVL(#{id}, id)
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
+
+<if test="invoice_kind != null and invoice_kind != ''">
+  AND invoice_kind = #{invoice_kind}
+</if>
+
+<if test="b_createdDate != null">
+  AND b_createddate = #{b_createdDate, jdbcType=TIMESTAMP}
+</if>
+</select>
+
+<select id="getCompanyInteriorReviews" parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
+  SELECT id,
+         b_createddate,
+         c_id,
+         c_kind,
+         c_name,
+         invoice_no,
+         invoice_kind,
+         ir_content,
+         ir_createddate
+  FROM i_review
+  WHERE c_id = #{c_id}
+    AND c_kind = #{c_kind}
+    AND c_name = #{c_name}
 </select>
 
 <select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">
@@ -316,6 +340,21 @@ SELECT c_id,
        ie_tag,
        ie_tag2
 FROM   i_example
+</select>
+
+<select id="getAllBookings"  resultType="com.spring.home.dto.BookingDTO">
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       b_kind,
+       b_long,
+       b_date,
+       b_status,
+       b_content,
+       b_answer
+FROM   booking
 </select>
 
 

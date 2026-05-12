@@ -1,5 +1,6 @@
 package com.spring.home.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -7,13 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.FileSaveResult;
+import com.spring.home.dto.ImageDTO;
+import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.dto.ResponseIdDTO;
 import com.spring.home.dto.ResponsePwDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.mapper.CompanyMapper;
 import com.spring.home.mapper.UserMapper;
+import com.spring.home.util.FileUtilMethod;
 //
 @Service
 public class UserService {
@@ -26,6 +33,9 @@ public class UserService {
 	
 	@Autowired
 	private CompanyMapper companyMapper;
+	
+	@Autowired
+	private ImageService imageService;
 	
 	@Transactional
 	public void insertUser(UserDTO dto) throws Exception{
@@ -149,8 +159,63 @@ public class UserService {
 		return result;
 	}
 	
+	public void updateMyPageUser(UserDTO user) throws Exception {
+	    if (user.getPw() != null && !user.getPw().trim().isEmpty()) {
+	        user.setPw(passwordEncoder.encode(user.getPw()));
+	    } else {
+	        user.setPw(null);
+	    }
+
+	    userMapper.updateMyPageUser(user);
+	}
 	
+	public ImageDTO updateProfileImage(String id, MultipartFile profileImage) throws Exception {
+	    if (profileImage == null || profileImage.isEmpty()) {
+	        throw new IllegalArgumentException("프로필 이미지가 없습니다.");
+	    }
+
+	    ImageQueryDTO queryDTO = new ImageQueryDTO();
+	    queryDTO.setKind("U_PROFILE");
+	    queryDTO.setD(id);
+	    queryDTO.setRange("ONE");
+	    queryDTO.setIdx(-1);
+
+	    List<ImageDTO> oldImages = imageService.getList(queryDTO);
+
+	    if (oldImages != null && !oldImages.isEmpty()) {
+	        FileUtilMethod.fileDeleteFromServer(oldImages);
+
+	        for (ImageDTO oldImage : oldImages) {
+	            imageService.deleteImage(oldImage.getImg_name());
+	        }
+	    }
+
+	    ImageDTO imageDTO = new ImageDTO();
+	    imageDTO.setImg_kind("U_PROFILE");
+	    imageDTO.setDir_d(id);
+
+	    ArrayList<MultipartFile> files = new ArrayList<>();
+	    files.add(profileImage);
+
+	    ArrayList<ImageDTO> dtoList = new ArrayList<>();
+	    dtoList.add(imageDTO);
+
+	    FileSaveResult saveResult = FileUtilMethod.fileSaveFromServer(files, dtoList);
+
+	    if (!saveResult.isSuccess()) {
+	        throw new RuntimeException(saveResult.getError());
+	    }
+
+	    ImageDTO savedImage = saveResult.getSavedList().get(0);
+	    imageService.insertImage(savedImage);
+
+	    return savedImage;
+	}
 	
+	public void deleteUser(UserDTO dto) throws Exception {
+		userMapper.deleteUser(dto);
+	}
+
 }
 	
 	

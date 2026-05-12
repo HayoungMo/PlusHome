@@ -28,12 +28,26 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 		f_count: "0",
 	});
 
-	useEffect(() => {
-		const price = Number(data.f_price);
-		const discount = Number(data.f_discount);
+	const [options, setOptions] = useState([
+        {
+            o_select: "",
+             o_text: "",
+            o_count: "0",
+            o_price: "0",
+            o_important: "N"
+        }
+    ])
 
-		const result =
-			!isNaN(price) && !isNaN(discount) ? Math.floor(price - (price * discount) / 100) : 0;
+	
+	
+    useEffect(() => {
+		const price = Number(data.f_price);
+        const discount = Number(data.f_discount);
+
+        const result =
+            (!isNaN(price) && !isNaN(discount))
+                ? Math.floor(price - (price * discount / 100))
+                : 0;
 
 		setData((prev) => ({
 			...prev,
@@ -136,12 +150,54 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 		}));
 	};
 
-	const onSubmit = async () => {
-		try {
-			if (!thumbnail) {
-				alert("썸네일 이미지를 선택해주세요.");
-				return;
-			}
+    const changeOption = (index, evt) => {
+        const { name, value } = evt.target;
+
+        setOptions(prev =>
+            prev.map((option, i) => {
+                if (i !== index) return option;
+
+                if (["o_count", "o_price"].includes(name)) {
+                    const numStr = value.replace(/[^0-9]/g, "");
+
+                    return {
+                        ...option,
+                        [name]: numStr
+                    };
+                }
+
+                return {
+                    ...option,
+                    [name]: value
+                };
+            })
+        );
+    };
+
+
+    const addOption= ()=>{
+        setOptions(prev => [
+            ...prev,
+            {
+                o_select: "",
+                o_text: "",
+                o_count: "0",
+                o_price: "0",
+                o_important: "N"
+            }
+        ])
+    }
+
+    const removeOption = (index) => {
+        setOptions(prev=> prev.filter((_,i)=>i !== index))
+    }
+
+    const onSubmit = async () => {
+        try {
+            if (!thumbnail) {
+                alert("썸네일 이미지를 선택해주세요.");
+                return;
+            }
 
 			if (!data.f_name) {
 				alert("가구 이름을 입력해주세요.");
@@ -157,21 +213,33 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 				f_count: Number(data.f_count),
 			};
 
-			const sendData = {
-				dto,
-				thumbnail,
-				infoFiles: infoFiles.map((i) => i.file),
-				othersFiles: othersFiles.map((i) => i.file),
-			};
+            const optionList = options
+            .filter(option => 
+                option.o_select.trim() !== "" || 
+                option.o_text.trim() !== "")
+            .map(option => ({
+                o_select: option.o_select,
+                o_text: option.o_text,
+                o_count: Number(option.o_count || 0),
+                o_price: Number(option.o_price || 0),
+                o_important: option.o_important
+            }))
+
+            const sendData = {
+                dto,
+                thumbnail,
+                infoFiles: infoFiles.map(i => i.file),
+                othersFiles: othersFiles.map(i => i.file),
+                options: optionList
+            };
 
 			const res = await FurnitureService.insertFurniture(sendData);
 
 			alert("가구가 등록되었습니다.");
-			if (c_name === null) {
-				navigate(-1);
-			}
 			if (onSuccess) {
 				await onSuccess();
+			} else {
+				navigate(-1);
 			}
 		} catch (error) {
 			console.error("에러:", error);
@@ -291,10 +359,81 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 			<input name="f_count" value={data.f_count} onChange={changeInput} />
 			<br />
 
-			<br />
-			<button onClick={onSubmit}>등록</button>
-		</div>
-	);
+           <hr />
+
+            <h3>옵션 등록</h3>
+
+            {options.map((option, index) => (
+                <div
+                    key={index}
+                    style={{
+                        border: "1px solid #ddd",
+                        padding: "10px",
+                        marginBottom: "10px"
+                    }}
+                >
+                    <label>옵션명:</label>
+                    <input
+                        name="o_select"
+                        value={option.o_select}
+                        onChange={(evt) => changeOption(index, evt)}
+                        placeholder="예: 색상"
+                    />
+                    <br />
+
+                    <label>옵션값:</label>
+                    <input
+                        name="o_text"
+                        value={option.o_text}
+                        onChange={(evt) => changeOption(index, evt)}
+                        placeholder="예: 화이트"
+                    />
+                    <br />
+
+                    <label>옵션 재고:</label>
+                    <input
+                        name="o_count"
+                        value={option.o_count}
+                        onChange={(evt) => changeOption(index, evt)}
+                    />
+                    <br />
+
+                    <label>추가 금액:</label>
+                    <input
+                        name="o_price"
+                        value={option.o_price}
+                        onChange={(evt) => changeOption(index, evt)}
+                    />
+                    <br />
+
+                    <label>필수 옵션:</label>
+                    <select
+                        name="o_important"
+                        value={option.o_important}
+                        onChange={(evt) => changeOption(index, evt)}
+                    >
+                        <option value="Y">필수</option>
+                        <option value="N">선택</option>
+                    </select>
+
+                    <br />
+
+                    {options.length > 1 && (
+                        <button type="button" onClick={() => removeOption(index)}>
+                            옵션 삭제
+                        </button>
+                    )}
+                </div>
+            ))}
+
+            <button type="button" onClick={addOption}>
+                옵션 추가
+            </button>
+
+            <br />
+            <button onClick={onSubmit}>등록</button>
+        </div>
+    );
 };
 
 export default FurnitureAddPage;

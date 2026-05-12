@@ -11,7 +11,7 @@ const InteriorList = () => {
   const [list, setList] = useState([]);
   const [tags, setTags] = useState([]);
   const [originList, setOriginList] = useState([]);
-  const [search, setSearch] = useState();
+  const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterValue, setFilterValue] = useState("");
 
@@ -124,6 +124,11 @@ const InteriorList = () => {
           label="검색"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearchFilter();
+            }
+          }}
         />
         <Button onClick={() => handleSearchFilter()}>검색</Button>
 
@@ -142,7 +147,7 @@ const InteriorList = () => {
             { value: "budget", title: "예산" },
           ]}
         />
-        {filterType &&
+        {filterType && (
           <SelectMui
             label="값"
             name="filterValue"
@@ -150,7 +155,7 @@ const InteriorList = () => {
             onChange={(e) => setFilterValue(e.target.value)}
             option={valueOptionMap[filterType] || []}
           />
-        }
+        )}
         <Button onClick={() => handleSearchFilter()}>필터 적용</Button>
 
         <Button onClick={handleReset}>초기화</Button>

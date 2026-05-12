@@ -51,9 +51,21 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const TableMuiCollapse = ({ rowData, updateBookingRow }) => {
+const TableMuiCollapse = ({
+  rowData = [],
+  hiddenColumns = [],
+  collapseKey = null,
+  collapseTitle = "상세 정보",
+  renderCell,
+  renderCollapse,
+}) => {
   const rows = Array.isArray(rowData) ? rowData : [rowData];
-  const tableColumns = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+  const tableColumns =
+    rows.length > 0
+      ? Object.keys(rows[0]).filter((column) => !hiddenColumns.includes(column))
+        
+      : [];
 
   return (
     <TableContainer component={Paper}>
@@ -63,7 +75,7 @@ const TableMuiCollapse = ({ rowData, updateBookingRow }) => {
             <TableCell />
             {tableColumns.map((column) => (
               <StyledTableCell key={column} align="right">
-                {column === "b_answer" ? null : column}
+                {column}
               </StyledTableCell>
             ))}
           </TableRow>
@@ -71,11 +83,15 @@ const TableMuiCollapse = ({ rowData, updateBookingRow }) => {
 
         <TableBody>
           {rows.map((row, index) => (
-            <BookingRow
+            <CollapseRow
+              key={index}
               row={row}
               tableColumns={tableColumns}
-              updateBookingRow
-            ={updateBookingRow}/>
+              collapseKey={collapseKey}
+              collapseTitle={collapseTitle}
+              renderCell={renderCell}
+              renderCollapse={renderCollapse}
+            />
           ))}
         </TableBody>
       </Table>
@@ -83,42 +99,59 @@ const TableMuiCollapse = ({ rowData, updateBookingRow }) => {
   );
 };
 
-const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
+const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
+  if (!data) return null;
+
+  const rows = Array.isArray(data) ? data : [data];
+
+  return (
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          {visibleColumns.map((column) => (
+            <TableCell key={column}>{column}</TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {rows.map((row, index) => (
+          <TableRow key={index}>
+            {visibleColumns.map((column) => (
+              <TableCell key={column}>{row[column]}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
+const CollapseRow = ({
+  row,
+  tableColumns,
+  collapseKey,
+  collapseTitle,
+  renderCell,
+  renderCollapse,
+}) => {
   const [open, setOpen] = useState(false);
 
-  const statusOption = [
-    { value: "confirmed", title: "확정" },
-    { value: "working", title: "시공 중" },
-    { value: "done", title: "시공 완료" },
-  ];
+  const collapseData = collapseKey ? row[collapseKey] : null;
 
-    const kindOption = [
-      {
-        value: "byTel",
-        title: "전화상담",
-      },
-      {
-        value: "byKakaoTalk",
-        title: "카톡",
-      },
-      {
-        value: "byemail",
-        title: "이메일",
-      },
-      {
-        value: "byVisit",
-        title: "직접방문",
-      },
-    ];
+  const renderValue = (value) => {
+    if (value == null) return "";
 
-  let answer = {};
-  try {
-    answer = row.b_answer ? JSON.parse(row.b_answer) : {};
-  } catch (e) {
-    answer = {};
-  }
+    if (Array.isArray(value)) {
+      return value.join(", ");
+    }
 
-  const answerColumns = Object.keys(answer);
+    if (typeof value === "object") {
+      return JSON.stringify(value);
+    }
+
+    return value;
+  };
 
   return (
     <>
@@ -131,39 +164,7 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
 
         {tableColumns.map((column) => (
           <StyledTableCell key={column} align="right">
-            {(() => {
-              if (column === "b_answer") {
-                return null;
-              }
-
-              if (column === "b_status") {
-                if (row[column] === "pending" || row[column] === "quoting") {
-                  return <p>견적서 작성 중</p>;
-                }
-
-                if (updateBookingRow && row[column] !== "cancel") {
-                  return (
-                    <SelectMui
-                      label="상태"
-                      name="b_status"
-                      value={row[column]}
-                      option={statusOption}
-                      onChange={(e) => updateBookingRow(row, e.target.value)}
-                    />
-                  );
-                }
-
-
-                return <p>취소된 상담</p>
-              }
-
-              if (column === "b_kind") {
-                return kindOption.find((item) => item.value === row[column])
-                  ?.title;
-              }
-
-              return row[column];
-            })()}
+            {renderCell ? renderCell(row, column) : renderValue(row[column])}
           </StyledTableCell>
         ))}
       </StyledTableRow>
@@ -176,27 +177,30 @@ const BookingRow = ({ row, tableColumns, updateBookingRow }) => {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 2 }}>
               <Typography variant="h6" gutterBottom>
-                상담 상세 정보
+                {collapseTitle}
               </Typography>
 
-              <Table size="small">
-                {answerColumns.map((column) => (
-                  <TableRow>
-                    <TableCell>{column}</TableCell>
-                    <TableCell>
-                      {Array.isArray(answer[column])
-                        ? answer[column].join(", ")
-                        : answer[column]}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </Table>
+              {renderCollapse ? (
+                renderCollapse(row)
+              ) : (
+                <DefaultCollapseTable
+                  data={collapseData}
+                  visibleColumns={[
+                    "invoice_text",
+                    "invoice_qty",
+                    "invoice_price",
+                    "line_total",
+                  ]}
+                />
+              )}
             </Box>
           </Collapse>
         </TableCell>
       </TableRow>
     </>
   );
+
+  
 };
 
 export default TableMuiCollapse;

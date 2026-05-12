@@ -2,18 +2,52 @@ import React, { useEffect, useState } from "react";
 import InteriorService from "../service/interiorService";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
+import SelectMui from "./SelectMui";
+import { Button } from "@mui/material";
+import TextFieldMui from "./TextFieldMui";
 
 const InteriorRecommend = ({answers}) => {
   //알고리즘 적용시 리스트 컴포넌트
   const navigate = useNavigate();
   const [list, setList] = useState([]);
+    const [originList, setOriginList] = useState([]);
+      const [tags, setTags] = useState([]);
+    const [search, setSearch] = useState();
+    const [filterType, setFilterType] = useState("");
+    const [filterValue, setFilterValue] = useState("");
 
   const [image, setImage] = useState(null);
+
+    const valueOptionMap = {
+      housingType: [
+        { value: "apartment", title: "아파트" },
+        { value: "villa", title: "빌라" },
+        { value: "house", title: "주택" },
+        { value: "officetel", title: "오피스텔" },
+      ],
+
+      purpose: [
+        { value: "신혼집", title: "신혼집" },
+        { value: "반려동물", title: "반려동물" },
+      ],
+
+      spaces: [
+        { value: "livingroom", title: "거실" },
+        { value: "kitchen", title: "주방" },
+      ],
+
+      budget: [
+        { value: "100만원 이하", title: "100만원 이하" },
+        { value: "300만원 이하", title: "300만원 이하" },
+        { value: "500만원 이하", title: "500만원 이하" },
+      ],
+    };
 
   useEffect(() => {
     const fetchData = async () => {
       const companies = await InteriorService.fetchList();
       const tags = await InteriorService.fetchArticleList();
+      setTags(Array.isArray(tags) ? tags : []);
 
       const result = recommendCompanies(
         Array.isArray(companies) ? companies : [],
@@ -105,10 +139,87 @@ const InteriorRecommend = ({answers}) => {
       .sort((a, b) => b.score - a.score);
   };
 
+    const handleSearchFilter = () => {
+      let result = [...originList];
+
+      // 검색
+      if (search && search.trim() !== "") {
+        result = result.filter(
+          (item) =>
+            item.c_name?.includes(search) ||
+            item.c_addr?.includes(search) ||
+            item.c_tel?.includes(search),
+        );
+      }
+
+      // 필터
+      if (filterType && filterValue) {
+        result = result.filter((company) => {
+          return tags.some(
+            (tag) =>
+              tag.c_id === company.c_id &&
+              tag.c_kind === company.c_kind &&
+              tag.c_name === company.c_name &&
+              tag.i_tag === filterType &&
+              tag.i_text === filterValue,
+          );
+        });
+      }
+
+      setList(result);
+    };
+
+    const handleReset = () => {
+      setSearch("");
+      setFilterType("");
+      setFilterValue("");
+      setList(originList);
+    };
+
   return (
     <div>
       <div>
-        <h3>추천 받은 결과</h3>
+        <h3>결과</h3>
+        <TextFieldMui
+          name="search"
+          label="검색"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearchFilter();
+            }
+          }}
+        />
+        <Button onClick={() => handleSearchFilter()}>검색</Button>
+
+        <SelectMui
+          label="필터 종류"
+          name="filterType"
+          value={filterType}
+          onChange={(e) => {
+            setFilterType(e.target.value);
+            setFilterValue("");
+          }}
+          option={[
+            { value: "housingType", title: "주거 형태" },
+            { value: "purpose", title: "목적" },
+            { value: "spaces", title: "공간" },
+            { value: "budget", title: "예산" },
+          ]}
+        />
+        {filterType && (
+          <SelectMui
+            label="값"
+            name="filterValue"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            option={valueOptionMap[filterType] || []}
+          />
+        )}
+        <Button onClick={() => handleSearchFilter()}>필터 적용</Button>
+
+        <Button onClick={handleReset}>초기화</Button>
         {list.map((item, idx) => (
           <div key={idx} onClick={() => handleNext(item, answers)}>
             {item.logo.result[0] && (

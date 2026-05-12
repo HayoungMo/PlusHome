@@ -79,6 +79,7 @@ const InteriorAdd = ({ company }) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
     InteriorService.AddInterior(form);
     onClickInsert();
+    setSendList([]);
   };
 
   const selectedQuestion = questions.find((q) => q.value === form.tag);

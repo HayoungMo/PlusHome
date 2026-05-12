@@ -58,6 +58,7 @@ const fetchBookingList = async (data) => {
   console.log("들어온 데이터", data);
   try {
     const res = await http.post("interior/bookinglists", {
+      id:"",
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,
@@ -110,14 +111,12 @@ const fetchInvoiceDetails = async (data) => {
 };
 
 const fetchInteriorReview = async (data) => {
-  console.log("인보이스 디테일에 들어온 데이터", data);
+  console.log("인보이스 리뷰에 들어온 데이터", data);
   try {
-    const res = await http.post("interior/interiorreview", {
-      id: data.id || "",
+    const res = await http.post("interior/companyreview", {
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,
-      invoice_kind: "Y",
     });
 
     console.log("응답 데이터:", res.data);
@@ -126,6 +125,8 @@ const fetchInteriorReview = async (data) => {
     console.error("에러:", err);
   }
 };
+
+
 
 const fetchAllInteriorReview = async () => {
   try {
@@ -140,6 +141,16 @@ const fetchAllInteriorReview = async () => {
 const fetchAllInteriorExample = async () => {
   try {
     const res = await http.get("interior/examplelists");
+    console.log("응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
+const fetchAllBookingList = async () => {
+  try {
+    const res = await http.get("interior/bookinglists");
     console.log("응답 데이터:", res.data);
     return res.data;
   } catch (err) {
@@ -347,6 +358,7 @@ const InteriorService = {
   fetchInteriorReview,
   fetchAllInteriorReview,
   fetchAllInteriorExample,
+  fetchAllBookingList,
   AddInterior,
   AddInteriorExample,
   AddBooking,

@@ -8,11 +8,12 @@ import InteriorModelViewer from "../components/InteriorModelViewer";
 import InteriorReviewList from "../components/InteriorReviewList";
 import { Button } from "@mui/material";
 import Maps from "../maps/Maps";
+import TableMui from "../components/TableMui";
 
 //테스트용 파일
 function InteriorArticle() {
-
-  const { naver } = window; 
+  const id = localStorage.getItem("id");
+  const { naver } = window;
   const location = useLocation();
   const company = location.state.company;
   const answers = location.state.answers;
@@ -49,10 +50,16 @@ function InteriorArticle() {
     });
   };
 
-  const [bookingPossible,setBookingPossible] = useState(answers !== null);
+  const [bookingPossible, setBookingPossible] = useState(answers !== null);
+
+  const wishKey = `wishList_${id}`;
+
+  const getWishList = () => {
+    return JSON.parse(localStorage.getItem(wishKey)) || [];
+  };
 
   const isWished = (company) => {
-    const wishList = JSON.parse(localStorage.getItem("wishList")) || [];
+    const wishList = getWishList();
 
     return wishList.some(
       (item) =>
@@ -64,38 +71,31 @@ function InteriorArticle() {
 
   const [like, setLike] = useState(isWished(company));
 
-  const getWishList = () => {
-    return JSON.parse(localStorage.getItem("wishList")) || [];
+  const toggleWish = () => {
+    const wishList = getWishList();
+
+    const exists = wishList.some(
+      (item) =>
+        item.c_id === company.c_id &&
+        item.c_kind === company.c_kind &&
+        item.c_name === company.c_name,
+    );
+
+    const newWishList = exists
+      ? wishList.filter(
+          (item) =>
+            !(
+              item.c_id === company.c_id &&
+              item.c_kind === company.c_kind &&
+              item.c_name === company.c_name
+            ),
+        )
+      : [...wishList, company];
+
+    localStorage.setItem(wishKey, JSON.stringify(newWishList));
+    setLike(!exists);
   };
 
-  // 찜 토글
-  useEffect(() => {
-    const toggleWish = (company) => {
-      const wishList = getWishList();
-
-      const exists = wishList.some(
-        (item) =>
-          item.c_id === company.c_id &&
-          item.c_kind === company.c_kind &&
-          item.c_name === company.c_name,
-      );
-
-      const newWishList = exists
-        ? wishList.filter(
-            (item) =>
-              !(
-                item.c_id === company.c_id &&
-                item.c_kind === company.c_kind &&
-                item.c_name === company.c_name
-              ),
-          )
-        : [...wishList, company];
-
-      localStorage.setItem("wishList", JSON.stringify(newWishList));
-    };    
-    toggleWish(company);
-  },[like]);
-  
   useEffect(() => {
     const fetchArticle = async () => {
       const data = await InteriorService.fetchArticle(company);
@@ -112,12 +112,12 @@ function InteriorArticle() {
             a: item.c_id,
             b: item.c_kind,
             c: item.c_name,
-            d: item.ie_tag+"_"+item.ie_tag2,
+            d: item.ie_tag + "_" + item.ie_tag2,
             view: false,
           });
-           if (!logo?.result?.length) {
-             return null;
-           }
+          if (!logo?.result?.length) {
+            return null;
+          }
           return {
             ...item,
             logo,
@@ -148,16 +148,8 @@ function InteriorArticle() {
       ))}
       <div>
         상세 조회 결과
-        <Maps c_addr={company.c_addr.split("__")[0]}/>
-        {article.map((item, idx) => (
-          <div key={idx}>
-            id: {item?.c_id}
-            name: {item?.c_name}
-            kind: {item?.c_kind}
-            tag: {item?.i_tag}
-            text: {item?.i_text}
-          </div>
-        ))}
+        <Maps c_addr={company.c_addr.split("__")[0]} />
+        <TableMui rowData={article} />
       </div>
       <div>
         예시 조회 결과
@@ -224,9 +216,7 @@ function InteriorArticle() {
         ))}
       </div>
       <InteriorReviewList company={company} />
-      <Button onClick={() => setLike(!like)}>
-        {like ? "찜 취소" : "찜하기"}
-      </Button>
+      <Button onClick={toggleWish}>{like ? "찜 취소" : "찜하기"}</Button>
       {answers ? (
         <div>
           {bookingPossible && (

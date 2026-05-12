@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.LikeMapper">
+
+<insert id="insertData" parameterType="com.spring.home.dto.LikeDTO">
+    INSERT INTO "LIKE" (
+        id,
+        f_code,
+        like_tag
+    ) VALUES (
+        #{id},
+        #{f_code},
+        #{like_tag}
+    )
+</insert>
+
+<select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.LikeDTO">
+    SELECT *
+    FROM (
+        SELECT rownum rnum, data.*
+        FROM (
+            SELECT id, f_code, like_tag
+            FROM "LIKE"
+            WHERE ${searchKey} LIKE '%' || #{searchValue} || '%'
+            ORDER BY id DESC
+        ) data
+    )
+    <![CDATA[
+    WHERE rnum >= #{start} AND rnum <= #{end}
+    ]]>
+</select>
+
+<select id="getReadData" parameterType="string" resultType="com.spring.home.dto.LikeDTO">
+    SELECT id, f_code, like_tag
+    FROM "LIKE"
+    WHERE id = #{id}
+</select>
+
+<update id="updateData" parameterType="com.spring.home.dto.LikeDTO">
+    UPDATE "LIKE"
+    SET f_code = #{f_code},
+        like_tag = #{like_tag}
+    WHERE id = #{id}
+</update>
+
+<delete id="deleteData" parameterType="string">
+    DELETE FROM "LIKE"
+    WHERE id = #{id}
+</delete>
+
+<select id="countFurnitureLike" parameterType="com.spring.home.dto.LikeDTO" resultType="int">
+    SELECT COUNT(*)
+    FROM "LIKE"
+    WHERE id = #{id}
+      AND f_code = #{f_code}
+      AND like_tag = #{like_tag}
+</select>
+
+<delete id="deleteFurnitureLike" parameterType="com.spring.home.dto.LikeDTO">
+    DELETE FROM "LIKE"
+    WHERE id = #{id}
+      AND f_code = #{f_code}
+      AND like_tag = #{like_tag}
+</delete>
+
+<select id="getMyFurnitureLikes" parameterType="string" resultType="com.spring.home.dto.FurnitureDTO">
+    SELECT
+        f.f_code,
+        f.c_id,
+        f.c_kind,
+        f.c_name,
+        f.f_name,
+        f.f_price,
+        f.f_dprice,
+        f.f_createddate,
+        f.f_catagory1,
+        f.f_catagory2,
+        f.f_catagory3,
+        f.f_catagory4,
+        f.f_catagory5,
+        f.f_discount,
+        f.f_point,
+        f.f_count,
+        f.f_viewcount
+    FROM "LIKE" l
+    JOIN furniture f
+      ON l.f_code = f.f_code
+    WHERE l.id = #{id}
+      AND l.like_tag = 'furniture'
+    ORDER BY f.f_createddate DESC
+</select>
+    
+</mapper>

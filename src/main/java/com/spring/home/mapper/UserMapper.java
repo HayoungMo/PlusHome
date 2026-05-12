@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.UserDTO;
@@ -35,5 +36,9 @@ public interface UserMapper {
             @Param("pw") String pw) throws Exception;
 	
 	public void insertCompany(CompanyDTO dto) throws Exception;
+	
+	public void updateMyPageUser(UserDTO dto) throws Exception;
+	
+	public void deleteUser(UserDTO dto) throws Exception;
 	
 }
