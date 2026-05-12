@@ -40,6 +40,7 @@ import FreeBoardWritePage from "./pages/FreeBoardWritePage";
 import FreeBoardArticlePage from "./pages/FreeBoardArticlePage";
 import FreeBoardEditPage from "./pages/FreeBoardEditPage";
 import UserMyPage from "./pages/UserMyPage";
+import DevDashboard from "./dashboardDev/DevDashBoard";
 
 
 function App() {
@@ -133,6 +134,7 @@ function App() {
         <Route path="/findId" element={<FindIdPage/>}/>
         <Route path="/findPw" element={<FindPwPage/>}/>
         <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
+        <Route path="/DevDashboard" element={<DevDashboard />} />
       </Routes>
     </div>
   );
