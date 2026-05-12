@@ -40,7 +40,7 @@ const [selectedImg, setSelectedImg] = useState(null);
       {review.map((item) => (
         <div>
           <p>리뷰 모음</p>
-          content : {item.ir_content}
+          {item.ir_content}
           {item.logo.result
             .filter((record) => record.dir_e === item.b_createdDate)
             .map((record, i) => (

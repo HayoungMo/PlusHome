@@ -13,4 +13,8 @@ public class QuestionDTO {
 	public String q_status;
 	public String q_content;
 	public Date q_createdDate;
+	public String q_title;
+	public String q_answer;
+	public Date q_answerDate;
+	public String q_secret;
 }

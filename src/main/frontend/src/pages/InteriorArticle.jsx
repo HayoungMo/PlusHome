@@ -9,6 +9,7 @@ import InteriorReviewList from "../components/InteriorReviewList";
 import { Button } from "@mui/material";
 import Maps from "../maps/Maps";
 import TableMui from "../components/TableMui";
+import { Chip, Stack } from "@mui/material";
 
 //테스트용 파일
 function InteriorArticle() {
@@ -23,26 +24,21 @@ function InteriorArticle() {
   const [example, setExample] = useState([]);
 
   const [selectedImg, setSelectedImg] = useState(null);
-  const getCoordsFromAddress = (address) => {
-    naver.maps.Service.geocode(
-      {
-        query: address,
-      },
-      function (status, response) {
-        if (status !== naver.maps.Service.Status.OK) {
-          console.error("주소 검색 실패");
-          return;
-        }
+  const groupInteriorTags = (list) => {
+    const result = {};
 
-        const result = response.v2.addresses[0];
+    list.forEach((item) => {
+      if (!result[item.i_tag]) {
+        result[item.i_tag] = [];
+      }
 
-        const lat = parseFloat(result.y);
-        const lng = parseFloat(result.x);
+      result[item.i_tag].push(item.i_text);
+    });
 
-        console.log(lat, lng);
-      },
-    );
+    return result;
   };
+
+  const groupedTags = groupInteriorTags(article);
 
   const handleNext = () => {
     navigate("/interior/question", {
@@ -67,6 +63,17 @@ function InteriorArticle() {
         item.c_kind === company.c_kind &&
         item.c_name === company.c_name,
     );
+  };
+
+  const tagNameMap = {
+    housingType: "주거 유형",
+    areaSize: "면적",
+    location: "지역",
+    spaces: "희망 공간",
+    budget: "예산",
+    schedule: "일정",
+    houseCondition: "주택 상태",
+    purpose: "목적",
   };
 
   const [like, setLike] = useState(isWished(company));
@@ -149,7 +156,16 @@ function InteriorArticle() {
       <div>
         상세 조회 결과
         <Maps c_addr={company.c_addr.split("__")[0]} />
-        <TableMui rowData={article} />
+        {Object.entries(groupedTags).map(([tag, values]) => (
+          <div key={tag}>
+            {tagNameMap[tag] || tag}
+            <Stack direction="row">
+              {values.map((value) => (
+                <Chip key={value} label={value} />
+              ))}
+            </Stack>
+          </div>
+        ))}
       </div>
       <div>
         예시 조회 결과
@@ -205,12 +221,9 @@ function InteriorArticle() {
             )}
 
             <div>
-              id: {item?.c_id}
-              name: {item?.c_name}
-              kind: {item?.c_kind}
-              tag: {item?.ie_tag}
-              tag2: {item?.ie_tag2}
-              content: {item?.ie_content}
+              <Chip key={item?.ie_tag} label={item?.ie_tag}  />
+              <Chip key={item?.ie_tag2} label={item?.ie_tag2}  />
+              {item?.ie_content}
             </div>
           </div>
         ))}
