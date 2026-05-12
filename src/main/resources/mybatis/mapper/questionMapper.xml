@@ -5,7 +5,7 @@
 <mapper namespace="com.spring.home.mapper.QuestionMapper">
 	
 	<!-- 문의를 작성 -->
-	<insert id="insertData" parameterType="com.spring.home.dto.QuesitonDTO">
+	<insert id="insertData" parameterType="com.spring.home.dto.QuestionDTO">
 		insert into question
 		(
 			id,

@@ -18,22 +18,15 @@ public class FurnitureReviewService {
 		furnitureReviewMapper.insertData(dto);
 	}
 	
-	public List<FurnitureReviewDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
-		return furnitureReviewMapper.getLists(start, end, searchKey, searchValue);
-	}
-	
-	public FurnitureReviewDTO getReadDataById(String id) throws Exception{
-		return furnitureReviewMapper.getReadDataById(id);
-	}
+	public List<FurnitureReviewDTO> getLists(FurnitureReviewDTO dto) throws Exception{
+		return furnitureReviewMapper.getLists(dto);
+	}	
 
-	public FurnitureReviewDTO getReadDataByFCode(String f_code) throws Exception{
-		return furnitureReviewMapper.getReadDataByFCode(f_code);
-	}
 	public void updateData(FurnitureReviewDTO dto) throws Exception{
 		furnitureReviewMapper.updateData(dto);
 	}
 	
-	public void deleteData(String id) throws Exception{
-		furnitureReviewMapper.deleteData(id);
+	public void deleteData(FurnitureReviewDTO dto) throws Exception{
+		furnitureReviewMapper.deleteData(dto);
 	}
 }

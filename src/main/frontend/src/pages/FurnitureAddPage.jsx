@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import FurnitureService from "../service/furnitureService";
 import { useNavigate, useParams } from "react-router-dom";
 
-const FurnitureAddPage = ({ cName = null, onSuccess }) => {
+const FurnitureAddPage = ({ cName = "가구점1", onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
