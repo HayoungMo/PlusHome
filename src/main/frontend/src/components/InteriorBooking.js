@@ -5,9 +5,15 @@ import { Button } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
+import AlertMui from "./AlertMui";
 
 const InteriorBooking = ({company, answers}) => {
-
+const [alert, setAlert] = useState({
+  open: false,
+  severity: "info",
+  title: "",
+  text: "",
+});
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -64,10 +70,41 @@ const InteriorBooking = ({company, answers}) => {
       ...data,
       answers: JSON.stringify(answers),
     };
-    InteriorService.AddBooking(payload);
+    const result = await InteriorService.AddBooking(payload);
+
+
+  if (result.success) {
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "등록 성공",
+      text: "시공 사례가 등록되었습니다.",
+    });
+  } else {
+    setAlert({
+      open: true,
+      severity: "error",
+      title: `에러 (${result.status})`,
+      text: result.message || "오류가 발생했습니다.",
+    });
+  }
   };
   return (
     <div style={{ display: "flex" }}>
+      {alert.open && (
+        <AlertMui
+          severity={alert.severity}
+          title={alert.title}
+          text={alert.text}
+          autoHideDuration={3000}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+        />
+      )}
       <form onSubmit={handleSubmit}>
         <h5>인테리어 상담 신청</h5>
         <div>
@@ -98,7 +135,7 @@ const InteriorBooking = ({company, answers}) => {
                 onClick: handleClose,
               },
               {
-                title: "제출",  
+                title: "제출",
                 variant: "contained",
                 onClick: (e) => {
                   console.log("제출 실행");

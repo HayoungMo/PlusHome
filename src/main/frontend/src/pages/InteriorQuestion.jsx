@@ -4,21 +4,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import InteriorCalculator from "../components/InteriorCalculator";
 import CheckboxMui from "../components/CheckboxMui";
 import DialogMui from "../components/DialogMui";
+import SelectMui from "../components/SelectMui";
 
 const InteriorQuestion = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const company = location.state?.company || null;
 
-   const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-   const handleOpen = () => {
-     setOpen(true);
-   };
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
-   const handleClose = () => {
-     setOpen(false);
-   };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const [step, setStep] = useState(0);
 
@@ -134,7 +135,7 @@ const InteriorQuestion = () => {
     setStep((prev) => prev + 1);
   };
 
-  const handleCheckChange = (value, checked) => {  
+  const handleCheckChange = (value, checked) => {
     setData((prev) => ({
       ...prev,
       spaces: checked
@@ -190,21 +191,18 @@ const InteriorQuestion = () => {
                 ))}
               </div>
             ) : (
-              <select
-                value={data[question.key]}
+              <SelectMui
+                label={question.title}
+                name={question.key}
+                value={data[question.key] || ""}
                 onChange={(e) =>
                   setData((prev) => ({
                     ...prev,
                     [question.key]: e.target.value,
                   }))
                 }
-              >
-                {question.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.title}
-                  </option>
-                ))}
-              </select>
+                option={question.options}
+              />
             )}
           </div>
         ))}
@@ -255,7 +253,9 @@ const InteriorQuestion = () => {
                 value={option.value}
                 label={option.title}
                 checked={data.spaces.includes(option.value)}
-                onChange={(e) => handleCheckChange(option.value,e.target.checked)}
+                onChange={(e) =>
+                  handleCheckChange(option.value, e.target.checked)
+                }
               />
             </label>
           ))}

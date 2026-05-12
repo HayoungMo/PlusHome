@@ -4,6 +4,7 @@ import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
+import AlertMui from "./AlertMui";
 
 const InteriorAdd = ({ company }) => {
   const [sendList, setSendList] = useState([]);
@@ -12,6 +13,13 @@ const InteriorAdd = ({ company }) => {
     c_kind: company.c_kind,
     c_name: company.c_name,
     tag: "",
+    text: "",
+  });
+
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
     text: "",
   });
 
@@ -77,7 +85,22 @@ const InteriorAdd = ({ company }) => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
-    InteriorService.AddInterior(form);
+    const result = await InteriorService.AddInterior(form);
+     if (result.success) {
+       setAlert({
+         open: true,
+         severity: "success",
+         title: "등록 성공",
+         text: "시공 사례가 등록되었습니다.",
+       });
+     } else {
+       setAlert({
+         open: true,
+         severity: "error",
+         title: `에러 (${result.status})`,
+         text: result.message || "오류가 발생했습니다.",
+       });
+     }
     onClickInsert();
     setSendList([]);
   };
@@ -112,6 +135,20 @@ const InteriorAdd = ({ company }) => {
 
   return (
     <div>
+      {alert.open && (
+        <AlertMui
+          severity={alert.severity}
+          title={alert.title}
+          text={alert.text}
+          autoHideDuration={3000}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+        />
+      )}
       <p>인테리어 업체 추가</p>
       <form name="article" onSubmit={handleSubmit}>
         <div>

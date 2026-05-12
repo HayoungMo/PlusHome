@@ -5,6 +5,7 @@ import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
 import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
+import AlertMui from "./AlertMui";
 
 const InteriorInvoiceAdd = ({ booking }) => {
   const [details, setDetails] = useState([{ text: "", qty: "", price: "" }]);
@@ -18,6 +19,13 @@ const InteriorInvoiceAdd = ({ booking }) => {
   const [kind, setKind] = useState({});
 
   const [reload, setReload] = useState(0);
+
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  });
 
   const refresh = () => {
     setReload((prev) => prev + 1);
@@ -151,23 +159,51 @@ const InteriorInvoiceAdd = ({ booking }) => {
 
     console.log("invoiceData:", invoiceData);
 
-    await InteriorService.AddInvoice(invoiceData);
-
+    const result = await InteriorService.AddInvoice(invoiceData);
+    if (result.success) {
+      setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
+    } else {
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러 (${result.status})`,
+        text: result.message || "오류가 발생했습니다.",
+      });
+    }
     refresh();
   };
 
   return (
     <div>
+      {alert.open && (
+        <AlertMui
+          severity={alert.severity}
+          title={alert.title}
+          text={alert.text}
+          autoHideDuration={3000}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+        />
+      )}
       <div>
         <p>인테리어 견적 추가</p>
 
-            <TableMuiCollapse
-              rowData={invoiceWithDetails}
-              hiddenColumns={["detail", "details"]}
-              collapseKey="detail"
-              collapseTitle="견적 상세 내역"
-              collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
-            />
+        <TableMuiCollapse
+          rowData={invoiceWithDetails}
+          hiddenColumns={["detail", "details"]}
+          collapseKey="detail"
+          collapseTitle="견적 상세 내역"
+          collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
+        />
 
         {(booking.b_status === "pending" || booking.b_status === "quoting") && (
           <form onSubmit={(e) => handleSubmit4(e, booking)}>
