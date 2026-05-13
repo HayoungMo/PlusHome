@@ -144,9 +144,10 @@ public class UserController {
 		try {
 			UserDTO user = userService.login(dto);
 						
-			System.out.println(dto);
+			System.out.println("USER DTO ==================");
+			System.out.println("Login Id : " + dto.getId());
+			System.out.println(user);
 			System.out.println("여기까지 도달");
-			System.out.println("user" + user);
 			
 			if(user==null) {
 				result.put("success", false);
@@ -187,7 +188,8 @@ public class UserController {
 		} catch (Exception e) {
 			System.out.println("====로그인 에러======");
 			System.out.println(e.toString());
-			
+			result.put("success", false);
+			result.put("message", e.toString());
 		}
 		return result;
 	}

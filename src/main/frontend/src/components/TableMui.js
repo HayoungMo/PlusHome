@@ -41,10 +41,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const TableMui = (props) => {
-	const { rowData = [], columns = [] } = props;
+	const { rowData = [], columns = [], col = [] } = props;
 
-	const tableColumns = rowData.length > 0 ? Object.keys(rowData[0]) : [];
+	console.log(rowData);
 
+	const tableColumns =
+		col.length === 0 ? (rowData.length > 0 ? Object.keys(rowData[0]) : []) : col;
 	return (
 		<TableContainer
 			component={Paper}
