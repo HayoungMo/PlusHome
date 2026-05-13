@@ -160,7 +160,7 @@ const InteriorUpdate = ({ company }) => {
         dir_c: insertForm.dir_c.value,
         dir_d: insertForm.dir_d.value,
         // dir_b: insertForm.dir_b.value,
-        img_idx: insertForm.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm.file.files[0],
       },
     ]);

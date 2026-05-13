@@ -41,8 +41,6 @@ const InteriorMyPage = () => {
 
         {tab === 2 && (
           <>
-            <p>찜 목록</p>
-
             {Array.isArray(like) && like.length > 0 ? (
               like.map((item, idx) => (
                 <div key={idx} onClick={() => handleNext(item)}>

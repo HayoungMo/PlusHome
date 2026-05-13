@@ -142,7 +142,7 @@ const InteriorExUpdate = ({ company }) => {
         dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm2.file.files[0],
       },
     ]);
@@ -236,7 +236,11 @@ const InteriorExUpdate = ({ company }) => {
             />
             <input
               type="hidden"
-              value="PROFILE"
+              value={
+                sendList === null || sendList.length === 0
+                  ? "THUMBNAIL"
+                  : "OTHER"
+              }
               name="img_tag"
               placeholder="IMG_TAG"
             />

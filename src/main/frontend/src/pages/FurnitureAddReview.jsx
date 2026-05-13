@@ -29,8 +29,8 @@ const FurnitureAddReview = () => {
     text: "",
   });
 
-  const [form, setForm] = useState({id:id, f_code:f_code});
-
+  const [form, setForm] = useState({ id: id, f_code: f_code });
+  const [preview, setPreview] = useState([]);
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -70,9 +70,13 @@ const FurnitureAddReview = () => {
         //dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm2.file.files[0],
       },
+    ]);
+    setPreview((prev) => [
+      ...prev,
+      URL.createObjectURL(insertForm2.file.files[0]),
     ]);
   };
 
@@ -145,7 +149,9 @@ const FurnitureAddReview = () => {
         />
         <input
           type="hidden"
-          value="PROFILE"
+          value={
+            sendList === null || sendList.length === 0 ? "THUMBNAIL" : "OTHER"
+          }
           name="img_tag"
           placeholder="IMG_TAG"
         />
@@ -171,6 +177,14 @@ const FurnitureAddReview = () => {
         <br />
         <input type="button" onClick={onClickAdd} value="Add" />
       </form>
+      {preview &&
+        preview.map((item) => (
+          <img
+            src={item}
+            style={{ width: "150px", height: "150px", objectFit: "cover" }}
+            alt=""
+          />
+        ))}
     </div>
   );
 };
