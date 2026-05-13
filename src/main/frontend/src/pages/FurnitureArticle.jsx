@@ -5,6 +5,7 @@ import LikeService from "../service/likeService";
 import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
 import FurnitureReview from "../components/FurnitureReview";
+import Question from "./Question";
 
 const FurnitureArticle = () => {
     const called = useRef(false);
@@ -673,7 +674,7 @@ const FurnitureArticle = () => {
                                 border: "1px solid #ddd"
                             }}
                         >
-                            등록된 문의가 없습니다.
+                            <Question f_code={f_code}/>
                         </div>
                     </div>
                 )}

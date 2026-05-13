@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import questionService from '../service/questionService';
+import { TextField } from '@mui/material';
+import CheckboxMui from '../components/CheckboxMui';
+import ImageService from '../service/imageService';
+import GetImgDir from '../resources/function/GetImgDir';
 
 const Question = ({ f_code }) => {
     const [questions, setQuestions] = useState([]);
@@ -8,6 +12,25 @@ const Question = ({ f_code }) => {
         q_content:"",
         q_secret:"N",
     });
+    const [answerForms, setAnswerForms] = useState({});
+    const [questionFiles,setQuestionFiles] = useState([]);
+    const [questionImages, setQuestionImages] = useState({}); 
+
+    const loginUser = JSON.parse(localStorage.getItem("user") || "null");
+
+    const isAdmin = 
+        loginUser?.type === "admin" ||
+        loginUser?.type === "dev" ||
+        loginUser?.type === "company";
+    
+    const canReadQuestion = (item) => {
+        if(item.q_secret !== "Y") return true;
+        if(!loginUser) return false;
+        if(loginUser.id === item.id) return true;
+        if(isAdmin) return true;
+
+        return false;
+    };
 
     const getQuestionList = async () => {
         if(!f_code) return;
@@ -49,7 +72,7 @@ const Question = ({ f_code }) => {
         }
 
         try{
-            await questionService.writeQuesiotn({
+            const savedQuestion = await questionService.writeQuestion({
                 id: user.id,
                 f_code,
                 q_title: questionForm.q_title,
@@ -58,13 +81,28 @@ const Question = ({ f_code }) => {
                 q_status: "received",
             });
 
-            alert("문의가 등록되었습니다");
+            if(questionFiles.length > 0) {
+                await ImageService.insertImage(
+                    questionFiles.map((file) => ({
+                        file,
+                        img_kind: "QUESTION",
+                        img_tag: "QUESTION",
+                        dir_a: f_code,
+                        dir_d: user.id,
+                        img_idx: savedQuestion.q_idx,
+                    }))
+                );
+            }
+
+            alert("문의가 등록되었습니다.");
 
             setQuestionForm({
                 q_title: "",
                 q_content: "",
                 q_secret: "N",
             });
+            setQuestionFiles([]);
+            
             getQuestionList();
         }catch(error){
             console.log(error);
@@ -74,12 +112,44 @@ const Question = ({ f_code }) => {
 
     };
 
+    const onAnswerChange = (q_idx, value) => {
+        setAnswerForms((prev) => ({
+            ...prev,
+            [q_idx]:value,
+        }));
+    };
+
+    const onAnswerSubmit = async (q_idx) => {
+        const q_answer = answerForms[q_idx];
+
+        if(!q_answer || !q_answer.trim()) {
+            alert("답변 내용을 입력해주세요.");
+            return;
+        }
+
+        try{
+            await questionService.answerQuestion({
+                q_idx,
+                q_answer,
+            });
+
+            alert("답변이 등록되었습니다.");
+            setAnswerForms((prev) => ({
+                ...prev,
+                [q_idx]: "",
+            }));
+            getQuestionList();
+        }catch (error){
+            console.error("답변 등록 실패:", error);
+            alert("답변 등록에 실패했습니다.")
+        }
+    };
+
     return (
         <section style={{ marginTop: "40px" }}>
-            <h3>상품 문의</h3>
 
             <form onSubmit={onQuestionSubmit}>
-                <input
+                <TextField
                     name="q_title"
                     placeholder="문의 제목"
                     value={questionForm.q_title}
@@ -87,24 +157,29 @@ const Question = ({ f_code }) => {
                 />
                 <br/>
 
-            <textarea
+                <TextField
                     name="q_content"
                     placeholder="문의 내용을 입력하세요"
                     value={questionForm.q_content}
                     onChange={onQuestionChange}
                     rows={4}
                 />
-
+                <br/>
+                <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(evt) => setQuestionFiles(Array.from(evt.target.files || []))}
+                />
                 <br />
 
                 <label>
-                    <input
-                        type="checkbox"
+                    <CheckboxMui
                         name="q_secret"
                         checked={questionForm.q_secret === "Y"}
                         onChange={onQuestionChange}
+                        label="비밀글"
                     />
-                    비밀글
                 </label>
 
                 <button type="submit">문의 등록</button>
@@ -117,21 +192,40 @@ const Question = ({ f_code }) => {
             ) : (
                 questions.map((item) => (
                     <div key={item.q_idx}>
-                        <p>
-                            [{item.q_status}] {item.q_secret === "Y" && "비밀글"}
-                        </p>
 
-                        <h4>{item.q_title}</h4>
-                        <p>{item.q_content}</p>
-                        <p>작성자: {item.id}</p>
-
-                        {item.q_answer ? (
-                            <div>
-                                <strong>답변</strong>
-                                <p>{item.q_answer}</p>
-                            </div>
+                        <h4>Q.{canReadQuestion(item) ? item.q_title: "비밀글입니다."}</h4>
+                        {canReadQuestion(item) ? (
+                            <>
+                                <p>{item.q_content}</p>
+                                <p>작성자: {item.id}</p>
+                            </>
                         ) : (
-                            <p>아직 답변이 없습니다.</p>
+                            <p>작성자와 관리자만 확인할 수 있습니다.</p>
+                        )}
+
+                        {canReadQuestion(item) && (
+                            item.q_answer ? (
+                                <div>
+                                    <strong>답변</strong>
+                                    <p>{item.q_answer}</p>
+                                </div>
+                            ) : (
+                                <p>아직 답변이 없습니다.</p>
+                            )
+                        )}
+                        {isAdmin && canReadQuestion(item) && !item.q_answer && (
+                            <div>
+                                <TextField
+                                    placeholder="답변 내용을 입력하세요"
+                                    value={answerForms[item.q_idx] || ""}
+                                    onChange={(evt) => onAnswerChange(item.q_idx, evt.target.value)}
+                                    rows={3}
+                                />
+                                <br/>
+                                <button type="button" onClick={() => onAnswerSubmit(item.q_idx)}>
+                                    답변 등록
+                                </button>
+                            </div>
                         )}
 
                         <hr />
