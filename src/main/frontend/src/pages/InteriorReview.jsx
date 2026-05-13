@@ -4,7 +4,6 @@ import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
 import { useLocation, useNavigate } from "react-router-dom";
-import InteriorService from "../service/interiorService";
 import DialogMui from "../components/DialogMui";
 
 const InteriorReview = () => {
@@ -22,15 +21,15 @@ const InteriorReview = () => {
     b_createdDate: invoice.b_createdDate,
   });
 
-   const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState([]);
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
-   const handleOpen = () => {
-     setOpen(true);
-   };
-
-   const handleClose = () => {
-     setOpen(false);
-   };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleBack = () => {
     navigate(-1);
@@ -43,7 +42,7 @@ const InteriorReview = () => {
     didRun.current = true;
 
     const fetchReview = async () => {
-      const data = await InteriorService.fetchInteriorReview(form);
+      const data = await InteriorUserService.fetchInteriorReview(form.id);
 
       if (data.length !== 0) {
         alert("이미 작성한 리뷰가 있습니다.");
@@ -61,7 +60,6 @@ const InteriorReview = () => {
     });
   };
   const handleSubmit = async (e) => {
-
     try {
       await InteriorUserService.AddInteriorReview(form);
 
@@ -69,7 +67,6 @@ const InteriorReview = () => {
         await ImageService.insertImage(sendList);
       }
       handleBack();
-
     } catch (error) {
       console.error(error);
       alert("등록 중 오류가 발생했습니다.");
@@ -88,9 +85,13 @@ const InteriorReview = () => {
         dir_c: insertForm.dir_c.value,
         dir_d: insertForm.dir_d.value,
         dir_e: insertForm.dir_e.value,
-        img_idx: insertForm.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm.file.files[0],
       },
+    ]);
+    setPreview((prev) => [
+      ...prev,
+      URL.createObjectURL(insertForm.file.files[0]),
     ]);
   };
 
@@ -140,7 +141,9 @@ const InteriorReview = () => {
         />
         <input
           type="hidden"
-          value="PROFILE"
+          value={
+            sendList === null || sendList.length === 0 ? "THUMBNAIL" : "OTHER"
+          }
           name="img_tag"
           placeholder="IMG_TAG"
         />
@@ -179,6 +182,14 @@ const InteriorReview = () => {
         <br />
         <input type="button" onClick={onClickAdd} value="Add" />
       </form>
+      {preview &&
+        preview.map((item) => (
+          <img
+            src={item}
+            style={{ width: "150px", height: "150px", objectFit: "cover" }}
+            alt=""
+          />
+        ))}
     </div>
   );
 };

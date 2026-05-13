@@ -58,7 +58,6 @@ const fetchBookingList = async (data) => {
   console.log("들어온 데이터", data);
   try {
     const res = await http.post("interior/bookinglists", {
-      id:"",
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,

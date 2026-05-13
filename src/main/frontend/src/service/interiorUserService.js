@@ -5,9 +5,6 @@ const fetchBookingList = async (id) => {
   try {
     const res = await http.post("interior/bookinglists", {
       id: id,
-      c_id: "",
-      c_kind: "",
-      c_name: "",
     });
 
     console.log("응답 데이터:", res.data);
@@ -60,10 +57,6 @@ const fetchInteriorReview = async (id) => {
   try {
     const res = await http.post("interior/userreview", {
       id: id,
-      c_id: "",
-      c_kind: "",
-      c_name: "",
-      b_createdDate: "",
       invoice_kind: "Y",
     });
 

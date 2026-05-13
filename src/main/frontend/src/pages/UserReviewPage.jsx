@@ -13,6 +13,7 @@ const UserReviewPage = ({ user }) => {
   const [reviews, setReviews] = useState();
   const [refresh, setRefresh] = useState(0);
   const [change, setChange] = useState([]);
+
   const changeToUpdate = (idx) => {
     setChange((prv) => {
       const newChange = [...prv];
@@ -101,10 +102,12 @@ const UserReviewPage = ({ user }) => {
     }
   };
 
-  const reviewDeleteSubmit = (idx) => {
+  const reviewDeleteSubmit = async (idx) => {
     FurnitureReviewService.deleteReview(reviews[idx]);
-    reviews[idx].logo?.result?.map((record) =>
-      imageDelete([record.img_originalName]),
+    await Promise.all(
+      reviews[idx].logo?.result?.map((record) =>
+        imageDelete([record.img_originalName]),
+      ),
     );
     setAlert({
       open: true,
@@ -144,6 +147,7 @@ const UserReviewPage = ({ user }) => {
 
   const onClickAdd = () => {
     const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
+
     setSendList([
       ...sendList,
       {
@@ -154,7 +158,7 @@ const UserReviewPage = ({ user }) => {
         //dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm2.file.files[0],
       },
     ]);
@@ -189,7 +193,10 @@ const UserReviewPage = ({ user }) => {
         <div>
           {item?.logo?.result.map((record, i) => (
             <div>
-              <img src={record.img_name} alt={`${item.c_name} 예시`} />
+              <img
+                src={`${record.img_name}?t=${refresh}`}
+                alt={`${item.c_name} 예시`}
+              />
               {change[idx] && (
                 <form>
                   <input
@@ -289,7 +296,11 @@ const UserReviewPage = ({ user }) => {
               />
               <input
                 type="hidden"
-                value="PROFILE"
+                value={
+                  sendList === null || sendList.length === 0
+                    ? "THUMBNAIL"
+                    : "OTHER"
+                }
                 name="img_tag"
                 placeholder="IMG_TAG"
               />
@@ -323,7 +334,7 @@ const UserReviewPage = ({ user }) => {
               <input
                 type="hidden"
                 name="img_idx"
-                value="1"
+                value={sendList.length + 1}
                 placeholder="IMG_IDX"
               />
               <input type="file" name="file" />
