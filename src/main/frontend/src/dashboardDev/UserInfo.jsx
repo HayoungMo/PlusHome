@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import userService from '../service/userService';
 import TableMui from '../components/TableMui';
 import { Button } from '@mui/material';
+import TableChkMui from '../components/TableChkMui';
 
 
 
@@ -244,7 +245,7 @@ const UserInfo = (props) => {
             <div>
 			{userList.length !== 0 ? (
 
-                <TableMui rowData={userList}
+                <TableChkMui rowData={userList}
                 editableOnChange={tableMuiEditableOnChange}
                 setSelectedKeys={setSelectedUserKeys}
                 selectedKeys={selectedUserKeys}
