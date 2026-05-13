@@ -7,6 +7,8 @@ import { Button } from "@mui/material";
 import RatingMui from "../components/RatingMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
+import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
 
 const FurnitureAddReview = () => {
   const id = localStorage.getItem("id");
@@ -177,7 +179,11 @@ const FurnitureAddReview = () => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
       </form>
       {preview &&
         preview.map((item) => (

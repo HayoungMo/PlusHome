@@ -46,9 +46,6 @@ function App() {
     return (
         <div className="App">
             <Routes>
-                {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
-                {/* 추가: 공통 헤더,풋터 적용된 페이지 그룹 - 5월 8일 모하영 */}
-                {/* 로그인 */}
                 {/* PageLayout 적용 페이지 그룹 */}
                 <Route
                     element={
@@ -59,7 +56,7 @@ function App() {
                         />
                     }
                 >
-                   
+                    {/* 메인 */}
                     <Route
                         path="/"
                         element={
@@ -70,20 +67,6 @@ function App() {
                             />
                         }
                     />
-                    <Route
-                    path="/login"
-                    element={
-                        <LoginPage
-                            loginUser={loginUser}
-                            setLoginUser={setLoginUser}
-                            setLoginInfo={setLoginInfo}
-                        />
-                            }
-                    />
-			
-                    <Route path="/join" element={<JoinUserPage />} />
-                    <Route path="/findId" element={<FindIdPage />} />
-                    <Route path="/findPw" element={<FindPwPage />} />
 
                     {/* 유저 마이페이지 */}
                     <Route
@@ -96,7 +79,6 @@ function App() {
                                 setLoginInfo={setLoginInfo}
                             />
                         }
-                       
                     />
 
                     {/* 검색 */}
@@ -107,6 +89,10 @@ function App() {
 
                     {/* 장바구니 */}
                     <Route path="/cart" element={<CartPage />} />
+
+                    {/* 결제 */}
+                    <Route path="/payment" element={<PaymentPage />} />
+                    <Route path="/payment/success" element={<PaymentSuccessPage />} />
 
                     {/* 가구/쇼핑 */}
                     <Route path="/furniture/list" element={<FurnitureList />} />
@@ -127,24 +113,36 @@ function App() {
                     <Route path="/interior/mypage" element={<InteriorMyPage />} />
                     <Route path="/interior/chart" element={<InteriorChart />} />
 
-                   {/* 자유게시판 */}
+                    {/* 자유게시판 */}
                     <Route path="/freeboard/list" element={<FreeBoardListPage />} />
                     <Route path="/freeboard/write" element={<FreeBoardWritePage />} />
                     <Route path="/freeboard/article/:boardId" element={<FreeBoardArticlePage />} />
                     <Route path="/freeboard/edit/:boardId" element={<FreeBoardEditPage />} />
 
-                    {/* component = mui 테스트용 과 이미지테스트, pdf */}
+                    {/* 테스트/기타 */}
                     <Route path="/component" element={<ComponentEx />} />
                     <Route path="/ImageGetTest" element={<ImageGetTest />} />
                     <Route path="/exportPDF" element={<ExportPDF />} />
                     <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
                 </Route>
 
-                {/* PageLayout 없는 단독 페이지 */}
-                
-            <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
-            <Route path="/DevDashboard" element={<DevDashboard />} />
-        </Routes>
+                {/* 레이아웃 없이 따로 연결되는 페이지 */}
+                <Route
+                    path="/login"
+                    element={
+                        <LoginPage
+                            loginUser={loginUser}
+                            setLoginUser={setLoginUser}
+                            setLoginInfo={setLoginInfo}
+                        />
+                    }
+                />
+                <Route path="/join" element={<JoinUserPage />} />
+                <Route path="/findId" element={<FindIdPage />} />
+                <Route path="/findPw" element={<FindPwPage />} />
+                <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
+                <Route path="/DevDashboard" element={<DevDashboard />} />
+            </Routes>
         </div>
     );
 }

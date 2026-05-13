@@ -3,6 +3,7 @@ package com.spring.home.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.spring.home.dto.OptionsDTO;
 
@@ -22,5 +23,18 @@ public interface OptionsMapper {
 	public void deleteOne(String o_code) throws Exception;
 	
 	public List<OptionsDTO> getListByFcode(String f_code) throws Exception;
+	
+	public int decreaseOptionStock(
+			@Param("f_code") String f_code,
+			@Param("o_select") String o_select,
+			@Param("o_text") String o_text,
+			@Param("count") int count);
+	
+	public int increaseOptionStock(
+		    @Param("f_code") String f_code,
+		    @Param("o_select") String o_select,
+		    @Param("o_text") String o_text,
+		    @Param("count") int count
+		);
 	
 }

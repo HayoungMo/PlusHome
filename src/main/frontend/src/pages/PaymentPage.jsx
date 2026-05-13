@@ -288,7 +288,7 @@ const PaymentPage = () => {
                     </p>
                 )}
 
-                <button type="button" onClick={() => navigate("/mypage")}>
+                <button type="button" onClick={() => navigate("/userpage?menu=wallet")}>
                     지갑 충전하기
                 </button>
             </section>
@@ -397,7 +397,7 @@ const PaymentPage = () => {
             {lackMoney > 0 && (
                 <button
                     type='button'
-                    onClick={()=> navigate("/mypage")}
+                    onClick={()=> navigate("/userpage?menu=wallet")}
                     style={{marginBottom: "12px"}}
                 >
                         지갑 충전하기

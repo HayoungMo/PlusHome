@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {getImgDirSimple} from "../resources/function/GetImgDir"
 import UserPageService from "../service/userPageService";
 import  Loading  from "./Loading"
@@ -15,13 +15,22 @@ import WalletCharge from './WalletCharge';
 
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
+    const location = useLocation();
+    const queryMenu = new URLSearchParams(location.search).get("menu");
+
     const fileInputRef = useRef(null)
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [activeMenu, setActiveMenu] = useState("edit");
+    const [activeMenu, setActiveMenu] = useState(queryMenu || "edit");
     const [profileImage, setProfileImage] = useState(null);
     const [wallet, setWallet]= useState(null)
-
+    
+    useEffect(()=>{
+        if(queryMenu){
+            setActiveMenu(queryMenu)
+        }
+    },[queryMenu])
+ 
     useEffect(()=>{
         const token = localStorage.getItem("token")
 

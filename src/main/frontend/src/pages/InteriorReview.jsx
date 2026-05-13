@@ -5,6 +5,8 @@ import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
 import { useLocation, useNavigate } from "react-router-dom";
 import DialogMui from "../components/DialogMui";
+import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
 
 const InteriorReview = () => {
   const [sendList, setSendList] = useState([]);
@@ -181,7 +183,11 @@ const InteriorReview = () => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
       </form>
       {preview &&
         preview.map((item) => (

@@ -6,6 +6,10 @@ import ImageService from "../service/imageService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 const InteriorUpdate = ({ company }) => {
   const [article, setArticle] = useState([]);
@@ -222,9 +226,11 @@ const InteriorUpdate = ({ company }) => {
                 required
               />
             )}
-            <Button onClick={() => handleOpen()} variant="contained">
-              제출
-            </Button>
+            <FloatingActionButtonMui
+              icon={<FileUploadIcon />}
+              color="primary"
+              onClick={() => handleOpen()}
+            />
             <DialogMui
               open={open}
               onClose={handleClose}
@@ -247,14 +253,12 @@ const InteriorUpdate = ({ company }) => {
                 },
               ]}
             />
-            <Button
-              onClick={(e) => {
-                handleOpen1();
-              }}
-              variant="contained"
-            >
-              삭제
-            </Button>
+
+            <FloatingActionButtonMui
+              icon={<DeleteIcon />}
+              color="error"
+              onClick={() => handleOpen1()}
+            />
             <DialogMui
               open={open1}
               onClose={handleClose1}

@@ -6,7 +6,9 @@ import ImageService from "../service/imageService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
-
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import AddIcon from '@mui/icons-material/Add';
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 const InteriorExAdd = ({ company }) => {
   const [sendList2, setSendList2] = useState([]);
   const [sendList3, setSendList3] = useState([]);
@@ -216,8 +218,16 @@ const InteriorExAdd = ({ company }) => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd3} value="Add" />
-        <input type="button" onClick={onClickInsert3} value="Upload" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd3()}
+        />
+        <FloatingActionButtonMui
+          icon={<FileUploadIcon />}
+          color="secondary"
+          onClick={() => onClickInsert3()}
+        />
       </form>
       인테리어 시공 사례 추가
       <form name="example" onSubmit={handleSubmit2}>
@@ -320,7 +330,11 @@ const InteriorExAdd = ({ company }) => {
           {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
           <input type="file" name="file" />
           <br />
-          <input type="button" onClick={onClickAdd2} value="Add" />
+          <FloatingActionButtonMui
+            icon={<AddIcon />}
+            color="primary"
+            onClick={() => onClickAdd2()}
+          />
         </form>
       )}
       {preview &&

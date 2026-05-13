@@ -5,6 +5,9 @@ import ImageService from "../service/imageService";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import AlertMui from "./AlertMui";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 const InteriorAdd = ({ company }) => {
   const [sendList, setSendList] = useState([]);
@@ -129,7 +132,7 @@ const InteriorAdd = ({ company }) => {
     ]);
   };
 
-  const onClickInsert = async() => {
+  const onClickInsert = async () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
       return; // 🚫 요청 안 보냄
@@ -233,8 +236,16 @@ const InteriorAdd = ({ company }) => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
-        <input type="button" onClick={onClickInsert} value="Insert" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
+        <FloatingActionButtonMui
+          icon={<FileUploadIcon />}
+          color="secondary"
+          onClick={() => onClickInsert()}
+        />
       </form>
       {preview &&
         preview.map((item) => (
