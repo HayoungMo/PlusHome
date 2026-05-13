@@ -6,7 +6,7 @@
 
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.WalletDTO">
-	insert into wallet (id, money) values (#{id},0) 
+	insert into wallet (id, money) values (#{id},#{money}) 
 </insert>
 
 <!-- 수정 -->
