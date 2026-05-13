@@ -74,6 +74,8 @@ const InteriorAdd = ({ company }) => {
     }
   ];
 
+    const [preview, setPreview] = useState([]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -119,10 +121,11 @@ const InteriorAdd = ({ company }) => {
         dir_c: insertForm.dir_c.value,
         dir_d: insertForm.dir_d.value,
         // dir_b: insertForm.dir_b.value,
-        img_idx: insertForm.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm.file.files[0],
       },
     ]);
+    setPreview((prev) => [...prev, URL.createObjectURL(insertForm.file.files[0])]);
   };
 
   const onClickInsert = () => {
@@ -193,7 +196,9 @@ const InteriorAdd = ({ company }) => {
         />
         <input
           type="hidden"
-          value="PROFILE"
+          value={
+            sendList === null || sendList.length === 0 ? "THUMBNAIL" : "OTHER"
+          }
           name="img_tag"
           placeholder="IMG_TAG"
         />
@@ -222,6 +227,14 @@ const InteriorAdd = ({ company }) => {
         <br />
         <input type="button" onClick={onClickAdd} value="Add" />
       </form>
+      {preview &&
+        preview.map((item) => (
+          <img
+            src={item}
+            style={{ width: "150px", height: "150px", objectFit: "cover" }}
+            alt=""
+          />
+        ))}
     </div>
   );
 };

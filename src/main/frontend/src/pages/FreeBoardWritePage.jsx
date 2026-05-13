@@ -6,10 +6,10 @@ import { getLoginUser, GUEST_ID, GUEST_NAME } from "../components/freeboard/cons
 
 const FreeBoardWritePage = () => {
     const navigate = useNavigate();
+    const loginUser = getLoginUser();
 
     const handleSave = async (data) => {
       
-        const loginUser = getLoginUser();
 
        
         const boardWithUser = {
@@ -31,12 +31,13 @@ const FreeBoardWritePage = () => {
     };
 
     return (
-        <div>
-            <FreeBoardWriteMui
-                onSave={handleSave}
-                onCancel={() => navigate("/freeboard/list")}
-            />
-        </div>
+    <div>
+        <FreeBoardWriteMui
+            onSave={handleSave}
+            onCancel={() => navigate("/freeboard/list")}
+            isAdmin={loginUser?.type === "admin"}
+        />
+    </div>
     );
 };
 

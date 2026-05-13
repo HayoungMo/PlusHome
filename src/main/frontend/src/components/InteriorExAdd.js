@@ -53,6 +53,8 @@ const InteriorExAdd = ({ company }) => {
      { value: "floor", title: "마루" },
    ];
 
+       const [preview, setPreview] = useState([]);
+
   const handleChange2 = (e) => {
     setForm2({
       ...form2,
@@ -95,10 +97,14 @@ const InteriorExAdd = ({ company }) => {
         dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList2.length,
         file: insertForm2.file.files[0],
       },
     ]);
+        setPreview((prev) => [
+          ...prev,
+          URL.createObjectURL(insertForm2.file.files[0]),
+        ]);
   };
 
   const onClickInsert2 = () => {
@@ -123,7 +129,7 @@ const InteriorExAdd = ({ company }) => {
         dir_c: insertForm3.dir_c.value,
         dir_d: insertForm3.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm3.img_idx.value,
+        img_idx: sendList3.length,
         file: insertForm3.file.files[0],
       },
     ]);
@@ -259,7 +265,9 @@ const InteriorExAdd = ({ company }) => {
         />
         <input
           type="hidden"
-          value="PROFILE"
+          value={
+            sendList3 === null || sendList3.length === 0 ? "THUMBNAIL" : "OTHER"
+          }
           name="img_tag"
           placeholder="IMG_TAG"
         />
@@ -288,11 +296,18 @@ const InteriorExAdd = ({ company }) => {
           placeholder="DIR_D"
         />
         {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-        <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
         <input type="button" onClick={onClickAdd2} value="Add" />
       </form>
+      {preview &&
+        preview.map((item) => (
+          <img
+            src={item}
+            style={{ width: "150px", height: "150px", objectFit: "cover" }}
+            alt=""
+          />
+        ))}
     </div>
   );
 };

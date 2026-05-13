@@ -6,11 +6,10 @@ import TextFieldMui from "./TextFieldMui";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
 
-const InteriorMyReview = ({id}) => {
+const InteriorMyReview = ({ id }) => {
   const [review, setReview] = useState([]);
   const [change, setChange] = useState([]);
   const [sendList, setSendList] = useState([]);
-  const [refresh, setRefresh] = useState(0);
 
   const handleChange = (idx, e) => {
     const { name, value } = e.target;
@@ -34,34 +33,33 @@ const InteriorMyReview = ({id}) => {
   const handleClose = () => {
     setOpen(false);
   };
+  const fetchReview = async () => {
+    const data = await InteriorUserService.fetchInteriorReview(id);
+    const companyList = Array.isArray(data) ? data : [];
+    const listWithImages = await Promise.all(
+      companyList.map(async (item) => {
+        const logo = await GetImgDir({
+          kind: "I_REVIEW",
+          returnType: "list",
+          a: item.c_id,
+          b: item.c_kind,
+          c: item.c_name,
+          d: item.id,
+          e: item.b_createdDate,
+          view: false,
+        });
+        return {
+          ...item,
+          logo,
+        };
+      }),
+    );
+    setReview(listWithImages);
+  };
 
   useEffect(() => {
-    const fetchReview = async () => {
-      const data = await InteriorUserService.fetchInteriorReview(id);
-      const companyList = Array.isArray(data) ? data : [];
-      const listWithImages = await Promise.all(
-        companyList.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "I_REVIEW",
-            returnType: "list",
-            a: item.c_id,
-            b: item.c_kind,
-            c: item.c_name,
-            d: item.id,
-            e: item.b_createdDate,
-            view: false,
-          });
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
-      setReview(listWithImages);
-    };
-
     fetchReview();
-  }, [refresh]);
+  }, []);
 
   const changeToUpdate = (idx) => {
     setChange((prv) => {
@@ -70,17 +68,20 @@ const InteriorMyReview = ({id}) => {
       return newChange;
     });
   };
-  const reviewDeleteSubmit = (idx) => {
-    InteriorUserService.DeleteInteriorReview(review[idx]);
-    review[idx].logo.result.map((record) =>
-      imageDelete([record.img_originalName]),
+  const reviewDeleteSubmit = async (idx) => {
+    await InteriorUserService.DeleteInteriorReview(review[idx]);
+    await Promise.all(
+      review[idx].logo.result.map((record) =>
+        imageDelete([record.img_originalName]),
+      ),
     );
-    setRefresh(refresh + 1);
+    await fetchReview();
   };
-  const reviewUpdateSubmit = (idx) => {
+  const reviewUpdateSubmit = async (idx) => {
+    const targetReview = review[idx];
+    await InteriorUserService.UpdateInteriorReview(targetReview);
+    await fetchReview();
     changeToUpdate(idx);
-    InteriorUserService.UpdateInteriorReview(review[idx]);
-    setRefresh(refresh + 1);
   };
 
   const imageUpload = async (e) => {
@@ -102,12 +103,12 @@ const InteriorMyReview = ({id}) => {
     }
     // await ImageService.updateImage(fileList, updateTest);
     await ImageService.updateImage(fileList);
-    setRefresh(refresh + 1);
+    await fetchReview();
   };
 
   const imageDelete = async (item) => {
     await ImageService.deleteImage(item);
-    setRefresh(refresh + 1);
+    await fetchReview();
   };
 
   const onClickAdd = () => {
@@ -124,20 +125,20 @@ const InteriorMyReview = ({id}) => {
         dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         dir_e: insertForm2.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm2.file.files[0],
       },
     ]);
   };
 
-  const onClickInsert = () => {
+  const onClickInsert = async () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
       return; // 🚫 요청 안 보냄
     }
     console.log(sendList);
-    ImageService.insertImage(sendList);
-    setRefresh(refresh + 1);
+    await ImageService.insertImage(sendList);
+    await fetchReview();
   };
 
   return (
@@ -190,7 +191,11 @@ const InteriorMyReview = ({id}) => {
                 />
                 <input
                   type="hidden"
-                  value="PROFILE"
+                  value={
+                    sendList === null || sendList.length === 0
+                      ? "THUMBNAIL"
+                      : "OTHER"
+                  }
                   name="img_tag"
                   placeholder="IMG_TAG"
                 />
