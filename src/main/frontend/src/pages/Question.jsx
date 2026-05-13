@@ -31,13 +31,26 @@ const Question = ({ f_code }) => {
 
         return false;
     };
-
+    //5월 13일 이미지 파일 올리는 작업 하다 퇴근 5월 14일에 마저 할 예정
     const getQuestionList = async () => {
         if(!f_code) return;
 
         try {
             const data = await questionService.getQuestionList(f_code);
-            setQuestions(Array.isArray(data) ? data : []);
+            const questionList = Array.isArray(data) ? data : [];
+
+            setQuestions(questionList);
+
+            const imageMap = {};
+
+            for(const itme of questionList){
+                const imgResult = await GetImgDir({
+                    kind:"QUESTION",
+                    returnType: "list",
+
+                })
+            }
+
         } catch (error) {
             console.error("문의 목록 조회에 실패했습니다", error);
         }

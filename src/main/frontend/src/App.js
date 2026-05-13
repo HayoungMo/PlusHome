@@ -46,7 +46,10 @@ function App() {
     return (
         <div className="App">
             <Routes>
+                {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
+                {/* 추가: 공통 헤더,풋터 적용된 페이지 그룹 - 5월 8일 모하영 */}
                 {/* PageLayout 적용 페이지 그룹 */}
+                {/* 로그인 */}
                 <Route
                     element={
                         <PageLayout
@@ -56,7 +59,7 @@ function App() {
                         />
                     }
                 >
-                    {/* 메인 */}
+                    
                     <Route
                         path="/"
                         element={
@@ -67,6 +70,19 @@ function App() {
                             />
                         }
                     />
+                    <Route
+                    path="/login"
+                    element={
+                        <LoginPage
+                            loginUser={loginUser}
+                            setLoginUser={setLoginUser}
+                            setLoginInfo={setLoginInfo}
+                        />
+                    }
+                    />
+                    <Route path="/join" element={<JoinUserPage />} />
+                    <Route path="/findId" element={<FindIdPage />} />
+                    <Route path="/findPw" element={<FindPwPage />} />
 
                     {/* 유저 마이페이지 */}
                     <Route
@@ -119,7 +135,7 @@ function App() {
                     <Route path="/freeboard/article/:boardId" element={<FreeBoardArticlePage />} />
                     <Route path="/freeboard/edit/:boardId" element={<FreeBoardEditPage />} />
 
-                    {/* 테스트/기타 */}
+                    {/* component = mui 테스트용 과 이미지테스트, pdf*/}
                     <Route path="/component" element={<ComponentEx />} />
                     <Route path="/ImageGetTest" element={<ImageGetTest />} />
                     <Route path="/exportPDF" element={<ExportPDF />} />
@@ -127,19 +143,7 @@ function App() {
                 </Route>
 
                 {/* 레이아웃 없이 따로 연결되는 페이지 */}
-                <Route
-                    path="/login"
-                    element={
-                        <LoginPage
-                            loginUser={loginUser}
-                            setLoginUser={setLoginUser}
-                            setLoginInfo={setLoginInfo}
-                        />
-                    }
-                />
-                <Route path="/join" element={<JoinUserPage />} />
-                <Route path="/findId" element={<FindIdPage />} />
-                <Route path="/findPw" element={<FindPwPage />} />
+                
                 <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
                 <Route path="/DevDashboard" element={<DevDashboard />} />
             </Routes>
