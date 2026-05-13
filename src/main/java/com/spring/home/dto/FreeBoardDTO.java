@@ -13,6 +13,10 @@ public class FreeBoardDTO {
     private int viewCount;
     private int likeCount;
     private int commentCount;
+    
+    
+    private int hidden; 
+    
     private String createdAt;
     private String updatedAt;
 }

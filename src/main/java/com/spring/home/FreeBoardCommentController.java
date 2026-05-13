@@ -3,126 +3,118 @@ package com.spring.home;
 import com.spring.home.dto.FreeBoardCommentDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.service.FreeBoardCommentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.spring.home.util.JwtUtil;
+import javax.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/freeboard/comments")
 public class FreeBoardCommentController {
 
-    @Autowired
-    private FreeBoardCommentService commentService;
+    private final FreeBoardCommentService commentService;
+    private final JwtUtil jwtUtil;
 
-    // 관리자 권한 타입 (USERS.TYPE = 'admin' 인 계정은 모든 권한)
     private static final String ADMIN_TYPE = "admin";
+    private static final String GUEST_ID   = "Guest";
 
-    // 세션에서 로그인 유저 꺼내는 공통 메서드
-    private UserDTO getLoginUser(HttpSession session) {
-        return (UserDTO) session.getAttribute("loginUser");
+    /* ───────── 헬퍼 ───────── */
+
+    private UserDTO getLoginUser(HttpServletRequest request) {
+        String auth = request.getHeader("Authorization");
+        if (auth == null || !auth.startsWith("Bearer ")) return null;
+        try {
+            String token = auth.substring(7);
+            UserDTO user = new UserDTO();
+            user.setId(jwtUtil.getId(token));
+            user.setType(jwtUtil.getType(token));
+            return user;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    // 관리자 여부: type 이 'admin' 인 사용자
-    private boolean isAdmin(UserDTO loginUser) {
-        return loginUser != null && ADMIN_TYPE.equals(loginUser.getType());
-    }
+    /* ───────── 엔드포인트 ───────── */
 
-    // 댓글 수정/삭제 권한: 작성자 본인 또는 관리자(type=admin)
-    private boolean canModify(FreeBoardCommentDTO existing, UserDTO loginUser) {
-        if (loginUser == null) return false;
-        if (isAdmin(loginUser)) return true;
-        return existing != null
-                && existing.getUserId() != null
-                && !"Guest".equals(existing.getUserId())
-                && existing.getUserId().equals(loginUser.getId());
-    }
-
+    // 1. 댓글 목록 조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<List<FreeBoardCommentDTO>> list(@PathVariable("boardId") Long boardId) {
-        return ResponseEntity.ok(commentService.getComments(boardId));
+    public ResponseEntity<List<FreeBoardCommentDTO>> getList(
+            @PathVariable Long boardId,
+            @RequestParam(value = "type", required = false, defaultValue = "guest") String type) {
+        return ResponseEntity.ok(commentService.getComments(boardId, type));
     }
 
-
+    // 2. 댓글 등록
     @PostMapping("/write")
-    public ResponseEntity<String> write(@RequestBody FreeBoardCommentDTO dto, HttpSession session) {
-        UserDTO loginUser = getLoginUser(session);
+    public ResponseEntity<?> write(
+            @RequestBody FreeBoardCommentDTO dto,
+            HttpServletRequest request) {
 
-        // 작성자 정보는 항상 서버에서 결정 (클라이언트 값 신뢰 X)
-        if (loginUser != null) {
+        if (dto.getUserId() == null || dto.getUserId().isEmpty()) {
+            UserDTO loginUser = getLoginUser(request);
+            if (loginUser == null) {
+                return ResponseEntity.status(401).body("로그인이 필요합니다.");
+            }
             dto.setUserId(loginUser.getId());
-            dto.setUserName(loginUser.getName());
-        } else {
-            dto.setUserId("Guest");
-            dto.setUserName("방문자");
         }
 
-        if (commentService.addComment(dto)) {
-            return ResponseEntity.ok("success");
-        }
-        return ResponseEntity.internalServerError().body("fail");
+        boolean result = commentService.insertComment(dto);
+        return result
+                ? ResponseEntity.ok("Success")
+                : ResponseEntity.status(500).body("등록 실패");
     }
 
-
-    // 댓글 삭제 (작성자 본인 또는 관리자 admin1만 가능)
+    // 3. 댓글 삭제
     @DeleteMapping("/{boardId}/{commentId}")
     public ResponseEntity<String> delete(
-            @PathVariable("commentId") Long commentId,
-            @PathVariable("boardId") Long boardId,
-            HttpSession session) {
+            @PathVariable Long boardId,
+            @PathVariable Long commentId,
+            HttpServletRequest request) {
 
-        UserDTO loginUser = getLoginUser(session);
-        if (loginUser == null) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
-        }
+        UserDTO loginUser = getLoginUser(request);
+        String loginId   = loginUser != null ? loginUser.getId()   : GUEST_ID;
+        String loginType = loginUser != null ? loginUser.getType() : "guest";
 
-        FreeBoardCommentDTO existing = commentService.getComment(commentId);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-        if (!canModify(existing, loginUser)) {
-            return ResponseEntity.status(403).body("작성자만 삭제할 수 있습니다.");
-        }
-
-        if (commentService.removeComment(boardId, commentId)) {
-            return ResponseEntity.ok("success");
-        }
-
-        return ResponseEntity.internalServerError().body("fail");
+        boolean result = commentService.deleteComment(boardId, commentId, loginId, loginType);
+        return result
+                ? ResponseEntity.ok("success")
+                : ResponseEntity.status(403).body("삭제 권한이 없거나 실패했습니다.");
     }
 
-    // 댓글 수정 (작성자 본인 또는 관리자 admin1만 가능)
+    // 4. 댓글 수정
     @PutMapping("/update")
-    public ResponseEntity<String> update(@RequestBody FreeBoardCommentDTO dto, HttpSession session) {
-        UserDTO loginUser = getLoginUser(session);
-        if (loginUser == null) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
-        }
-        if (dto == null || dto.getCommentId() == null) {
-            return ResponseEntity.badRequest().body("잘못된 요청입니다.");
-        }
-        if (dto.getContent() == null || dto.getContent().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("내용을 입력해주세요.");
+    public ResponseEntity<String> update(
+            @RequestBody FreeBoardCommentDTO dto,
+            HttpServletRequest request) {
+
+        if (dto == null || dto.getCommentId() == null
+                || dto.getContent() == null || dto.getContent().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("입력값이 올바르지 않습니다.");
         }
 
         FreeBoardCommentDTO existing = commentService.getComment(dto.getCommentId());
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-        if (!canModify(existing, loginUser)) {
+        if (existing == null) return ResponseEntity.notFound().build();
+
+        UserDTO loginUser = getLoginUser(request);
+        String loginId = loginUser != null ? loginUser.getId() : GUEST_ID;
+        boolean isAdmin = loginUser != null && ADMIN_TYPE.equals(loginUser.getType());
+        boolean isOwner = existing.getUserId() != null
+                && !GUEST_ID.equals(existing.getUserId())
+                && existing.getUserId().equals(loginId);
+
+        if (!isAdmin && !isOwner) {
             return ResponseEntity.status(403).body("작성자만 수정할 수 있습니다.");
         }
 
-        // 수정 가능한 필드만 반영 (작성자 등 변조 불가)
         FreeBoardCommentDTO safe = new FreeBoardCommentDTO();
         safe.setCommentId(existing.getCommentId());
-        safe.setContent(dto.getContent());
+        safe.setContent(dto.getContent().trim());
 
-        if (commentService.modifyComment(safe)) {
-            return ResponseEntity.ok("success");
-        }
-        return ResponseEntity.internalServerError().body("fail");
+        return commentService.updateComment(safe)
+                ? ResponseEntity.ok("success")
+                : ResponseEntity.internalServerError().body("수정 실패");
     }
 }
