@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Container, Typography, Button, Box, Stack, TextField, MenuItem, Select,
@@ -28,6 +28,19 @@ const FreeBoardListMui = ({
 }) => {
     const navigate = useNavigate();
     const [inputValue, setInputValue] = useState(params.searchValue);
+    const ROTATING_PLACEHOLDERS = [
+    "제목으로 검색해보세요",
+    "작성자로 검색해보세요",
+    "내용으로 검색해보세요",
+    ];
+    const [placeholderIdx, setPlaceholderIdx] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setPlaceholderIdx((prev) => (prev + 1) % ROTATING_PLACEHOLDERS.length);
+        }, 2000);
+        return () => clearInterval(timer);
+    }, []);
 
     // [필터링 로직] 관리자가 아닐 경우에는 hidden: 1=(신고글)인 게시글을 리스트에서 제외
     const visiblePosts = isAdmin 
@@ -104,7 +117,7 @@ const FreeBoardListMui = ({
                             </FormControl>
                             <TextField
                                 size="small"
-                                placeholder="검색어를 입력하세요"
+                                placeholder={ROTATING_PLACEHOLDERS[placeholderIdx]}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && onSearch(inputValue)}
