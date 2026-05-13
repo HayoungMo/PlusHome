@@ -152,7 +152,6 @@ const FurnitureArticle = () => {
         called.current = true;
 
         getArticle();
-        FurnitureService.increaseView(f_code);
     }, [f_code]);
 
     useEffect(() => {
@@ -199,6 +198,16 @@ const FurnitureArticle = () => {
     const getArticle = async () => {
         try {
             const data = await FurnitureService.getFurnitureItem(f_code);
+
+            const loginUser = getLoginUser();
+            const isCompanyUser =
+                loginUser?.type === "company"
+
+            if (!isCompanyUser) {
+                await FurnitureService.increaseView(f_code);
+                data.f_viewCount = Number(data.f_viewCount || 0) + 1;
+            }
+
             setFurniture(data);
         } catch (error) {
             console.error("가구 상세 조회 실패", error);
@@ -329,6 +338,13 @@ const FurnitureArticle = () => {
         return <div>로딩 중...</div>;
     }
 
+    const productDeliveryPrice = Number(
+        furniture.f_deliveryPrice ?? furniture.f_deliveryPrice ?? 0
+    )
+
+    const deliveryPrice = 
+    Number(furniture.f_dprice || 0) >= 50000 ? 0 : productDeliveryPrice
+
     const imageList = furniture.imageList || [];
 
     const orderedThumbInfo = [
@@ -347,8 +363,6 @@ const FurnitureArticle = () => {
                 </>
             )}
 
-            <button onClick={()=> onUpdate(f_code)}>수정</button>
-            <button onClick={()=> onDelete(f_code)}>삭제</button>
             <button onClick={()=> onReview(f_code)}>리뷰등록</button>
             <button onClick={onBack}>list로 돌아가기</button>
 
@@ -431,7 +445,7 @@ const FurnitureArticle = () => {
                         배송비:{" "}
                         {furniture.f_dprice >= 50000
                             ? "무료배송"
-                            : "3,000원"}
+                            : `${deliveryPrice.toLocaleString()}원`}
                     </p>
                     <p>배송기간: 2~3일</p>
 

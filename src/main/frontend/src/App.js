@@ -42,6 +42,8 @@ import FreeBoardEditPage from "./pages/FreeBoardEditPage";
 import UserMyPage from "./pages/UserMyPage";
 import FurnitureAddReview from "./pages/FurnitureAddReview";
 import CartPage from "./pages/CartPage";
+import PaymentPage from "./pages/PaymentPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 
 
 function App() {
@@ -90,6 +92,8 @@ function App() {
         
         {/* 장바구니 */}
         <Route path="/cart" element={<CartPage/>}/>
+        <Route path="/payment" element={<PaymentPage/>}/>
+        <Route path="/payment/success" element={<PaymentSuccessPage/>}/>
         
         {/* 가구,쇼핑 */}
         <Route path="/furniture/list" element={<FurnitureList/>}/>

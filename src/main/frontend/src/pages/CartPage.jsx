@@ -84,8 +84,12 @@ const CartPage = () => {
 
     const getItemDeliveryFee = (item) => {
         const productPrice = getItemProductPrice(item);
-        const deliveryPrice = Number(item.furniture?.f_deliveryprice || 0)
-
+        const deliveryPrice = Number(
+            item.furniture?.f_deliveryPrice ??
+            item.furniture?.f_deliveryprice ??
+            0
+        );
+        
         return productPrice >= 50000 ? 0 : deliveryPrice;
     };
 
@@ -154,6 +158,23 @@ const CartPage = () => {
     const onArticle = (f_code) => {
         navigate(`/furniture/article/${f_code}`);
     };
+
+    const onPayment = () => {
+        if (selectedItems.length === 0) {
+            alert("결제할 상품을 선택해주세요.");
+            return;
+        }
+
+        navigate("/payment", {
+            state: {
+                items: selectedItems,
+                productTotal: selectedProductTotal,
+                deliveryTotal: selectedDeliveryTotal,
+                payTotal: selectedPayTotal
+            }
+        });
+    };
+
 
     if (cart.length === 0) {
         return <div>텅</div>;
@@ -259,7 +280,7 @@ const CartPage = () => {
             <h3>선택 배송비: {selectedDeliveryTotal.toLocaleString()}원</h3>
             <h2>총 결제금액: {selectedPayTotal.toLocaleString()}원</h2>
 
-            <button>구매하기</button>
+            <button onClick={onPayment}>구매하기</button>
         </div>
     );
 };
