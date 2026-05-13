@@ -61,7 +61,8 @@ const TableMui = (props) => {
 		if (event.target.checked) {
 
 			const allIds = rowData.map(
-				(row, index) => row.id || index
+				(row) => 
+					`${row.id}_${row.name}_${row.type}`
 			);
 
 			setSelectedKeys(allIds);
@@ -143,7 +144,7 @@ const TableMui = (props) => {
 
 					{rowData.map((row, rowIndex) => {
 
-						const rowId = row.id || rowIndex;
+						const rowId = `${row.id}_${row.name}_${row.type}`
 
 						const isSelected =
 							selectedKeys.includes(rowId);

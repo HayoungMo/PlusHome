@@ -216,12 +216,14 @@ public class UserService {
 		userMapper.deleteUser(dto);
 	}
 	
-	public int deleteUserDev(List<UserDTO> dtoList) throws Exception {
+	public int restoreUserDev(List<UserDTO> dtoList) throws Exception {
 		int total = 0;
 		
 		for(UserDTO dto : dtoList) {
+			
+			
 			try {
-				int result = userMapper.deleteUserDev(dto);
+				int result = userMapper.restoreUserDev(dto);
 				total +=result;
 				
 			} catch (Exception e) {
@@ -233,8 +235,27 @@ public class UserService {
 		return total;
 	}
 	
-	public List<UserDTO> getUserListDev() throws Exception{
-		return userMapper.getUserListDev();
+	public List<UserDTO> getUserListDev(UserDTO dto) throws Exception{
+		return userMapper.getUserListDev(dto);
+	}
+	
+	public int deleteUserDev(List<UserDTO> dtoList) throws Exception {
+		int total = 0;
+		
+		for(UserDTO dto : dtoList) {
+			
+			
+			try {
+				int result = userMapper.deleteUserDev(dto);
+				total +=result;
+				
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				e.printStackTrace();
+				
+			}
+		}
+		return total;
 	}
 	
 	

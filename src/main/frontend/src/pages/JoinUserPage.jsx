@@ -272,7 +272,26 @@ const JoinUserPage = () => {
             value={pwCheck}
             onChange={(e) => setPwCheck(e.target.value)}
           />
+
+          {form.pw !== pwCheck && pwCheck && (
+              <div style={{ color: "red" }}>
+                 비밀번호가 일치하지 않습니다.
+              </div>
+          )}
+
         </div>
+
+           <div>
+          <li>
+            <input type="radio" name="type" value="user" onChange={onText} />
+            <label>일반</label>
+          </li>
+          <li>
+            <input type="radio" name="type" value="company" onChange={onText} />
+            <label>기업</label>
+          </li>
+        </div>
+
         {form.type === "company" && (
           <>
             <div className="">
@@ -318,16 +337,7 @@ const JoinUserPage = () => {
             </div>
           </>
         )}
-        <div>
-          <li>
-            <input type="radio" name="type" value="user" onChange={onText} />
-            <label>일반</label>
-          </li>
-          <li>
-            <input type="radio" name="type" value="company" onChange={onText} />
-            <label>기업</label>
-          </li>
-        </div>
+       
         <div>
           <TextField
             label="이름(사업주명)"
