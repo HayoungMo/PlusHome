@@ -33,7 +33,6 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
 
     const [errors, setErrors] = useState({ title: false, content: false });
 
-    // 수정 모드: 기존 데이터 주입
     useEffect(() => {
         if (initialData) {
             setFormData({

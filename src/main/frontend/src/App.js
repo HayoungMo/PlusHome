@@ -109,7 +109,7 @@ function App() {
                     <Route path="/interior/mypage" element={<InteriorMyPage />} />
                     <Route path="/interior/chart" element={<InteriorChart />} />
 
-                    {/* 자유게시판 - 파라미터명 :boardId 로 통일 */}
+                   {/* 자유게시판 */}
                     <Route path="/freeboard/list" element={<FreeBoardListPage />} />
                     <Route path="/freeboard/write" element={<FreeBoardWritePage />} />
                     <Route path="/freeboard/article/:boardId" element={<FreeBoardArticlePage />} />

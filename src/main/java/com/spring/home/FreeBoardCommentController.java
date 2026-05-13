@@ -25,14 +25,15 @@ public class FreeBoardCommentController {
 
     private UserDTO getLoginUser(HttpServletRequest request) {
         String auth = request.getHeader("Authorization");
-        if (auth == null || !auth.startsWith("Bearer ")) return null;
+          if (auth == null || !auth.startsWith("Bearer ")) return null;
         try {
             String token = auth.substring(7);
             UserDTO user = new UserDTO();
             user.setId(jwtUtil.getId(token));
             user.setType(jwtUtil.getType(token));
-            return user;
+               return user;
         } catch (Exception e) {
+        
             return null;
         }
     }
