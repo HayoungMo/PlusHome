@@ -36,6 +36,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
         f_discount: "0",
         f_point: "0",
         f_count: "0",
+        f_deliveryprice: "0"
     });
 
     const [options, setOptions] = useState([]);
@@ -178,7 +179,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
     const changeInput = (evt) => {
         const { name, value } = evt.target;
 
-        const numberFields = ["f_price", "f_discount", "f_point"];
+        const numberFields = ["f_price", "f_discount", "f_point","f_deliveryprice"];
 
         if (numberFields.includes(name)) {
             let numStr = value.replace(/[^0-9]/g, "");
@@ -208,6 +209,11 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
             if (name === "f_point") {
                 if (num < 0) num = 0;
                 updatedData.f_point = String(num);
+            }
+
+            if (name === "f_deliveryprice") {
+                if (num < 0) num = 0;
+                updatedData.f_deliveryprice = String(num);
             }
 
             setData(updatedData);
@@ -304,6 +310,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                 f_discount: Number(data.f_discount),
                 f_point: Number(data.f_point),
                 f_count: totalOptionCount,
+                f_deliveryprice : Number(data.f_deliveryprice || 0)
             };
 
             const sendData = {
@@ -470,6 +477,14 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
             <label>포인트:</label>
             <input name="f_point" value={data.f_point} onChange={changeInput} />
             <br />
+
+            <label>배송비:</label>
+            <input
+                name="f_deliveryprice"
+                value={data.f_deliveryprice || "0"}
+                onChange={changeInput}
+            />
+            <br />  
 
             <p>
                 전체 수량:{" "}

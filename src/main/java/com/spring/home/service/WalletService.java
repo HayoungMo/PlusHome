@@ -26,12 +26,24 @@ public class WalletService {
 		return walletMapper.getReadData(id);
 	}
 	
-	public void updateData(WalletDTO dto) throws Exception{
-		if(dto.getMoney()<=0) {
-			throw new IllegalArgumentException("충전 금액은 0보다 커야합니다.");
-		}
-		walletMapper.updateData(dto);
+	public void updateData(WalletDTO dto) throws Exception {
+	    if (dto.getMoney() <= 0) {
+	        throw new IllegalArgumentException("충전 금액은 0보다 커야합니다.");
+	    }
+
+	    WalletDTO wallet = walletMapper.getReadData(dto.getId());
+
+	    if (wallet == null) {
+	        WalletDTO newWallet = new WalletDTO();
+	        newWallet.setId(dto.getId());
+	        newWallet.setMoney(0);
+
+	        walletMapper.insertData(newWallet);
+	    }
+
+	    walletMapper.updateData(dto);
 	}
+
 	
 	public void deleteData(String id) throws Exception{
 		walletMapper.deleteData(id);
