@@ -94,6 +94,7 @@ public class UserService {
 		}
 		
 		if (passwordEncoder.matches(dto.getPw(), user.getPw())) {
+			System.out.println("passwordEncoder matche");
 			return user;
 			
 		}

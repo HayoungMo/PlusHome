@@ -75,7 +75,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 setLoginInfo(user);
 
                 if(user.type==='company'){
-                    navigate('/interior/list')
+                    navigate('/')
                 }else{
                     navigate('/')
                 }

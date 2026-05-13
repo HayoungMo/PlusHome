@@ -202,9 +202,13 @@ const FurnitureList = () => {
                         img => img.img_tag === "THUMBNAIL"
                     );
 
-                    const deliveryPrice =
-                        item.f_dprice >= 50000 ? 0 : 4500;
+                    const productDeliveryPrice = Number(
+                        item.f_deliveryPrice ?? item.f_deliveryprice ?? 0
+                    );
 
+                    const deliveryPrice =
+                        Number(item.f_dprice || 0) >= 50000 ? 0 : productDeliveryPrice;
+                        
                     return (
                         <div
                             key={item.f_code}

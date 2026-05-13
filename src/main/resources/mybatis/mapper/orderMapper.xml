@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.OrderMapper">
+
+	<select id="getOrderFurnitureList" parameterType="com.spring.home.dto.CartAndFurnitureDTO"
+		resultType="com.spring.home.dto.CartAndFurnitureDTO">
+		SELECT id,
+			f_status,
+			f_dstatus,
+			f_addr,
+			f_tel,
+			c_id,
+			c_kind,
+			c_name,
+			c_code,
+			cart_statusdate,
+			f_dprice,
+			f_createddate,
+			f_catagory1,
+			f_catagory2,
+			f_catagory3,
+			f_catagory4,
+			f_catagory5,
+			f_discount,
+			f_viewcount,
+			c.F_PRICE as CARTPAYEDPRICE,
+			c.F_POINT AS CARTUSEDPOINT,
+			c.F_NAME AS CARTBUYERNAME,
+			c.F_COUNT AS CARTQTY,
+			f.F_COUNT AS FURNITUREPRODUCTCOUNT,
+			f.F_POINT AS FURNITUREEARNPOINTPERCENT,
+			f.F_PRICE AS FURNITUREPRODUCTPRICE,
+			f.F_NAME AS FURNITUREPRODUCTNAME,
+			c.F_CODE as F_CODE
+		FROM CART c
+		JOIN FURNITURE f ON c.F_CODE = f.F_CODE
+		<where>
+			<choose>
+				<when test="f_catagory1 == 'all'">
+					AND f.C_ID = #{c_id}
+					AND f.C_NAME = #{c_name}
+				</when>
+				<when test="f_catagory1 == 'cart'">
+					AND F_STATUS = 'N'
+					AND f.C_ID = #{c_id}
+					AND f.C_NAME = #{c_name}
+				</when>
+				<when test="f_catagory1 == 'reload'">
+					AND F_STATUS = 'Y'
+					AND f.C_ID = #{c_id}
+				</when>
+				<when test="f_catagory1 == 'reloadAll'">
+					AND f.C_ID = #{c_id}
+				</when>
+				<otherwise>
+					AND F_STATUS = 'Y'
+					AND f.C_ID = #{c_id}
+					AND f.C_NAME = #{c_name}
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+	
+	<update id="changeDeliveryState" parameterType="com.spring.home.dto.CartAndFurnitureDTO">
+		UPDATE CART SET 
+		F_DSTATUS 		= #{f_dstatus} 
+		WHERE C_CODE 	= #{c_code}
+	</update>
+</mapper>
