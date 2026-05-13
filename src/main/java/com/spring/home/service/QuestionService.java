@@ -26,6 +26,9 @@ public class QuestionService {
 		questionMapper.insertData(dto);
 		
 	}
+	public List<QuestionDTO> getMyQuestions(String id) throws Exception {
+		return questionMapper.getMyQuestions(id);
+	}
 	
 	public List<QuestionDTO> getListsByFCode(String f_code) throws Exception{
 		return questionMapper.getListsByFCode(f_code);

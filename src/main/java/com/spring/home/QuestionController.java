@@ -33,10 +33,10 @@ public class QuestionController {
 	}
 	
 	//문의 작성 페이지
-	@GetMapping("/write")
-	public String insertData(@RequestBody QuestionDTO dto) throws Exception{
+	@PostMapping("/write")
+	public QuestionDTO insertData(@RequestBody QuestionDTO dto) throws Exception{
 		questionService.insertData(dto);
-		return "ok";
+		return dto;
 	}
 	
 	//업체측 문의 답변 작성
@@ -44,6 +44,12 @@ public class QuestionController {
 	public String updateAnswer(@RequestBody QuestionDTO dto) throws Exception{
 		questionService.updateAnswer(dto);
 		return "ok";
+	}
+	
+	//마이페이지에서 자신이 작성한 문의 글
+	@GetMapping("/my")
+	public List<QuestionDTO> getMyQuestions(@RequestParam String id) throws Exception {
+		return questionService.getMyQuestions(id);
 	}
 	
 	//문의 글 삭제
