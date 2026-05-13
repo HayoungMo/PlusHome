@@ -38,10 +38,11 @@ const FurnitureAddReview = () => {
     });
   };
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 🔥 페이지 새로고침 막기
-    const result = await FurnitureReviewService.insertReview(form);
+    const result2 = await onClickInsert();
+    const result =
+      result2.success && (await FurnitureReviewService.insertReview(form));
 
-    if (result.success) {
+    if (result2.success && result.success) {
       setAlert({
         open: true,
         severity: "success",
@@ -52,11 +53,10 @@ const FurnitureAddReview = () => {
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
+        title: `에러 (${result.status || "이미지 누락"})`,
+        text: result.message || "이미지를 1개 이상 넣어주세요.",
       });
     }
-    onClickInsert();
   };
   const onClickAdd = () => {
     const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
@@ -83,11 +83,13 @@ const FurnitureAddReview = () => {
   const onClickInsert = () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
-      return; // 🚫 요청 안 보냄
+      return {
+        success: false,
+        log: "보낼 이미지 없음",
+      };
     }
-    console.log("sendlist");
-    console.log(sendList);
     ImageService.insertImage(sendList);
+    return { success: true };
   };
 
   return (

@@ -11,4 +11,10 @@ public class InteriorExampleDTO {
 	private String ie_tag;
 	private String ie_tag2;
 	private String ie_content;
+	
+    private String c_addr;
+    private String c_phone;
+    private String c_email;
+    private String c_content;
+
 }

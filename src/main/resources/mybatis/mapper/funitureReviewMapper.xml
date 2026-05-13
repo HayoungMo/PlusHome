@@ -34,14 +34,15 @@
 		fr_content
 	from
 		f_review
-	where
-	<if test="id != null and id != ''">
-		id = #{id}
-	</if>
-
-	<if test="f_code != null and f_code != ''">
-		f_code = #{f_code}
-	</if>
+	<where>
+		<if test="id != null and id != ''">
+			id = #{id}
+		</if>
+	
+		<if test="f_code != null and f_code != ''">
+			f_code = #{f_code}
+		</if>
+	</where>
 </select>
 
 <delete id="deleteData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
