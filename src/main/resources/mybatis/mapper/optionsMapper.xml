@@ -81,7 +81,7 @@
             o_text = #{o_text},
             o_count = #{o_count},
             o_price = #{o_price},
-            o_important = #{o_important},
+            o_important = #{o_important}
         WHERE o_code = #{o_code}
     </update>
 

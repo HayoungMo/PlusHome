@@ -5,36 +5,44 @@ import { Button } from "@mui/material";
 import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
+import AlertMui from "./AlertMui";
 
 const InteriorExUpdate = ({ company }) => {
   const [sendList, setSendList] = useState([]);
   const [example, setExample] = useState([]);
 
-   const [open, setOpen] = useState(false);
-  
-    const handleOpen = () => {
-      setOpen(true);
-    };
-  
-    const handleClose = () => {
-      setOpen(false);
-    };
-  
-    const [open1, setOpen1] = useState(false);
-  
-    const handleOpen1 = () => {
-      setOpen1(true);
-    };
-  
-    const handleClose1 = () => {
-      setOpen1(false);
-    };
-  
-    const [reload, setReload] = useState(0);
-    
-      const refresh = () => {
-        setReload((prev) => prev + 1);
-      };
+  const [open, setOpen] = useState(false);
+
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  });
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [open1, setOpen1] = useState(false);
+
+  const handleOpen1 = () => {
+    setOpen1(true);
+  };
+
+  const handleClose1 = () => {
+    setOpen1(false);
+  };
+
+  const [reload, setReload] = useState(0);
+
+  const refresh = () => {
+    setReload((prev) => prev + 1);
+  };
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
@@ -51,7 +59,7 @@ const InteriorExUpdate = ({ company }) => {
   const handleSubmit = async (e, item) => {
     e.preventDefault();
 
-    await InteriorService.UpdateInteriorExample({
+    const result = await InteriorService.UpdateInteriorExample({
       c_id: company.c_id,
       c_kind: company.c_kind,
       c_name: company.c_name,
@@ -59,25 +67,41 @@ const InteriorExUpdate = ({ company }) => {
       tag2: item.ie_tag2,
       content: item.ie_content,
     });
-          refresh();
-  }; 
+    if (result.success) {
+      setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
+    } else {
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러 (${result.status})`,
+        text: result.message || "오류가 발생했습니다.",
+      });
+    }
+
+    refresh();
+  };
 
   const handleDelete = async (e, item) => {
-      e.preventDefault();
-  
-      await InteriorService.DeleteInteriorExample({
-        c_id: company.c_id,
-        c_kind: company.c_kind,
-        c_name: company.c_name,
-        tag: item.ie_tag,
-        tag2: item.ie_tag2,
-      });
+    e.preventDefault();
 
-      item?.logo?.result
-        .filter((record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2)
-        .map((record, i) => imageDelete([record.img_originalName]));
-      refresh();
-    };
+    await InteriorService.DeleteInteriorExample({
+      c_id: company.c_id,
+      c_kind: company.c_kind,
+      c_name: company.c_name,
+      tag: item.ie_tag,
+      tag2: item.ie_tag2,
+    });
+
+    item?.logo?.result
+      .filter((record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2)
+      .map((record, i) => imageDelete([record.img_originalName]));
+    refresh();
+  };
 
   const imageUpload = async (e) => {
     const updateList = document.getElementsByClassName("updateFile");
@@ -98,39 +122,40 @@ const InteriorExUpdate = ({ company }) => {
     }
     // await ImageService.updateImage(fileList, updateTest);
     await ImageService.updateImage(fileList);
-
   };
 
   const imageDelete = async (item) => {
     await ImageService.deleteImage(item);
   };
 
-   const onClickAdd = () => {
-     const insertForm2 = document.getElementsByName("imageInteriorExampleInsertTestForm")[0];
-     setSendList([
-       ...sendList,
-       {
-         img_kind: insertForm2.img_kind.value,
-         img_tag: insertForm2.img_tag.value,
-         dir_a: insertForm2.dir_a.value,
-         dir_b: insertForm2.dir_b.value,
-         dir_c: insertForm2.dir_c.value,
-         dir_d: insertForm2.dir_d.value,
-         // dir_e: insertForm.dir_e.value,
-         img_idx: insertForm2.img_idx.value,
-         file: insertForm2.file.files[0],
-       },
-     ]);
-   };
+  const onClickAdd = () => {
+    const insertForm2 = document.getElementsByName(
+      "imageInteriorExampleInsertTestForm",
+    )[0];
+    setSendList([
+      ...sendList,
+      {
+        img_kind: insertForm2.img_kind.value,
+        img_tag: insertForm2.img_tag.value,
+        dir_a: insertForm2.dir_a.value,
+        dir_b: insertForm2.dir_b.value,
+        dir_c: insertForm2.dir_c.value,
+        dir_d: insertForm2.dir_d.value,
+        // dir_e: insertForm.dir_e.value,
+        img_idx: insertForm2.img_idx.value,
+        file: insertForm2.file.files[0],
+      },
+    ]);
+  };
 
-   const onClickInsert = () => {
-     if (!sendList || sendList.length === 0) {
-       console.log("보낼 이미지 없음");
-       return; // 🚫 요청 안 보냄
-     }
-     console.log(sendList);
-     ImageService.insertImage(sendList);
-   };
+  const onClickInsert = () => {
+    if (!sendList || sendList.length === 0) {
+      console.log("보낼 이미지 없음");
+      return; // 🚫 요청 안 보냄
+    }
+    console.log(sendList);
+    ImageService.insertImage(sendList);
+  };
 
   useEffect(() => {
     const fetchExample = async () => {
@@ -148,7 +173,7 @@ const InteriorExUpdate = ({ company }) => {
             view: false,
           });
           if (!logo?.result?.length) {
-            return null;
+            return item;
           }
           return {
             ...item,
@@ -164,6 +189,20 @@ const InteriorExUpdate = ({ company }) => {
 
   return (
     <div>
+      {alert.open && (
+        <AlertMui
+          severity={alert.severity}
+          title={alert.title}
+          text={alert.text}
+          autoHideDuration={3000}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+        />
+      )}
       <p>인테리어 시공 사례 수정 예시</p>
       {example.map((item, index) => (
         <div>

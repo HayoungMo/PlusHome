@@ -40,6 +40,9 @@ import FreeBoardWritePage from "./pages/FreeBoardWritePage";
 import FreeBoardArticlePage from "./pages/FreeBoardArticlePage";
 import FreeBoardEditPage from "./pages/FreeBoardEditPage";
 import UserMyPage from "./pages/UserMyPage";
+import DevDashboard from "./dashboardDev/DevDashBoard";
+import FurnitureAddReview from "./pages/FurnitureAddReview";
+import CartPage from "./pages/CartPage";
 
 
 function App() {
@@ -86,11 +89,15 @@ function App() {
         {/* 가상 머니 충전 */}
         <Route path="/wallet/charge" element={<WalletCharge/>}/>
         
+        {/* 장바구니 */}
+        <Route path="/cart" element={<CartPage/>}/>
+        
         {/* 가구,쇼핑 */}
         <Route path="/furniture/list" element={<FurnitureList/>}/>
         <Route path="/furniture/add" element={<FurnitureAddPage/>}/>
         <Route path="/furniture/article/:f_code" element={<FurnitureArticle/>}/>
         <Route path="/furniture/update/:f_code" element={<FurnitureUpdatePage />} />
+        <Route path="/furniture/review/:f_code" element={<FurnitureAddReview />} />
 
         {/* 인테리어 */}
         <Route path="/interior/list/company" element={<InteriorLists />} />
@@ -133,6 +140,7 @@ function App() {
         <Route path="/findId" element={<FindIdPage/>}/>
         <Route path="/findPw" element={<FindPwPage/>}/>
         <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
+        <Route path="/DevDashboard" element={<DevDashboard />} />
       </Routes>
     </div>
   );

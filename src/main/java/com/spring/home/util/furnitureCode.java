@@ -12,4 +12,8 @@ public class furnitureCode {
 	public static String generateOptionCode() {
 		return "O-" + UUID.randomUUID().toString();
 	}
+	
+	public static String generateCartCode() {
+		return "C-" + UUID.randomUUID().toString();
+	}
 }

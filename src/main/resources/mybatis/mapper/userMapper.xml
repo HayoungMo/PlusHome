@@ -88,5 +88,18 @@ set joined = #{joined}
 where id = #{id}
 </update>
 
+<!-- 최고 관리자 유저 조회 -->
+<select id="getUserListDev" resultType="com.spring.home.dto.UserDTO">
+select *
+from users
+</select>
+
+<!-- 최고 관리자 유저 삭제 -->
+<delete id="deleteUserDev" parameterType="com.spring.home.dto.UserDTO">
+
+delete from users where id = #{id}
+
+</delete>
+
 
 </mapper>

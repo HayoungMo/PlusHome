@@ -22,6 +22,43 @@ const changeDeliveryState = async (dtoList) => {
 	}
 };
 
-const CartService = { getOrderFurnitureList, changeDeliveryState };
+const getAuthHeaders = () => ({
+	Authorization: `Bearer ${localStorage.getItem("token")}`,
+});
+
+const addCart = (data) => {
+	return http.post("/cart/add", data, {
+		headers: getAuthHeaders(),
+	});
+};
+
+const getMyCart = () => {
+	return http.get("/cart", {
+		headers: getAuthHeaders(),
+	});
+};
+
+const getCartOptions = (c_code) => {
+	return http.get("/cart/options", {
+		params: { c_code },
+		headers: getAuthHeaders(),
+	});
+};
+
+const deleteCart = (c_code) => {
+	return http.delete("/cart", {
+		params: { c_code },
+		headers: getAuthHeaders(),
+	});
+};
+
+const CartService = {
+	getOrderFurnitureList,
+	changeDeliveryState,
+	addCart,
+	getMyCart,
+	deleteCart,
+	getCartOptions,
+};
 
 export default CartService;

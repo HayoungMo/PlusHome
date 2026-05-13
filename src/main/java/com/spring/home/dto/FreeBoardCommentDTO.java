@@ -17,7 +17,7 @@ public class FreeBoardCommentDTO {
     private String content;    // 댓글 내용
     private Long parentId;     // 대댓글용 부모 번호 (null 허용)
     
-    // 리액트에서 가독성 좋은 포맷으로 전달하기 위해 설정
+    
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     

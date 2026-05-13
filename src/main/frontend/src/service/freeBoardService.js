@@ -34,7 +34,7 @@ const FreeBoardService = {
         return await http.delete(`/freeboard/delete/${boardId}`);
     },
 
-    // 게시글 다중 삭제 (본인 글만 삭제됨)
+    // 게시글 다중삭제 
     deleteMulti: async (boardIds) => {
         const response = await http.post("/freeboard/delete-multi", { boardIds });
         return response.data;

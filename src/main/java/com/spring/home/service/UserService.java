@@ -216,6 +216,29 @@ public class UserService {
 	public void deleteUser(UserDTO dto) throws Exception {
 		userMapper.deleteUser(dto);
 	}
+	
+	public int deleteUserDev(List<UserDTO> dtoList) throws Exception {
+		int total = 0;
+		
+		for(UserDTO dto : dtoList) {
+			try {
+				int result = userMapper.deleteUserDev(dto);
+				total +=result;
+				
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				e.printStackTrace();
+				
+			}
+		}
+		return total;
+	}
+	
+	public List<UserDTO> getUserListDev() throws Exception{
+		return userMapper.getUserListDev();
+	}
+	
+	
 
 }
 	

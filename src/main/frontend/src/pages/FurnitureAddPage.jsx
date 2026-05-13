@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import FurnitureService from "../service/furnitureService";
 import { useNavigate, useParams } from "react-router-dom";
 
-const FurnitureAddPage = ({ cName = null, onSuccess }) => {
+const FurnitureAddPage = ({ cName = "가구점1", onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
@@ -12,21 +12,21 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 	const c_name = routeCName || cName;
 
 	const [data, setData] = useState({
-		c_id: id,
-		c_kind: "shop",
-		c_name: c_name,
-		f_name: "",
-		f_price: "0",
-		f_dprice: "0",
-		f_catagory1: "",
-		f_catagory2: "",
-		f_catagory3: "",
-		f_catagory4: "",
-		f_catagory5: "",
-		f_discount: "0",
-		f_point: "0",
-		f_count: "0",
-	});
+    c_id: id,
+    c_kind: "shop",
+    c_name: "가구점1",
+    f_name: "",
+    f_price: "0",
+    f_dprice: "0",
+    f_catagory1: "",
+    f_catagory2: "",
+    f_catagory3: "",
+    f_catagory4: "",
+    f_catagory5: "",
+    f_discount: "0",
+    f_point: "0",
+    f_count: "0",
+  });
 
 	const [options, setOptions] = useState([
         {
@@ -38,7 +38,6 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
         }
     ])
 
-	
 	
     useEffect(() => {
 		const price = Number(data.f_price);
@@ -204,26 +203,34 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 				return;
 			}
 
-			const dto = {
-				...data,
-				f_price: Number(data.f_price),
-				f_dprice: Number(data.f_dprice),
-				f_discount: Number(data.f_discount),
-				f_point: Number(data.f_point),
-				f_count: Number(data.f_count),
-			};
-
             const optionList = options
             .filter(option => 
                 option.o_select.trim() !== "" || 
-                option.o_text.trim() !== "")
+                option.o_text.trim() !== ""
+            )
             .map(option => ({
-                o_select: option.o_select,
-                o_text: option.o_text,
+                o_select: option.o_select.trim(),
+                o_text: option.o_text.trim(),
                 o_count: Number(option.o_count || 0),
                 o_price: Number(option.o_price || 0),
                 o_important: option.o_important
             }))
+
+            const totalOptionCount = optionList.reduce(
+                (sum, option) => sum + Number(option.o_count || 0),
+                0
+            )
+
+            const dto = {
+                ...data,
+                f_price: Number(data.f_price),
+                f_dprice: Number(data.f_dprice),
+                f_discount: Number(data.f_discount),
+                f_point: Number(data.f_point),
+                f_count: totalOptionCount
+            };
+
+
 
             const sendData = {
                 dto,
@@ -355,11 +362,12 @@ const FurnitureAddPage = ({ cName = null, onSuccess }) => {
 			<input name="f_point" value={data.f_point} onChange={changeInput} />
 			<br />
 
-			<label>수량:</label>
-			<input name="f_count" value={data.f_count} onChange={changeInput} />
-			<br />
-
-           <hr />
+            <p>
+                전체 수량:{" "}
+                {options.reduce((sum, option) => sum + Number(option.o_count || 0), 0)}
+            </p>    
+              
+            <hr />
 
             <h3>옵션 등록</h3>
 

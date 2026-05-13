@@ -5,12 +5,20 @@ import { Button } from "@mui/material";
 import ImageService from "../service/imageService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
+import AlertMui from "./AlertMui";
 
 const InteriorUpdate = ({ company }) => {
   const [article, setArticle] = useState([]);
   const [sendList, setSendList] = useState([]);
 
   const [open, setOpen] = useState(false);
+
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  });
 
   const handleOpen = () => {
     setOpen(true);
@@ -31,10 +39,10 @@ const InteriorUpdate = ({ company }) => {
   };
 
   const [reload, setReload] = useState(0);
-  
-    const refresh = () => {
-      setReload((prev) => prev + 1);
-    };
+
+  const refresh = () => {
+    setReload((prev) => prev + 1);
+  };
 
   const questionOptions = {
     q1: [
@@ -101,13 +109,29 @@ const InteriorUpdate = ({ company }) => {
   const handleSubmit = async (e, item) => {
     e.preventDefault();
 
-    await InteriorService.UpdateInterior({
+    const result = await InteriorService.UpdateInterior({
       c_id: company.c_id,
       c_kind: company.c_kind,
       c_name: company.c_name,
       tag: item.i_tag,
       text: item.i_text,
     });
+
+    if (result.success) {
+      setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
+    } else {
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러 (${result.status})`,
+        text: result.message || "오류가 발생했습니다.",
+      });
+    }
     refresh();
   };
 
@@ -160,6 +184,20 @@ const InteriorUpdate = ({ company }) => {
 
   return (
     <div>
+      {alert.open && (
+        <AlertMui
+          severity={alert.severity}
+          title={alert.title}
+          text={alert.text}
+          autoHideDuration={3000}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+        />
+      )}
       <p>인테리어 수정 예시</p>
       {article.map((item, index) => (
         <form name="article">

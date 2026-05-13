@@ -5,10 +5,12 @@ import lombok.Data;
 @Data
 public class CartDTO {
 
+	private String c_code;
+	
 	private String id; 
 	private String f_code;
 	private String f_status;
-	private String f_dstatus;
+	private int f_dstatus;
 	private int f_count;
 	private String f_addr;
 	private String f_name;
