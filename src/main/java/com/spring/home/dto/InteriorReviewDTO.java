@@ -21,5 +21,10 @@ public class InteriorReviewDTO {
     
     private String ir_content;
     private String ir_createdDate;
+    
+    private String c_addr;
+    private String c_phone;
+    private String c_email;
+    private String c_content;
 
 }

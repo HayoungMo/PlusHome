@@ -5,6 +5,8 @@ import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
 import { useLocation, useNavigate } from "react-router-dom";
 import DialogMui from "../components/DialogMui";
+import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
 
 const InteriorReview = () => {
   const [sendList, setSendList] = useState([]);
@@ -61,11 +63,12 @@ const InteriorReview = () => {
   };
   const handleSubmit = async (e) => {
     try {
-      await InteriorUserService.AddInteriorReview(form);
-
-      if (sendList.length > 0) {
-        await ImageService.insertImage(sendList);
+      if (sendList.length === 0) {
+        alert("등록 시 이미지가 최소 1개 있어야 합니다.");
+        return;
       }
+      await InteriorUserService.AddInteriorReview(form);
+      await ImageService.insertImage(sendList);
       handleBack();
     } catch (error) {
       console.error(error);
@@ -180,7 +183,11 @@ const InteriorReview = () => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
       </form>
       {preview &&
         preview.map((item) => (

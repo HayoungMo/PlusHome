@@ -5,6 +5,9 @@ import ImageService from "../service/imageService";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import AlertMui from "./AlertMui";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 const InteriorAdd = ({ company }) => {
   const [sendList, setSendList] = useState([]);
@@ -36,7 +39,7 @@ const InteriorAdd = ({ company }) => {
       { value: "40", title: "40평대" },
       { value: "50", title: "50평 이상" },
     ],
-    q3:  [
+    q3: [
       { value: "kitchen", title: "키친" },
       { value: "bath", title: "바스" },
       { value: "storage", title: "수납" },
@@ -46,7 +49,7 @@ const InteriorAdd = ({ company }) => {
       { value: "lighting", title: "조명" },
       { value: "tile", title: "타일" },
       { value: "floor", title: "마루" },
-    ]
+    ],
   };
 
   const questions = [
@@ -71,10 +74,10 @@ const InteriorAdd = ({ company }) => {
       title: "출장 장소",
       options: questionOptions.q3,
       multi: true,
-    }
+    },
   ];
 
-    const [preview, setPreview] = useState([]);
+  const [preview, setPreview] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,23 +91,21 @@ const InteriorAdd = ({ company }) => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
     const result = await InteriorService.AddInterior(form);
-     if (result.success) {
-       setAlert({
-         open: true,
-         severity: "success",
-         title: "등록 성공",
-         text: "시공 사례가 등록되었습니다.",
-       });
-     } else {
-       setAlert({
-         open: true,
-         severity: "error",
-         title: `에러 (${result.status})`,
-         text: result.message || "오류가 발생했습니다.",
-       });
-     }
-    onClickInsert();
-    setSendList([]);
+    if (result.success) {
+      setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "시공 사례가 등록되었습니다.",
+      });
+    } else {
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러 (${result.status})`,
+        text: result.message || "오류가 발생했습니다.",
+      });
+    }
   };
 
   const selectedQuestion = questions.find((q) => q.value === form.tag);
@@ -125,15 +126,25 @@ const InteriorAdd = ({ company }) => {
         file: insertForm.file.files[0],
       },
     ]);
-    setPreview((prev) => [...prev, URL.createObjectURL(insertForm.file.files[0])]);
+    setPreview((prev) => [
+      ...prev,
+      URL.createObjectURL(insertForm.file.files[0]),
+    ]);
   };
 
-  const onClickInsert = () => {
+  const onClickInsert = async () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
       return; // 🚫 요청 안 보냄
     }
-    ImageService.insertImage(sendList);
+    try {
+      await ImageService.insertImage(sendList);
+      // 업로드 성공 후 초기화
+      setSendList([]);
+      console.log("초기화 완료");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -225,7 +236,16 @@ const InteriorAdd = ({ company }) => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
+        <FloatingActionButtonMui
+          icon={<FileUploadIcon />}
+          color="secondary"
+          onClick={() => onClickInsert()}
+        />
       </form>
       {preview &&
         preview.map((item) => (
