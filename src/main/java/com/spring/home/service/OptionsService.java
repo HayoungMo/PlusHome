@@ -2,6 +2,7 @@ package com.spring.home.service;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,4 +46,6 @@ public class OptionsService {
 	public List<OptionsDTO> getListByFcode(String f_code) throws Exception{
 		return optionsMapper.getListByFcode(f_code);
 	}
+	
+
 }

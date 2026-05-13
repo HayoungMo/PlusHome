@@ -119,12 +119,12 @@ public class HomeService {
 		Map<Long, FreeBoardDTO> map = new HashMap<>();
 		
 		if (keyword.isEmpty()) {
-	        Map<String, Object> first = freeBoardService.getLists(1, "title", "", "");
+	        Map<String, Object> first = freeBoardService.getLists(1, "title", "", "", "");
 	        int dataCount = (int) first.get("dataCount");
 	        int totalPage = (int) Math.ceil((double) dataCount / 8);
 
 	        for (int page = 1; page <= totalPage; page++) {
-	            Map<String, Object> result = freeBoardService.getLists(page, "title", "", "");
+	            Map<String, Object> result = freeBoardService.getLists(page, "title", "", "", "");
 	            List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
 
 	            for (FreeBoardDTO item : lists) {
@@ -135,7 +135,7 @@ public class HomeService {
 	        String[] keys = {"title", "content", "userName"};
 
 	        for (String key : keys) {
-	            Map<String, Object> result = freeBoardService.getLists(1, key, keyword, "");
+	            Map<String, Object> result = freeBoardService.getLists(1, key, keyword, "", "");
 	            List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
 
 	            for (FreeBoardDTO item : lists) {

@@ -163,4 +163,17 @@
 	ORDER BY f_createddate DESC
 </select>
 
+<update id="decreaseStock">
+    UPDATE furniture
+    SET f_count = f_count - #{count}
+    WHERE f_code = #{f_code}
+      AND f_count >= #{count}
+</update>
+
+<update id="increaseStock">
+    UPDATE furniture
+    SET f_count = f_count + #{count}
+    WHERE f_code = #{f_code}
+</update>
+
 </mapper>

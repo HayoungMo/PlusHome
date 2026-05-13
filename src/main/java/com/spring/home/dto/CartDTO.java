@@ -1,5 +1,7 @@
 package com.spring.home.dto;
 
+import java.util.Date;
+
 import lombok.Data;
 
 @Data
@@ -17,4 +19,6 @@ public class CartDTO {
 	private String f_tel;
 	private int f_price;
 	private int f_point;
+	
+	private Date cart_statusdate;
 }
