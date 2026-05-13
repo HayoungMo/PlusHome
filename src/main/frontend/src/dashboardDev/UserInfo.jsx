@@ -54,6 +54,8 @@ const UserInfo = (props) => {
 
     }
 
+    
+
    
     const getUserList = async() =>{
         
@@ -80,14 +82,44 @@ const UserInfo = (props) => {
         console.log("삭제 전")
         console.log(userList)        
 
-           const filteredList = userList.filter(
+           const selectedUserList = userList.filter(
         (row) => !selectedUserKeys.includes(makeUserKey(row))
     );
 
     console.log("삭제 후")
-    console.log(filteredList)
+    console.log(selectedUserList)
 
-    setUserList(filteredList)
+    setUserList(selectedUserList)
+
+    try {
+        const result = await userService.deleteUser(selectedUserList)
+        if(result.success){
+            setAlertInfo({
+                severity:"success",
+                title:"삭제 성공",
+                text:result.message,
+            })
+        }else{
+            setAlertInfo({
+                severity:"error",
+                title:"삭제 실패",
+                text:result.message,
+
+            })
+        }
+        console.log(result)
+
+    } catch (error) {
+        setAlertInfo({
+            severity:"error",
+            title:"에러 발생",
+            text:error,
+        })
+        console.log(error)
+    }
+    
+    setDeleteConfirmOpen(!deleteConfirmOpen)
+    setAlertOpen(!alertOpen)
 }
 
     
