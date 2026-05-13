@@ -11,7 +11,7 @@ public interface CouponMapper {
 
 	public void insertData(CouponDTO dto) throws Exception;
 	
-	public List<CouponDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
+	public List<CouponDTO> getLists(String id) throws Exception;
 	
 	public CouponDTO getReadData(String coupon_code) throws Exception;
 	
