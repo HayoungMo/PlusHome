@@ -104,5 +104,18 @@
           AND f_code = #{f_code}
           AND f_status = 'N'
     </select>
+    
+    <update id="updatePaymentStatus">
+	    UPDATE cart
+	    SET f_status = 'Y',
+	        f_dstatus = 0,
+	        f_name = #{f_name},
+	        f_tel = #{f_tel},
+	        f_addr = #{f_addr}
+	    WHERE c_code = #{c_code}
+	      AND id = #{id}
+	      AND f_status = 'N'
+	</update>
+    
 
 </mapper>

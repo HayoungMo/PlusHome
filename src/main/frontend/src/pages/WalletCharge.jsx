@@ -1,106 +1,126 @@
-import React, {useState,useEffect} from 'react';
-import WalletService from '../service/walletService';
+import React, { useEffect, useState } from "react";
+import WalletService from "../service/walletService";
 
-const WalletCharge = () => {
-    const [data,setData] = useState({
-        id:"", 
-        money:""
-    })
+const chargeAmounts = [10000, 30000, 50000, 100000, 300000, 500000];
 
-    const [wallet, setWallet] = useState(null)
+const WalletCharge = ({ user, onCharged }) => {
+    const [wallet, setWallet] = useState(null);
+    const [money, setMoney] = useState("");
 
-    useEffect(()=>{
-        if(data.id){
-            showMyWallet()
+    useEffect(() => {
+        if (user?.id) {
+            loadWallet();
         }
-    },[])
+    }, [user?.id]);
 
-    const changeInput = (evt) =>{
-        const {value,name} = evt.target
-        setData({
-            ...data,
-            [name]:value
-        })
-    }  
-
-    const showMyWallet = async () => {
+    const loadWallet = async () => {
         try {
-            const response = await WalletService.getMyWallet(data.id);
-            if(!response){
-                alert("존재하지 않는 지갑입니다.")
-                setWallet(null)
-                return
-            }
-            setWallet(response);
-            console.log('내 지갑:',response)
-        }catch(error){
-            console.error('지갑조회 실패!', error)
-            alert('지갑 조회에 실패했습니다.')
+            const data = await WalletService.getMyWallet(user.id);
+            setWallet(data);
+        } catch (error) {
+            console.error("지갑 조회 실패", error);
+            alert("지갑 조회에 실패했습니다.");
         }
-    }
+    };
 
-    const onSubmit = async (evt) => {
-        evt.preventDefault();
+    const selectAmount = (amount) => {
+        setMoney(String(amount));
+    };
 
-        if(!data.id.trim()){
-            alert("아이디를 입력해주세요!")
+    const changeMoney = (evt) => {
+        const onlyNumber = evt.target.value.replace(/[^0-9]/g, "");
+        setMoney(onlyNumber);
+    };
+
+    const onSubmit = async () => {
+        const chargeMoney = Number(money);
+
+        if (!user?.id) {
+            alert("로그인이 필요합니다.");
             return;
         }
 
-        if(!wallet || wallet.id !== data.id){
-            alert("존재하지 않는 지갑입니다!")
-            return
+        if (chargeMoney <= 0) {
+            alert("충전 금액을 선택해주세요.");
+            return;
         }
-        
-        if(Number(data.money) <=0){
-            alert("충전 금액은 0보다 커야합니다.")
-        }
+
         try {
-            const sendData={
-                ...data,
-                money: Number(data.money)
-            }
+            await WalletService.chargeWallet({
+                id: user.id,
+                money: chargeMoney
+            });
 
-            await WalletService.chargeWallet(sendData)
-            alert("충전이 완료되었습니다.")
+            alert("충전이 완료되었습니다.");
 
-            const response = await WalletService.getMyWallet(data.id)
-            setWallet(response)
+            const updatedWallet = await WalletService.getMyWallet(user.id);
+            setWallet(updatedWallet);
 
+            onCharged?.(updatedWallet);
+            setMoney("");
         } catch (error) {
-            console.error("충전 실패:", error)
-            alert("충전에 실패했습니다.")
+            console.error("충전 실패", error);
+            alert("충전에 실패했습니다.");
         }
-    }
+    };
+
     return (
         <div>
+            <h3>지갑 충전</h3>
 
-            <h3>Charge</h3>
+            <p>
+                현재 잔액:{" "}
+                <strong>
+                    {Number(wallet?.money || 0).toLocaleString()}원
+                </strong>
+            </p>
 
-            <label>아이디:</label>
-            <input 
-            name='id' 
-            value={data.id}
-            onChange={changeInput}
-            placeholder='아이디'
-            />
-            <button type='button' onClick={showMyWallet}>조회</button>
-            
-            <br/>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
+                {chargeAmounts.map(amount => (
+                    <button
+                        key={amount}
+                        type="button"
+                        onClick={() => selectAmount(amount)}
+                        style={{
+                            padding: "15px",
+                            border: Number(money) === amount ? "2px solid black" : "1px solid #ddd",
+                            background: "white",
+                            cursor: "pointer"
+                        }}
+                    >
+                        {amount.toLocaleString()}원
+                    </button>
+                ))}
+            </div>
 
-            {wallet && (
-                <div>
-                    <p>안녕하세요 {wallet.id}님<br/>
-                    현재 보유 금액: {wallet.money}</p>
-                </div>
-            )}
+            <div style={{ marginTop: "15px" }}>
+                <label>직접 입력</label>
+                <input
+                    value={money}
+                    onChange={changeMoney}
+                    placeholder="충전 금액"
+                    style={{
+                        width: "100%",
+                        padding: "12px",
+                        marginTop: "5px"
+                    }}
+                />
+            </div>
 
-            <label>충전 금액: </label>
-            <input name='money' value={data.money} onChange={changeInput} placeholder='충전 금액'/>
-
-            <br/>
-
-            <button type='button' onClick={onSubmit}>충전</button>
+            <button
+                type="button"
+                onClick={onSubmit}
+                style={{
+                    width: "100%",
+                    padding: "15px",
+                    marginTop: "15px",
+                    background: "black",
+                    color: "white",
+                    cursor: "pointer"
+                }}
+            >
+                {money ? `${Number(money).toLocaleString()}원 충전하기` : "충전하기"}
+            </button>
         </div>
     );
 };

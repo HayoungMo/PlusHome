@@ -34,7 +34,15 @@ public class WalletController {
 			
 	@GetMapping("/mywallet")
 	public WalletDTO getReadData(@RequestParam String id) throws Exception{
-		return walletService.getReadData(id);
+		WalletDTO dto = walletService.getReadData(id);
+		
+		if(dto == null) {
+			dto = new WalletDTO();
+			dto.setId(id);
+			dto.setMoney(0);
+		}
+		
+		return dto;
 	}
 	
 	@PostMapping("/charge")
