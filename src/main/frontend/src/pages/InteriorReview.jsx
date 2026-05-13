@@ -61,11 +61,12 @@ const InteriorReview = () => {
   };
   const handleSubmit = async (e) => {
     try {
-      await InteriorUserService.AddInteriorReview(form);
-
-      if (sendList.length > 0) {
-        await ImageService.insertImage(sendList);
+      if (sendList.length === 0) {
+        alert("등록 시 이미지가 최소 1개 있어야 합니다.");
+        return;
       }
+      await InteriorUserService.AddInteriorReview(form);
+      await ImageService.insertImage(sendList);
       handleBack();
     } catch (error) {
       console.error(error);
