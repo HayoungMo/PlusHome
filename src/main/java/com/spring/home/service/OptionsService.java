@@ -39,7 +39,7 @@ public class OptionsService {
 	}
 	
 	public void deleteOne(String o_code) throws Exception{
-		optionsMapper.deleteData(o_code);
+		optionsMapper.deleteOne(o_code);
 	}
 	
 	public List<OptionsDTO> getListByFcode(String f_code) throws Exception{

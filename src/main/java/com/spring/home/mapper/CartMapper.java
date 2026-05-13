@@ -3,6 +3,7 @@ package com.spring.home.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.spring.home.dto.CartDTO;
 
@@ -11,11 +12,17 @@ public interface CartMapper {
 	
 	public void insertData(CartDTO dto) throws Exception;
 	
-	public List<CartDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
+	public List<CartDTO> getMyCart(String id) throws Exception;
 	
-	public CartDTO getReadData(String id) throws Exception;
+	public CartDTO getReadData(String c_code) throws Exception;
 	
 	public void updateData(CartDTO dto) throws Exception;
 	
-	public void deleteData(String id) throws Exception;
+	public void deleteData(String c_code) throws Exception;
+
+	public CartDTO findSameCart(
+		@Param("id") String id,
+		@Param("f_code") String f_code
+	) throws Exception;
+
 }

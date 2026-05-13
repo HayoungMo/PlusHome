@@ -5,6 +5,7 @@ import InteriorService from '../service/interiorService';
 import ImageService from '../service/imageService';
 import SelectMui from './SelectMui';
 import DialogMui from './DialogMui';
+import AlertMui from './AlertMui';
 
 const InteriorExAdd = ({ company }) => {
   const [sendList2, setSendList2] = useState([]);
@@ -26,6 +27,12 @@ const InteriorExAdd = ({ company }) => {
     tag: "",
     tag2: "",
     content: "",
+  });
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
   });
 
   const tagOptions1 = [
@@ -55,7 +62,23 @@ const InteriorExAdd = ({ company }) => {
 
   const handleSubmit2 = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
-    InteriorService.AddInteriorExample(form2);
+     const result = await InteriorService.AddInteriorExample(form2);
+
+       if (result.success) {
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "등록 성공",
+      text: "등록되었습니다.",
+    });
+  } else {
+    setAlert({
+      open: true,
+      severity: "error",
+      title: `에러 (${result.status})`,
+      text: result.message || "오류가 발생했습니다.",
+    });
+  }
     onClickInsert2();
     onClickInsert3();
   };
@@ -118,6 +141,20 @@ const InteriorExAdd = ({ company }) => {
 
   return (
     <div>
+      {alert.open && (
+        <AlertMui
+          severity={alert.severity}
+          title={alert.title}
+          text={alert.text}
+          autoHideDuration={3000}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+        />
+      )}
       <p>시공사례 3d 모델 업로드</p>
       <form name="imageInsertTestForm3">
         <input

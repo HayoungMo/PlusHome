@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.CartMapper">
+
+    <insert id="insertData" parameterType="com.spring.home.dto.CartDTO">
+        INSERT INTO cart (
+            c_code,
+            id,
+            f_code,
+            f_status,
+            f_count,
+            f_addr,
+            f_name,
+            f_tel,
+            f_price,
+            f_point
+        ) VALUES (
+            #{c_code},
+            #{id},
+            #{f_code},
+            #{f_status},
+            #{f_count},
+            #{f_addr},
+            #{f_name},
+            #{f_tel},
+            #{f_price},
+            #{f_point}
+        )
+    </insert>
+
+    <select id="getMyCart" parameterType="string" resultType="com.spring.home.dto.CartDTO">
+        SELECT
+            c_code,
+            id,
+            f_code,
+            f_status,
+            f_dstatus,
+            f_count,
+            f_addr,
+            f_name,
+            f_tel,
+            f_price,
+            f_point
+        FROM cart
+        WHERE id = #{id}
+          AND f_status = 'N'
+        ORDER BY c_code DESC
+    </select>
+
+    <select id="getReadData" parameterType="string" resultType="com.spring.home.dto.CartDTO">
+        SELECT
+            c_code,
+            id,
+            f_code,
+            f_status,
+            f_dstatus,
+            f_count,
+            f_addr,
+            f_name,
+            f_tel,
+            f_price,
+            f_point
+        FROM cart
+        WHERE c_code = #{c_code}
+    </select>
+
+    <update id="updateData" parameterType="com.spring.home.dto.CartDTO">
+        UPDATE cart
+        SET
+            f_count = #{f_count},
+            f_addr = #{f_addr},
+            f_name = #{f_name},
+            f_tel = #{f_tel},
+            f_price = #{f_price},
+            f_point = #{f_point},
+            f_status = #{f_status},
+            f_dstatus = #{f_dstatus}
+        WHERE c_code = #{c_code}
+    </update>
+
+    <delete id="deleteData" parameterType="string">
+        DELETE FROM cart
+        WHERE c_code = #{c_code}
+    </delete>
+
+    <select id="findSameCart" resultType="com.spring.home.dto.CartDTO">
+        SELECT
+            c_code,
+            id,
+            f_code,
+            f_status,
+            f_dstatus,
+            f_count,
+            f_addr,
+            f_name,
+            f_tel,
+            f_price,
+            f_point
+        FROM cart
+        WHERE id = #{id}
+          AND f_code = #{f_code}
+          AND f_status = 'N'
+    </select>
+
+</mapper>

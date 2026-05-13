@@ -22,7 +22,7 @@ const InteriorList = () => {
   };
   const valueOptionMap = {
     housingType: [
-      { value: "apartment", title: "아파트" },
+      { value: "apt", title: "아파트" },
       { value: "villa", title: "빌라" },
       { value: "house", title: "주택" },
       { value: "officetel", title: "오피스텔" },

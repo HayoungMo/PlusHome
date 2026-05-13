@@ -115,7 +115,7 @@ const MainHomePage = () => {
                                 {item.f_discount > 0 && (
                                     <span>할인 {item.f_discount}% </span>
                                 )}
-                                배송비 {Number(item.f_dprice || 0).toLocaleString()}원
+                                배송비 {Number(item.f_deliveryprice || 0).toLocaleString()}원
                             </p>
                             </div>
                         </Link>

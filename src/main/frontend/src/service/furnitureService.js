@@ -48,7 +48,15 @@ const insertFurniture = async (params) => {
 
 const updateFurniture = async (params) => {
 	try {
-		const { dto, thumbnail, infoFiles = [], othersFiles = [], deletedImages = [] } = params;
+		const {
+			dto,
+			thumbnail,
+			infoFiles = [],
+			othersFiles = [],
+			deletedImages = [],
+			options = [],
+			deletedOptions = [] 
+		} = params;
 
 		const formData = new FormData();
 
@@ -68,8 +76,21 @@ const updateFurniture = async (params) => {
 			});
 		}
 
-		formData.append("dto", new Blob([JSON.stringify(dto)], { type: "application/json" }));
+		formData.append(
+			"dto",
+			new Blob([JSON.stringify(dto)], { type: "application/json" })
+		);
+ 
+		formData.append(
+			"options",
+			new Blob([JSON.stringify(options)], {type: "application/json"})
+		)
 
+		formData.append(
+			"deletedOptions",
+			new Blob([JSON.stringify(deletedOptions)], {type: "application/json"})
+		)
+		
 		if (deletedImages.length > 0) {
 			deletedImages.forEach((name) => {
 				formData.append("deletedImages", name);

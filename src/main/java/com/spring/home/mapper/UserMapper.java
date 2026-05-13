@@ -41,4 +41,8 @@ public interface UserMapper {
 	
 	public void deleteUser(UserDTO dto) throws Exception;
 	
+	public List<UserDTO> getUserListDev();
+	
+	public int deleteUserDev(UserDTO dto) throws Exception;
+	
 }
