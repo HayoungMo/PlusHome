@@ -8,9 +8,13 @@ import {
 import { 
     Create as CreateIcon, 
     Search as SearchIcon, 
-    DeleteSweep as DeleteSweepIcon
+    DeleteSweep as DeleteSweepIcon,
+    Visibility as VisibilityIcon,
+    ThumbUp as ThumbUpIcon,
+    ChatBubbleOutline as ChatBubbleOutlineIcon,
 } from "@mui/icons-material";
 import { FreeBoardStatsPanel, PAGE_SIZE } from "./freeboard";
+import FreeBoardStatsService from "../service/freeBoardStatsService";
 
 const FreeBoardListMui = ({ 
     posts = [], 
@@ -28,21 +32,32 @@ const FreeBoardListMui = ({
 }) => {
     const navigate = useNavigate();
     const [inputValue, setInputValue] = useState(params.searchValue);
-    const ROTATING_PLACEHOLDERS = [
-    "제목으로 검색해보세요",
-    "작성자로 검색해보세요",
-    "내용으로 검색해보세요",
-    ];
+    const [topLikedPosts, setTopLikedPosts] = useState([]);
     const [placeholderIdx, setPlaceholderIdx] = useState(0);
+
+    useEffect(() => {
+        const fetchTopLiked = async () => {
+            try {
+                const data = await FreeBoardStatsService.getAdminStats();
+                setTopLikedPosts(data?.topLiked || []);
+            } catch (err) {
+                console.error("인기 게시글 조회 실패:", err);
+            }
+        };
+        fetchTopLiked();
+    }, []);
+
+    const ROTATING_PLACEHOLDERS = topLikedPosts.length > 0
+        ? topLikedPosts.slice(0, 5).map((post) => `실시간 인기글 : ${post.title}`)
+        : ["검색어를 입력하세요"];
 
     useEffect(() => {
         const timer = setInterval(() => {
             setPlaceholderIdx((prev) => (prev + 1) % ROTATING_PLACEHOLDERS.length);
         }, 2000);
         return () => clearInterval(timer);
-    }, []);
+    }, [ROTATING_PLACEHOLDERS.length]);
 
-    // [필터링 로직] 관리자가 아닐 경우에는 hidden: 1=(신고글)인 게시글을 리스트에서 제외
     const visiblePosts = isAdmin 
         ? posts 
         : posts.filter(post => post.hidden !== 1);
@@ -73,7 +88,6 @@ const FreeBoardListMui = ({
                 alignItems: "flex-start",
             }}>
                 <Box sx={{ minWidth: 0 }}>
-                    {/* 상단 타이틀 및 버튼 */}
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                         <Typography variant="h5" fontWeight="bold">자유게시판</Typography>
                         <Stack direction="row" spacing={1}>
@@ -98,7 +112,6 @@ const FreeBoardListMui = ({
                         </Stack>
                     </Stack>
 
-                    {/* 검색 필터 영역 */}
                     <Paper sx={{ p: 2, mb: 3 }}>
                         <Stack direction={{ xs: "column", md: "row" }} spacing={1} alignItems="center">
                             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -133,7 +146,6 @@ const FreeBoardListMui = ({
                         </Stack>
                     </Paper>
 
-                    {/* 게시글 테이블 */}
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
@@ -146,10 +158,20 @@ const FreeBoardListMui = ({
                                             />
                                         </TableCell>
                                     )}
-                                    <TableCell align="center" width="80">번호</TableCell>
-                                    <TableCell>제목</TableCell>
-                                    <TableCell align="center" width="120">작성자</TableCell>
-                                    <TableCell align="center" width="120">작성일</TableCell>
+                                    <TableCell align="center" width="60">번호</TableCell>
+                                    <TableCell align="center" width="80">카테고리</TableCell>
+                                    <TableCell sx={{ minWidth: 200 }}>제목</TableCell>
+                                    <TableCell align="center" width="100">작성자</TableCell>
+                                    <TableCell align="center" width="60">
+                                        <VisibilityIcon fontSize="small" />
+                                    </TableCell>
+                                    <TableCell align="center" width="60">
+                                        <ThumbUpIcon fontSize="small" />
+                                    </TableCell>
+                                    <TableCell align="center" width="60">
+                                        <ChatBubbleOutlineIcon fontSize="small" />
+                                    </TableCell>
+                                    <TableCell align="center" width="100">작성일</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -169,28 +191,41 @@ const FreeBoardListMui = ({
                                                 </TableCell>
                                             )}
                                             <TableCell align="center">{post.boardId}</TableCell>
+                                            <TableCell align="center">
+                                                {post.category === "공지" 
+                                                    ? <Chip label="공지" size="small" color="error" sx={{ height: 20 }} />
+                                                    : <Chip label={post.category} size="small" variant="outlined" sx={{ height: 20 }} />
+                                                }
+                                                {post.hidden === 1 && (
+                                                    <Chip label="숨김" size="small" variant="outlined" color="warning" sx={{ ml: 0.5, height: 20 }} />
+                                                )}
+                                            </TableCell>
                                             <TableCell 
                                                 sx={{ 
+                                                    minWidth: 200,
+                                                    maxWidth: 300,
                                                     cursor: "pointer", 
                                                     fontWeight: post.category === "공지" ? "bold" : "normal",
                                                     textDecoration: post.hidden === 1 ? "line-through" : "none",
-                                                    color: post.hidden === 1 ? "text.disabled" : "text.primary"
+                                                    color: post.hidden === 1 ? "text.disabled" : "text.primary",
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
                                                 }} 
                                                 onClick={() => navigate(`/freeboard/article/${post.boardId}`)}
                                             >
-                                              
-                                                {post.category === "공지" && <Chip label="공지" size="small" color="error" sx={{ mr: 1, height: 20 }} />}
-                                                {post.hidden === 1 && <Chip label="숨김" size="small" variant="outlined" sx={{ mr: 1, height: 20 }} />}
-                                                
                                                 {post.title}
-                                                
-                                                {post.commentCount > 0 && (
-                                                    <Typography component="span" variant="caption" color="error" sx={{ ml: 0.5 }}>
-                                                        ({post.commentCount})
-                                                    </Typography>
-                                                )}
                                             </TableCell>
                                             <TableCell align="center">{post.userName || "방문자"}</TableCell>
+                                            <TableCell align="center" sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
+                                                {post.viewCount ?? 0}
+                                            </TableCell>
+                                            <TableCell align="center" sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
+                                                {post.likeCount ?? 0}
+                                            </TableCell>
+                                            <TableCell align="center" sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
+                                                {post.commentCount ?? 0}
+                                            </TableCell>
                                             <TableCell align="center" sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
                                                 {post.createdAt}
                                             </TableCell>
@@ -198,7 +233,7 @@ const FreeBoardListMui = ({
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={isAdmin ? 5 : 4} align="center" sx={{ py: 5 }}>
+                                        <TableCell colSpan={isAdmin ? 8 : 7} align="center" sx={{ py: 5 }}>
                                             게시글이 존재하지 않습니다.
                                         </TableCell>
                                     </TableRow>
@@ -207,7 +242,6 @@ const FreeBoardListMui = ({
                         </Table>
                     </TableContainer>
 
-                    {/* 페이지네이션 */}
                     <Stack alignItems="center" sx={{ mt: 4 }}>
                         <Pagination
                             count={Math.max(1, Math.ceil(dataCount / PAGE_SIZE))}
@@ -220,10 +254,9 @@ const FreeBoardListMui = ({
                     </Stack>
                 </Box>
 
-                {/* 사이드 패널 */}
                 {loginUser && (
                     <Box sx={{ position: { md: "sticky" }, top: { md: 16 } }}>
-                        <FreeBoardStatsPanel loginUser={loginUser} isAdmin={isAdmin} onRefresh={onRefresh}  />
+                        <FreeBoardStatsPanel loginUser={loginUser} isAdmin={isAdmin} onRefresh={onRefresh} />
                     </Box>
                 )}
             </Box>
