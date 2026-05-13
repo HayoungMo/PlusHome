@@ -27,6 +27,7 @@ const FreeBoardArticlePage = () => {
         if (!boardId) return;
         try {
             const data = await FreeBoardService.getFreeBoard(boardId);
+            console.log("article data:", data); 
             if (!data) {
                 alert("존재하지 않는 게시글입니다.");
                 return navigate("/freeboard/list");
@@ -70,15 +71,23 @@ const FreeBoardArticlePage = () => {
     };
 
     // 5. 좋아요 처리 
+    // 5. 좋아요 처리
+    const likedKey = `liked_${boardId}_${loginUser?.id}`;
+    const [alreadyLiked, setAlreadyLiked] = useState(
+        !!loginUser && !!localStorage.getItem(likedKey)
+    );
     const handleLike = async () => {
         if (!loginUser) return alert("로그인이 필요합니다.");
+        if (alreadyLiked) return alert("이미 좋아요를 누른 게시글입니다.");
         try {
             const updatedData = await FreeBoardService.likeFreeBoard(currentBoardId);
-            
+            localStorage.setItem(likedKey, "true");
+            setAlreadyLiked(true);
             setArticle((prev) => ({ ...prev, likeCount: updatedData.likeCount }));
-        } catch { alert("좋아요 처리에 실패했습니다."); }
+        } catch { 
+            alert("좋아요 처리에 실패했습니다."); 
+        }
     };
-
     // 6. 삭제 처리
     const handleDelete = async () => {
         if (!hasArticleAuthority) return alert("삭제 권한이 없습니다.");
