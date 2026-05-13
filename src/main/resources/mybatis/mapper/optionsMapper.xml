@@ -95,4 +95,21 @@
         WHERE o_code = #{o_code}
     </delete>
 
+<update id="decreaseOptionStock">
+    UPDATE options
+    SET o_count = o_count - #{count}
+    WHERE f_code = #{f_code}
+      AND o_select = #{o_select}
+      AND o_text = #{o_text}
+      AND o_count >= #{count}
+</update>
+
+<update id="increaseOptionStock">
+    UPDATE options
+    SET o_count = o_count + #{count}
+    WHERE f_code = #{f_code}
+      AND o_select = #{o_select}
+      AND o_text = #{o_text}
+</update>
+
 </mapper>

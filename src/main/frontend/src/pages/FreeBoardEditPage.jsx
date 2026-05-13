@@ -2,24 +2,16 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FreeBoardWriteMui from "../components/FreeBoardWriteMui";
 import FreeBoardService from "../service/freeBoardService";
-
-// 관리자 권한 타입 (USERS.TYPE = 'admin' 인 계정은 모든 권한)
-const ADMIN_TYPE = "admin";
+import { getLoginUser, isAdminUser } from "../components/freeboard/constants";
 
 const FreeBoardEditPage = () => {
     const { boardId } = useParams();
     const navigate = useNavigate();
+    const currentBoardId = Number(boardId);
     const [initialData, setInitialData] = useState(null);
 
-    // loginUser를 useMemo로 고정 (핵심 수정 포인트)
-    const loginUser = useMemo(() => {
-        try {
-            const user = localStorage.getItem("user");
-            return user ? JSON.parse(user) : null;
-        } catch {
-            return null;
-        }
-    }, []);
+    // 로그인 유저 (모듈 공통 유틸 사용)
+    const loginUser = useMemo(() => getLoginUser(), []);
 
     useEffect(() => {
         const fetchAndCheckAuth = async () => {
@@ -41,7 +33,7 @@ const FreeBoardEditPage = () => {
                 }
 
                 // 3. 권한 체크
-                const isAdmin = loginUser.type === ADMIN_TYPE;
+                const isAdmin = isAdminUser(loginUser);
                 const isAuthor = String(data.userId) === String(loginUser.id);
 
                 if (!isAdmin && !isAuthor) {
@@ -61,14 +53,14 @@ const FreeBoardEditPage = () => {
         };
 
         fetchAndCheckAuth();
-    }, [boardId, navigate, loginUser]);  
+    }, [boardId, navigate, loginUser]);
 
     // 5. 수정 처리 함수
     const handleUpdate = async (updatedData) => {
         try {
             await FreeBoardService.updateFreeBoard({
                 ...updatedData,
-                boardId: Number(boardId),
+                boardId: currentBoardId,
             });
 
             alert("수정되었습니다.");

@@ -6,7 +6,10 @@ import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
-
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from "@mui/icons-material/Delete";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
 const InteriorExUpdate = ({ company }) => {
   const [sendList, setSendList] = useState([]);
   const [example, setExample] = useState([]);
@@ -142,7 +145,7 @@ const InteriorExUpdate = ({ company }) => {
         dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm2.file.files[0],
       },
     ]);
@@ -219,11 +222,18 @@ const InteriorExUpdate = ({ company }) => {
                     name={record.img_originalName}
                     className="updateFile"
                   />
-                  <Button onClick={(e) => imageUpload(record, e)}>적용</Button>
+
+                  <FloatingActionButtonMui
+                    icon={<FileUploadIcon />}
+                    color="primary"
+                    onClick={(e) => imageUpload(record, e)}
+                  />
                 </form>
-                <Button onClick={() => imageDelete([record.img_originalName])}>
-                  삭제
-                </Button>
+                <FloatingActionButtonMui
+                  icon={<DeleteIcon />}
+                  color="error"
+                  onClick={() => imageDelete([record.img_originalName])}
+                />
               </div>
             ))}
           <p>시공사례 이미지 추가 업로드</p>
@@ -236,7 +246,11 @@ const InteriorExUpdate = ({ company }) => {
             />
             <input
               type="hidden"
-              value="PROFILE"
+              value={
+                sendList === null || sendList.length === 0
+                  ? "THUMBNAIL"
+                  : "OTHER"
+              }
               name="img_tag"
               placeholder="IMG_TAG"
             />
@@ -273,8 +287,16 @@ const InteriorExUpdate = ({ company }) => {
             />
             <input type="file" name="file" />
             <br />
-            <Button onClick={onClickAdd}>추가</Button>
-            <Button onClick={onClickInsert}>제출</Button>
+            <FloatingActionButtonMui
+              icon={<AddIcon />}
+              color="secondary"
+              onClick={() => onClickAdd()}
+            />
+            <FloatingActionButtonMui
+              icon={<FileUploadIcon />}
+              color="primary"
+              onClick={() => onClickInsert()}
+            />
           </form>
           <form name="example">
             <div>
@@ -285,9 +307,12 @@ const InteriorExUpdate = ({ company }) => {
                 value={item.ie_content}
                 onChange={(e) => handleChange(index, e)}
               />
-              <Button onClick={() => handleOpen()} variant="contained">
-                제출
-              </Button>
+
+              <FloatingActionButtonMui
+                icon={<FileUploadIcon />}
+                color="primary"
+                onClick={() => handleOpen()}
+              />
               <DialogMui
                 open={open}
                 onClose={handleClose}
@@ -310,14 +335,11 @@ const InteriorExUpdate = ({ company }) => {
                   },
                 ]}
               />
-              <Button
-                onClick={(e) => {
-                  handleOpen1();
-                }}
-                variant="contained"
-              >
-                삭제
-              </Button>
+              <FloatingActionButtonMui
+                icon={<DeleteIcon />}
+                color="error"
+                onClick={() => handleOpen1()}
+              />
               <DialogMui
                 open={open1}
                 onClose={handleClose1}

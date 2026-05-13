@@ -25,4 +25,21 @@ public interface CartMapper {
 		@Param("f_code") String f_code
 	) throws Exception;
 
+	public int updatePaymentStatus(
+			@Param("c_code") String c_code,
+			@Param("id") String id,
+			@Param("f_name") String f_name,
+			@Param("f_tel") String f_tel,
+			@Param("f_addr") String f_addr);
+	
+	public List<CartDTO> getMyOrders(String id) throws Exception;
+	
+	public int cancelOrderToCart(
+			@Param("c_code") String c_code,
+			@Param("id") String id);
+	
+	public int cancelOrder(
+		    @Param("c_code") String c_code,
+		    @Param("id") String id
+		);
 }

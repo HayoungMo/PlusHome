@@ -7,6 +7,8 @@ import { Button } from "@mui/material";
 import RatingMui from "../components/RatingMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
+import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
 
 const FurnitureAddReview = () => {
   const id = localStorage.getItem("id");
@@ -29,8 +31,8 @@ const FurnitureAddReview = () => {
     text: "",
   });
 
-  const [form, setForm] = useState({id:id, f_code:f_code});
-
+  const [form, setForm] = useState({ id: id, f_code: f_code });
+  const [preview, setPreview] = useState([]);
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -38,10 +40,11 @@ const FurnitureAddReview = () => {
     });
   };
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 🔥 페이지 새로고침 막기
-    const result = await FurnitureReviewService.insertReview(form);
+    const result2 = await onClickInsert();
+    const result =
+      result2.success && (await FurnitureReviewService.insertReview(form));
 
-    if (result.success) {
+    if (result2.success && result.success) {
       setAlert({
         open: true,
         severity: "success",
@@ -52,11 +55,10 @@ const FurnitureAddReview = () => {
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
+        title: `에러 (${result.status || "이미지 누락"})`,
+        text: result.message || "이미지를 1개 이상 넣어주세요.",
       });
     }
-    onClickInsert();
   };
   const onClickAdd = () => {
     const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
@@ -70,20 +72,26 @@ const FurnitureAddReview = () => {
         //dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: insertForm2.img_idx.value,
+        img_idx: sendList.length,
         file: insertForm2.file.files[0],
       },
+    ]);
+    setPreview((prev) => [
+      ...prev,
+      URL.createObjectURL(insertForm2.file.files[0]),
     ]);
   };
 
   const onClickInsert = () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
-      return; // 🚫 요청 안 보냄
+      return {
+        success: false,
+        log: "보낼 이미지 없음",
+      };
     }
-    console.log("sendlist");
-    console.log(sendList);
     ImageService.insertImage(sendList);
+    return { success: true };
   };
 
   return (
@@ -145,7 +153,9 @@ const FurnitureAddReview = () => {
         />
         <input
           type="hidden"
-          value="PROFILE"
+          value={
+            sendList === null || sendList.length === 0 ? "THUMBNAIL" : "OTHER"
+          }
           name="img_tag"
           placeholder="IMG_TAG"
         />
@@ -169,8 +179,20 @@ const FurnitureAddReview = () => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
       </form>
+      {preview &&
+        preview.map((item) => (
+          <img
+            src={item}
+            style={{ width: "150px", height: "150px", objectFit: "cover" }}
+            alt=""
+          />
+        ))}
     </div>
   );
 };

@@ -79,35 +79,38 @@ const InteriorList = () => {
     fetchData();
   }, []);
 
-  const handleSearchFilter = () => {
-    let result = [...originList];
+  useEffect(() => {
+    const handleSearchFilter = () => {
+      let result = [...originList];
 
-    // 검색
-    if (search && search.trim() !== "") {
-      result = result.filter(
-        (item) =>
-          item.c_name?.includes(search) ||
-          item.c_addr?.includes(search) ||
-          item.c_tel?.includes(search),
-      );
-    }
+      // 검색
+      if (search && search.trim() !== "") {
+        result = result.filter(
+          (item) =>
+            item.c_name?.includes(search) ||
+            item.c_addr?.includes(search) ||
+            item.c_tel?.includes(search),
+        );
+      }
 
-    // 필터
-     if (filterType && filterValue) {
-       result = result.filter((company) => {
-         return tags.some(
-           (tag) =>
-             tag.c_id === company.c_id &&
-             tag.c_kind === company.c_kind &&
-             tag.c_name === company.c_name &&
-             tag.i_tag === filterType &&
-             tag.i_text === filterValue,
-         );
-       });
-     }
+      // 필터
+      if (filterType && filterValue) {
+        result = result.filter((company) => {
+          return tags.some(
+            (tag) =>
+              tag.c_id === company.c_id &&
+              tag.c_kind === company.c_kind &&
+              tag.c_name === company.c_name &&
+              tag.i_tag === filterType &&
+              tag.i_text === filterValue,
+          );
+        });
+      }
 
-    setList(result);
-  };
+      setList(result);
+    };
+    handleSearchFilter();
+  },[search, filterValue]);
 
   const handleReset = () => {
     setSearch("");
@@ -119,18 +122,6 @@ const InteriorList = () => {
     <div>
       <div>
         <h3>결과</h3>
-        <TextFieldMui
-          name="search"
-          label="검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearchFilter();
-            }
-          }}
-        />
-        <Button onClick={() => handleSearchFilter()}>검색</Button>
 
         <SelectMui
           label="필터 종류"
@@ -156,7 +147,6 @@ const InteriorList = () => {
             option={valueOptionMap[filterType] || []}
           />
         )}
-        <Button onClick={() => handleSearchFilter()}>필터 적용</Button>
 
         <Button onClick={handleReset}>초기화</Button>
 
@@ -177,6 +167,12 @@ const InteriorList = () => {
           </div>
         ))}
       </div>
+      <TextFieldMui
+        name="search"
+        label="검색"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
     </div>
   );
 };

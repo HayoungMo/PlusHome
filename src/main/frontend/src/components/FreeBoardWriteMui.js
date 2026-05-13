@@ -16,10 +16,15 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 
-// 카테고리: DB FREEBOARD.CATEGORY (자유/질문/정보 + 공지)
-const CATEGORY_OPTIONS = ["자유", "질문", "정보", "공지"];
 
-const FreeBoardWriteMui = ({ initialData, onSave, onCancel }) => {
+
+
+const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
+    const CATEGORYOPTIONS = isAdmin 
+        ? ["자유", "질문", "정보", "공지"] 
+        : ["자유", "질문", "정보"];
+
+        // 이게 없어요!
     const [formData, setFormData] = useState({
         title: "",
         content: "",
@@ -28,7 +33,6 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel }) => {
 
     const [errors, setErrors] = useState({ title: false, content: false });
 
-    // 수정 모드: 기존 데이터 주입
     useEffect(() => {
         if (initialData) {
             setFormData({
@@ -82,7 +86,7 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel }) => {
                             value={formData.category}
                             onChange={handleChange}
                         >
-                            {CATEGORY_OPTIONS.map((c) => (
+                            {CATEGORYOPTIONS.map((c) => (
                                 <MenuItem key={c} value={c}>
                                     {c}
                                 </MenuItem>

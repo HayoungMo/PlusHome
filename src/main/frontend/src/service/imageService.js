@@ -1,136 +1,167 @@
 import http, { fileHttp } from "../http-common";
 
 const runGetImage = async (object, type) => {
-	console.log("ImageService ==================== [ runGetImage ]")
-	try {
-		let result;
-		let apiURL = `/image/get${type.charAt(0).toUpperCase()}${type.slice(1)}`;
-		await http.post(apiURL, object).then((res) => (result = res.data));
-		return result;
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+  console.log("ImageService ==================== [ runGetImage ]");
+  try {
+    let result;
+    let apiURL = `/image/get${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+    await http.post(apiURL, object).then((res) => (result = res.data));
+    return result;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
 };
 
 const insertImage = async (dataList) => {
-	try {
-		// Blob :	formData에 object 넣으면 깨지는 거 방지
-		// 			Spring이 DTO/DTO List로 자동변환 가능
-		//			JSON인걸 명시한다고 함  :p
-		const formData = new FormData();
-		dataList.forEach((element) => {
-			formData.append("files", element.file);
-		});
-		// dataList.foreach((item) => {formData.append("files", item.file);});
+  try {
+    //image 최대 용량 검사
+    const MAX_SIZE = 10 * 1024 * 1024; // 5MB
+    // Blob :	formData에 object 넣으면 깨지는 거 방지
+    // 			Spring이 DTO/DTO List로 자동변환 가능
+    //			JSON인걸 명시한다고 함  :p
+    for (const item of dataList) {
+      if (!item.file) continue;
 
-		const dtoList = dataList.map((item) => ({
-			img_kind: item.img_kind,
-			img_tag: item.img_tag,
-			dir_a: item?.dir_a,
-			dir_b: item?.dir_b,
-			dir_c: item?.dir_c,
-			dir_d: item?.dir_d,
-			dir_e: item?.dir_e,
-			img_idx: item?.img_idx,
-		}));
+      if (item.file.size > MAX_SIZE) {
+        alert(
+          `${item.file.name} 파일 크기가 너무 큽니다.\n최대 10MB까지 업로드 가능합니다.`,
+        );
+        return;
+      }
+    }
 
-		console.log("insertimage:")
-		console.log(dtoList);
+    const formData = new FormData();
+    dataList.forEach((element) => {
+      formData.append("files", element.file);
+    });
+    // dataList.foreach((item) => {formData.append("files", item.file);});
 
-		formData.append(
-			"dtoList",
-			new Blob([JSON.stringify(dtoList)], { type: "application/json" }),
-		);
-		await fileHttp.post("/image/insertImage", formData).then((res) => {
-			console.log(res);
-		});
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+    const dtoList = dataList.map((item) => ({
+      img_kind: item.img_kind,
+      img_tag: item.img_tag,
+      dir_a: item?.dir_a,
+      dir_b: item?.dir_b,
+      dir_c: item?.dir_c,
+      dir_d: item?.dir_d,
+      dir_e: item?.dir_e,
+      img_idx: item?.img_idx,
+    }));
+
+    console.log("insertimage:");
+    console.log(dtoList);
+
+    formData.append(
+      "dtoList",
+      new Blob([JSON.stringify(dtoList)], { type: "application/json" }),
+    );
+    await fileHttp.post("/image/insertImage", formData).then((res) => {
+      console.log(res);
+    });
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
 };
 
 const getImageData = async (params) => {
-	try {
-		console.log(params);
-		let result;
-		await http.post("/image/getList", params).then((res) => (result = res.data));
-		return result;
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+  try {
+    console.log(params);
+    let result;
+    await http
+      .post("/image/getList", params)
+      .then((res) => (result = res.data));
+    return result;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
 };
 
 const updateImage = async (fileList, updateInfoList = null) => {
-	try {
-		console.log(fileList)
-		const formData = new FormData();
-		fileList.forEach((element) => {
-			const oldName = element.name;
-			const oldDotIndex = oldName.lastIndexOf(".");
-			const oldBaseName = oldDotIndex !== -1 ? oldName.substring(0, oldDotIndex) : oldName;
+  try {
+    const MAX_SIZE = 10 * 1024 * 1024; // 5MB
+    // Blob :	formData에 object 넣으면 깨지는 거 방지
+    // 			Spring이 DTO/DTO List로 자동변환 가능
+    //			JSON인걸 명시한다고 함  :p
+    for (const item of fileList) {
+      if (!item.file) continue;
 
-			const newOriginalName = element.file.name;
-			const newDotIndex = newOriginalName.lastIndexOf(".");
-			const newExt = newDotIndex !== -1 ? newOriginalName.substring(newDotIndex) : "";
+      if (item.file.size > MAX_SIZE) {
+        alert(
+          `${item.file.name} 파일 크기가 너무 큽니다.\n최대 10MB까지 업로드 가능합니다.`,
+        );
+        return;
+      }
+    }
+    console.log(fileList);
+    const formData = new FormData();
+    fileList.forEach((element) => {
+      const oldName = element.name;
+      const oldDotIndex = oldName.lastIndexOf(".");
+      const oldBaseName =
+        oldDotIndex !== -1 ? oldName.substring(0, oldDotIndex) : oldName;
 
-			const newFileName = oldBaseName + newExt;
-			console.log(newFileName)
-			const renamedFile = new File([element.file], newFileName, {
-				type: element.file.type,
-				lastModified: element.file.lastModified,
-			});
-			formData.append("files", renamedFile);
-		});
+      const newOriginalName = element.file.name;
+      const newDotIndex = newOriginalName.lastIndexOf(".");
+      const newExt =
+        newDotIndex !== -1 ? newOriginalName.substring(newDotIndex) : "";
 
-		if (updateInfoList && updateInfoList.length > 0) {
-			console.log();
-			formData.append(
-				"updateInfoList",
-				new Blob([JSON.stringify(updateInfoList)], {
-					type: "application/json",
-				}),
-			);
-		}
+      const newFileName = oldBaseName + newExt;
+      console.log(newFileName);
+      const renamedFile = new File([element.file], newFileName, {
+        type: element.file.type,
+        lastModified: element.file.lastModified,
+      });
+      formData.append("files", renamedFile);
+    });
 
-		const res = await fileHttp.post("/image/updateImage", formData);
-		console.log(res);
+    if (updateInfoList && updateInfoList.length > 0) {
+      console.log();
+      formData.append(
+        "updateInfoList",
+        new Blob([JSON.stringify(updateInfoList)], {
+          type: "application/json",
+        }),
+      );
+    }
 
-		return res.data;
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+    const res = await fileHttp.post("/image/updateImage", formData);
+    console.log(res);
+
+    return res.data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
 };
 
 const deleteImage = async (params) => {
-	try {
-		console.log(params);
-		await http.post("/image/deleteImage", params);
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+  try {
+    console.log(params);
+    await http.post("/image/deleteImage", params);
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
 };
 
 const updateOnlyInfo = async (params) => {
-	try {
-		await http.post("/image/updateImageInfo", params);
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+  try {
+    await http.post("/image/updateImageInfo", params);
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
 };
 
 const ImageService = {
-	runGetImage,
-	insertImage,
-	getImageData,
-	updateImage,
-	deleteImage,
-	updateOnlyInfo,
+  runGetImage,
+  insertImage,
+  getImageData,
+  updateImage,
+  deleteImage,
+  updateOnlyInfo,
 };
 
 export default ImageService;

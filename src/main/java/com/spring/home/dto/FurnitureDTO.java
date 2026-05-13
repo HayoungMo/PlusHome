@@ -32,5 +32,7 @@ public class FurnitureDTO {
 	private int f_point;
 	private int f_count;
 	
+	private int f_deliveryPrice;
+	
 	private List<ImageDTO> imageList;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {getImgDirSimple} from "../resources/function/GetImgDir"
 import UserPageService from "../service/userPageService";
 import  Loading  from "./Loading"
@@ -10,15 +10,27 @@ import UserOrderPage from './UserOrderPage';
 import UserQuestionPage from './UserQuestionPage';
 import UserReviewPage from './UserReviewPage';
 import UserDeletePage from './UserDeletePage';
+import WalletService from '../service/walletService';
+import WalletCharge from './WalletCharge';
 
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
+    const location = useLocation();
+    const queryMenu = new URLSearchParams(location.search).get("menu");
+
     const fileInputRef = useRef(null)
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [activeMenu, setActiveMenu] = useState("edit");
+    const [activeMenu, setActiveMenu] = useState(queryMenu || "edit");
     const [profileImage, setProfileImage] = useState(null);
-
+    const [wallet, setWallet]= useState(null)
+    
+    useEffect(()=>{
+        if(queryMenu){
+            setActiveMenu(queryMenu)
+        }
+    },[queryMenu])
+ 
     useEffect(()=>{
         const token = localStorage.getItem("token")
 
@@ -33,6 +45,11 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             setUser(res.data)
             setLoginUser?.(res.data.id)
             localStorage.setItem("user", JSON.stringify(res.data))
+
+            return WalletService.getMyWallet(res.data.id)
+        })
+        .then((walletData) => {
+            setWallet(walletData)
         })
         .catch((error)=> {
             console.error(error)
@@ -148,13 +165,20 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                         <strong>이름: </strong>
                         <span>{user?.name}</span>
                     </p>
+                    <p>
+                        <strong>지갑 잔액: </strong>
+                        <span>{Number(wallet?.money || 0).toLocaleString()}원</span>
+                    </p>  
+
                 </div>
                 <button onClick={()=> setActiveMenu("edit")}>회원 정보</button>
                 <button onClick={()=> setActiveMenu("orders")}>배송 정보 확인</button>
                 <button onClick={() => setActiveMenu("wishlist")}>찜목록</button>
                 <button onClick={() => setActiveMenu("inquiries")}>문의 확인</button>
                 <button onClick={() => setActiveMenu("reviews")}>리뷰 확인</button>
+                <button onClick={() => setActiveMenu("wallet")}>지갑 충전</button>
                 <button onClick={() => setActiveMenu("delete")}>회원 탈퇴</button>
+
             </aside>
 
             <main className='user-mypage-content'>
@@ -170,7 +194,12 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     {activeMenu === "wishlist" && <UserWishListPage user={user} />}
                     {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
                     {activeMenu === "reviews" && <UserReviewPage user={user} />}
-
+                    {activeMenu === "wallet" && (
+                        <WalletCharge
+                            user={user}
+                            onCharged={setWallet}
+                        />
+                    )}
                     {activeMenu === "delete" && (
                     <UserDeletePage
                         user={user}

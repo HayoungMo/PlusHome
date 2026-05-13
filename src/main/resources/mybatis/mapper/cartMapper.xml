@@ -43,7 +43,8 @@
             f_name,
             f_tel,
             f_price,
-            f_point
+            f_point,
+            cart_statusdate
         FROM cart
         WHERE id = #{id}
           AND f_status = 'N'
@@ -104,5 +105,47 @@
           AND f_code = #{f_code}
           AND f_status = 'N'
     </select>
+    
+    <update id="updatePaymentStatus">
+	    UPDATE cart
+	    SET f_status = 'Y',
+	        f_dstatus = 0,
+	        f_name = #{f_name},
+	        f_tel = #{f_tel},
+	        f_addr = #{f_addr}
+	    WHERE c_code = #{c_code}
+	      AND id = #{id}
+	      AND f_status = 'N'
+	</update>
+    
+<select id="getMyOrders" parameterType="string" resultType="com.spring.home.dto.CartDTO">
+    SELECT
+        c_code, id, f_code, f_status, f_dstatus,
+        f_count, f_addr, f_name, f_tel, f_price, f_point, cart_statusdate
+    FROM cart
+    WHERE id = #{id}
+      AND f_status = 'Y'
+    ORDER BY c_code DESC
+</select>
+
+<update id="cancelOrderToCart">
+    UPDATE cart
+    SET f_status = 'N',
+        f_dstatus = null
+    WHERE c_code = #{c_code}
+      AND id = #{id}
+      AND f_status = 'Y'
+      AND f_dstatus IN (0, 1)
+</update>
+
+<update id="cancelOrder">
+    UPDATE cart
+    SET f_dstatus = -1
+    WHERE c_code = #{c_code}
+      AND id = #{id}
+      AND f_status = 'Y'
+      AND f_dstatus IN (0, 1)
+</update>
+
 
 </mapper>

@@ -14,6 +14,8 @@ public interface QuestionMapper {
 	
 	public List<QuestionDTO> getListsByFCode(@Param("f_code") String f_code) throws Exception;
 	
+	public List<QuestionDTO> getMyQuestions(@Param("id") String id) throws Exception;
+	
 	public QuestionDTO getReadDataByQIdx(@Param("q_idx") int q_idx) throws Exception;
 	
 	public void updateAnswer(QuestionDTO dto) throws Exception;

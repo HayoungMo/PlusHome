@@ -149,44 +149,54 @@ SELECT c_id,
 FROM   interior 
 </select>
 
-<select id="getReadData"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
+<select id="getReadData" parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
 SELECT c_id,
        c_kind,
        c_name,
        i_tag,
        i_text
-FROM   interior
-WHERE  c_id LIKE '%'
-                 || #{c_id}
-                 || '%'
-       AND c_kind LIKE '%'
-                       || #{c_kind}
-                       || '%'
-       AND c_name LIKE '%'
-                       || #{c_name}
-                       || '%' 
+FROM interior
+WHERE 1=1
+
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
 </select>
 
-<select id="getExamples"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorExampleDTO">
+
+<select id="getExamples" parameterType="hashMap" resultType="com.spring.home.dto.InteriorExampleDTO">
 SELECT c_id,
        c_kind,
        c_name,
        ie_content,
        ie_tag,
        ie_tag2
-FROM   i_example
-WHERE  c_id LIKE '%'
-                 || #{c_id}
-                 || '%'
-       AND c_kind LIKE '%'
-                       || #{c_kind}
-                       || '%'
-       AND c_name LIKE '%'
-                       || #{c_name}
-                       || '%' 
+FROM i_example
+WHERE 1=1
+
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
 </select>
 
-<select id="getBookings"  parameterType="hashMap" resultType="com.spring.home.dto.BookingDTO">
+
+<select id="getBookings" parameterType="hashMap" resultType="com.spring.home.dto.BookingDTO">
 SELECT id,
        b_createddate,
        c_id,
@@ -198,22 +208,28 @@ SELECT id,
        b_status,
        b_content,
        b_answer
-FROM   booking
-WHERE  id LIKE '%'
-                 || NVL(#{id}, '')
-                 || '%'
-       AND c_id LIKE '%'
-                 ||  NVL(#{c_id}, '')
-                 || '%'
-       AND c_kind LIKE '%'
-                       ||  NVL(#{c_kind}, '')
-                       || '%'
-       AND c_name LIKE '%'
-                       ||  NVL(#{c_name}, '')
-                       || '%' 
+FROM booking
+WHERE 1=1
+
+<if test="id != null and id != ''">
+  AND id = #{id}
+</if>
+
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
 </select>
 
-<select id="getInvoices"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
+
+<select id="getInvoices" parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
 SELECT id,
        b_createdDate,
        c_id,
@@ -221,67 +237,13 @@ SELECT id,
        c_name,
        invoice_no,
        invoice_kind
-FROM   invoice
-WHERE  id LIKE '%'
-               || #{id}
-               || '%'
-       AND c_id LIKE '%'
-                     || #{c_id}
-                     || '%'
-       AND c_kind LIKE '%'
-                       || #{c_kind}
-                       || '%'
-       AND c_name LIKE '%'
-                       || #{c_name}
-                       || '%'
-       AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP} 
-</select>
+FROM invoice
+WHERE 1=1
 
-<select id="getInvoicedetails"  parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
-SELECT id,
-       b_createdDate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind,
-       invoice_text,
-       invoice_qty,
-       invoice_price
-FROM   invoice_detail
-WHERE  id LIKE '%'
-               || #{id}
-               || '%'
-       AND c_id LIKE '%'
-                     || #{c_id}
-                     || '%'
-       AND c_kind LIKE '%'
-                       || #{c_kind}
-                       || '%'
-       AND c_name LIKE '%'
-                       || #{c_name}
-                       || '%'
-       AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
-       AND invoice_no LIKE '%'
-                           || #{invoice_no}
-                           || '%'
-       AND invoice_kind LIKE '%'
-                             || #{invoice_kind}
-                             || '%' 
-</select>
+<if test="id != null and id != ''">
+  AND id = #{id}
+</if>
 
-<select id="getUserInteriorReviews"  parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
-SELECT id,
-       b_createddate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind,
-       ir_content,
-       ir_createdDate
-FROM   i_review
-WHERE id = NVL(#{id}, id)
 <if test="c_id != null and c_id != ''">
   AND c_id = #{c_id}
 </if>
@@ -294,6 +256,89 @@ WHERE id = NVL(#{id}, id)
   AND c_name = #{c_name}
 </if>
 
+<if test="b_createdDate != null">
+  AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+</if>
+</select>
+
+
+<select id="getInvoicedetails" parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
+SELECT id,
+       b_createdDate,
+       c_id,
+       c_kind,
+       c_name,
+       invoice_no,
+       invoice_kind,
+       invoice_text,
+       invoice_qty,
+       invoice_price
+FROM invoice_detail
+WHERE 1=1
+
+<if test="id != null and id != ''">
+  AND id = #{id}
+</if>
+
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
+
+<if test="b_createdDate != null">
+  AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+</if>
+
+<if test="invoice_no != null and invoice_no != ''">
+  AND invoice_no = #{invoice_no}
+</if>
+
+<if test="invoice_kind != null and invoice_kind != ''">
+  AND invoice_kind = #{invoice_kind}
+</if>
+</select>
+
+
+<select id="getUserInteriorReviews" parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
+SELECT id,
+       b_createddate,
+       c_id,
+       c_kind,
+       c_name,
+       invoice_no,
+       invoice_kind,
+       ir_content,
+       ir_createdDate
+FROM i_review
+WHERE 1=1
+
+<if test="id != null and id != ''">
+  AND id = #{id}
+</if>
+
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
+
+<if test="invoice_no != null and invoice_no != ''">
+  AND invoice_no = #{invoice_no}
+</if>
+
 <if test="invoice_kind != null and invoice_kind != ''">
   AND invoice_kind = #{invoice_kind}
 </if>
@@ -303,23 +348,8 @@ WHERE id = NVL(#{id}, id)
 </if>
 </select>
 
-<select id="getCompanyInteriorReviews" parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
-  SELECT id,
-         b_createddate,
-         c_id,
-         c_kind,
-         c_name,
-         invoice_no,
-         invoice_kind,
-         ir_content,
-         ir_createddate
-  FROM i_review
-  WHERE c_id = #{c_id}
-    AND c_kind = #{c_kind}
-    AND c_name = #{c_name}
-</select>
 
-<select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">
+<select id="getCompanyInteriorReviews" parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
 SELECT id,
        b_createddate,
        c_id,
@@ -329,17 +359,63 @@ SELECT id,
        invoice_kind,
        ir_content,
        ir_createddate
-FROM   i_review
+FROM i_review
+WHERE 1=1
+
+<if test="c_id != null and c_id != ''">
+  AND c_id = #{c_id}
+</if>
+
+<if test="c_kind != null and c_kind != ''">
+  AND c_kind = #{c_kind}
+</if>
+
+<if test="c_name != null and c_name != ''">
+  AND c_name = #{c_name}
+</if>
+</select>
+
+<select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">
+SELECT ir.id,
+       ir.b_createddate,
+       ir.c_id,
+       ir.c_kind,
+       ir.c_name,
+       ir.invoice_no,
+       ir.invoice_kind,
+       ir.ir_content,
+       ir.ir_createddate,
+
+       c.c_addr,
+       c.c_tel,
+       c.c_boss,
+       c.c_info
+
+FROM   i_review ir
+       JOIN company c
+         ON ir.c_id = c.c_id
+        AND ir.c_kind = c.c_kind
+        AND ir.c_name = c.c_name
 </select>
 
 <select id="getAllExamples"  resultType="com.spring.home.dto.InteriorExampleDTO">
-SELECT c_id,
-       c_kind,
-       c_name,
-       ie_content,
-       ie_tag,
-       ie_tag2
-FROM   i_example
+SELECT ie.c_id,
+       ie.c_kind,
+       ie.c_name,
+       ie.ie_content,
+       ie.ie_tag,
+       ie.ie_tag2,
+
+       c.c_addr,
+       c.c_tel,
+       c.c_boss,
+       c.c_info
+
+FROM   i_example ie
+       JOIN company c
+         ON ie.c_id = c.c_id
+        AND ie.c_kind = c.c_kind
+        AND ie.c_name = c.c_name
 </select>
 
 <select id="getAllBookings"  resultType="com.spring.home.dto.BookingDTO">
