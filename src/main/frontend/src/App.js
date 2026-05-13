@@ -150,6 +150,8 @@ function App() {
         
         {/* 장바구니 */}
         <Route path="/cart" element={<CartPage/>}/>
+        
+        {/* 결제 */}
         <Route path="/payment" element={<PaymentPage/>}/>
         <Route path="/payment/success" element={<PaymentSuccessPage/>}/>
         
