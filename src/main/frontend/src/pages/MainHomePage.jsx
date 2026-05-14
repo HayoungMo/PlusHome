@@ -80,7 +80,13 @@ const MainHomePage = () => {
                         gap: "16px"
                     }}
                 >
-                    {furniture.map((item) => (
+                    {furniture.map((item) => {
+                        const thumbnail = item.imageList?.find(
+                            (img) => img.img_tag === "THUMBNAIL"
+                        );
+
+                        return(
+
                         <Link 
                             to={`/furniture/article/${item.f_code}`} 
                             key={item.f_code}
@@ -99,6 +105,21 @@ const MainHomePage = () => {
                                     boxSizing: "border-box"
                                 }}
                             >
+                                <img
+                                    src={
+                                        thumbnail
+                                            ? `http://localhost:8080/api/images/FURNITURE/${thumbnail.img_name}`
+                                            : "/no-image.png"
+                                    }
+                                    alt={item.f_name}
+                                    style={{
+                                        width: "100%",
+                                        height: "160px",
+                                        objectFit: "cover",
+                                        marginBottom: "12px"
+                                    }}
+                                />
+
                             <p style={{ margin: "0 0 8px", color: "#666" }}>
                                     {item.c_name}
                             </p>
@@ -119,7 +140,8 @@ const MainHomePage = () => {
                             </p>
                             </div>
                         </Link>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
 
