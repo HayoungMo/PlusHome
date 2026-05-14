@@ -153,6 +153,18 @@ const PaymentPage = () => {
         payTotal: finalPayTotal,
       });
 
+      // 사용한 쿠폰 삭제
+      if (checkedList.length > 0) {
+        await Promise.all(
+          checkedList.map((coupon_code) =>
+            CouponService.deleteCoupon({
+              id: user.id,
+              coupon_code,
+            }),
+          ),
+        );
+      }
+
       setWalletMoney((prev) => prev - finalPayTotal);
       setPayMessage("결제가 완료되었습니다.");
 

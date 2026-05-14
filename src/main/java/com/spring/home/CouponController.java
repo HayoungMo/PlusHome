@@ -63,8 +63,8 @@ public class CouponController {
 		couponService.updateData(dto);
 	}
 	@PostMapping("/delete")
-	public void deleteData(@RequestBody String coupon_code) throws Exception{
-		couponService.deleteData(coupon_code);
+	public void deleteData(@RequestBody CouponDTO dto) throws Exception{
+		couponService.deleteData(dto);
 	}
 
 }
