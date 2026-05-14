@@ -89,7 +89,7 @@
 		   set
 				q_title = #{q_title},
 				q_content = #{q_content},
-				q_secret = #{q_secret},
+				q_secret = #{q_secret}
 		 where q_idx = #{q_idx}
 	</update>
 	

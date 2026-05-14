@@ -42,4 +42,9 @@ public interface CartMapper {
 		    @Param("c_code") String c_code,
 		    @Param("id") String id
 		);
+
+	public int updateDeliveryStatus(
+			@Param("c_code") String c_code,
+			@Param("id") String id,
+			@Param("f_dstatus") int f_dstatus);
 }

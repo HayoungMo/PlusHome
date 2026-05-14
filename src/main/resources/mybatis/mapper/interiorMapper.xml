@@ -156,8 +156,8 @@ SELECT c_id,
        i_tag,
        i_text
 FROM interior
-WHERE 1=1
 
+<where>
 <if test="c_id != null and c_id != ''">
   AND c_id = #{c_id}
 </if>
@@ -169,6 +169,7 @@ WHERE 1=1
 <if test="c_name != null and c_name != ''">
   AND c_name = #{c_name}
 </if>
+</where>
 </select>
 
 
@@ -180,8 +181,7 @@ SELECT c_id,
        ie_tag,
        ie_tag2
 FROM i_example
-WHERE 1=1
-
+<where>
 <if test="c_id != null and c_id != ''">
   AND c_id = #{c_id}
 </if>
@@ -193,6 +193,7 @@ WHERE 1=1
 <if test="c_name != null and c_name != ''">
   AND c_name = #{c_name}
 </if>
+</where>
 </select>
 
 
@@ -209,8 +210,7 @@ SELECT id,
        b_content,
        b_answer
 FROM booking
-WHERE 1=1
-
+<where>
 <if test="id != null and id != ''">
   AND id = #{id}
 </if>
@@ -226,6 +226,7 @@ WHERE 1=1
 <if test="c_name != null and c_name != ''">
   AND c_name = #{c_name}
 </if>
+</where>
 </select>
 
 
@@ -238,8 +239,7 @@ SELECT id,
        invoice_no,
        invoice_kind
 FROM invoice
-WHERE 1=1
-
+<where>
 <if test="id != null and id != ''">
   AND id = #{id}
 </if>
@@ -259,6 +259,7 @@ WHERE 1=1
 <if test="b_createdDate != null">
   AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
 </if>
+</where>
 </select>
 
 
@@ -274,8 +275,7 @@ SELECT id,
        invoice_qty,
        invoice_price
 FROM invoice_detail
-WHERE 1=1
-
+<where>
 <if test="id != null and id != ''">
   AND id = #{id}
 </if>
@@ -303,6 +303,7 @@ WHERE 1=1
 <if test="invoice_kind != null and invoice_kind != ''">
   AND invoice_kind = #{invoice_kind}
 </if>
+</where>
 </select>
 
 
@@ -317,8 +318,7 @@ SELECT id,
        ir_content,
        ir_createdDate
 FROM i_review
-WHERE 1=1
-
+<where>
 <if test="id != null and id != ''">
   AND id = #{id}
 </if>
@@ -346,6 +346,7 @@ WHERE 1=1
 <if test="b_createdDate != null">
   AND b_createddate = #{b_createdDate, jdbcType=TIMESTAMP}
 </if>
+</where>
 </select>
 
 
@@ -360,8 +361,7 @@ SELECT id,
        ir_content,
        ir_createddate
 FROM i_review
-WHERE 1=1
-
+<where>
 <if test="c_id != null and c_id != ''">
   AND c_id = #{c_id}
 </if>
@@ -373,6 +373,7 @@ WHERE 1=1
 <if test="c_name != null and c_name != ''">
   AND c_name = #{c_name}
 </if>
+</where>
 </select>
 
 <select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">

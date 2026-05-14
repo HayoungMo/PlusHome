@@ -41,7 +41,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const TableMui = (props) => {
-	const { rowData = [], columns = [],col = [] } = props;
+	const {
+		rowData = [],
+		columns = [],
+		col = [],
+		selectedRow = null,
+		setSelectedRow = null,
+	} = props;
 
 	const tableColumns =
 		col.length === 0 ? (rowData.length > 0 ? Object.keys(rowData[0]) : []) : col;
@@ -65,15 +71,31 @@ const TableMui = (props) => {
 					</TableRow>
 				</TableHead>
 				<TableBody>
-					{rowData.map((row, rowIndex) => (
-						<StyledTableRow key={row.id || rowIndex}>
-							{tableColumns.map((column) => (
-								<StyledTableCell key={column} align="right">
-									{row[column]}
-								</StyledTableCell>
-							))}
-						</StyledTableRow>
-					))}
+					{rowData.map((row, rowIndex) => {
+						const isSelected = selectedRow?.rowIndex === rowIndex;
+						return (
+							<StyledTableRow
+								onClick={() => {
+									if (!setSelectedRow || setSelectedRow === null) return;
+									setSelectedRow({...row,rowIndex:rowIndex});
+								}}
+								key={
+									row.f_code
+										? `${row.f_code}__${rowIndex}`
+										: `${row.id}__${rowIndex}` || rowIndex
+								}
+								sx={{
+									backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
+									cursor: setSelectedRow ? "pointer" : "default",
+								}}>
+								{tableColumns.map((column) => (
+									<StyledTableCell key={column} align="right">
+										{row[column]}
+									</StyledTableCell>
+								))}
+							</StyledTableRow>
+						);
+					})}
 				</TableBody>
 			</Table>
 		</TableContainer>

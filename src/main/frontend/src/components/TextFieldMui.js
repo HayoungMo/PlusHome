@@ -16,6 +16,9 @@ const TextFieldMui = (props) => {
       type,
       variant,
       width,
+      rows,
+      minRows,
+      maxRows
     } = props;
 
     const textVariant = variant ? variant : "outlined"
@@ -39,6 +42,9 @@ const TextFieldMui = (props) => {
           required={isRequired}
           error={isError}
           multiline={isMultiline}
+          rows={rows}
+	minRows={minRows}
+          maxRows={maxRows}
           fullWidth
         ></TextField>
       </Box>

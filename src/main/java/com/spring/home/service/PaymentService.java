@@ -158,13 +158,29 @@ public class PaymentService {
 
 	    walletMapper.updateData(refundWallet);
 
-	    int result = cartMapper.cancelOrderToCart(c_code, id);
+	    int result = cartMapper.cancelOrder(c_code, id);
 
 	    if (result != 1) {
 	        throw new RuntimeException("주문취소 처리에 실패했습니다.");
 	    }
 	}
 
-	
+	public void confirmOrder(String id, String c_code) throws Exception{
+		CartDTO cart = cartMapper.getReadData(c_code);
+		
+		if(cart == null || !id.equals(cart.getId())) {
+			throw new RuntimeException("주문 정보를 찾을 수 없습니다.");
+		}
+		
+		if(cart.getF_dstatus() != 4) {
+			throw new RuntimeException("배송완료 상태에서만 구매확정할 수 있습니다.");
+		}
+		
+		int result = cartMapper.updateDeliveryStatus(c_code, id, 5);
+		
+		if (result != 1) {
+			throw new RuntimeException("구매확정 처리에 실패했습니다.");
+		}
+	}
 	
 }

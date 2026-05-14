@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.OrderClaimMapper">
+
+    <insert id="insertData" parameterType="com.spring.home.dto.OrderClaimDTO">
+        INSERT INTO order_claim (
+            claim_code,
+            c_code,
+            id,
+            f_code,
+            claim_type,
+            claim_status,
+            claim_reason,
+            claim_createddate
+        ) VALUES (
+            #{claim_code},
+            #{c_code},
+            #{id},
+            #{f_code},
+            #{claim_type},
+            0,
+            #{claim_reason},
+            SYSDATE
+        )
+    </insert>
+
+    <select id="getByCartCode" resultType="com.spring.home.dto.OrderClaimDTO">
+        SELECT
+            claim_code,
+            c_code,
+            id,
+            f_code,
+            claim_type,
+            claim_status,
+            claim_reason,
+            claim_createddate
+        FROM order_claim
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+    </select>
+
+    <select id="getMyClaims" parameterType="string" resultType="com.spring.home.dto.OrderClaimDTO">
+        SELECT
+            oc.claim_code,
+            oc.c_code,
+            oc.id,
+            oc.f_code,
+            oc.claim_type,
+            oc.claim_status,
+            oc.claim_reason,
+            oc.claim_createddate,
+            f.f_name
+        FROM order_claim oc
+        JOIN furniture f
+          ON oc.f_code = f.f_code
+        WHERE oc.id = #{id}
+        ORDER BY oc.claim_createddate DESC
+    </select>
+
+    <select id="getAllClaims" resultType="com.spring.home.dto.OrderClaimDTO">
+        SELECT
+            oc.claim_code,
+            oc.c_code,
+            oc.id,
+            oc.f_code,
+            oc.claim_type,
+            oc.claim_status,
+            oc.claim_reason,
+            oc.claim_createddate,
+            f.f_name
+        FROM order_claim oc
+        JOIN furniture f
+          ON oc.f_code = f.f_code
+        ORDER BY oc.claim_createddate DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE order_claim
+        SET claim_status = #{claim_status}
+        WHERE claim_code = #{claim_code}
+    </update>
+
+<!-- 회사 id 기준 모든 상품 띄우기 -->
+<select id="getCompanyClaims" parameterType="string" resultType="com.spring.home.dto.OrderClaimDTO">
+    SELECT
+        oc.claim_code,
+        oc.c_code,
+        oc.id,
+        oc.f_code,
+        oc.claim_type,
+        oc.claim_status,
+        oc.claim_reason,
+        oc.claim_createddate,
+        f.f_name,
+        f.c_id,
+        f.c_name
+    FROM order_claim oc
+    JOIN furniture f
+      ON oc.f_code = f.f_code
+    WHERE f.c_id = #{company_id}
+    ORDER BY oc.claim_createddate DESC
+</select>
+
+</mapper>

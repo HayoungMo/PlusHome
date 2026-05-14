@@ -12,6 +12,7 @@ import UserReviewPage from './UserReviewPage';
 import UserDeletePage from './UserDeletePage';
 import WalletService from '../service/walletService';
 import WalletCharge from './WalletCharge';
+import UserCouponPage from './UserCouponPage';
 
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
@@ -31,6 +32,11 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         }
     },[queryMenu])
  
+    const changeMenu = (menu) => {
+        setActiveMenu(menu)
+        navigate(`/userpage?menu=${menu}`)
+    }
+
     useEffect(()=>{
         const token = localStorage.getItem("token")
 
@@ -111,104 +117,115 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         return <Loading/>
 
     return (
-        <div className='user-mypage'>
-            <aside className='user-mypage-menu'>
-                <div>
-                    <h2>프로필</h2>
-                    <div className="user-profile-image-box" onClick={onClickProfileImage}>
-                    {profileImage?.img_name ? (
-                        <img
-                        src={getImgDirSimple({
-                            kind: profileImage.img_kind,
-                            name: profileImage.img_name,
-                        })}
-                        alt="프로필"
-                        style={{
-                            width: "120px",
-                            height: "120px",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                            cursor: "pointer",
-                        }}
-                        />
-                    ) : (
-                        <div
-                        style={{
-                            width: "120px",
-                            height: "120px",
-                            borderRadius: "50%",
-                            border: "1px solid #ccc",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                        }}
-                        >
-                        사진 추가
-                        </div>
-                    )}
-                    </div>
-
-                    <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        style={{ display: "none" }}
-                        onChange={onChangeProfileImage}
-                        />
-
-                    <p>
-                        <strong>id: </strong>
-                        <span>{user?.id}</span>
-                    </p>
-                    <p>
-                        <strong>이름: </strong>
-                        <span>{user?.name}</span>
-                    </p>
-                    <p>
-                        <strong>지갑 잔액: </strong>
-                        <span>{Number(wallet?.money || 0).toLocaleString()}원</span>
-                    </p>  
-
+      <div className="user-mypage">
+        <aside className="user-mypage-menu">
+          <div>
+            <h2>프로필</h2>
+            <div
+              className="user-profile-image-box"
+              onClick={onClickProfileImage}
+            >
+              {profileImage?.img_name ? (
+                <img
+                    src={getImgDirSimple({
+                    kind: profileImage.img_kind,
+                    name: profileImage.img_name,
+                    })}
+                    alt="프로필"
+                    style={{
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    cursor: "pointer",
+                    }}
+                />
+                ) : (
+                <div
+                    style={{
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "50%",
+                    border: "1px solid #ccc",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    }}
+                >
+                    사진 추가
                 </div>
-                <button onClick={()=> setActiveMenu("edit")}>회원 정보</button>
-                <button onClick={()=> setActiveMenu("orders")}>배송 정보 확인</button>
-                <button onClick={() => setActiveMenu("wishlist")}>찜목록</button>
-                <button onClick={() => setActiveMenu("inquiries")}>문의 확인</button>
-                <button onClick={() => setActiveMenu("reviews")}>리뷰 확인</button>
-                <button onClick={() => setActiveMenu("wallet")}>지갑 충전</button>
-                <button onClick={() => setActiveMenu("delete")}>회원 탈퇴</button>
+                )}
 
-            </aside>
+                <button onClick={()=> changeMenu("edit")}>회원 정보</button>
+                <button onClick={()=> changeMenu("orders")}>배송 정보 확인</button>
+                <button onClick={() => changeMenu("wishlist")}>찜목록</button>
+                <button onClick={() => changeMenu("inquiries")}>문의 확인</button>
+                <button onClick={() => changeMenu("reviews")}>리뷰 확인</button>
+                <button onClick={() => changeMenu("wallet")}>지갑 충전</button>
+                <button onClick={() => changeMenu("delete")}>회원 탈퇴</button>
+             
+            </div>
 
-            <main className='user-mypage-content'>
-                {activeMenu === "edit" && (
-                    <UserProfilePage
-                        user={user}
-                        setUser={setUser}
-                        setLoginUser={setLoginUser}
-                    />
-                    )}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={onChangeProfileImage}
+            />
 
-                    {activeMenu === "orders" && <UserOrderPage user={user} />}
-                    {activeMenu === "wishlist" && <UserWishListPage user={user} />}
-                    {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
-                    {activeMenu === "reviews" && <UserReviewPage user={user} />}
-                    {activeMenu === "wallet" && (
-                        <WalletCharge
-                            user={user}
-                            onCharged={setWallet}
-                        />
-                    )}
-                    {activeMenu === "delete" && (
-                    <UserDeletePage
-                        user={user}
-                        setLoginUser={setLoginUser}
-                        setLoginInfo={setLoginInfo}
-                    />
-                    )}
-            </main>
-        </div>
+            <p>
+              <strong>id: </strong>
+              <span>{user?.id}</span>
+            </p>
+            <p>
+              <strong>이름: </strong>
+              <span>{user?.name}</span>
+            </p>
+            <p>
+              <strong>지갑 잔액: </strong>
+              <span>{Number(wallet?.money || 0).toLocaleString()}원</span>
+            </p>
+          </div>
+          <button onClick={() => setActiveMenu("edit")}>회원 정보</button>
+          <button onClick={() => setActiveMenu("orders")}>
+            배송 정보 확인
+          </button>
+          <button onClick={() => setActiveMenu("wishlist")}>찜목록</button>
+          <button onClick={() => setActiveMenu("inquiries")}>문의 확인</button>
+          <button onClick={() => setActiveMenu("reviews")}>리뷰 확인</button>
+          <button onClick={() => setActiveMenu("wallet")}>지갑 충전</button>
+          <button onClick={() => setActiveMenu("coupon")}>쿠폰 관리</button>
+          <button onClick={() => setActiveMenu("delete")}>회원 탈퇴</button>
+        </aside>
+
+        <main className="user-mypage-content">
+          {activeMenu === "edit" && (
+            <UserProfilePage
+              user={user}
+              setUser={setUser}
+              setLoginUser={setLoginUser}
+            />
+          )}
+
+          {activeMenu === "orders" && <UserOrderPage user={user} />}
+          {activeMenu === "wishlist" && <UserWishListPage user={user} />}
+          {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
+          {activeMenu === "reviews" && <UserReviewPage user={user} />}
+          {activeMenu === "wallet" && (
+            <WalletCharge user={user} onCharged={setWallet} />
+          )}
+          {activeMenu === "coupon" && <UserCouponPage user={user} />}
+          {activeMenu === "delete" && (
+            <UserDeletePage
+              user={user}
+              setLoginUser={setLoginUser}
+              setLoginInfo={setLoginInfo}
+            />
+          )}
+        </main>
+      </div>
     );
 };
 

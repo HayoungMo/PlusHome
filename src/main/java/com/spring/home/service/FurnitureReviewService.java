@@ -13,20 +13,29 @@ public class FurnitureReviewService {
 
 	@Autowired
 	private FurnitureReviewMapper furnitureReviewMapper;
-	
-	public void insertData(FurnitureReviewDTO dto) throws Exception{
+
+	public void insertData(FurnitureReviewDTO dto) throws Exception {
 		furnitureReviewMapper.insertData(dto);
 	}
-	
-	public List<FurnitureReviewDTO> getLists(FurnitureReviewDTO dto) throws Exception{
-		return furnitureReviewMapper.getLists(dto);
-	}	
 
-	public void updateData(FurnitureReviewDTO dto) throws Exception{
+	public List<FurnitureReviewDTO> getLists(FurnitureReviewDTO dto) throws Exception {
+		return furnitureReviewMapper.getLists(dto);
+	}
+
+	public void updateData(FurnitureReviewDTO dto) throws Exception {
 		furnitureReviewMapper.updateData(dto);
 	}
-	
-	public void deleteData(FurnitureReviewDTO dto) throws Exception{
+
+	public void deleteData(FurnitureReviewDTO dto) throws Exception {
 		furnitureReviewMapper.deleteData(dto);
 	}
+
+	public void insertReplyData(FurnitureReviewDTO dto) throws Exception {
+		furnitureReviewMapper.insertReplyData(dto);
+	}
+
+	public FurnitureReviewDTO getReviewByCartCode(String c_code) throws Exception {
+		return furnitureReviewMapper.getReviewByCartCode(c_code);
+	}
+
 }

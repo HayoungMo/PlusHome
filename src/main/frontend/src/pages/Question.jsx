@@ -31,7 +31,7 @@ const Question = ({ f_code }) => {
 
         return false;
     };
-    //5월 13일 이미지 파일 올리는 작업 하다 퇴근 5월 14일에 마저 할 예정
+    //5월 13일 이미지 파일 올리는 작업 하다 퇴근 5월 14일에 마저 할 예정(완)
     const getQuestionList = async () => {
         if(!f_code) return;
 
@@ -43,14 +43,18 @@ const Question = ({ f_code }) => {
 
             const imageMap = {};
 
-            for(const itme of questionList){
+            for(const item of questionList){
                 const imgResult = await GetImgDir({
                     kind:"QUESTION",
                     returnType: "list",
-
-                })
+                    a: item.f_code,
+                    d: item.id,
+                    idx: item.q_idx,
+                    view: true,
+                });
+                imageMap[item.q_idx] = imgResult.result || [];
             }
-
+            setQuestionImages(imageMap);
         } catch (error) {
             console.error("문의 목록 조회에 실패했습니다", error);
         }
@@ -99,7 +103,7 @@ const Question = ({ f_code }) => {
                     questionFiles.map((file) => ({
                         file,
                         img_kind: "QUESTION",
-                        img_tag: "QUESTION",
+                        img_tag: "INFO",
                         dir_a: f_code,
                         dir_d: user.id,
                         img_idx: savedQuestion.q_idx,
@@ -132,6 +136,7 @@ const Question = ({ f_code }) => {
         }));
     };
 
+    //답변
     const onAnswerSubmit = async (q_idx) => {
         const q_answer = answerForms[q_idx];
 
@@ -215,7 +220,20 @@ const Question = ({ f_code }) => {
                         ) : (
                             <p>작성자와 관리자만 확인할 수 있습니다.</p>
                         )}
-
+                        {canReadQuestion(item) && questionImages[item.q_idx]?.map((img) => (
+                            <img
+                                key={img.img_name}
+                                src={img.img_name}
+                                alt="문의 이미지"
+                                style={{
+                                    width: "120px",
+                                    height: "120px",
+                                    objectFit: "cover",
+                                    marginRight: "8px"
+                                }}
+                            />
+                        ))}
+                        {/* 답변 */}
                         {canReadQuestion(item) && (
                             item.q_answer ? (
                                 <div>
