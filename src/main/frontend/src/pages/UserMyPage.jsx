@@ -157,15 +157,6 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                 </div>
                 )}
 
-                <button onClick={()=> changeMenu("edit")}>회원 정보</button>
-                <button onClick={()=> changeMenu("orders")}>배송 정보 확인</button>
-                <button onClick={() => changeMenu("wishlist")}>찜목록</button>
-                <button onClick={() => changeMenu("inquiries")}>문의 확인</button>
-                <button onClick={() => changeMenu("reviews")}>리뷰 확인</button>
-                <button onClick={() => changeMenu("wallet")}>지갑 충전</button>
-                <button onClick={() => changeMenu("coupon")}>쿠폰 등록/조회</button>
-                <button onClick={() => changeMenu("delete")}>회원 탈퇴</button>
-             
             </div>
 
             <input
@@ -191,6 +182,15 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
           </div>
         </aside>
 
+                <button onClick={()=> changeMenu("edit")}>회원 정보</button>
+                <button onClick={()=> changeMenu("orders")}>배송 정보 확인</button>
+                <button onClick={() => changeMenu("wishlist")}>찜목록</button>
+                <button onClick={() => changeMenu("inquiries")}>문의 확인</button>
+                <button onClick={() => changeMenu("reviews")}>리뷰 확인</button>
+                <button onClick={() => changeMenu("wallet")}>지갑 충전</button>
+                <button onClick={() => changeMenu("coupon")}>쿠폰 등록/조회</button>
+                <button onClick={() => changeMenu("delete")}>회원 탈퇴</button>
+             
         <main className="user-mypage-content">
           {activeMenu === "edit" && (
             <UserProfilePage
