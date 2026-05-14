@@ -27,7 +27,7 @@ public class DevController {
 	//유저 전체 조회
 	
 	@PostMapping("/user/list")
-	public Map<String,Object> getUserList(){
+	public Map<String,Object> getUserList(@RequestBody UserDTO dto){
 		
 		
 		
@@ -35,7 +35,7 @@ public class DevController {
 		
 		try {
 			
-			List<UserDTO> userList = userService.getUserListDev();
+			List<UserDTO> userList = userService.getUserListDev(dto);
 			
 			System.out.println(result);
 			
@@ -56,7 +56,7 @@ public class DevController {
 	}
 	
 	
-	//유저 삭제
+	//유저 탈퇴 상태
 	@PostMapping("/delete")
 	public Map<String,Object> deleteUser(@RequestBody List<UserDTO> dtoList) throws Exception{
 		Map<String,Object> result = new HashMap<>();
@@ -84,7 +84,38 @@ public class DevController {
 		
 		return result;
 		
-	}	
+	}
+	
+	//유저 상태 복구
+	@PostMapping("/restore")
+	public Map<String,Object> restoreUser(@RequestBody List<UserDTO> dtoList) throws Exception{
+		
+		Map<String,Object> result = new HashMap<>();
+		
+		if(dtoList.size()==0) {
+			result.put("success", false);
+			result.put("message", "데이터를 전달받지 못했습니다.");
+			
+			return result;
+						
+		}
+		
+		int updateUser = userService.restoreUserDev(dtoList);
+		
+		if(updateUser==0) {
+			result.put("success",false);
+			result.put("message", "수정에 실패했습니다.");
+		}else if (updateUser !=dtoList.size()) {
+			result.put("success",false);
+			result.put("message", "일부 데이터가 수정되지 않았습니다.");
+		}else {
+			result.put("success", true);
+			result.put("message", "성공적으로 수정 되었습니다.");
+		}
+		
+		return result;
+		
+	}
 	
 	
 
