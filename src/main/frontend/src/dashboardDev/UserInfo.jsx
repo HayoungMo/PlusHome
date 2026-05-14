@@ -4,6 +4,9 @@ import TableMui from '../components/TableMui';
 import { Button } from '@mui/material';
 import TableChkMui from '../components/TableChkMui';
 
+import SwitchMui from "../components/SwitchMui";
+import DialogMui from "../components/DialogMui";
+
 
 
 const UserInfo = (props) => {

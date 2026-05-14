@@ -1,16 +1,75 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import PaymentService from "../service/paymentService";
 import CartService from "../service/cartService";
 import FurnitureService from "../service/furnitureService";
-import { useNavigate } from "react-router-dom";
-import Loading from "./Loading";
 import FurnitureReviewService from "../service/furnitureReviewService";
+import OrderClaimService from "../service/orderClaimService";
+import ImageService from "../service/imageService";
+
+import Loading from "./Loading";
+import OrderClaimInfo from "./OrderClaimInfo";
+import OrderClaimModal from "./OrderClaimModal";
 
 const UserOrderPage = ({ user }) => {
     const navigate = useNavigate()
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState("all");
+    const [openedClaimImages, setOpenedClaimImages] = useState({})
+
+    const [claimModal, setClaimModal] = useState({
+        open: false, 
+        item: null,
+        claim_type: null,
+    })
+
+    const openClaimModal = (item, claim_type) => {
+        setClaimModal({
+            open: true,
+            item,
+            claim_type
+        })
+    }
+
+    const closeClaimModal = () => {
+        setClaimModal({
+            open: false,
+            item: null,
+            claim_type: null
+        });
+    };
+
+    const toggleClaimImages = async (item) => {
+        if (!item.claimed || !item.claim_code) return;
+
+        if (openedClaimImages[item.claim_code]) {
+            setOpenedClaimImages(prev => ({
+                ...prev,
+                [item.claim_code]: null
+            }));
+            return;
+        }
+
+        try {
+            const imageList = await ImageService.getImageData({
+                kind: "CLAIM",
+                a: item.claim_code,
+                d: localStorage.getItem("id"),
+                idx: -1
+            });
+
+            setOpenedClaimImages(prev => ({
+                ...prev,
+                [item.claim_code]: imageList || []
+            }));
+        } catch (error) {
+            console.error("교환/반품 이미지 조회 실패", error);
+            alert("첨부 이미지를 불러오지 못했습니다.");
+        }
+    };
+
 
     useEffect(() => {
         loadOrders();
@@ -34,13 +93,23 @@ const UserOrderPage = ({ user }) => {
                         Number(item.f_dstatus) === 5
                             ? await FurnitureReviewService.checkReviewByCart(item.c_code)
                             : { reviewed: false };
-
-                    return {
+                    
+                    const claimResult =
+                        Number(item.f_dstatus) === 4
+                            ? await OrderClaimService.checkClaim(item.c_code)
+                            : { claimed: false };
+                    
+                            return {
                         ...item,
                         options: optionRes.data || [],
                         furniture,
                         thumbnail: thumbnail?.img_name || null,
-                        reviewed: reviewResult.reviewed || false
+                        reviewed: reviewResult.reviewed || false,
+                        claimed: claimResult.claimed || false,
+                        claim_type: claimResult.claim_type || null,
+                        claim_status: claimResult.claim_status ?? null,
+                        claim_code: claimResult.claim_code || null,
+                        claim_reason: claimResult.claim_reason || ""
                     };
                 })
             );
@@ -97,16 +166,9 @@ const UserOrderPage = ({ user }) => {
 
         try {
             await PaymentService.cancelOrder(c_code);
-
-            setOrders(prev =>
-                prev.map(item =>
-                    item.c_code === c_code
-                        ? { ...item, f_dstatus: -1 }
-                        : item
-                )
-            );
-
+            setStatusFilter(-1)
             await loadOrders()
+
             alert("주문이 취소되었습니다.");
         } catch (error) {
             console.error("주문취소 실패", error);
@@ -158,6 +220,11 @@ const UserOrderPage = ({ user }) => {
         return orders.filter(item => Number(item.f_dstatus) === status).length;
     };
 
+    const countByClaimType = (claimType) => {
+        return orders.filter(item =>
+            item.claimed && Number(item.claim_type) === claimType
+        ).length
+    }
     const getFilteredOrders = () => {
         if (statusFilter === "all") return orders;
 
@@ -170,6 +237,18 @@ const UserOrderPage = ({ user }) => {
         if (statusFilter === "done") {
             return orders.filter(item =>
                 [4, 5].includes(Number(item.f_dstatus))
+            );
+        }
+
+        if (statusFilter === "exchange") {
+            return orders.filter(item =>
+                item.claimed && Number(item.claim_type) === 1
+            );
+        }
+
+        if (statusFilter === "return") {
+            return orders.filter(item =>
+                item.claimed && Number(item.claim_type) === 2
             );
         }
 
@@ -297,6 +376,7 @@ const UserOrderPage = ({ user }) => {
 
                 <button
                     type="button"
+                    onClick={()=> setStatusFilter("exchange")}
                     style={{
                         padding: "18px",
                         border: "none",
@@ -304,18 +384,19 @@ const UserOrderPage = ({ user }) => {
                         background: "white"
                     }}
                 >
-                    교환 : 0
+                    교환 : {countByClaimType(1)}
                 </button>
 
                 <button
                     type="button"
+                    onClick={()=> setStatusFilter("return")}
                     style={{
                         padding: "18px",
                         border: "none",
                         background: "white"
                     }}
                 >
-                    반품 : 0
+                    반품 : {countByClaimType(2)}
                 </button>
             </div>
 
@@ -410,6 +491,16 @@ const UserOrderPage = ({ user }) => {
                                     <p>수령인: {item.f_name}</p>
                                     <p>연락처: {item.f_tel}</p>
                                     <p>배송지: {item.f_addr}</p>
+
+                                    <p>주문상태: {getStatusText(item.f_dstatus)}</p>
+
+                                    <OrderClaimInfo
+                                    item={item}
+                                    openedImages={openedClaimImages[item.claim_code]}
+                                    onToggleImages={toggleClaimImages}
+                                    />
+
+
                                 </div>
                             </div>
 
@@ -432,17 +523,34 @@ const UserOrderPage = ({ user }) => {
                                 </button>
                             )}
 
-                            {[2, 3, 4].includes(Number(item.f_dstatus)) && (
+                            {Number(item.f_dstatus) === 4 && (
+                            item.claimed ? (
+                                <button type="button" disabled>
+                                    {Number(item.claim_type) === 1 ? "교환" : "반품"}{" "}
+                                    {Number(item.claim_status) === -1
+                                        ? "거절"
+                                        : Number(item.claim_status) === 0
+                                        ? "신청완료"
+                                        : Number(item.claim_status) === 1
+                                        ? "접수완료"
+                                        : Number(item.claim_status) === 2
+                                        ? "처리중"
+                                        : Number(item.claim_status) === 3
+                                        ? "처리완료"
+                                        : "상태확인중"}
+                                </button>
+                            ) : (
                                 <>
-                                    <button type="button">
+                                    <button type="button" onClick={() => openClaimModal(item, 1)}>
                                         교환신청
                                     </button>
 
-                                    <button type="button">
+                                    <button type="button" onClick={() => openClaimModal(item, 2)}>
                                         반품신청
                                     </button>
                                 </>
-                            )}
+                            )
+                        )}
 
                             {Number(item.f_dstatus) === 3 && (
                                 <button type="button">
@@ -450,7 +558,10 @@ const UserOrderPage = ({ user }) => {
                                 </button>
                             )}
 
-                            {Number(item.f_dstatus) === 4 && (
+                            {Number(item.f_dstatus) === 4 && 
+                            (!item.claimed || 
+                                Number(item.claim_status) === -1) 
+                            && (
                                 <button
                                     type="button"
                                     onClick={() => onConfirmOrder(item.c_code)}
@@ -507,6 +618,15 @@ const UserOrderPage = ({ user }) => {
                     ))
                 )}
             </div>
+
+            <OrderClaimModal
+                open={claimModal.open}
+                item={claimModal.item}
+                claimType={claimModal.claim_type}
+                onClose={closeClaimModal}
+                onSuccess={loadOrders}
+            />
+
         </div>
     );
 };

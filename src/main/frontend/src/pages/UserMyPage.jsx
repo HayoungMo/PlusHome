@@ -31,6 +31,11 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         }
     },[queryMenu])
  
+    const changeMenu = (menu) => {
+        setActiveMenu(menu)
+        navigate(`/userpage?menu=${menu}`)
+    }
+
     useEffect(()=>{
         const token = localStorage.getItem("token")
 
@@ -171,13 +176,13 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     </p>  
 
                 </div>
-                <button onClick={()=> setActiveMenu("edit")}>회원 정보</button>
-                <button onClick={()=> setActiveMenu("orders")}>배송 정보 확인</button>
-                <button onClick={() => setActiveMenu("wishlist")}>찜목록</button>
-                <button onClick={() => setActiveMenu("inquiries")}>문의 확인</button>
-                <button onClick={() => setActiveMenu("reviews")}>리뷰 확인</button>
-                <button onClick={() => setActiveMenu("wallet")}>지갑 충전</button>
-                <button onClick={() => setActiveMenu("delete")}>회원 탈퇴</button>
+                <button onClick={()=> changeMenu("edit")}>회원 정보</button>
+                <button onClick={()=> changeMenu("orders")}>배송 정보 확인</button>
+                <button onClick={() => changeMenu("wishlist")}>찜목록</button>
+                <button onClick={() => changeMenu("inquiries")}>문의 확인</button>
+                <button onClick={() => changeMenu("reviews")}>리뷰 확인</button>
+                <button onClick={() => changeMenu("wallet")}>지갑 충전</button>
+                <button onClick={() => changeMenu("delete")}>회원 탈퇴</button>
 
             </aside>
 
