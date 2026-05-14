@@ -16,4 +16,8 @@ public class furnitureCode {
 	public static String generateCartCode() {
 		return "C-" + UUID.randomUUID().toString();
 	}
+	
+	public static String generateClaimCode() {
+		return "CL-" + UUID.randomUUID().toString();
+	}
 }

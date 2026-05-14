@@ -6,6 +6,9 @@ import TableChkMui from '../components/TableChkMui';
 import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
 
+import SwitchMui from "../components/SwitchMui";
+import DialogMui from "../components/DialogMui";
+
 
 
 const UserInfo = (props) => {

@@ -158,7 +158,7 @@ public class PaymentService {
 
 	    walletMapper.updateData(refundWallet);
 
-	    int result = cartMapper.cancelOrderToCart(c_code, id);
+	    int result = cartMapper.cancelOrder(c_code, id);
 
 	    if (result != 1) {
 	        throw new RuntimeException("주문취소 처리에 실패했습니다.");

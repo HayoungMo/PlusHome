@@ -18,7 +18,7 @@
 		                AND      dir_d = #{d}
 		                AND      dir_e = #{e}
 					</when>
-					<when test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" '>
+					<when test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" or kind == "CLAIM" '>
 		                AND      dir_a = #{a}
 		                AND      dir_d = #{d}
 		            </when>
@@ -72,7 +72,7 @@
 						AND dir_e = #{e} 
 					</when>
 					<when
-						test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" '>
+						test='kind == "F_REVIEW" or kind == "QUESTION" or kind == "Q&amp;A" or kind == "CLAIM"'>
 						AND DIR_A = #{a} 
 						AND DIR_D = #{d}
 					</when>

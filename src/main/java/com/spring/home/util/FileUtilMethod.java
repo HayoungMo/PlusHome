@@ -101,6 +101,7 @@ public class FileUtilMethod {
 		case "Q&A":
 		case "C_PROFILE":
 		case "DEV":
+		case "CLAIM":
 			return true;
 		default:
 			return false;

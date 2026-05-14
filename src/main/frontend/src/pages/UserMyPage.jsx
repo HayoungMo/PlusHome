@@ -32,6 +32,11 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         }
     },[queryMenu])
  
+    const changeMenu = (menu) => {
+        setActiveMenu(menu)
+        navigate(`/userpage?menu=${menu}`)
+    }
+
     useEffect(()=>{
         const token = localStorage.getItem("token")
 
@@ -122,22 +127,22 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             >
               {profileImage?.img_name ? (
                 <img
-                  src={getImgDirSimple({
+                    src={getImgDirSimple({
                     kind: profileImage.img_kind,
                     name: profileImage.img_name,
-                  })}
-                  alt="프로필"
-                  style={{
+                    })}
+                    alt="프로필"
+                    style={{
                     width: "120px",
                     height: "120px",
                     borderRadius: "50%",
                     objectFit: "cover",
                     cursor: "pointer",
-                  }}
+                    }}
                 />
-              ) : (
+                ) : (
                 <div
-                  style={{
+                    style={{
                     width: "120px",
                     height: "120px",
                     borderRadius: "50%",
@@ -146,11 +151,20 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                  }}
+                    }}
                 >
-                  사진 추가
+                    사진 추가
                 </div>
-              )}
+                )}
+
+                <button onClick={()=> changeMenu("edit")}>회원 정보</button>
+                <button onClick={()=> changeMenu("orders")}>배송 정보 확인</button>
+                <button onClick={() => changeMenu("wishlist")}>찜목록</button>
+                <button onClick={() => changeMenu("inquiries")}>문의 확인</button>
+                <button onClick={() => changeMenu("reviews")}>리뷰 확인</button>
+                <button onClick={() => changeMenu("wallet")}>지갑 충전</button>
+                <button onClick={() => changeMenu("delete")}>회원 탈퇴</button>
+             
             </div>
 
             <input
