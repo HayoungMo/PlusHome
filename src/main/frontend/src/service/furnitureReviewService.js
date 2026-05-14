@@ -5,6 +5,7 @@ const insertReview = async (data) => {
     const res = await http.post("/freview/insert", {
       id: data.id,
       f_code: data.f_code,
+      c_code: data.c_code,
       fr_subject: data.subject,
       fr_star: data.star,
       fr_content: data.content,
@@ -59,11 +60,20 @@ const deleteReview = async (data) => {
   };
 };
 
+const checkReviewByCart = async (c_code) => {
+  const res = await http.get("/freview/check", {
+    params: { c_code },
+  });
+
+  return res.data;
+};
+
 const FurnitureReviewService = {
   insertReview,
   selectReview,
   updateReview,
   deleteReview,
+  checkReviewByCart
 };
 
 export default FurnitureReviewService;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TextFieldMui from "../components/TextFieldMui";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import ImageService from "../service/imageService";
@@ -11,6 +11,10 @@ import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
 import AddIcon from "@mui/icons-material/Add";
 
 const FurnitureAddReview = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const c_code = location.state?.c_code
+
   const id = localStorage.getItem("id");
   const { f_code } = useParams();
   const [open, setOpen] = useState(false);
@@ -31,7 +35,7 @@ const FurnitureAddReview = () => {
     text: "",
   });
 
-  const [form, setForm] = useState({ id: id, f_code: f_code });
+  const [form, setForm] = useState({ id: id, f_code: f_code, c_code: c_code });
   const [preview, setPreview] = useState([]);
   const handleChange = (e) => {
     setForm({
@@ -40,6 +44,18 @@ const FurnitureAddReview = () => {
     });
   };
   const handleSubmit = async (e) => {
+
+    if(!c_code){
+      setAlert({
+        open: true,
+        severity: "error",
+        title: "주문 정보 없음",
+        text: "주문 내역에서 리뷰 쓰기 버튼으로 다시 돌아와주세요."
+      })
+
+      return
+    }
+
     const result2 = await onClickInsert();
     const result =
       result2.success && (await FurnitureReviewService.insertReview(form));
@@ -51,6 +67,9 @@ const FurnitureAddReview = () => {
         title: "등록 성공",
         text: "등록되었습니다.",
       });
+
+      navigate(`/userpage?menu=orders`)
+      
     } else {
       setAlert({
         open: true,
