@@ -4,6 +4,7 @@ import CartService from "../service/cartService";
 import FurnitureService from "../service/furnitureService";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
+import FurnitureReviewService from "../service/furnitureReviewService";
 
 const UserOrderPage = ({ user }) => {
     const navigate = useNavigate()
@@ -29,14 +30,21 @@ const UserOrderPage = ({ user }) => {
                         img => img.img_tag === "THUMBNAIL"
                     );
 
+                    const reviewResult =
+                        Number(item.f_dstatus) === 5
+                            ? await FurnitureReviewService.checkReviewByCart(item.c_code)
+                            : { reviewed: false };
+
                     return {
                         ...item,
                         options: optionRes.data || [],
                         furniture,
-                        thumbnail: thumbnail?.img_name || null
+                        thumbnail: thumbnail?.img_name || null,
+                        reviewed: reviewResult.reviewed || false
                     };
                 })
             );
+
 
             setOrders(ordersWithDetail);
         } catch (error) {
@@ -459,9 +467,26 @@ const UserOrderPage = ({ user }) => {
                             )}
 
                             {Number(item.f_dstatus) === 5 && (
+                            item.reviewed ? (
                                 <button
                                     type="button"
-                                    onClick={() => navigate(`/furniture/review/${item.f_code}`)}
+                                    onClick={() => navigate(`/furniture/article/${item.f_code}`)}
+                                    style={{
+                                        background: "white",
+                                        color: "black",
+                                        border: "1px solid #ddd",
+                                        padding: "8px 16px",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    리뷰 보기
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(`/furniture/review/${item.f_code}`, {
+                                        state: { c_code: item.c_code }
+                                    })}
                                     style={{
                                         background: "black",
                                         color: "white",
@@ -472,7 +497,9 @@ const UserOrderPage = ({ user }) => {
                                 >
                                     리뷰 쓰기
                                 </button>
-                            )}
+                            )
+                        )}
+
                         </div>
 
                             </div>

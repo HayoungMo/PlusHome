@@ -147,5 +147,12 @@
       AND f_dstatus IN (0, 1)
 </update>
 
+<update id="updateDeliveryStatus">
+    UPDATE cart
+    SET f_dstatus = #{f_dstatus}
+    WHERE c_code = #{c_code}
+      AND id = #{id}
+      AND f_status = 'Y'
+</update>
 
 </mapper>

@@ -67,4 +67,20 @@ public class PaymentController {
 	    return ResponseEntity.ok(result);
 	}
 
+	@PostMapping("/confirm")
+	public ResponseEntity<?> confirmOrder(
+	        @RequestBody Map<String, String> body,
+	        HttpServletRequest request) throws Exception {
+
+	    String token = request.getHeader("Authorization").replace("Bearer ", "");
+	    String id = jwtUtil.getId(token);
+
+	    paymentService.confirmOrder(id, body.get("c_code"));
+
+	    Map<String, String> result = new HashMap<>();
+	    result.put("message", "구매확정 완료");
+
+	    return ResponseEntity.ok(result);
+	}
+
 }

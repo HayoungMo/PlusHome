@@ -29,4 +29,9 @@ public class FurnitureReviewService {
 	public void deleteData(FurnitureReviewDTO dto) throws Exception{
 		furnitureReviewMapper.deleteData(dto);
 	}
+	
+	public FurnitureReviewDTO getReviewByCartCode(String c_code) throws Exception {
+	    return furnitureReviewMapper.getReviewByCartCode(c_code);
+	}
+
 }

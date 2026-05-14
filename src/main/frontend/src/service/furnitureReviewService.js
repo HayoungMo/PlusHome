@@ -63,11 +63,20 @@ const deleteReview = async (data) => {
   };
 };
 
+const checkReviewByCart = async (c_code) => {
+  const res = await http.get("/freview/check", {
+    params: { c_code },
+  });
+
+  return res.data;
+};
+
 const FurnitureReviewService = {
   insertReview,
   selectReview,
   updateReview,
   deleteReview,
+  checkReviewByCart
 };
 
 export default FurnitureReviewService;
