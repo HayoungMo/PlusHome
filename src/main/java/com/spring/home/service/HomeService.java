@@ -29,16 +29,22 @@ public class HomeService {
 	@Autowired
 	private FurnitureMapper furnitureMapper;
 	
+	//추천가구 이미지도 같이 띄우기
+	@Autowired
+	private FurnitureService furnitureService;
+	
 	@Autowired
 	private InteriorService interiorService;
 	
 	@Autowired
 	private FreeBoardService freeBoardService;
 	
+	
 	//추천 가구 띄우기
 	public List<FurnitureDTO> getBestFurniture() throws Exception{
-		return furnitureMapper.getLists(1, 4, "f_name", "");
+		return furnitureService.getLists(1, 4, "f_name", "");
 	}
+	
 	
 	//공통 헬퍼
 	private boolean contains(String value, String keyword) {
