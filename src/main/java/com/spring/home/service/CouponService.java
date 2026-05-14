@@ -12,18 +12,24 @@ import com.spring.home.mapper.CouponMapper;
 public class CouponService {
 
 	@Autowired
-	private CouponMapper couponMapper;
+	private CouponMapper couponMapper;	
 	
 	public void insertData(CouponDTO dto) throws Exception{
 		couponMapper.insertData(dto);
+	}
+	public List<CouponDTO> getListsDev() throws Exception{
+		return couponMapper.getListsDev();
+	}
+	public int checkData(CouponDTO dto) throws Exception{
+		return couponMapper.checkData(dto);
 	}
 	
 	public List<CouponDTO> getLists(String id) throws Exception{
 		return couponMapper.getLists(id);
 	}
 	
-	public CouponDTO getReadData(String coupon_code) throws Exception{
-		return couponMapper.getReadData(coupon_code);
+	public CouponDTO getReadData(CouponDTO dto) throws Exception{
+		return couponMapper.getReadData(dto);
 	}
 	
 	public void updateData(CouponDTO dto) throws Exception{

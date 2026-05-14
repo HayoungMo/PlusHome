@@ -27,6 +27,7 @@ const selectReview = async (data) => {
   const res = await http.post("/freview/getLists", {
     id: data.id,
     f_code: data.f_code,
+    c_code: data.c_code,
   });
 
   return {
@@ -43,6 +44,7 @@ const updateReview = async (data) => {
     fr_subject: data.fr_subject,
     fr_star: data.fr_star,
     fr_content: data.fr_content,
+    c_code: data.c_code,
   });
   return {
     success: true,
@@ -54,6 +56,7 @@ const deleteReview = async (data) => {
   await http.post("/freview/delete", {
     id: data.id,
     f_code: data.f_code,
+    c_code: data.c_code,
   });
   return {
     success: true,

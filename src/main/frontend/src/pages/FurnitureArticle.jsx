@@ -324,6 +324,10 @@ const FurnitureArticle = () => {
           navigate(`/furniture/review/${f_code}`);
         };
 
+         const onCoupon = () => {
+           navigate(`/coupon/download/CP-88d30796-9982-435d-9ded-baa9db0c0e27`);
+         };
+
     const onDelete = async (f_code) => {
         try {
             await FurnitureService.deleteFurniture(f_code);
@@ -356,330 +360,343 @@ const FurnitureArticle = () => {
     const othersImages = imageList.filter(img => img.img_tag === "OTHERS");
 
     return (
-        <div style={{ padding: "20px" }}>
-            {canManageFurniture(furniture) && (
-                <>
-                    <button onClick={() => onUpdate(f_code)}>수정</button>
-                    <button onClick={() => onDelete(f_code)}>삭제</button>
-                </>
-            )}
+      <div style={{ padding: "20px" }}>
+        {canManageFurniture(furniture) && (
+          <>
+            <button onClick={() => onUpdate(f_code)}>수정</button>
+            <button onClick={() => onDelete(f_code)}>삭제</button>
+          </>
+        )}
 
-            <button onClick={()=> onReview(f_code)}>리뷰등록</button>
-            <button onClick={onBack}>list로 돌아가기</button>
+        <button onClick={() => onReview(f_code)}>리뷰등록</button>
+        <button onClick={() => onCoupon()}>쿠폰발급</button>
+        <button onClick={onBack}>list로 돌아가기</button>
 
-            <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
-                <div>
-                    <div style={{ display: "flex", gap: "15px" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                            {orderedThumbInfo.map((image, index) => (
-                                <img
-                                    key={index}
-                                    src={`http://localhost:8080/api/images/FURNITURE/${image.img_name}`}
-                                    style={{
-                                        width: "70px",
-                                        height: "70px",
-                                        objectFit: "cover",
-                                        cursor: "pointer",
-                                        border: mainImage?.img_name === image.img_name
-                                            ? "2px solid black"
-                                            : "1px solid #ddd"
-                                    }}
-                                    onClick={() => setMainImage(image)}
-                                    alt=""
-                                />
-                            ))}
-                        </div>
+        <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
+          <div>
+            <div style={{ display: "flex", gap: "15px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {orderedThumbInfo.map((image, index) => (
+                  <img
+                    key={index}
+                    src={`http://localhost:8080/api/images/FURNITURE/${image.img_name}`}
+                    style={{
+                      width: "70px",
+                      height: "70px",
+                      objectFit: "cover",
+                      cursor: "pointer",
+                      border:
+                        mainImage?.img_name === image.img_name
+                          ? "2px solid black"
+                          : "1px solid #ddd",
+                    }}
+                    onClick={() => setMainImage(image)}
+                    alt=""
+                  />
+                ))}
+              </div>
 
-                        <img
-                            src={
-                                mainImage?.img_name
-                                    ? `http://localhost:8080/api/images/FURNITURE/${mainImage.img_name}`
-                                    : "/no-image.png"
-                            }
-                            style={{
-                                width: "450px",
-                                height: "450px",
-                                objectFit: "cover"
-                            }}
-                            alt=""
-                        />
-                    </div>
-
-                    <hr />
-
-                    <button
-                        type="button"
-                        onClick={onToggleLike}
-                        style={{
-                            width: "100%",
-                            padding: "15px",
-                            background: liked ? "#ffdddd" : "white",
-                            color: liked ? "red" : "black",
-                            border: "1px solid #ddd",
-                            fontSize: "16px",
-                            cursor: "pointer",
-                            marginBottom: "10px"
-                        }}
-                    >
-                        {liked ? "♥ 찜 해제" : "♡ 찜하기"}
-                    </button>
-                </div>
-
-                <div style={{ flex: 1 }}>
-                    <h2>{furniture.f_name}</h2>
-
-                    <p>업체명: {furniture.c_name}</p>
-                    <p>조회수: {furniture.f_viewCount}</p>
-
-                    <hr />
-
-                    <h3>가격 정보</h3>
-                    <p>정가: {furniture.f_price.toLocaleString()}원</p>
-                    <p>할인가: {furniture.f_dprice.toLocaleString()}원</p>
-                    <p>할인율: {furniture.f_discount}%</p>
-                    <p>포인트: {furniture.f_point}</p>
-
-                    <hr />
-
-                    <h3>배송 정보</h3>
-                    <p>
-                        배송비:{" "}
-                        {furniture.f_dprice >= 50000
-                            ? "무료배송"
-                            : `${deliveryPrice.toLocaleString()}원`}
-                    </p>
-                    <p>배송기간: 2~3일</p>
-
-                    <h3>옵션 선택</h3>
-
-                    {selectedOptionSets.map((optionSet, setIndex) => (
-                        <div
-                            key={setIndex}
-                            style={{
-                                border: "1px solid #ddd",
-                                padding: "12px",
-                                marginBottom: "10px"
-                            }}
-                        >
-                            {Object.entries(optionGroups).map(([groupName, groupOptions]) => (
-                                <div key={groupName} style={{ marginBottom: "10px" }}>
-                                    <label>{groupName}</label>
-
-                                    <select
-                                        value={optionSet.selectedOptions[groupName] || ""}
-                                        onChange={(evt) =>
-                                            changeOptionSet(setIndex, groupName, evt.target.value)
-                                        }
-                                        style={{
-                                            width: "100%",
-                                            padding: "12px",
-                                            marginTop: "5px"
-                                        }}
-                                    >
-                                        <option value="">{groupName} 선택</option>
-
-                                        {groupOptions.map(option => (
-                                            <option
-                                                key={option.o_code}
-                                                value={option.o_code}
-                                                disabled={Number(option.o_count) <= 0}
-                                            >
-                                                {option.o_text}
-                                                {Number(option.o_price) > 0
-                                                    ? ` (+${Number(option.o_price).toLocaleString()}원)`
-                                                    : ""}
-                                                {Number(option.o_count) === 1 ? " 마지막 한 개" : ""}
-                                                {Number(option.o_count) <= 0 ? " 품절" : ""}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            ))}
-
-                            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        changeOptionSetQuantity(setIndex, optionSet.quantity - 1)
-                                    }
-                                >
-                                    -
-                                </button>
-
-                                <span>{optionSet.quantity}</span>
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const limit = getOptionSetStockLimit(optionSet);
-
-                                    if (optionSet.quantity >= limit) {
-                                        alert("재고 수량을 초과할 수 없습니다.");
-                                        return;
-                                    }
-
-                                    changeOptionSetQuantity(setIndex, optionSet.quantity + 1);
-                                }}
-                            >
-                                +
-                            </button>
-
-                            </div>
-
-                            {selectedOptionSets.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => removeOptionSet(setIndex)}
-                                >
-                                    옵션 삭제
-                                </button>
-                            )}
-                        </div>
-                    ))}
-
-                    {Object.keys(optionGroups).length > 0 && (
-                        <button type="button" onClick={addOptionSet}>
-                            옵션 추가
-                        </button>
-                    )}
-
-                    <button
-                        onClick={onAddCart}
-                        style={{
-                            width: "100%",
-                            padding: "15px",
-                            background: "white",
-                            color: "black",
-                            border: "1px solid #ddd",
-                            fontSize: "16px",
-                            cursor: "pointer",
-                            marginTop: "10px",
-                            marginBottom: "10px"
-                        }}
-                    >
-                        장바구니
-                    </button>
-
-                    <button
-                        onClick={onPayment}
-                        style={{
-                            width: "100%",
-                            padding: "15px",
-                            background: "black",
-                            color: "white",
-                            fontSize: "16px",
-                            cursor: "pointer"
-                        }}
-                    >
-                        구매하기
-                    </button>
-                </div>
+              <img
+                src={
+                  mainImage?.img_name
+                    ? `http://localhost:8080/api/images/FURNITURE/${mainImage.img_name}`
+                    : "/no-image.png"
+                }
+                style={{
+                  width: "450px",
+                  height: "450px",
+                  objectFit: "cover",
+                }}
+                alt=""
+              />
             </div>
 
             <hr />
 
-            <div
-                style={{
-                    display: "flex",
-                    marginTop: "10px",
-                    gap: "10px"
-                }}
+            <button
+              type="button"
+              onClick={onToggleLike}
+              style={{
+                width: "100%",
+                padding: "15px",
+                background: liked ? "#ffdddd" : "white",
+                color: liked ? "red" : "black",
+                border: "1px solid #ddd",
+                fontSize: "16px",
+                cursor: "pointer",
+                marginBottom: "10px",
+              }}
             >
-                <button
-                    onClick={() => setTab("detail")}
-                    style={{
-                        flex: 1,
-                        padding: "15px",
-                        background: tab === "detail" ? "black" : "#eee",
-                        color: tab === "detail" ? "white" : "black",
-                        border: "none",
-                        cursor: "pointer"
-                    }}
-                >
-                    상세보기
-                </button>
+              {liked ? "♥ 찜 해제" : "♡ 찜하기"}
+            </button>
+          </div>
 
-                <button
-                    onClick={() => setTab("review")}
-                    style={{
-                        flex: 1,
-                        padding: "15px",
-                        background: tab === "review" ? "black" : "#eee",
-                        color: tab === "review" ? "white" : "black",
-                        border: "none",
-                        cursor: "pointer"
-                    }}
-                >
-                    리뷰
-                </button>
+          <div style={{ flex: 1 }}>
+            <h2>{furniture.f_name}</h2>
 
-                <button
-                    onClick={() => setTab("qna")}
-                    style={{
-                        flex: 1,
-                        padding: "15px",
-                        background: tab === "qna" ? "black" : "#eee",
-                        color: tab === "qna" ? "white" : "black",
-                        border: "none",
-                        cursor: "pointer"
-                    }}
-                >
-                    문의
-                </button>
-            </div>
+            <p>업체명: {furniture.c_name}</p>
+            <p>조회수: {furniture.f_viewCount}</p>
 
-            <div style={{ marginTop: "50px" }}>
-                {tab === "detail" && (
-                    <div>
-                        <h3>상세 설명</h3>
+            <hr />
 
-                        <div>
-                            {othersImages.map((img, idx) => (
-                                <img
-                                    key={idx}
-                                    src={`http://localhost:8080/api/images/FURNITURE/${img.img_name}`}
-                                    style={{
-                                        width: "100%",
-                                        marginBottom: "20px"
-                                    }}
-                                    alt=""
-                                />
-                            ))}
-                        </div>
+            <h3>가격 정보</h3>
+            <p>정가: {furniture.f_price.toLocaleString()}원</p>
+            <p>할인가: {furniture.f_dprice.toLocaleString()}원</p>
+            <p>할인율: {furniture.f_discount}%</p>
+            <p>포인트: {furniture.f_point}</p>
+
+            <hr />
+
+            <h3>배송 정보</h3>
+            <p>
+              배송비:{" "}
+              {furniture.f_dprice >= 50000
+                ? "무료배송"
+                : `${deliveryPrice.toLocaleString()}원`}
+            </p>
+            <p>배송기간: 2~3일</p>
+
+            <h3>옵션 선택</h3>
+
+            {selectedOptionSets.map((optionSet, setIndex) => (
+              <div
+                key={setIndex}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "12px",
+                  marginBottom: "10px",
+                }}
+              >
+                {Object.entries(optionGroups).map(
+                  ([groupName, groupOptions]) => (
+                    <div key={groupName} style={{ marginBottom: "10px" }}>
+                      <label>{groupName}</label>
+
+                      <select
+                        value={optionSet.selectedOptions[groupName] || ""}
+                        onChange={(evt) =>
+                          changeOptionSet(setIndex, groupName, evt.target.value)
+                        }
+                        style={{
+                          width: "100%",
+                          padding: "12px",
+                          marginTop: "5px",
+                        }}
+                      >
+                        <option value="">{groupName} 선택</option>
+
+                        {groupOptions.map((option) => (
+                          <option
+                            key={option.o_code}
+                            value={option.o_code}
+                            disabled={Number(option.o_count) <= 0}
+                          >
+                            {option.o_text}
+                            {Number(option.o_price) > 0
+                              ? ` (+${Number(option.o_price).toLocaleString()}원)`
+                              : ""}
+                            {Number(option.o_count) === 1
+                              ? " 마지막 한 개"
+                              : ""}
+                            {Number(option.o_count) <= 0 ? " 품절" : ""}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+                  ),
                 )}
 
-                {tab === "review" && (
-                    <div>
-                        <h3>리뷰</h3>
+                <div
+                  style={{ display: "flex", gap: "10px", marginBottom: "10px" }}
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      changeOptionSetQuantity(setIndex, optionSet.quantity - 1)
+                    }
+                  >
+                    -
+                  </button>
 
-                        <div
-                            style={{
-                                padding: "30px",
-                                border: "1px solid #ddd"
-                            }}
-                        >
-                            <FurnitureReview f_code={f_code}/>
-                        </div>
-                    </div>
+                  <span>{optionSet.quantity}</span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const limit = getOptionSetStockLimit(optionSet);
+
+                      if (optionSet.quantity >= limit) {
+                        alert("재고 수량을 초과할 수 없습니다.");
+                        return;
+                      }
+
+                      changeOptionSetQuantity(setIndex, optionSet.quantity + 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+
+                {selectedOptionSets.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeOptionSet(setIndex)}
+                  >
+                    옵션 삭제
+                  </button>
                 )}
+              </div>
+            ))}
 
-                {tab === "qna" && (
-                    <div>
-                        <h3>문의</h3>
+            {Object.keys(optionGroups).length > 0 && (
+              <button type="button" onClick={addOptionSet}>
+                옵션 추가
+              </button>
+            )}
 
-                        <div
-                            style={{
-                                padding: "30px",
-                                border: "1px solid #ddd"
-                            }}
-                        >
-                            <Question f_code={f_code}/>
-                        </div>
-                    </div>
-                )}
-            </div>
+            <button
+              onClick={onAddCart}
+              style={{
+                width: "100%",
+                padding: "15px",
+                background: "white",
+                color: "black",
+                border: "1px solid #ddd",
+                fontSize: "16px",
+                cursor: "pointer",
+                marginTop: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              장바구니
+            </button>
+
+            <button
+              onClick={onPayment}
+              style={{
+                width: "100%",
+                padding: "15px",
+                background: "black",
+                color: "white",
+                fontSize: "16px",
+                cursor: "pointer",
+              }}
+            >
+              구매하기
+            </button>
+          </div>
         </div>
+
+        <hr />
+
+        <div
+          style={{
+            display: "flex",
+            marginTop: "10px",
+            gap: "10px",
+          }}
+        >
+          <button
+            onClick={() => setTab("detail")}
+            style={{
+              flex: 1,
+              padding: "15px",
+              background: tab === "detail" ? "black" : "#eee",
+              color: tab === "detail" ? "white" : "black",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            상세보기
+          </button>
+
+          <button
+            onClick={() => setTab("review")}
+            style={{
+              flex: 1,
+              padding: "15px",
+              background: tab === "review" ? "black" : "#eee",
+              color: tab === "review" ? "white" : "black",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            리뷰
+          </button>
+
+          <button
+            onClick={() => setTab("qna")}
+            style={{
+              flex: 1,
+              padding: "15px",
+              background: tab === "qna" ? "black" : "#eee",
+              color: tab === "qna" ? "white" : "black",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            문의
+          </button>
+        </div>
+
+        <div style={{ marginTop: "50px" }}>
+          {tab === "detail" && (
+            <div>
+              <h3>상세 설명</h3>
+
+              <div>
+                {othersImages.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={`http://localhost:8080/api/images/FURNITURE/${img.img_name}`}
+                    style={{
+                      width: "100%",
+                      marginBottom: "20px",
+                    }}
+                    alt=""
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tab === "review" && (
+            <div>
+              <h3>리뷰</h3>
+
+              <div
+                style={{
+                  padding: "30px",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <FurnitureReview f_code={f_code} />
+              </div>
+            </div>
+          )}
+
+          {tab === "qna" && (
+            <div>
+              <h3>문의</h3>
+
+              <div
+                style={{
+                  padding: "30px",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <Question f_code={f_code} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     );
 };
 
