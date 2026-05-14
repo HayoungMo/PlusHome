@@ -18,16 +18,30 @@ const Question = ({ f_code }) => {
 
     const loginUser = JSON.parse(localStorage.getItem("user") || "null");
 
+    const userType = String(loginUser?.type || "").toLowerCase();
+
+    //권한조건
     const isAdmin = 
-        loginUser?.type === "admin" ||
-        loginUser?.type === "dev" ||
-        loginUser?.type === "company";
+        userType === "admin" ||
+        userType === "dev";
+    
+    const isProductCompany = (item) => {
+        if(userType !== "company") return false;
+
+        return loginUser?.companyList?.some((company) => 
+            company.c_id === item.c_id &&
+            company.c_kind === item.c_kind &&
+            company.c_name === item.c_name 
+        );
+    };
     
     const canReadQuestion = (item) => {
         if(item.q_secret !== "Y") return true;
         if(!loginUser) return false;
+
         if(loginUser.id === item.id) return true;
         if(isAdmin) return true;
+        if(isProductCompany(item)) return true;
 
         return false;
     };
