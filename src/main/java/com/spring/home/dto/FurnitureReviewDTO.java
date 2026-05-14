@@ -13,4 +13,5 @@ public class FurnitureReviewDTO {
 	private String fr_star;
 	private Date fr_createdDate;
 	private String fr_content;
+	private String c_code;
 }

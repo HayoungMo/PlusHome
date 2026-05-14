@@ -7,9 +7,9 @@
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
 	insert into f_review
-	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content)
+	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content, c_code)
 	values 
-	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content})	            
+	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content},#{c_code})	            
 </insert>
 
 <update id="updateData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
@@ -31,7 +31,8 @@
 		fr_subject,
 		fr_star,
 		fr_createdDate,
-		fr_content
+		fr_content,
+		c_code
 	from
 		f_review
 	<where>
@@ -42,6 +43,10 @@
 		<if test="f_code != null and f_code != ''">
 			f_code = #{f_code}
 		</if>
+		
+		<if test="c_code != null and f_code != ''">
+			c_code = #{c_code}
+		</if>
 	</where>
 </select>
 
@@ -50,6 +55,7 @@
 	where
 		id = #{id}
 		and f_code = #{f_code}
+		and c_code = #{c_code}
 </delete>
 
 </mapper>
