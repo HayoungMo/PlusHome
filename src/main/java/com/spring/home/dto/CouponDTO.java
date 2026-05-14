@@ -20,4 +20,5 @@ public class CouponDTO {
 	
 	private int coupon_max;
 	private String coupon_info;
+	private String coupon_used;
 }

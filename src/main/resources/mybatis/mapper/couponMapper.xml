@@ -20,9 +20,11 @@
         coupon_end,
         coupon_max,
         coupon_info,
+        coupon_used,
         id
     FROM coupon
     WHERE id = coupon_code
+    
 </select>
 
 <!-- SELECT ALL -->
@@ -33,9 +35,11 @@
         coupon_end,
         coupon_max,
         coupon_info,
+        coupon_used,
         id
     FROM coupon
     WHERE id = #{id}
+    AND coupon_end >= SYSDATE
 </select>
 
 <!-- SELECT ONE -->
@@ -47,10 +51,12 @@
         coupon_end,
         coupon_max,
         coupon_info,
+        coupon_used,
         id
     FROM coupon
     WHERE coupon_code = #{coupon_code}
     AND id = #{id}
+    AND coupon_end >= SYSDATE
 </select>
 
 <select id="checkData" parameterType="hashmap"
@@ -58,7 +64,7 @@
     SELECT COUNT(*)
 	FROM coupon
     WHERE coupon_code = #{coupon_code}
-    AND id = #{id}
+    AND id = #{id}    
 </select>
 
 
@@ -75,8 +81,11 @@
 </update>
 
 <!-- DELETE -->
-<delete id="deleteData" parameterType="hashMap">
-    DELETE FROM coupon
+<update id="deleteData" parameterType="hashMap">
+    UPDATE coupon
+    SET 
+    	coupon_used = 'Y'
     WHERE coupon_code = #{coupon_code}
-</delete>
+    AND id = #{id}
+</update>
 </mapper>

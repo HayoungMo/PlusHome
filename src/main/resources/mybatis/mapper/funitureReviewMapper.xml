@@ -55,7 +55,7 @@
         left outer join CART on F_REVIEW.C_CODE = CART.C_CODE
 	<where>
 		<if test="id != null and id != ''">
-			AND id = #{id}
+			AND F_REVIEW.id = #{id}
 		</if>
 		<if test="fr_idx != 0">
 			AND fr_idx = #{fr_idx}

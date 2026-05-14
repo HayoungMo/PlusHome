@@ -1,6 +1,7 @@
 package com.spring.home;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.home.dto.OrderClaimDTO;
+import com.spring.home.dto.OrderClaimUpdateDTO;
 import com.spring.home.service.OrderClaimService;
 import com.spring.home.util.JwtUtil;
 
@@ -78,9 +80,26 @@ public class OrderClaimController {
         return ResponseEntity.ok(orderClaimService.getMyClaims(id));
     }
 
+	@GetMapping("/company")
+	public ResponseEntity<?> getCompanyClaims(HttpServletRequest request) throws Exception{
+		String companyId = getIdFromRequest(request);
+		
+		return ResponseEntity.ok(orderClaimService.getCompanyClaims(companyId));
+	}
+	
     @GetMapping("/admin")
     public ResponseEntity<?> getAllClaims() throws Exception {
         return ResponseEntity.ok(orderClaimService.getAllClaims());
+    }
+
+    @PutMapping("/type")
+    public ResponseEntity<?> updateType(@RequestBody OrderClaimDTO dto) throws Exception {
+        orderClaimService.updateType(dto.getClaim_code(), dto.getClaim_type());
+
+        Map<String, String> result = new HashMap<>();
+        result.put("message", "교환/반품 유형이 변경되었습니다.");
+
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/status")
@@ -92,5 +111,26 @@ public class OrderClaimController {
 
         return ResponseEntity.ok(result);
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateClaim(@RequestBody OrderClaimUpdateDTO dto) throws Exception {
+        orderClaimService.updateClaim(dto);
+
+        Map<String, String> result = new HashMap<>();
+        result.put("message", "교환/반품 정보가 변경되었습니다.");
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/bulk")
+    public ResponseEntity<?> updateBulk(@RequestBody List<OrderClaimUpdateDTO> list) throws Exception {
+        orderClaimService.updateBulk(list);
+
+        Map<String, String> result = new HashMap<>();
+        result.put("message", "선택한 교환/반품 정보가 변경되었습니다.");
+
+        return ResponseEntity.ok(result);
+    }
+    
 	    
 }

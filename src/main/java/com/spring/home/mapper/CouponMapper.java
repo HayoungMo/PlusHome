@@ -21,5 +21,5 @@ public interface CouponMapper {
 	
 	public void updateData(CouponDTO dto) throws Exception;
 	
-	public void deleteData(String coupon_code) throws Exception;
+	public void deleteData(CouponDTO dto) throws Exception;
 }
