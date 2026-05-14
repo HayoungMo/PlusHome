@@ -3,12 +3,13 @@ import FurnitureReviewService from '../service/furnitureReviewService';
 import GetImgDir from '../resources/function/GetImgDir';
 import RatingMui from './RatingMui';
 
-const FurnitureReview = ({f_code}) => {
+const FurnitureReview = ({f_code,fr_idx = 0}) => {
       const [reviews, setReviews] = useState();
     
       useEffect(() => {
         const fetchReview = async () => {
           const result = await FurnitureReviewService.selectReview({
+            fr_idx:fr_idx,
             f_code: f_code,
           });
           const List = Array.isArray(result.data) ? result.data : [];
@@ -41,7 +42,7 @@ const FurnitureReview = ({f_code}) => {
           <div>
             {item?.logo?.result.map((record, i) => (
               <div>
-                <img src={record.img_name} alt={`${item.c_name} 예시`} />
+                <img width={100} src={record.img_name} alt={`${item.c_name} 예시`} />
               </div>
             ))}
             제목 : {item?.fr_subject}

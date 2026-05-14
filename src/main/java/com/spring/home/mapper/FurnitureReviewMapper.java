@@ -16,4 +16,6 @@ public interface FurnitureReviewMapper {
 	public void updateData(FurnitureReviewDTO dto) throws Exception;
 	
 	public void deleteData(FurnitureReviewDTO dto) throws Exception;
+
+	public void insertReplyData(FurnitureReviewDTO dto) throws Exception;
 }

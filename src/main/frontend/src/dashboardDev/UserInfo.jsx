@@ -234,11 +234,11 @@ const UserInfo = (props) => {
         <div>
             
              <Button
-							color="error"
-							variant="contained"
-							onClick={handleRowDeleteInTable}>
-							Delete
-						</Button>
+				color="error"
+				variant="contained"
+				onClick={handleRowDeleteInTable}>
+				Delete
+			</Button>
 
 
            

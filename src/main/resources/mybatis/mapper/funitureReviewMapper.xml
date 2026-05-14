@@ -15,33 +15,57 @@
 <update id="updateData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
 	update f_review
 	set
-		fr_subject = #{fr_subject},
-		fr_star = #{fr_star},
-		fr_content = #{fr_content}
-	where
-		id = #{id}
-		and f_code = #{f_code}
+	fr_subject 	= #{fr_subject},
+	fr_star 	= #{fr_star},
+	fr_content 	= #{fr_content}
+	<where>
+		<choose>
+			<when test="fr_idx != 0">
+				AND fr_idx = #{fr_idx}
+			</when>
+			<otherwise>
+				AND	id = #{id}
+				AND f_code = #{f_code}
+			</otherwise>
+		</choose>
+	</where>
+		
+		
 </update>
 
 <select id="getLists" parameterType="com.spring.home.dto.FurnitureReviewDTO"
         resultType="com.spring.home.dto.FurnitureReviewDTO">
 	select
-		id,
-		f_code,
+		F_REVIEW.id      as id,
+		F_REVIEW.f_code  as f_code,
 		fr_subject,
 		fr_star,
 		fr_createdDate,
-		fr_content
-	from
-		f_review
-	where
-	<if test="id != null and id != ''">
-		id = #{id}
-	</if>
-
-	<if test="f_code != null and f_code != ''">
-		f_code = #{f_code}
-	</if>
+		fr_content,
+		FURNITURE.f_name as f_name,
+		fr_idx,
+		c_id,
+		cart.F_PRICE as payment,
+		cart.F_POINT as usedPoint,
+		cart.F_COUNT as qty
+	from f_review 
+		join FURNITURE ON F_REVIEW.F_CODE = FURNITURE.F_CODE
+        left outer join CART on F_REVIEW.C_CODE = CART.C_CODE
+	<where>
+		<if test="id != null and id != ''">
+			AND id = #{id}
+		</if>
+		<if test="fr_idx != 0">
+			AND fr_idx = #{fr_idx}
+		</if>
+		<if test="c_id != null and c_id != ''">
+			AND c_id = #{c_id}
+		</if>
+	
+		<if test="f_code != null and f_code != ''">
+			AND F_REVIEW.f_code = #{f_code}
+		</if>		
+	</where>
 </select>
 
 <delete id="deleteData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
@@ -50,5 +74,12 @@
 		id = #{id}
 		and f_code = #{f_code}
 </delete>
+
+<insert id="insertReplyData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
+	insert into f_review
+	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content,fr_idx)
+	values 
+	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content},#{fr_idx})	            
+</insert>
 
 </mapper>
