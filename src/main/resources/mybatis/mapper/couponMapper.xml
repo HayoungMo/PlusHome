@@ -20,6 +20,7 @@
         coupon_end,
         coupon_max,
         coupon_info,
+        coupon_used,
         id
     FROM coupon
     WHERE id = coupon_code
@@ -34,6 +35,7 @@
         coupon_end,
         coupon_max,
         coupon_info,
+        coupon_used,
         id
     FROM coupon
     WHERE id = #{id}
@@ -49,6 +51,7 @@
         coupon_end,
         coupon_max,
         coupon_info,
+        coupon_used,
         id
     FROM coupon
     WHERE coupon_code = #{coupon_code}
@@ -78,9 +81,11 @@
 </update>
 
 <!-- DELETE -->
-<delete id="deleteData" parameterType="hashMap">
-    DELETE FROM coupon
+<update id="deleteData" parameterType="hashMap">
+    UPDATE coupon
+    SET 
+    	coupon_used = 'Y'
     WHERE coupon_code = #{coupon_code}
     AND id = #{id}
-</delete>
+</update>
 </mapper>

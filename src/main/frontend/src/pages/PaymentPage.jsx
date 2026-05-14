@@ -59,8 +59,7 @@ const PaymentPage = () => {
       if (!result.success) {
         return;
       }      
-      console.log(result.data)
-      setCoupon(result.data || []);
+      setCoupon(result.data.filter((item) => item.coupon_used === "N") || []);
     };
     fetchCoupon();
     
