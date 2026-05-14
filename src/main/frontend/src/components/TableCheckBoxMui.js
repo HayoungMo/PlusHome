@@ -43,13 +43,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const TableCheckBoxMui = (props) => {
-	const { rowData = [], columns = [], col = [], checkedList, setCheckedList } = props;
+	const { rowData = [], columns = [], col = [], checkedList, setCheckedList, rowKey = null } = props;
 
 	const tableColumns =
 		col.length === 0 ? (rowData.length > 0 ? Object.keys(rowData[0]) : []) : col;
 
 	const getRowKey = (row) => {
-		return row.c_code;
+		const checkBoxKey = rowKey === null ? row.c_code : row[rowKey]
+		return checkBoxKey;
 	};
 
 	const visibleKeys = rowData.map((row) => getRowKey(row));

@@ -36,7 +36,7 @@ public class CouponService {
 		couponMapper.updateData(dto);
 	}
 	
-	public void deleteData(String coupon_code) throws Exception{
-		couponMapper.deleteData(coupon_code);
+	public void deleteData(CouponDTO dto) throws Exception{
+		couponMapper.deleteData(dto);
 	}
 }

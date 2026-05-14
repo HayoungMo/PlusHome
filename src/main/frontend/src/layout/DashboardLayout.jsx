@@ -16,6 +16,7 @@ import InteriorScheduleControl from "../dasboardPages/InteriorScheduleControl";
 import EmptyCompanyGuide from "../dasboardPages/EmptyCompanyGuide";
 
 import "../css/Dashboard.css";
+import { useNavigate } from "react-router-dom";
 
 const DashboardLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -25,7 +26,13 @@ const DashboardLayout = () => {
 		const localUserData = localStorage.getItem("user");
 		return localUserData ? JSON.parse(localUserData) : {};
 	};
+
 	const [userData, setUserData] = useState(getUserDataFromLocalStorage);
+
+	const [companyAddInfo, setCompanyAddInfo] = useState({
+		open: false,
+		type: "",
+	});
 
 	const { companyList = [] } = userData;
 
@@ -33,16 +40,18 @@ const DashboardLayout = () => {
 		setUserData(getUserDataFromLocalStorage());
 	};
 
+	const navigate = useNavigate();
+
+	if (userData?.type === "user") {
+		alert("권한없음");
+		// navigate("/login");
+	}
+
 	const interior = companyList.filter((data) => data.c_kind === "interior");
 	const hasInterior = interior.length > 0;
 
 	const shoppingMall = companyList.filter((data) => data.c_kind === "shop");
 	const hasShoppingMall = shoppingMall.length > 0;
-
-	const [companyAddInfo, setCompanyAddInfo] = useState({
-		open: false,
-		type: "",
-	});
 
 	const menuMap = {
 		user: [

@@ -345,32 +345,7 @@ const CompanyInfo = (props) => {
 					</>
 				)}
 			</div>
-			{/* <TableMuiEditable rowData={editedCompanyList} onChange={tableMuiEditableOnChange} updateAvailable={companyUpdate} readOnlyColumns={["c_id", "c_name", "c_kind"]}/> */}
-
-			{/* <CompanySection
-				type="shop"
-				title="쇼핑몰 업체"
-				onAddClick={() => {
-					setCompanyAddInfo({ open: true, type: "shop" });
-					setNewCompanyInfo({ ...initCompanyInfo, c_kind: "shop" });
-				}}
-				companyList={editedCompanyList}
-				onChange={tableMuiEditableOnChange}
-				updateAvailable={companyUpdate}
-				readOnlyColumns={["c_id", "c_name", "c_kind"]}
-				selectable={true}
-				selectedRows={selectedCompanyKeys}
-				onSelectionChange={setSelectedCompanyKeys}
-				getRowKey={makeCompanyKey}
-			/> */}
-
 			<CompanySection
-				// type="interior"
-				// title="인테리어 업체"
-				// onAddClick={() => {
-				// 	setCompanyAddInfo({ open: true, type: "interior" });
-				// 	setNewCompanyInfo({ ...initCompanyInfo, c_kind: "interior" });
-				// }}
 				setCompanyAddInfo={setCompanyAddInfo}
 				newCompanyInfo={newCompanyInfo}
 				setNewCompanyInfo={setNewCompanyInfo}
