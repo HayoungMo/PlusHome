@@ -41,6 +41,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import Coupon from "./pages/Coupon";
 import CouponAdd from "./components/CouponAdd";
 import CouponDownload from "./components/CouponDownload";
+import CompanyClaimManage from "./pages/CompanyClaimManage";
 
 function App() {
     const [loginUser, setLoginUser] = useState(null);
@@ -175,6 +176,8 @@ function App() {
           <Route path="/CompanyDashboard" element={<CompanyDashboard />} />
 
           <Route path="/DevDashboard" element={<DevDashboard />} />
+
+          <Route path="/companyclaim" element={<CompanyClaimManage/>}/>
         </Routes>
       </div>
     );

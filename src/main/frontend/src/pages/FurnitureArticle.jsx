@@ -292,25 +292,81 @@ const FurnitureArticle = () => {
         }
     };
 
-    const onPayment = () => {
-        const invalidSet = selectedOptionSets.some(set => !isOptionSetComplete(set));
+    const onPayment = async () => {
+      const token = localStorage.getItem("token");
 
-        if (invalidSet) {
-            alert("옵션을 모두 선택해주세요.");
-            return;
-        }
+      if (!token) {
+          alert("로그인이 필요합니다.");
+          navigate("/login");
+          return;
+      }
 
-        const paymentItems = selectedOptionSets.map(optionSet => ({
-            options: getSelectedOptionListBySet(optionSet),
-            quantity: optionSet.quantity
-        }));
+      const invalidSet = selectedOptionSets.some(set => !isOptionSetComplete(set));
 
-        navigate(`/payment/${f_code}`, {
-            state: {
-                items: paymentItems
-            }
-        });
-    };
+      if (invalidSet) {
+          alert("옵션을 모두 선택해주세요.");
+          return;
+      }
+
+      const overStockSet = selectedOptionSets.some(optionSet => {
+          const limit = getOptionSetStockLimit(optionSet);
+          return optionSet.quantity > limit;
+      });
+
+      if (overStockSet) {
+          alert("재고 수량을 초과한 옵션이 있습니다.");
+          return;
+      }
+
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      try {
+          const c_codeList = [];
+
+          for (const optionSet of selectedOptionSets) {
+              const selectedOptionList = getSelectedOptionListBySet(optionSet);
+
+              const res = await CartService.addCart({
+                  cart: {
+                      f_code: furniture.f_code,
+                      f_count: optionSet.quantity,
+                      f_addr: user.addr || "",
+                      f_name: user.name || "",
+                      f_tel: user.tel || "",
+                      f_price: furniture.f_dprice,
+                      f_point: furniture.f_point,
+                  },
+                  options: selectedOptionList.map(option => ({
+                      co_select: option.o_select,
+                      co_text: option.o_text,
+                      co_count: optionSet.quantity,
+                      co_price: option.o_price
+                  }))
+              });
+
+              const c_code = res?.data?.c_code || res?.c_code;
+
+              if (c_code) {
+                  c_codeList.push(c_code);
+              }
+          }
+
+          if (c_codeList.length === 0) {
+              alert("결제 상품 정보를 생성하지 못했습니다.");
+              return;
+          }
+
+          navigate("/payment", {
+              state: {
+                  c_codeList
+              }
+          });
+      } catch (error) {
+          console.error("바로구매 실패", error);
+          alert("바로구매 처리에 실패했습니다.");
+      }
+  };
+
 
     const onBack = () => {
         navigate(`/furniture/list?page=${page}`);

@@ -56,12 +56,39 @@ const updateStatus = async (claim_code, claim_status) => {
   return res.data;
 };
 
+const getCompanyClaims = async () => {
+    const res = await http.get("/claim/company", {
+        headers: getAuthHeaders()
+    });
+
+    return res.data;
+};
+
+const updateClaim = async (data) => {
+    const res = await http.put("/claim/update", data, {
+        headers: getAuthHeaders()
+    });
+
+    return res.data;
+};
+
+const updateBulk = async (list) => {
+    const res = await http.put("/claim/bulk", list, {
+        headers: getAuthHeaders()
+    });
+
+    return res.data;
+};
+
 const OrderClaimService = {
   createClaim,
   checkClaim,
   getMyClaims,
   getAllClaims,
   updateStatus,
+  getCompanyClaims,
+  updateClaim,
+  updateBulk,
 };
 
 export default OrderClaimService;

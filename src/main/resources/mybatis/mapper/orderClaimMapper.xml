@@ -104,4 +104,13 @@
     ORDER BY oc.claim_createddate DESC
 </select>
 
+<!-- 교환, 환불 업데이트 -->
+<update id="updateType">
+    UPDATE order_claim
+    SET claim_type = #{claim_type}
+    WHERE claim_code = #{claim_code}
+</update>
+
+
+
 </mapper>
