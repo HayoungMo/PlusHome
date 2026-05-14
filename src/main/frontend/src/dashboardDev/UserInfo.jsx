@@ -242,7 +242,25 @@ const UserInfo = (props) => {
         )
         try {
             console.log(changedRows)
-            const result = await userService.updateUser(changedRows)
+
+            let result = null
+
+           if(userType==="user"){
+            result = await userService.updateUser(changedRows)
+           }
+         else if(userType==="company"){
+
+            const companyRows = changedRows.map((row)=>({
+                c_id: row.c_id || row.id,
+                c_tel: row.c_tel || row.tel,
+                c_addr: row.c_addr || row.addr,
+                c_kind: row.c_kind || row.kind,
+                c_info: row.c_info || row.info,
+                c_boss: row.c_boss || row.boss,
+            }))
+
+            result = await userService.updateCompany(companyRows)
+         }
 
             if(result.success){
                 setAlertInfo({
@@ -281,8 +299,12 @@ const UserInfo = (props) => {
         return editedRows
         .map((editedRow) =>{
             
+            const rowKey = editedRow.id || editedRow.c_id
+
             const originRow = originRows.find(
-                (originRow) => originRow.id === editedRow.id,
+                (originRow) =>
+        (originRow.id || originRow.c_id)
+        === rowKey
             )
 
             if(!originRow) return null

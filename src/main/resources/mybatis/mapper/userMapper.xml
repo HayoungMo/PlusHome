@@ -124,12 +124,11 @@ update users
 	        <if test="tel != null and tel != ''">tel = #{tel},</if>
 	        <if test="addr != null and addr != ''">addr = #{addr},</if>
 	        <if test="type != null and type != ''">type = #{type},</if>
-	        <if test="name != null and name != ''">name = #{name}</if>
+	        <if test="name != null and name != ''">name = #{name},</if>
+	        <if test="email != null and email != ''">email = #{email},</if>
+	        
 	</set>
-	<where>
-	        <if test="id != null">AND id = #{id}</if>
-	        <if test="name != null and name != ''">AND name = #{name}</if>
-	</where>
+	where id = #{id}
 </update>
 
 

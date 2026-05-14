@@ -271,18 +271,6 @@ public class UserService {
 			
 			try {
 			
-				if("company".equals(dto.getType())) {
-					
-					CompanyDTO cdto = new CompanyDTO();
-					
-					cdto.setC_id(dto.getId());
-					cdto.setC_boss(dto.getName());
-					cdto.setC_tel(dto.getTel());
-					cdto.setC_addr(dto.getAddr());
-					
-						total += companyMapper.updateCompanyOne(cdto);
-					
-				} else {			
 				
 				int result = userMapper.updateUserDev(dto);
 				
@@ -290,14 +278,43 @@ public class UserService {
 				
 				System.out.println("update result:" + result);
 				
-				}
+	
 				
 			} catch (Exception e) {
 				
 				System.out.println(e.toString());
 				e.printStackTrace();
 			}
-		}
+	}
+		return total;
+	}
+	
+	
+	public int updateCompanyDev(List<CompanyDTO> dtoList) throws Exception {
+		
+		int total = 0;		
+		
+		for (CompanyDTO dto : dtoList) {
+			
+			System.out.println("dto: " + dto);
+			
+			try {
+			
+				
+				int result = companyMapper.updateCompanyDev(dto);
+				
+				total += result;
+				
+				System.out.println("update result:" + result);
+				
+	
+				
+			} catch (Exception e) {
+				
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+	}
 		return total;
 	}
 	

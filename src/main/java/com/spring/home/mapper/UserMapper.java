@@ -49,6 +49,6 @@ public interface UserMapper {
 	
 	public int updateUserDev(UserDTO dto) throws Exception;
 	
-	public int updateCompanyDev(CompanyDTO cdto) throws Exception;
+	public int updateCompanyDev(CompanyDTO dto) throws Exception;
 	
 }

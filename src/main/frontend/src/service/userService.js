@@ -55,7 +55,23 @@ const updateUser =  async (selectedUserList) =>{
     console.log("update 서비스 호출됨")
     
     try{
-    const res = await http.post("/dev/update",
+    const res = await http.post("/dev/update/user",
+        selectedUserList
+    )
+    console.log("updateUser 서비스 실행O")
+    console.log(res)
+    return res.data
+    }catch (error) {
+        console.log("API Error:", error)
+
+    }
+}
+
+const updateCompany =  async (selectedUserList) =>{
+    console.log("updateCompany 서비스 호출됨")
+    
+    try{
+    const res = await http.post("/dev/update/company",
         selectedUserList
     )
     console.log("update 서비스 실행O")
@@ -67,6 +83,6 @@ const updateUser =  async (selectedUserList) =>{
     }
 }
 
-const userService = { userGetAll,deleteUser,restoreUser,updateUser };
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany };
 
 export default userService;
