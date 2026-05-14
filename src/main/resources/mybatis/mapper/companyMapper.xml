@@ -67,6 +67,39 @@
 	</where>
 </update>
 
+<update id="updateCompanyDev"
+    parameterType="com.spring.home.dto.CompanyDTO">
+
+    UPDATE company
+
+    <set>
+
+        <if test="c_tel != null and c_tel != ''">
+            c_tel = #{c_tel},
+        </if>
+
+        <if test="c_addr != null and c_addr != ''">
+            c_addr = #{c_addr},
+        </if>
+
+        <if test="c_info != null and c_info != ''">
+            c_info = #{c_info},
+        </if>
+
+        <if test="c_boss != null and c_boss != ''">
+            c_boss = #{c_boss},
+        </if>
+
+        <if test="c_kind != null and c_kind != ''">
+            c_kind = #{c_kind}
+        </if>
+
+    </set>
+
+    WHERE c_id = #{c_id}
+
+</update>
+
 <delete id="deleteCompanyOne" parameterType="com.spring.home.dto.CompanyDTO">
 	DELETE company
 	WHERE  c_id = #{c_id}
