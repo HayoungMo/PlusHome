@@ -92,11 +92,12 @@ public class CartController {
 	        }
 	    }
 
-	    cartService.insertData(cartDTO, optionList);
+	    String c_code = cartService.insertData(cartDTO, optionList);
 
 	    Map<String, Object> result = new HashMap<>();
 	    result.put("message", "장바구니에 담았습니다.");
-
+	    result.put("c_code", c_code);
+	    
 	    return ResponseEntity.ok(result);
 	}
 
