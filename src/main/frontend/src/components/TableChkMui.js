@@ -47,6 +47,8 @@ const TableChkMui = (props) => {
 		columns = [],
 		selectedKeys = [],
 		setSelectedKeys,
+		editableOnChange,
+		editable = false
 	} = props;
 
 	const tableColumns = rowData.length > 0
@@ -86,6 +88,32 @@ const TableChkMui = (props) => {
 	const isAllSelected =
 		rowData.length > 0 &&
 		selectedKeys.length === rowData.length;
+
+	//수정함수 추가
+	const handleCellEdit = (
+		rowId,
+		column,
+		value
+	) =>{
+		const updateData = rowData.map((row)=>{
+			if(row.id===rowId){
+				return{
+					...row,
+					[column]: value,
+				}
+			}
+			return row
+		})
+		editableOnChange?.(updateData)
+	}
+
+	const editableColumns = [
+		"name",
+		"tel",
+		"addr",
+		'email',
+
+	]
 
 	return (
 		<TableContainer
@@ -168,10 +196,39 @@ const TableChkMui = (props) => {
 										key={column}
 										align="right">
 
-										{row[column]}
+											  {editableColumns.includes(column) ? (
 
-									</StyledTableCell>
-								))}
+                                            <div
+                                                contentEditable={editable}
+                                                suppressContentEditableWarning={true}
+                                                onBlur={(e) =>
+                                                    handleCellEdit(
+                                                        row.id,
+                                                        column,
+                                                        e.target.innerText
+                                                    )
+                                                }
+                                                style={{
+                                                    outline: editable
+                                                        ? "1px solid #90caf9"
+                                                        : "none",
+                                                    padding: "4px",
+                                                    borderRadius: "4px",
+                                                    minWidth: "80px",
+                                                }}
+                                            >
+                                                {row[column]}
+                                            </div>
+
+                                        ) : (
+
+                                            row[column]
+
+                                        )}
+
+                                    </StyledTableCell>
+
+                                ))}
 
 							</StyledTableRow>
 						);

@@ -100,7 +100,39 @@ public class DevController {
 						
 		}
 		
-		int updateUser = userService.restoreUserDev(dtoList);
+		int restoreUser = userService.restoreUserDev(dtoList);
+		
+		if(restoreUser==0) {
+			result.put("success",false);
+			result.put("message", "복구에 실패했습니다.");
+		}else if (restoreUser !=dtoList.size()) {
+			result.put("success",false);
+			result.put("message", "일부 데이터가 복구되지 않았습니다.");
+		}else {
+			result.put("success", true);
+			result.put("message", "성공적으로 복구 되었습니다.");
+		}
+		
+		return result;
+		
+	}
+	
+	//유저 내용 수정
+	
+	@PostMapping("/update")
+	public Map<String,Object> updateUser(@RequestBody List<UserDTO> dtoList) throws Exception{
+		
+		Map<String,Object> result = new HashMap<>();
+		
+		if(dtoList.size()==0) {
+			result.put("success", false);
+			result.put("message", "데이터를 전달받지 못했습니다.");
+			
+			return result;
+						
+		}
+		
+		int updateUser = userService.updateUserDev(dtoList);
 		
 		if(updateUser==0) {
 			result.put("success",false);
@@ -116,6 +148,7 @@ public class DevController {
 		return result;
 		
 	}
+	
 	
 	
 
