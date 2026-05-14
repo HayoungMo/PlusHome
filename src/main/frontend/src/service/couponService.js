@@ -3,6 +3,7 @@ import http, { fileHttp } from "../http-common";
 const insertCoupon = async (data) => {
   try {
     const res = await http.post("/coupon/insert", {
+      coupon_code : data.coupon_code,
       discount : data.discount,
       coupon_end : data.coupon_end,
       coupon_max : data.coupon_max,
@@ -21,9 +22,54 @@ const insertCoupon = async (data) => {
   }
 };
 
+const insertCouponDev = async (data) => {
+  try {
+    const res = await http.post("/coupon/insertDev", {
+      discount: data.discount,
+      coupon_end: data.coupon_end,
+      coupon_max: data.coupon_max,
+      coupon_info: data.coupon_info,
+    });
+
+    return {
+      success: true,
+    };
+  } catch (err) {
+    console.error(data, err);
+    return {
+      success: false,
+    };
+  }
+};
+
+const checkCouponDuplicate = async (data) => {
+  const res = await http.post("/coupon/checkData", {
+    coupon_code : data.coupon_code,
+    id : data.id,
+  });
+  if(res >= 1) return{
+    success: false
+  }
+  else return {
+    success: true,
+    data: res.data,
+  };
+};
+
 // 조회
+const selectCouponDev = async () => {
+  const res = await http.get("/coupon/getListsDev");
+
+  return {
+    success: true,
+    data: res.data,
+  };
+};
+
 const selectCouponList = async (id) => {
-  const res = await http.post("/coupon/getLists", id);
+  const res = await http.post("/coupon/getLists", {
+    id,
+  });
 
   return {
     success: true,
@@ -32,7 +78,10 @@ const selectCouponList = async (id) => {
 };
 
 const selectCoupon= async (coupon_code) => {
-  const res = await http.post("/coupon/getReadData", coupon_code);
+  const res = await http.post("/coupon/getReadData", {
+    coupon_code,
+    id : coupon_code
+  });
 
   return {
     success: true,
@@ -66,8 +115,11 @@ const deleteCoupon = async (coupon_code) => {
 
 const CouponService = {
   insertCoupon,
+  insertCouponDev,
   selectCouponList,
+  selectCouponDev,
   selectCoupon,
+  checkCouponDuplicate,
   updateCoupon,
   deleteCoupon,
 };
