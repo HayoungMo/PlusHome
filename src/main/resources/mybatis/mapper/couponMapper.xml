@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.CouponMapper">
+
+<!-- 입력 -->
+<insert id="insertData" parameterType="com.spring.home.dto.CouponDTO">
+	insert into coupon
+	(coupon_code, discount, coupon_end, coupon_max, coupon_info, id)
+	values 
+	( #{coupon_code}, #{discount}, #{coupon_end}, #{coupon_max}, #{coupon_info}, #{id})	            
+</insert>
+
+<!-- SELECT DEV ALL -->
+<select id="getListsDev" resultType="com.spring.home.dto.CouponDTO">
+    SELECT
+        coupon_code,
+        discount,
+        coupon_end,
+        coupon_max,
+        coupon_info,
+        id
+    FROM coupon
+    WHERE id = coupon_code
+</select>
+
+<!-- SELECT ALL -->
+<select id="getLists" parameterType="String" resultType="com.spring.home.dto.CouponDTO">
+    SELECT
+        coupon_code,
+        discount,
+        coupon_end,
+        coupon_max,
+        coupon_info,
+        id
+    FROM coupon
+    WHERE id = #{id}
+</select>
+
+<!-- SELECT ONE -->
+<select id="getReadData" parameterType="hashmap"
+        resultType="com.spring.home.dto.CouponDTO">
+    SELECT
+        coupon_code,
+        discount,
+        coupon_end,
+        coupon_max,
+        coupon_info,
+        id
+    FROM coupon
+    WHERE coupon_code = #{coupon_code}
+    AND id = #{id}
+</select>
+
+<select id="checkData" parameterType="hashmap"
+        resultType="int">
+    SELECT COUNT(*)
+	FROM coupon
+    WHERE coupon_code = #{coupon_code}
+    AND id = #{id}
+</select>
+
+
+<!-- UPDATE -->
+<update id="updateData" parameterType="com.spring.home.dto.CouponDTO">
+    UPDATE coupon
+    SET
+        discount    = #{discount},
+        coupon_end  = #{coupon_end},
+        coupon_max  = #{coupon_max},
+        coupon_info = #{coupon_info},
+        id          = #{id}
+    WHERE coupon_code = #{coupon_code}
+</update>
+
+<!-- DELETE -->
+<delete id="deleteData" parameterType="hashMap">
+    DELETE FROM coupon
+    WHERE coupon_code = #{coupon_code}
+</delete>
+</mapper>

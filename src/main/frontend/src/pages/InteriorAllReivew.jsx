@@ -8,9 +8,9 @@ const InteriorAllReivew = () => {
   const [review, setReview] = useState([]);
   const [selectedImg, setSelectedImg] = useState(null);
 
-  const handleNext = (data) => {
+  const handleNext = (item) => {
     navigate("/interior/article", {
-      state: { company: data },
+      state: { company: item },
     });
   };
   useEffect(() => {

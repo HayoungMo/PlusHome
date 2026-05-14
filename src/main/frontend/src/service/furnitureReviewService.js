@@ -44,6 +44,7 @@ const updateReview = async (data) => {
 		fr_star: data.fr_star,
 		fr_content: data.fr_content,
 		fr_idx: data.fr_idx,
+		c_code: data.c_code,
 	});
 	return {
 		success: true,
@@ -55,6 +56,7 @@ const deleteReview = async (data) => {
 	await http.post("/freview/delete", {
 		id: data.id,
 		f_code: data.f_code,
+		c_code: data.c_code,
 	});
 	return {
 		success: true,
@@ -99,11 +101,20 @@ const updateReplyOnDashboard = async (data) => {
 	}
 };
 
+const checkReviewByCart = async (c_code) => {
+  const res = await http.get("/freview/check", {
+    params: { c_code },
+  });
+
+  return res.data;
+};
+
 const FurnitureReviewService = {
 	insertReview,
 	selectReview,
 	updateReview,
 	deleteReview,
+	checkReviewByCart,
 	insertReplyOnDashboard,
 	updateReplyOnDashboard,
 };

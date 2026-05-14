@@ -7,9 +7,10 @@
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
 	insert into f_review
-	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content)
+	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content, c_code)
 	values 
-	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content})	            
+	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content},#{c_code})	            
+
 </insert>
 
 <update id="updateData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
@@ -47,7 +48,8 @@
 		c_id,
 		cart.F_PRICE as payment,
 		cart.F_POINT as usedPoint,
-		cart.F_COUNT as qty
+		cart.F_COUNT as qty,
+		cart.C_CODE as c_code
 	from f_review 
 		join FURNITURE ON F_REVIEW.F_CODE = FURNITURE.F_CODE
         left outer join CART on F_REVIEW.C_CODE = CART.C_CODE
@@ -73,6 +75,7 @@
 	where
 		id = #{id}
 		and f_code = #{f_code}
+		and c_code = #{c_code}
 </delete>
 
 <insert id="insertReplyData" parameterType="com.spring.home.dto.FurnitureReviewDTO">
@@ -81,5 +84,19 @@
 	values 
 	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content},#{fr_idx})	            
 </insert>
+
+<select id="getReviewByCartCode" parameterType="string" resultType="com.spring.home.dto.FurnitureReviewDTO">
+    SELECT
+        id,
+        f_code,
+        c_code,
+        fr_subject,
+        fr_star,
+        fr_content,
+        fr_createddate
+    FROM f_review
+    WHERE c_code = #{c_code}
+</select>
+
 
 </mapper>

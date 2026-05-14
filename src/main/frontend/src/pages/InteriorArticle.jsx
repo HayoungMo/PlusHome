@@ -155,7 +155,7 @@ function InteriorArticle() {
       ))}
       <div>
         상세 조회 결과
-        <Maps c_addr={company.c_addr.split("__")[0]} />
+        <Maps c_addr={company.c_addr?.split("__")[0]} /> 
         {Object.entries(groupedTags).map(([tag, values]) => (
           <div key={tag}>
             {tagNameMap[tag] || tag}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TextFieldMui from "../components/TextFieldMui";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import ImageService from "../service/imageService";
@@ -7,8 +7,14 @@ import { Button } from "@mui/material";
 import RatingMui from "../components/RatingMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
+import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
 
 const FurnitureAddReview = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const c_code = location.state?.c_code
+
   const id = localStorage.getItem("id");
   const { f_code } = useParams();
   const [open, setOpen] = useState(false);
@@ -29,7 +35,7 @@ const FurnitureAddReview = () => {
     text: "",
   });
 
-  const [form, setForm] = useState({ id: id, f_code: f_code });
+  const [form, setForm] = useState({ id: id, f_code: f_code, c_code: c_code });
   const [preview, setPreview] = useState([]);
   const handleChange = (e) => {
     setForm({
@@ -38,25 +44,40 @@ const FurnitureAddReview = () => {
     });
   };
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 🔥 페이지 새로고침 막기
-    const result = await FurnitureReviewService.insertReview(form);
 
-    if (result.success) {
+    if(!c_code){
+      setAlert({
+        open: true,
+        severity: "error",
+        title: "주문 정보 없음",
+        text: "주문 내역에서 리뷰 쓰기 버튼으로 다시 돌아와주세요."
+      })
+
+      return
+    }
+
+    const result2 = await onClickInsert();
+    const result =
+      result2.success && (await FurnitureReviewService.insertReview(form));
+
+    if (result2.success && result.success) {
       setAlert({
         open: true,
         severity: "success",
         title: "등록 성공",
         text: "등록되었습니다.",
       });
+
+      navigate(`/userpage?menu=orders`)
+      
     } else {
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
+        title: `에러 (${result.status || "이미지 누락"})`,
+        text: result.message || "이미지를 1개 이상 넣어주세요.",
       });
     }
-    onClickInsert();
   };
   const onClickAdd = () => {
     const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
@@ -83,11 +104,13 @@ const FurnitureAddReview = () => {
   const onClickInsert = () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
-      return; // 🚫 요청 안 보냄
+      return {
+        success: false,
+        log: "보낼 이미지 없음",
+      };
     }
-    console.log("sendlist");
-    console.log(sendList);
     ImageService.insertImage(sendList);
+    return { success: true };
   };
 
   return (
@@ -175,7 +198,11 @@ const FurnitureAddReview = () => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <input type="button" onClick={onClickAdd} value="Add" />
+        <FloatingActionButtonMui
+          icon={<AddIcon />}
+          color="primary"
+          onClick={() => onClickAdd()}
+        />
       </form>
       {preview &&
         preview.map((item) => (

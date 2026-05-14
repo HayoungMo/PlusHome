@@ -32,4 +32,12 @@ public interface FurnitureMapper {
 			@Param("searchValue") String searchValue);
 
 	public List<FurnitureDTO> getFurnitureByCompany(FurnitureDTO dto) throws Exception;
+
+	public int decreaseStock(
+			@Param("f_code") String f_code,
+			@Param("count") int count);
+	
+	public int increaseStock(
+			@Param("f_code") String f_code,
+			@Param("count") int count);
 }

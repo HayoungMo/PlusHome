@@ -6,36 +6,39 @@
 	
 	<!-- 문의를 작성 -->
 	<insert id="insertData" parameterType="com.spring.home.dto.QuestionDTO">
-		insert into question
-		(
-			id,
-			f_code,
-			q_idx,
-			q_status,
-			q_title,
-			q_content,
-			q_answer,
-			q_answerDate,
-			q_secret,
-			q_createdDate
-		)
-		values
-		(
-			#{id},
-			#{f_code},
-			null,
-			#{q_status},
-			#{q_title},
-			#{q_content},
-			null,
-			null,
-			#{q_secret},
-			sysdate
-		)
+		<selectKey keyProperty="q_idx" resultType="int" order="BEFORE">
+			select SEQ_GLOBAL.NEXTVAL from dual
+		</selectKey>
+			insert into question
+			(
+				id,
+				f_code,
+				q_idx,
+				q_status,
+				q_title,
+				q_content,
+				q_answer,
+				q_answerDate,
+				q_secret,
+				q_createdDate
+			)
+			values
+			(
+				#{id},
+				#{f_code},
+				#{q_idx},
+				#{q_status},
+				#{q_title},
+				#{q_content},
+				null,
+				null,
+				#{q_secret},
+				sysdate
+			)
 	</insert>
 
 	<!-- 상품별 문의 목록 / as ~~  -->
-	<select id="getListByFCode" resultType="com.spring.home.dto.QuestionDTO">
+	<select id="getListsByFCode" resultType="com.spring.home.dto.QuestionDTO">
 		select
 			id,
 			f_code,
@@ -48,7 +51,26 @@
 			q_secret,
 			q_createdDate
 		from question
-	   where q_idx = #{q_idx}
+	   where f_code = #{f_code}
+	   order by q_idx desc
+	</select>
+	
+	<!-- 마이페이지에서 자신의 문의 확인 -->
+	<select id="getMyQuestions" resultType="com.spring.home.dto.QuestionDTO">
+		select
+			id,
+			f_code,
+			q_idx,
+			q_status,
+			q_title,
+			q_content,
+			q_answer,
+			q_answerDate,
+			q_secret,
+			q_createdDate
+		from question
+	   where id = #{id}
+	   order by q_idx desc
 	</select>
 
 	<!-- 업체별 답변 작성 -->
@@ -67,7 +89,7 @@
 		   set
 				q_title = #{q_title},
 				q_content = #{q_content},
-				q_secret = #{q_secret},
+				q_secret = #{q_secret}
 		 where q_idx = #{q_idx}
 	</update>
 	

@@ -14,7 +14,7 @@ const PaymentSuccessPage = () => {
             <p>결제 금액: {Number(payTotal || 0).toLocaleString()}원</p>
             <p>주문 상품 수: {items.length}개</p>
 
-            <button type="button" onClick={()=> navigate("/mypage/orders")}>
+            <button type="button" onClick={()=> navigate("/userpage?menu=orders")}>
                 주문 내역 보기
             </button>
             
@@ -25,7 +25,7 @@ const PaymentSuccessPage = () => {
             >
                 쇼핑 계속 하기
             </button>
-            
+
         </div>
     );
 };

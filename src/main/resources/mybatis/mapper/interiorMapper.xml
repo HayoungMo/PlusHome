@@ -377,26 +377,46 @@ FROM i_review
 </select>
 
 <select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">
-SELECT id,
-       b_createddate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind,
-       ir_content,
-       ir_createddate
-FROM   i_review
+SELECT ir.id,
+       ir.b_createddate,
+       ir.c_id,
+       ir.c_kind,
+       ir.c_name,
+       ir.invoice_no,
+       ir.invoice_kind,
+       ir.ir_content,
+       ir.ir_createddate,
+
+       c.c_addr,
+       c.c_tel,
+       c.c_boss,
+       c.c_info
+
+FROM   i_review ir
+       JOIN company c
+         ON ir.c_id = c.c_id
+        AND ir.c_kind = c.c_kind
+        AND ir.c_name = c.c_name
 </select>
 
 <select id="getAllExamples"  resultType="com.spring.home.dto.InteriorExampleDTO">
-SELECT c_id,
-       c_kind,
-       c_name,
-       ie_content,
-       ie_tag,
-       ie_tag2
-FROM   i_example
+SELECT ie.c_id,
+       ie.c_kind,
+       ie.c_name,
+       ie.ie_content,
+       ie.ie_tag,
+       ie.ie_tag2,
+
+       c.c_addr,
+       c.c_tel,
+       c.c_boss,
+       c.c_info
+
+FROM   i_example ie
+       JOIN company c
+         ON ie.c_id = c.c_id
+        AND ie.c_kind = c.c_kind
+        AND ie.c_name = c.c_name
 </select>
 
 <select id="getAllBookings"  resultType="com.spring.home.dto.BookingDTO">

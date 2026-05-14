@@ -23,8 +23,22 @@ const getOrderDetail = (c_code) => {
     });
 };
 
+const cancelOrder = (c_code) => {
+    return http.post("/payment/cancel", { c_code }, {
+        headers: getAuthHeaders()
+    });
+};
+
+const confirmOrder = (c_code) => {
+    return http.post("/payment/confirm", { c_code }, {
+        headers: getAuthHeaders()
+    });
+};
+
 export default {
     pay,
     getMyOrders,
-    getOrderDetail
+    getOrderDetail,
+    cancelOrder,
+    confirmOrder
 };

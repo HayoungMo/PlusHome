@@ -5,6 +5,9 @@ import ImageService from "../service/imageService";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import AlertMui from "./AlertMui";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import AddIcon from "@mui/icons-material/Add";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 const InteriorAdd = ({ company }) => {
 	const [sendList, setSendList] = useState([]);

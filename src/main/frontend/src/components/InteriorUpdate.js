@@ -5,6 +5,10 @@ import { Button } from "@mui/material";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 const InteriorUpdate = (props) => {
 	const { interiorInfo, interiorList = [] } = props;

@@ -10,12 +10,15 @@ import com.spring.home.dto.FurnitureReviewDTO;
 public interface FurnitureReviewMapper {
 
 	public void insertData(FurnitureReviewDTO dto) throws Exception;
-	
+
 	public List<FurnitureReviewDTO> getLists(FurnitureReviewDTO dto) throws Exception;
-	
+
 	public void updateData(FurnitureReviewDTO dto) throws Exception;
-	
+
 	public void deleteData(FurnitureReviewDTO dto) throws Exception;
 
 	public void insertReplyData(FurnitureReviewDTO dto) throws Exception;
+
+	public FurnitureReviewDTO getReviewByCartCode(String c_code) throws Exception;
+
 }

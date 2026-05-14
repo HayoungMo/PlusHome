@@ -89,17 +89,32 @@ where id = #{id}
 </update>
 
 <!-- 최고 관리자 유저 조회 -->
-<select id="getUserListDev" resultType="com.spring.home.dto.UserDTO">
+<select id="getUserListDev" parameterType="com.spring.home.dto.UserDTO" resultType="com.spring.home.dto.UserDTO">
 select *
-from users
+  from users
+  
+  <if test="type !='all'"></if>
+  where type = #{type}
 </select>
 
-<!-- 최고 관리자 유저 삭제 -->
-<delete id="deleteUserDev" parameterType="com.spring.home.dto.UserDTO">
+<!-- 최고 관리자 유저 탈퇴 변경 -->
+<update id="deleteUserDev" parameterType="com.spring.home.dto.UserDTO">
 
-delete from users where id = #{id}
+update users
+   set joined = 'N'
+ where id = #{id}
 
-</delete>
+</update>
+
+<!-- 최고 관리자 유저 상태 복구 변경 -->
+
+<update id="restoreUserDev" parameterType="com.spring.home.dto.UserDTO">
+
+update users
+   set joined = 'Y'
+ where id = #{id}
+
+</update>
 
 
 </mapper>
