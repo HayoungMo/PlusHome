@@ -7,17 +7,27 @@ import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
 import FloatingActionButtonMui from "./FloatingActionButtonMui";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import DeleteIcon from '@mui/icons-material/Delete';
-
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const InteriorUpdate = (props) => {
-	const { interiorInfo, interiorList = [] } = props;
-	const { c_id, c_kind, c_name } = interiorInfo;
+	const { interiorInfo, setOpenUpdateDialog, onSuccess } = props;
 
-	const [article, setArticle] = useState(interiorList);
-	const [sendList, setSendList] = useState([]);
+	console.log(interiorInfo);
 
-	const [open, setOpen] = useState(false);
+	const initInterior = {
+		c_id: "",
+		c_kind: "",
+		c_name: "",
+		i_tag: "",
+		i_text: "",
+	};
+
+	const [interior, setInterior] = useState(initInterior);
+
+	const { c_id, c_kind, c_name, i_tag, i_text } = interior;
+
+	const [updateOpen, setUpdateO] = useState(false);
+	const [deleteOpen, setdeleteOpen] = useState(false);
 
 	const [alert, setAlert] = useState({
 		open: false,
@@ -26,28 +36,12 @@ const InteriorUpdate = (props) => {
 		text: "",
 	});
 
-	const handleOpen = () => {
-		setOpen(true);
+	const handleUpdateConfirm = () => {
+		setUpdateO(!updateOpen);
 	};
 
-	const handleClose = () => {
-		setOpen(false);
-	};
-
-	const [open1, setOpen1] = useState(false);
-
-	const handleOpen1 = () => {
-		setOpen1(true);
-	};
-
-	const handleClose1 = () => {
-		setOpen1(false);
-	};
-
-	const [reload, setReload] = useState(0);
-
-	const refresh = () => {
-		setReload((prev) => prev + 1);
+	const handleCloseConfirm = () => {
+		setdeleteOpen(!deleteOpen);
 	};
 
 	const questionOptions = {
@@ -101,29 +95,24 @@ const InteriorUpdate = (props) => {
 		},
 	];
 
-	const handleChange = (index, e) => {
+	const handleChange = (e) => {
 		const { name, value } = e.target;
 
-		const newArticle = [...article];
-		newArticle[index] = {
-			...newArticle[index],
-			[name === "tag" ? "i_tag" : "i_text"]: value,
-		};
+		const valueKey = name === "tag" ? "i_tag" : "i_text";
 
-		setArticle(newArticle);
+		setInterior({ ...interiorInfo, [valueKey]: value });
 	};
-	const handleSubmit = async (e, item) => {
-		e.preventDefault();
-
+	const handleSubmit = async () => {
 		const result = await InteriorService.UpdateInterior({
 			c_id: c_id,
 			c_kind: c_kind,
 			c_name: c_name,
-			tag: item.i_tag,
-			text: item.i_text,
+			tag: i_tag,
+			text: i_text,
 		});
 
 		if (result.success) {
+			onSuccess();
 			setAlert({
 				open: true,
 				severity: "success",
@@ -138,21 +127,20 @@ const InteriorUpdate = (props) => {
 				text: result.message || "오류가 발생했습니다.",
 			});
 		}
-		refresh();
 	};
 
-	const handleDelete = async (e, item) => {
-		e.preventDefault();
-
+	const handleDelete = async () => {
 		await InteriorService.DeleteInterior({
 			c_id: c_id,
 			c_kind: c_kind,
 			c_name: c_name,
-			tag: item.i_tag,
+			tag: i_tag,
 		});
-
-		refresh();
 	};
+
+	useEffect(() => {
+		setInterior(interiorInfo);
+	}, [interiorInfo]);
 
 	return (
 		<div>
@@ -170,87 +158,83 @@ const InteriorUpdate = (props) => {
 					}
 				/>
 			)}
-			{article.map((item, index) => (
-				<form name="article">
-					<div>
-						<TextFieldMui name="tag" value={item.i_tag} />
-						{item.i_tag && item.i_tag !== "location" ? (
-							<SelectMui
-								label="세부 선택"
-								name="text"
-								value={item.i_text}
-								onChange={(e) => handleChange(index, e)}
-								option={
-									questions.find((q) => q.value === item.i_tag)?.options || []
-								}
-								required
-							/>
-						) : (
-							<TextFieldMui
-								name="text"
-								value={item.i_text}
-								onChange={(e) => handleChange(index, e)}
-								required
-							/>
-						)}
-						<Button onClick={() => handleOpen()} variant="contained">
-							제출
-						</Button>
-						<DialogMui
-							open={open}
-							onClose={handleClose}
-							title="제출 확인"
-							text="정말 제출하시겠습니까?"
-							buttons={[
-								{
-									title: "취소",
-									color: "inherit",
-									onClick: handleClose,
-								},
-								{
-									title: "제출",
-									variant: "contained",
-									onClick: (e) => {
-										console.log("제출 실행");
-										handleSubmit(e, item);
-										handleClose();
-									},
-								},
-							]}
-						/>
-						<Button
-							onClick={(e) => {
-								handleOpen1();
-							}}
-							variant="contained">
-							삭제
-						</Button>
-						<DialogMui
-							open={open1}
-							onClose={handleClose1}
-							title="삭제 확인"
-							text="정말 삭제하시겠습니까?"
-							buttons={[
-								{
-									title: "취소",
-									color: "inherit",
-									onClick: handleClose1,
-								},
-								{
-									title: "삭제",
-									color: "error",
-									variant: "contained",
-									onClick: (e) => {
-										console.log("삭제 실행");
-										handleDelete(e, item);
-										handleClose1();
-									},
-								},
-							]}
-						/>
-					</div>
-				</form>
-			))}
+			<div>
+				<TextFieldMui name="tag" value={i_tag} />
+				{i_tag && i_tag !== "location" ? (
+					<SelectMui
+						label="세부 선택"
+						name="text"
+						value={i_text}
+						onChange={(e) => handleChange(e)}
+						option={questions.find((q) => q.value === i_tag)?.options || []}
+						required
+					/>
+				) : (
+					<TextFieldMui
+						name="text"
+						value={i_text}
+						onChange={(e) => handleChange(e)}
+						required
+					/>
+				)}
+				<Button onClick={() => handleUpdateConfirm()} variant="contained">
+					제출
+				</Button>
+				<DialogMui
+					open={updateOpen}
+					onClose={handleUpdateConfirm}
+					title="제출 확인"
+					text="정말 제출하시겠습니까?"
+					buttons={[
+						{
+							title: "취소",
+							color: "inherit",
+							onClick: () => handleUpdateConfirm(),
+						},
+						{
+							title: "제출",
+							variant: "contained",
+							onClick: () => {
+								console.log("제출 실행");
+								handleSubmit();
+								handleUpdateConfirm();
+							},
+						},
+					]}
+				/>
+				<Button onClick={handleCloseConfirm} variant="contained">
+					삭제
+				</Button>
+				<DialogMui
+					open={deleteOpen}
+					onClose={handleCloseConfirm}
+					title="삭제 확인"
+					text="정말 삭제하시겠습니까?"
+					buttons={[
+						{
+							title: "취소",
+							color: "inherit",
+							onClick: () => handleCloseConfirm(),
+						},
+						{
+							title: "삭제",
+							color: "error",
+							variant: "contained",
+							onClick: () => {
+								console.log("삭제 실행");
+								handleDelete();
+								handleCloseConfirm();
+							},
+						},
+					]}
+				/>
+				<Button
+					onClick={() => setOpenUpdateDialog(false)}
+					color="error"
+					variant="contained">
+					수정 취소
+				</Button>
+			</div>
 		</div>
 	);
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import InteriorUpdate from "../components/InteriorUpdate";
 import InteriorAdd from "../components/InteriorAdd";
 import InteriorService from "../service/interiorService";
-import { Box, Button, Tab, Tabs } from "@mui/material";
+import { Box, Button, Dialog, DialogContent, DialogTitle, Tab, Tabs } from "@mui/material";
 import ButtonGroupMui from "./../components/ButtonGroupMui";
 import TableMui from "./../components/TableMui";
 import TableChkMui from "../components/TableChkMui";
@@ -22,6 +22,10 @@ const InteriorInfo = () => {
 	const [interiorDisplayList, setInteriorDisplayList] = useState([]);
 	const [checkedList, setCheckedList] = useState([]);
 	const [selectedCompany, setSelectedCompany] = useState(null);
+	const [selectedInterior, setSelectedInterior] = useState(null);
+
+	const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
 
 	const reLoadData = async () => {
 		const interiorList = await InteriorService.fetchArticle({ c_id: id });
@@ -38,6 +42,10 @@ const InteriorInfo = () => {
 	const handleTabChange = (value) => {
 		setTabValue(value);
 
+		if (value === "add") setOpenAddDialog(!openAddDialog);
+
+		if (value === "update") setOpenUpdateDialog(!openUpdateDialog);
+
 		// const selectedCompany = tabStateList.find((record) => record.value === newValue);
 	};
 
@@ -51,8 +59,18 @@ const InteriorInfo = () => {
 
 	const interiorControlButtonGroupList = [
 		{ title: "조회", onClick: () => handleTabChange("info") },
-		{ title: "등록", onClick: () => handleTabChange("add") },
-		{ title: "수정 - 삭제", onClick: () => handleTabChange("update") },
+		{
+			title: "등록",
+			onClick: () => {
+				handleTabChange("add");
+			},
+		},
+		{
+			title: "수정 - 삭제",
+			onClick: () => {
+				handleTabChange("update");
+			},
+		},
 	];
 
 	useEffect(() => {
@@ -61,11 +79,11 @@ const InteriorInfo = () => {
 			(row) => makeCompanyKey(row) === makeCompanyKey(selectedCompany),
 		);
 		setInteriorDisplayList(setDisplayList);
-	}, [selectedCompany, interiorList,]);
+	}, [selectedCompany, interiorList]);
 
 	useEffect(() => {
-		
-	},[interiorDisplayList])
+		setSelectedInterior(null);
+	}, [interiorDisplayList]);
 
 	useEffect(() => {
 		reLoadData();
@@ -85,12 +103,11 @@ const InteriorInfo = () => {
 				rowData={interiorCompanyList}
 			/>
 			{interiorListCheck ? (
-				<TableCheckBoxMui
-					checkedList={checkedList}
-					setCheckedList={setCheckedList}
+				<TableMui
+					selectedRow={selectedInterior}
+					setSelectedRow={setSelectedInterior}
 					rowData={interiorDisplayList}
-					rowKey="id"
-					col={["c_id", "c_kind", "c_name", "i_tag", "i_text"]}
+					// col={["c_id", "c_kind", "c_name", "i_tag", "i_text"]}
 					// columns={["주문자", "주문품목", "판매처", "물품금액", "주문수량", "결제금액", "ID"]}
 				/>
 			) : selectedCompany ? (
@@ -115,9 +132,45 @@ const InteriorInfo = () => {
 				<div></div>
 			)}
 
-			{tabValue === "add" && <InteriorAdd company={selectedCompany} />}
+			{tabValue === "add" && (
+				<Dialog
+					open={openAddDialog}
+					onClose={() => setOpenAddDialog(!openAddDialog)}
+					maxWidth="md"
+					fullWidth>
+					<DialogTitle>상품 등록</DialogTitle>
+
+					<DialogContent>
+						<InteriorAdd
+							setOpenAddDialog={setOpenAddDialog}
+							company={selectedCompany}
+							onSuccess={async () => {
+								await reLoadData();
+								setOpenAddDialog(!openAddDialog);
+							}}
+						/>
+					</DialogContent>
+				</Dialog>
+			)}
 			{tabValue === "update" && (
-				<InteriorUpdate interiorInfo={selectedCompany} interiorList={interiorDisplayList} />
+				<Dialog
+					open={openUpdateDialog}
+					onClose={() => setOpenAddDialog(!openUpdateDialog)}
+					maxWidth="md"
+					fullWidth>
+					<DialogTitle>상품 수정</DialogTitle>
+
+					<DialogContent>
+						<InteriorUpdate
+							setOpenUpdateDialog={setOpenUpdateDialog}
+							interiorInfo={selectedInterior}
+							onSuccess={async () => {
+								await reLoadData();
+								setOpenUpdateDialog(!openUpdateDialog);
+							}}
+						/>
+					</DialogContent>
+				</Dialog>
 			)}
 
 			{/* <InteriorExAdd company={company}/> */}
