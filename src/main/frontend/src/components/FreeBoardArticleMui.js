@@ -64,7 +64,7 @@ const FreeBoardArticleMui = ({
                 {/* 좋아요 버튼 */}
                 <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 6 }}>
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         color="primary"
                         size="large"
                         startIcon={<ThumbUpAltIcon />}
