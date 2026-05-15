@@ -7,129 +7,140 @@ import { Button, Table, TableBody, TableCell, TableRow } from "@mui/material";
 import DialogMui from "./DialogMui";
 import SelectMui from "./SelectMui";
 
-const BookingUpdate = ({ company }) => {
-  const [booking, setBooking] = useState([]);
-  useEffect(() => {
-    const fetchBooking = async () => {
-      const data = await InteriorService.fetchBookingList(company);
-      setBooking(data);
-    };
-    fetchBooking();
-  }, []);
+const BookingUpdate = ({ company, selectedInvoice, setSelectedInvoice }) => {
+	const [booking, setBooking] = useState([]);
+	const [selectedRow, setSelectedRow] = useState(null);
 
-  const statusOption = [
-    { value: "confirmed", title: "견적확정 " },
-    { value: "working", title: "시공중" },
-    { value: "done", title: "완료" },
-  ];
+	const reLoadBooking = async () => {
+		const data = await InteriorService.fetchBookingList(company);
 
-    const [open1, setOpen1] = useState(false);
-  
-    const handleOpen1 = () => {
-      setOpen1(true);
-    };
-  
-    const handleClose1 = () => {
-      setOpen1(false);
-    };
+		const withOutStarted = data.filter(
+			(item) =>
+				item.b_status !== "working" &&
+				item.b_status !== "done" &&
+				item.b_status !== "cancel",
+		);
 
+		setBooking(withOutStarted);
+	};
 
-  const updateBookingRow = async (targetRow, value) => {
-    setBooking((prev) =>
-      prev.map((item) =>
-        item.id === targetRow.id &&
-        item.c_id === targetRow.c_id &&
-        item.b_createdDate === targetRow.b_createdDate
-          ? {
-              ...item,
-              b_status: value,
-            }
-          : item,
-      ),
-    );
-    await InteriorService.UpdateBooking({
-      ...targetRow,
-      b_status: value,
-    });
-  };
+	useEffect(() => {
+		if (company) reLoadBooking();
 
-  return (
-    <div>
-      {Array.isArray(booking) && booking.length > 0 ? (
-        booking.map((item, idx) => (
-          <div>
-            <TableMuiCollapse
-              rowData={item}
-              hiddenColumns={["b_answer"]}
-              collapseTitle="상담 상세 정보"
-              renderCollapse={(row) => {
-                let answer = {};
+		setSelectedRow(null);
+	}, [company]);
 
-                try {
-                  answer = row.b_answer ? JSON.parse(row.b_answer) : {};
-                } catch (e) {
-                  answer = {};
-                }
+	const [dialogCancelBooking, setDialogCancelBooking] = useState(false);
 
-                return (
-                  <Table size="small">
-                    <TableBody>
-                      {Object.keys(answer).map((key) => (
-                        <TableRow key={key}>
-                          <TableCell>{key}</TableCell>
-                          <TableCell>
-                            {Array.isArray(answer[key])
-                              ? answer[key].join(", ")
-                              : answer[key]}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                );
-              }}
-            />
-            <SelectMui
-              label="상태"
-              name="b_status"
-              value={item.b_status || ""}
-              option={statusOption}
-              onChange={(e) => updateBookingRow(item, e.target.value)}
-            />
-            {(booking.b_status !== "cancel" || booking.b_status !== "done") && (
-              <Button onClick={() => handleOpen1()}>상담 취소</Button>
-            )}
-            <DialogMui
-              open={open1}
-              onClose={handleClose1}
-              title="취소 확인"
-              text="정말 취소하시겠습니까?"
-              buttons={[
-                {
-                  title: "취소",
-                  color: "inherit",
-                  onClick: handleClose1,
-                },
-                {
-                  title: "취소",
-                  color: "error",
-                  variant: "contained",
-                  onClick: (e) => {
-                    console.log("취소 실행");
-                    updateBookingRow(item, "cancel");
-                    handleClose1();
-                  },
-                },
-              ]}
-            />
-            <InteriorInvoiceAdd booking={item} />
-          </div>
-        ))
-      ) : (
-        <p>상담 데이터가 없습니다.</p>
-      )}
-    </div>
-  );
+	const handleDialogCancelBooking = () => {
+		setDialogCancelBooking(!dialogCancelBooking);
+	};
+
+	const onClickstartRemodel = async () => {
+		if (selectedRow.b_status !== "confirmed") {
+			alert("확정된 상담만 진행 가능합니다");
+			return;
+		}
+
+		const startRemodel = {
+			...selectedRow,
+			b_status: "working",
+		};
+
+		await InteriorService.UpdateBooking(startRemodel);
+
+		setSelectedRow(null);
+		reLoadBooking();
+	};
+
+	const onClickCancelBooking = async () => {
+		const startRemodel = {
+			...selectedRow,
+			b_status: "cancel",
+		};
+
+		await InteriorService.UpdateBooking(startRemodel);
+		handleDialogCancelBooking();
+
+		setSelectedRow(null);
+		reLoadBooking();
+	};
+
+	useEffect(() => {}, [selectedRow]);
+
+	return (
+		<div>
+			<div>
+				<TableMuiCollapse
+					selectedRow={selectedRow}
+					setSelectedRow={setSelectedRow}
+					rowData={booking}
+					hiddenColumns={["b_answer"]}
+					collapseTitle="상담 상세 정보"
+					renderCollapse={(row) => {
+						let answer = {};
+
+						try {
+							answer = row.b_answer ? JSON.parse(row.b_answer) : {};
+						} catch (e) {
+							answer = {};
+						}
+
+						return (
+							<Table size="small">
+								<TableBody>
+									{Object.keys(answer).map((key) => (
+										<TableRow key={key}>
+											<TableCell>{key}</TableCell>
+											<TableCell>
+												{Array.isArray(answer[key])
+													? answer[key].join(", ")
+													: answer[key]}
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						);
+					}}
+				/>
+				{selectedRow && (
+					<>
+						<Button variant="contained" color="secondary" onClick={onClickstartRemodel}>
+							시공 시작
+						</Button>
+						{(booking.b_status !== "cancel" || booking.b_status !== "done") && (
+							<Button onClick={handleDialogCancelBooking}>상담 취소</Button>
+						)}
+						<DialogMui
+							open={dialogCancelBooking}
+							onClose={handleDialogCancelBooking}
+							title="취소 확인"
+							text="정말 상담을 취소하시겠습니까?"
+							buttons={[
+								{
+									title: "돌아가기",
+									color: "inherit",
+									onClick: handleDialogCancelBooking,
+								},
+								{
+									title: "확인",
+									color: "error",
+									variant: "contained",
+									onClick: onClickCancelBooking,
+								},
+							]}
+						/>
+						<InteriorInvoiceAdd
+							booking={selectedRow}
+							selectedInvoice={selectedInvoice}
+							setSelectedInvoice={setSelectedInvoice}
+						/>
+					</>
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default BookingUpdate;

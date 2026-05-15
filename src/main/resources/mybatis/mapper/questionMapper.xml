@@ -37,21 +37,26 @@
 			)
 	</insert>
 
-	<!-- 상품별 문의 목록 / as ~~  -->
+	<!-- 상품별 문의 목록 / as ~~ / join 시켜준다. -->
 	<select id="getListsByFCode" resultType="com.spring.home.dto.QuestionDTO">
 		select
-			id,
-			f_code,
-			q_idx,
-			q_status,
-			q_title,
-			q_content,
-			q_answer,
-			q_answerDate,
-			q_secret,
-			q_createdDate
-		from question
-	   where f_code = #{f_code}
+			q.id,
+			q.f_code,
+			q.q_idx,
+			q.q_status,
+			q.q_title,
+			q.q_content,
+			q.q_answer,
+			q.q_answerDate,
+			q.q_secret,
+			q.q_createdDate,
+			f.c_id,
+			f.c_kind,
+			f.c_name
+		from question q
+		join furniture f
+		  on q.f_code = f.f_code
+	   where q.f_code = #{f_code}
 	   order by q_idx desc
 	</select>
 	
@@ -98,7 +103,31 @@
 		delete from question
 		 where q_idx = #{q_idx}
 	</delete>
-
+	
+	<!-- 업체가 봐야하는 문의 목록을 가져옴 -->
+	<select id="getCompanyQuestions" resultType="com.spring.home.dto.QuestionDTO">
+	    select
+	        q.id,
+	        q.f_code,
+	        q.q_idx,
+	        q.q_status,
+	        q.q_title,
+	        q.q_content,
+	        q.q_answer,
+	        q.q_answerDate,
+	        q.q_secret,
+	        q.q_createdDate,
+	        f.c_id,
+	        f.c_kind,
+	        f.c_name,
+	        f.f_name
+	    from question q
+	    join furniture f
+	      on q.f_code = f.f_code
+	   where f.c_id = #{c_id}
+	   order by q.q_idx desc
+</select>
+	
         
 </mapper>      
         

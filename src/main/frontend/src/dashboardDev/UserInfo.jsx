@@ -6,7 +6,6 @@ import TableChkMui from '../components/TableChkMui';
 import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
 
-
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
     const userData= JSON.parse(localUserData)
@@ -45,6 +44,7 @@ const UserInfo = (props) => {
     const [alertOpen,setAlertOpen] = useState(false)
     const [deleteConfirmOpen,setDeleteConfirmOpen]=useState(false)
     const [confirmOpen,setConfirmOpen] = useState(false)
+    const [restoreConfirmOpen,setRestoreConfirmOpen] = useState(false)
 
     const [userType,setUserType] = useState("user");
 
@@ -69,7 +69,14 @@ const UserInfo = (props) => {
         console.log(res)
 
         if(res.success){
+            
             setUserList(res.list)
+            
+            setUserStateList(res.list);
+
+            setEditedUserList(res.list)
+
+
         }
         
     } 
@@ -87,13 +94,13 @@ const UserInfo = (props) => {
         console.log(userList)        
 
            const selectedUserList = userList.filter(
-        (row) => selectedUserKeys.includes(makeUserKey(row))
+        (row) => selectedUserKeys.includes((row.id))
     );
 
     console.log("삭제 대상")
     console.log(selectedUserList)
 
-    const filterdList = userList.filter((row)=> ! selectedUserKeys.includes(makeUserKey(row)))
+    const filterdList = userList.filter((row)=> ! selectedUserKeys.includes((row.id)))
 
     console.log("삭제 후")
     console.log(filterdList)
@@ -139,7 +146,7 @@ const UserInfo = (props) => {
         console.log("reloadDataFunc함수함수")
 
         try {
-            const res = await userService.refreshUserData(id);
+            const res = await userService.userGetAll(userType);
 
             if(res.status===200){
                 const {user, token} = res.data
@@ -170,7 +177,7 @@ const UserInfo = (props) => {
    
 
 
-    const handleRowRestoreInTabel = async() =>{
+    const handleRowRestoreInTable = async() =>{
        console.log("선택된 키")
         console.log(selectedUserKeys)
 
@@ -178,13 +185,13 @@ const UserInfo = (props) => {
         console.log(userList)        
 
            const selectedUserList = userList.filter(
-        (row) => selectedUserKeys.includes(makeUserKey(row))
+        (row) => selectedUserKeys.includes((row.id))
     );
 
     console.log("복구 대상")
     console.log(selectedUserList)
 
-    const filterdList = userList.filter((row)=> ! selectedUserKeys.includes(makeUserKey(row)))
+    const filterdList = userList.filter((row)=> ! selectedUserKeys.includes((row.id)))
 
     console.log("복구 후")
     console.log(filterdList)
@@ -220,7 +227,8 @@ const UserInfo = (props) => {
         })
         console.log(error)
     }
-    
+    setRestoreConfirmOpen(false)
+    setAlertOpen(true)
 }
 
 
@@ -232,12 +240,30 @@ const UserInfo = (props) => {
         )
         try {
             console.log(changedRows)
-            const result = await userService.updateUser(changedRows)
+
+            let result = null
+
+           if(userType==="user"){
+            result = await userService.updateUser(changedRows)
+           }
+         else if(userType==="company"){
+
+            const companyRows = changedRows.map((row)=>({
+                c_id: row.c_id || row.id,
+                c_tel: row.c_tel || row.tel,
+                c_addr: row.c_addr || row.addr,
+                c_kind: row.c_kind || row.kind,
+                c_info: row.c_info || row.info,
+                c_boss: row.c_boss || row.boss,
+            }))
+
+            result = await userService.updateCompany(companyRows)
+         }
 
             if(result.success){
                 setAlertInfo({
                     severity:"success",
-                    title:"수정성공",
+                    title:"수정 성공",
                     text:result.message,
                 })
             }else{
@@ -267,15 +293,16 @@ const UserInfo = (props) => {
 
    
 
-    const makeUserKey = (row) =>{
-        return `${row.id}_${row.name}_${row.type}`
-    }
-
     const getChangedRowsDetail= (originRows,editedRows) =>{
         return editedRows
         .map((editedRow) =>{
+            
+            const rowKey = editedRow.id || editedRow.c_id
+
             const originRow = originRows.find(
-                (originRow) => makeUserKey(originRow) === makeUserKey(editedRow),
+                (originRow) =>
+        (originRow.id || originRow.c_id)
+        === rowKey
             )
 
             if(!originRow) return null
@@ -307,7 +334,7 @@ const UserInfo = (props) => {
         setEditedUserList((prevList) =>{
             return prevList.map((prevRow) =>{
                 const updatedRow = data.find(
-                    (row) => makeUserKey(row) ===makeUserKey(prevRow),
+                    (row) => row.id ===prevRow.id,
                 )
                 return updatedRow ? updatedRow : prevRow
             })
@@ -317,7 +344,7 @@ const UserInfo = (props) => {
     const mergeEditedListWithServerList = (serverList, editedList) => {
             return serverList.map((serverRow) => {
                 const editedRow = editedList.find(
-                    (row) => makeUserKey(row) === makeUserKey(serverRow),
+                    (row) => row.id === serverRow.id,
                 );
     
                 return editedRow ? editedRow : serverRow;
@@ -338,6 +365,26 @@ const UserInfo = (props) => {
                 onClick: () => handleRowUpdateInTable(),
             },
         ];
+
+        const dialogRestoreConfirmButtonList =[
+            {
+                title: "cancel",
+                color: "error",
+                variant: "outlined",
+                onClick: ()=>
+                    setRestoreConfirmOpen(
+                        !restoreConfirmOpen
+                    )
+            },
+            {
+                title: "Restore",
+                color: "primary",
+                variant: "outlined",
+                onClick: ()=>
+                    handleRowRestoreInTable(),
+
+            }
+        ]
     
         const dialogDeleteConfirmButtonList = [
             {
@@ -366,7 +413,7 @@ const UserInfo = (props) => {
         useEffect(()=>{},[selectedUserKeys])
 
         useEffect(()=>{
-            const currentKeys = editedUserList.map((row)=> makeUserKey(row))
+            const currentKeys = editedUserList.map((row)=>row.id)
 
             setSelectedUserKeys((prevKeys) => prevKeys.filter((key) => currentKeys.includes(key)))
         },[editedUserList])
@@ -375,96 +422,140 @@ const UserInfo = (props) => {
        
 
     return (
+    <div>
+
         <div>
-
-            <div>      
-
-                <Button
-                    color='error'
-                    variant='contained'
-                    onClick={()=>setUserType("user")}>
-                    user
-                </Button>
-
-                <Button
-                    color='error'
-                    variant='contained'
-                    onClick={()=>setUserType("company")}>
-                    company
-                </Button>
-
-            </div>
-            
-            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-				<SwitchMui
-					label="Update"
-					checked={userUpdate}
-					onChange={() => setUserUpdate(!userUpdate)}
-				/>
-				{userUpdate && (
-					<>
-						<Button
-							color="secondary"
-							variant="outlined"
-							onClick={() => setConfirmOpen(!confirmOpen)}>
-							Save
-						</Button>
-						<Button
-                color="error"
-                variant="contained"
-                onClick={handleRowDeleteInTable}>
-                Delete
-            </Button>
-            {deleteConfirmOpen && (
-                            <DialogMui
-                                open={deleteConfirmOpen}
-                                onClose={() => setDeleteConfirmOpen(!deleteConfirmOpen)}
-                                title="Data delete?"
-                                text="Are you sure? Once deleted, this data cannot be recovered."
-                                buttons={dialogDeleteConfirmButtonList}
-                            />
-			            )}
-
-
 
             <Button
                 color='error'
                 variant='contained'
-                onClick={handleRowRestoreInTabel}
-            >
-                restore
+                onClick={() => setUserType("user")}>
+                user
             </Button>
 
-                        
+            <Button
+                color='error'
+                variant='contained'
+                onClick={() => setUserType("company")}>
+                company
+            </Button>
 
-                      
-            
-            </>
-                  
-				)}
-			</div>
-
-
-           
-            <div>
-			{userList.length !== 0 ? (
-
-                <TableChkMui rowData={userList}
-                editableOnChange={tableMuiEditableOnChange}
-                setSelectedKeys={setSelectedUserKeys}
-                selectedKeys={selectedUserKeys}
-                />
-				
-			) : (
-				<div>등록된 회원이 없습니다.</div>
-			)}           
-
-
-
-
-		</div>
         </div>
-    );
+
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center"
+            }}
+        >
+
+            <SwitchMui
+                label="Update"
+                checked={userUpdate}
+                onChange={() => setUserUpdate(!userUpdate)}
+            />
+
+            {userUpdate && (
+                <>
+                    <Button
+                        color="secondary"
+                        variant="outlined"
+                        onClick={() => setConfirmOpen(!confirmOpen)}>
+                        Save
+                    </Button>
+
+                    <Button
+                        color="error"
+                        variant="contained"
+                        onClick={() =>
+                            setDeleteConfirmOpen(
+                                !deleteConfirmOpen
+                            )
+                        }>
+                        Delete
+                    </Button>
+
+                    {deleteConfirmOpen && (
+                        <DialogMui
+                            open={deleteConfirmOpen}
+                            onClose={() =>
+                                setDeleteConfirmOpen(
+                                    !deleteConfirmOpen
+                                )
+                            }
+                            title="Data delete?"
+                            text="Are you sure? Once deleted, this data cannot be recovered."
+                            buttons={dialogDeleteConfirmButtonList}
+                        />
+                    )}
+
+                    <Button
+                        color='error'
+                        variant='contained'
+                        onClick={() =>
+                            setRestoreConfirmOpen(
+                                !restoreConfirmOpen
+                            )
+                        }>
+                        restore
+                    </Button>
+
+                    {restoreConfirmOpen && (
+                        <DialogMui
+                            open={restoreConfirmOpen}
+                            onClose={() =>
+                                setRestoreConfirmOpen(
+                                    !restoreConfirmOpen
+                                )
+                            }
+                            title="Restore user?"
+                            text="Do you want to restore selected users?"
+                            buttons={dialogRestoreConfirmButtonList}
+                        />
+                    )}
+
+                    {confirmOpen && (
+    <DialogMui
+        open={confirmOpen}
+        onClose={() =>
+            setConfirmOpen(!confirmOpen)
+        }
+        title="Update user?"
+        text="Do you want to save changes?"
+        buttons={dialogConfirmButtonList}
+    />
+)}
+
+
+
+
+                </>
+            )}
+        </div>
+
+        <div>
+
+            {userList.length !== 0 ? (
+
+                <TableChkMui
+                    rowData={editedUserList}
+                    editable={userUpdate}
+                    editableOnChange={tableMuiEditableOnChange}
+                    setSelectedKeys={setSelectedUserKeys}
+                    selectedKeys={selectedUserKeys}
+                />
+
+            ) : (
+
+                <div>등록된 회원이 없습니다.</div>
+
+            )}
+
+        </div>
+
+    </div>
+);
 };
 
 export default UserInfo;

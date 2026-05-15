@@ -15,10 +15,13 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
 		const keyword = searchKeyword.trim();
 
-		if (!keyword) {
-			alert("검색어를 입력해주세요");
-			return;
+		if (keyword) {
+			navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=all&page=1`);
+		} else {
+			navigate(`/search?type=all&page=1`);
 		}
+
+		setSearchKeyword("");
 
 		navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=all&page=1`);
 		setSearchKeyword("");

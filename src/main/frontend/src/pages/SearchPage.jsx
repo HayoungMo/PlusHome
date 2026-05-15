@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
 import FreeBoardService from '../service/freeBoardService';
+import SelectMui from '../components/SelectMui';
 
 const SearchPage = () => {
 
@@ -14,6 +15,30 @@ const SearchPage = () => {
     const type = searchParams.get("type") || "all";
     const page = Number(searchParams.get("page")|| 1 );
     
+    //URL 필터값 읽기
+    const category = searchParams.get("category") || "";
+    const priceRange = searchParams.get("priceRange") || "";
+    const discount = searchParams.get("discount") || "";
+    const freeDelivery = searchParams.get("freeDelivery") || "";
+
+    //인테리어 URL 필터값 -> 인테리어 검색은 지역을 기준으로 검색
+    const interiorRegion = searchParams.get("interiorRegion") || "";
+
+
+    //필터 옵션 
+    const [filterOptions, setFilterOptions] = useState({
+        furnitureCategories: [],
+        interiorRegions: [],
+    });
+
+    const [filterInput, setFilterInput] = useState({
+        category: category,
+        priceRange: priceRange,
+        discount: discount,
+        freeDelivery: freeDelivery,
+        interiorRegion,
+    });
+
     //화면 상태 관리
     const [inputKeyword, setInputKeyword] = useState(keyword);
 
@@ -63,7 +88,7 @@ const SearchPage = () => {
             const nextKeyword = inputKeyword.trim();
 
             if(!nextKeyword){
-                setSearchParams({});
+                setSearchParams({ type: "all", page: 1 });
                 return;
             }
             setSearchParams({keyword: inputKeyword});
@@ -71,11 +96,33 @@ const SearchPage = () => {
 
         return () => clearTimeout(timer);
     },[inputKeyword, setSearchParams, keyword]);
-
-    //keyword 또는 검색 탭이 바뀌면 DB 검색 실행함
+    
+    //keyword 또는 검색 탭이 바뀌면 DB 검색 실행함(동기화), 쇼핑 카테고리, 가격, 할인, 무료
     useEffect(()=>{
+        setFilterInput({
+            category,
+            priceRange,
+            discount,
+            freeDelivery,
+            interiorRegion,
+        });
+    },[category, priceRange, discount, freeDelivery, interiorRegion]);
+
+    //검색 실행 의존성 useEffect 입니다. 지우지마
+    useEffect(() => {
         getSearchResult();
-    },[keyword,type]);
+    }, [keyword, type, category, priceRange, discount, freeDelivery,interiorRegion]);
+
+
+    const priceOptions = [
+        { value: "", title: "전체 가격" },
+        { value: "0-10000", title: "1만원 이하" },
+        { value: "10000-50000", title: "1만원 ~ 5만원" },
+        { value: "50000-100000", title: "5만원 ~ 10만원" },
+        { value: "100000-300000", title: "10만원 ~ 30만원" },
+        { value: "300000-500000", title: "30만원 ~ 50만원" },
+        { value: "500000-", title: "50만원 이상" },
+    ];
 
 
      //ㄱㄴㄷㄹ 순서 처리
@@ -97,6 +144,156 @@ const SearchPage = () => {
         );
     };
 
+    const makeFurnitureCategories = (list) => {
+        const categorySet = new Set();
+
+        list.forEach((item) => {
+            if (item.f_catagory1) {
+                categorySet.add(item.f_catagory1);
+            }
+        });
+
+        return Array.from(categorySet).sort((a, b) =>
+            String(a).localeCompare(String(b), "ko")
+        );
+    };
+
+    //인테리어 업체 주소에서 시/도 , 구/군 단위 지역명을 추출하는 함수
+    const getInteriorRegion = (addr) => {
+        if (!addr) return "";
+
+        const cleanAddr = String(addr).split("__")[0].trim();
+        return cleanAddr.split(" ")[0] || "";   
+    };
+
+    const makeInteriorRegions = (list) => {
+        const regionSet = new Set();
+
+        list.forEach((item) => {
+            const region = getInteriorRegion(item.c_addr);
+            if (region) {
+                regionSet.add(region);
+        }
+    });
+
+    return Array.from(regionSet).sort((a, b) =>
+        String(a).localeCompare(String(b), "ko")
+      );
+    };
+
+    const interiorRegionOptions = [
+        { value: "", title: "전체 지역" },
+        ...filterOptions.interiorRegions.map((item) => ({
+            value: item,
+            title: item,
+        })),
+    ];
+
+    //mui select 옵션 DB 기반으로 만들어줌. 
+    const furnitureCategoryOptions = [
+        { value: "", title: "전체 카테고리" },
+        ...filterOptions.furnitureCategories.map((item) => ({
+            value: item,
+            title: item,
+        })),
+    ];
+
+    const getPriceRange = () => {
+        if (!priceRange) {
+            return { min: "", max: "" };
+        }
+
+        const [min, max] = priceRange.split("-");
+
+        return { min, max };
+    };
+
+    //필터 함수 (가구, 인테리어)
+    const filterFurnitureByOption = (list) => {
+        const { min, max } = getPriceRange();
+
+        return list.filter((item) => {
+            const price = Number(item.f_price || 0);
+            const deliveryPrice = Number(
+                item.f_deliveryPrice ?? item.f_deliveryprice ?? 0
+            );
+
+            const matchCategory =
+                !category || item.f_catagory1 === category;
+
+
+            const matchMinPrice =
+                !min || price >= Number(min);
+
+            const matchMaxPrice =
+                !max || price <= Number(max);
+
+            const matchDiscount =
+                discount !== "Y" || Number(item.f_discount || 0) > 0;
+
+            const matchFreeDelivery =
+                freeDelivery !== "Y" || price >= 50000 || deliveryPrice === 0;
+
+            return (
+                matchCategory &&
+                matchMinPrice &&
+                matchMaxPrice &&
+                matchDiscount &&
+                matchFreeDelivery
+            );
+        });
+    };
+
+    const filterInteriorByOption = (list) => {
+        return list.filter((item) => {
+            const matchRegion =
+                !interiorRegion || getInteriorRegion(item.c_addr) === interiorRegion;
+
+            return matchRegion;
+        });
+    };
+
+
+    //필터 검색 버튼 함수
+    const onFilterSearch = () => {
+    const params = {
+        keyword: keyword.trim(),
+        type,
+        page: 1,
+        category: filterInput.category,
+        priceRange: filterInput.priceRange,
+        discount: filterInput.discount,
+        freeDelivery: filterInput.freeDelivery,
+        interiorRegion: filterInput.interiorRegion,
+    };
+
+    Object.keys(params).forEach((key) => {
+        if (!params[key]) {
+            delete params[key];
+        }
+    });
+
+    setSearchParams(params);
+    };
+
+    const resetFilter = () => {
+        setFilterInput({
+            category: "",
+            priceRange: "",
+            discount: "",
+            freeDelivery: "",
+            interiorRegion: "",
+        });
+
+        setSearchParams({
+            keyword: keyword.trim(),
+            type,
+            page: 1,
+        });
+    };
+
+
+
     //검색을 안하고 전체를 눌렀을때 가구의 목록을 ㄱㄴㄷ순으로 보여주는 함수
     const getAllFurniture = async () => {
         const firstResult = await FurnitureService.getFurniture({ pageNum: 1});
@@ -116,41 +313,30 @@ const SearchPage = () => {
         ];
     };
 
-    //가구 검색 페이지
+    //가구 검색 페이지 , 기존에 있던 함수와 병합함.
     const getSearchFurniture = async () => {
-        if (!keyword.trim()) return[];
+        const allFurniture = await getAllFurniture();
+        const word = keyword.trim().toLowerCase();
 
-        const [nameResult, categoryResult, companyResult] = await Promise.all([
-                FurnitureService.getFurniture({
-                    pageNum: 1,
-                    searchKey: "f_name",
-                    searchValue: keyword
-                }),
-                FurnitureService.getFurniture({
-                    pageNum: 1,
-                    searchKey: "f_catagory1",
-                    searchValue: keyword
-                }),
-                FurnitureService.getFurniture({
-                    pageNum: 1,
-                    searchKey: "c_name",
-                    searchValue: keyword
-                }),
-            ]);
-            //같은 가구가 여러 검색 조건에 걸릴 수 있기 때문에 f_code 기준으로 중복을 제거해줌
-            const resultMap = new Map();
+            if (!word) return allFurniture;
 
-            [
-                //API 응답 객체 안의 list만 꺼내준다
-                ...(nameResult.list || []),
-                ...(categoryResult.list || []),
-                ...(companyResult.list || []),
-            ].forEach((item)=>{
-                resultMap.set(item.f_code, item);
-            });
+            return allFurniture.filter((item) => {
+                const fields = [
+                    item.f_name,
+                    item.c_name,
+                    item.f_catagory1,
+                    item.f_catagory2,
+                    item.f_catagory3,
+                    item.f_catagory4,
+                    item.f_catagory5,
+                ];
 
-            return Array.from(resultMap.values());
+            return fields.some((value) =>
+                String(value || "").toLowerCase().includes(word)
+            );
+        });
     };
+
     //자유게시판은 기존의 서비스를 사용함
     const getFreeBoardList = async () => {
         const data = await FreeBoardService.getLists({
@@ -169,11 +355,12 @@ const SearchPage = () => {
             setErrorMessage("");
 
             const trimmedKeyword = keyword.trim();
-
-            if (!trimmedKeyword && type !== "all"){
-                setResults({ furniture: [], interior:[], freeBoard:[]});
+            // 디비에서 불러와서 카테고리 만드는것, 검색어가 없어도 필터 검색을 해야해서 return 하면 안된다.
+            if (!trimmedKeyword && type !== "all" && type !== "furniture" && type !== "interior") {
+                setResults({ furniture: [], interior: [], freeBoard: [] });
                 return;
-            }
+            }   
+
 
             const [furnitureData, interiorData, freeBoardData] = await Promise.all([
                 trimmedKeyword ? getSearchFurniture() : getAllFurniture(),
@@ -183,23 +370,34 @@ const SearchPage = () => {
                     : getFreeBoardList(),
             ]);
 
-            const furnitureList = sortByKorean(furnitureData || [], (item)=> item.f_name);
+            const sortedFurnitureList = sortByKorean(
+                furnitureData || [],
+                    (item) => item.f_name
+                );
+            const rawInteriorList = filterByKeyword(
+                Array.isArray(interiorData) ? interiorData : [],
+                ["c_name", "c_addr", "c_tel", "c_info", "c_boss"]
+            );
+            
+                setFilterOptions({
+                    furnitureCategories: makeFurnitureCategories(sortedFurnitureList),
+                    interiorRegions: makeInteriorRegions(rawInteriorList),
+                });
+
+            const furnitureList = filterFurnitureByOption(sortedFurnitureList);
+
 
             const interiorList = sortByKorean(
-                filterByKeyword(Array.isArray(interiorData) ? interiorData : [], [
-                    "c_name",
-                    "c_addr",
-                    "c_tel",
-                ]),
+                filterInteriorByOption(rawInteriorList),
                 (item) => item.c_name
-            )
+            );
 
             const freeBoardList = sortByKorean(freeBoardData || [], (item) => item.title);
 
             setResults({
                 furniture: type === "interior" || type === "freeBoard" ? [] : furnitureList,
-                interior: type === "furniture" || type === "freeBoard" ? [] : furnitureList,
-                freeBoard: type === "furniture" || type === "interior" ? [] : furnitureList,
+                interior: type === "furniture" || type === "freeBoard" ? [] : interiorList,
+                freeBoard: type === "furniture" || type === "interior" ? [] : freeBoardList,
             });
         } catch (error) {
             console.error(" 통합 검색 실패:", error);
@@ -218,39 +416,74 @@ const SearchPage = () => {
 
         const nextKeyword = inputKeyword.trim();
 
-        if(!nextKeyword){
-            alert("검색어를 입력해주세요");
-            return;
-        }
-
         setSearchParams({ 
-            keyword: inputKeyword.trim(),
+            keyword: nextKeyword,
             type,
             page: 1,
         });
     };
 
+    const selectedList =
+        type === "furniture"
+        ? results.furniture
+        : type === "interior"
+        ? results.interior
+        : type === "freeBoard"
+        ? results.freeBoard
+        : [];
+        
+    
     //페이징 처리 이제 개별로 나뉜다.
-    const selectedList = useState(() => {
-        if (type === "furniture") return results.furniture;
-        if (type === "interior") return results.interior;
-        if (type === "freeboard") return results.freeBoard;
-        return [];
-    }, [type, results]);
-
-
     const totalPages = Math.ceil(selectedList.length / itemsPerPage);
     const currentItems = selectedList.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
-    const isEmptyKeywordCategory = !keyword.trim() && type !== "all";
+    const isEmptyKeywordCategory =
+            !keyword.trim() && type !== "all" && type !== "furniture" && type !== "interior";
 
+
+    //페이지 이동시 필터 값 유지하는 함수
     const movePage = (nextPage) => {
-        setSearchParams({
+        const params = {
             keyword: keyword.trim(),
             type,
             page: nextPage,
+            category,
+            priceRange,
+            discount,
+            freeDelivery,
+            interiorRegion,
+        };
+
+        Object.keys(params).forEach((key) => {
+            if (!params[key]) {
+                delete params[key];
+            }
         });
+
+            setSearchParams(params);
     };
+
+    //필터 변경 함수 추가 (밑으로 쭉)
+    const updateFilter = (nextFilter) => {
+        const params = {
+            keyword: keyword.trim(),
+            type,
+            page: 1,
+            category,
+            discount,
+            freeDelivery,
+            ...nextFilter,
+        };
+
+        Object.keys(params).forEach((key) => {
+            if (!params[key]) {
+                delete params[key];
+            }
+        });
+
+        setSearchParams(params);
+    };
+
 
     const renderFurnitureItem = (item) => (
         <Link 
@@ -261,7 +494,7 @@ const SearchPage = () => {
                 <p>{item.c_name}</p>
                 <h3>{item.f_name}</h3>
                 <p>카테고리: {item.f_catagory1}</p>
-                <p>{Number(item.f_dprice || 0).toLocaleString}원</p>
+                <p>{Number(item.f_price || 0).toLocaleString()}원</p>
             </div>
         </Link>
     );
@@ -333,8 +566,104 @@ const SearchPage = () => {
                         >
                             {tab.title}
                         </button>
+                        
                     ))}
                 </div>
+                    {/* 가구 필터 UI */}
+                    {type === "furniture" && (
+                        <div style={{ marginTop: "12px", display: "flex", gap: "12px", alignItems: "center" }}>
+                            <SelectMui
+                                label="카테고리"
+                                name="category"
+                                value={filterInput.category}
+                                option={furnitureCategoryOptions}
+                                width="160px"
+                                onChange={(evt) =>
+                                    setFilterInput((prev) => ({
+                                        ...prev,
+                                        category: evt.target.value,
+                                    }))
+                                }
+                            />
+
+                            <SelectMui
+                                label="가격대"
+                                name="priceRange"
+                                value={filterInput.priceRange}
+                                option={priceOptions}
+                                width="180px"
+                                onChange={(evt) =>
+                                    setFilterInput((prev) => ({
+                                        ...prev,
+                                        priceRange: evt.target.value,
+                                    }))
+                                }
+                            />
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={filterInput.discount === "Y"}
+                                    onChange={(evt) =>
+                                        setFilterInput((prev) => ({
+                                            ...prev,
+                                            discount: evt.target.checked ? "Y" : "",
+                                        }))
+                                    }
+                                />
+                                할인 상품
+                            </label>
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={filterInput.freeDelivery === "Y"}
+                                    onChange={(evt) =>
+                                        setFilterInput((prev) => ({
+                                            ...prev,
+                                            freeDelivery: evt.target.checked ? "Y" : "",
+                                        }))
+                                    }
+                                />
+                                무료배송
+                            </label>
+
+                            <button type="button" onClick={onFilterSearch}>
+                                필터 검색
+                            </button>
+
+                            <button type="button" onClick={resetFilter}>
+                                초기화
+                            </button>
+                        </div>
+                    )}
+                    {/* 인테리어 필터 UI */}
+                    {type === "interior" && (
+                        <div style={{ marginTop: "12px", display: "flex", gap: "12px", alignItems: "center" }}>
+                            <SelectMui
+                                label="지역"
+                                name="interiorRegion"
+                                value={filterInput.interiorRegion}
+                                option={interiorRegionOptions}
+                                width="160px"
+                                onChange={(evt) =>
+                                    setFilterInput((prev) => ({
+                                        ...prev,
+                                        interiorRegion: evt.target.value,
+                                    }))
+                                }
+                            />
+
+                            <button type="button" onClick={onFilterSearch}>
+                                필터 검색
+                            </button>
+
+                            <button type="button" onClick={resetFilter}>
+                                초기화
+                            </button>
+                        </div>
+                    )}
+
             </section>
             
             <section>
@@ -345,26 +674,27 @@ const SearchPage = () => {
                 {isEmptyKeywordCategory && !loading && (
                     <p>검색 결과가 없습니다</p>
                 )}
+                {/* 개별 탭 렌더 조건 */}
                 {!loading && !isEmptyKeywordCategory && type === "all" && (
                     <>
                         <SearchSection
-                            title={keyword ? `'${keyword}'이 포함된 쇼핑 결과` : "쇼핑 결과 ㄱㄴㄷ 순"}
+                            title={keyword ? `'${keyword}'이 포함된 쇼핑 결과` : "쇼핑 결과 가나다 순"}
                             list={results.furniture}
                             renderItem={renderFurnitureItem}
                         />
                         <SearchSection
-                            title={keyword ? `'${keyword}'이 포함된 인테리어 결과` : "인테리어 결과 ㄱㄴㄷ 순"}
+                            title={keyword ? `'${keyword}'이 포함된 인테리어 결과` : "인테리어 결과 가나다 순"}
                             list={results.interior}
                             renderItem={renderInteriorItem}
                         />
                         <SearchSection
-                            title={keyword ? `'${keyword}'이 포함된 자유게시판 결과` : "자유게시판 결과 ㄱㄴㄷ 순"}
+                            title={keyword ? `'${keyword}'이 포함된 자유게시판 결과` : "자유게시판 결과 가나다 순"}
                             list={results.freeBoard}
                             renderItem={renderFreeBoardItem}
                         />
                     </>
                 )}
-                {!loading && !isEmptyKeywordCategory && type === "all" && (
+                {!loading && !isEmptyKeywordCategory && type !== "all" && (
                     <>
                         {currentItems.length === 0 ? (
                             <p>검색 결과가 없습니다</p>

@@ -17,4 +17,9 @@ public class QuestionDTO {
 	public String q_answer;
 	public Date q_answerDate;
 	public String q_secret;
+	public String c_id;
+	public String c_kind;
+	public String c_name;
+	public String f_name;
+	
 }

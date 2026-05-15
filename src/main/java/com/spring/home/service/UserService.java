@@ -260,6 +260,65 @@ public class UserService {
 	}
 	
 	
+	
+	public int updateUserDev(List<UserDTO> dtoList) throws Exception {
+		
+		int total = 0;		
+		
+		for (UserDTO dto : dtoList) {
+			
+			System.out.println("dto: " + dto);
+			
+			try {
+			
+				
+				int result = userMapper.updateUserDev(dto);
+				
+				total += result;
+				
+				System.out.println("update result:" + result);
+				
+	
+				
+			} catch (Exception e) {
+				
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+	}
+		return total;
+	}
+	
+	
+	public int updateCompanyDev(List<CompanyDTO> dtoList) throws Exception {
+		
+		int total = 0;		
+		
+		for (CompanyDTO dto : dtoList) {
+			
+			System.out.println("dto: " + dto);
+			
+			try {
+			
+				
+				int result = companyMapper.updateCompanyDev(dto);
+				
+				total += result;
+				
+				System.out.println("update result:" + result);
+				
+	
+				
+			} catch (Exception e) {
+				
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+	}
+		return total;
+	}
+	
+	
 
 }
 	

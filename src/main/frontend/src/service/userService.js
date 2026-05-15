@@ -36,7 +36,7 @@ const deleteUser = async (selectedUserList)=>{
 }
 
 const restoreUser = async (selectedUserList) =>{
-    console.log("update 서비스 호출됨")
+    console.log("restore 서비스 호출됨")
     
     try{
     const res = await http.post("/dev/restore",
@@ -51,6 +51,38 @@ const restoreUser = async (selectedUserList) =>{
     }
 }
 
-const userService = { userGetAll,deleteUser,restoreUser };
+const updateUser =  async (selectedUserList) =>{
+    console.log("update 서비스 호출됨")
+    
+    try{
+    const res = await http.post("/dev/update/user",
+        selectedUserList
+    )
+    console.log("updateUser 서비스 실행O")
+    console.log(res)
+    return res.data
+    }catch (error) {
+        console.log("API Error:", error)
+
+    }
+}
+
+const updateCompany =  async (selectedUserList) =>{
+    console.log("updateCompany 서비스 호출됨")
+    
+    try{
+    const res = await http.post("/dev/update/company",
+        selectedUserList
+    )
+    console.log("update 서비스 실행O")
+    console.log(res)
+    return res.data
+    }catch (error) {
+        console.log("API Error:", error)
+
+    }
+}
+
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany };
 
 export default userService;

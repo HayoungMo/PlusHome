@@ -117,4 +117,19 @@ update users
 </update>
 
 
+<!-- 최고 관리자 일반 유저 데이터 변경 -->
+<update id="updateUserDev" parameterType="com.spring.home.dto.UserDTO">
+	UPDATE USERS
+	<set>
+	        <if test="tel != null and tel != ''">tel = #{tel},</if>
+	        <if test="addr != null and addr != ''">addr = #{addr},</if>
+	        <if test="type != null and type != ''">type = #{type},</if>
+	        <if test="name != null and name != ''">name = #{name},</if>
+	        <if test="email != null and email != ''">email = #{email},</if>
+	        
+	</set>
+	where id = #{id}
+</update>
+
+
 </mapper>
