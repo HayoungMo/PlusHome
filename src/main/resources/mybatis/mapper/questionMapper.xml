@@ -81,11 +81,19 @@
 	<!-- 업체별 답변 작성 -->
 	<update id="updateAnswer" parameterType="com.spring.home.dto.QuestionDTO">
 		update question
-		   set
-			     q_answer = #{q_answer},
-			     q_answerDate = sysdate,
-			     q_status = 'done'
+     	   set q_answer = #{q_answer},
+		       q_answerDate = sysdate,
+		       q_status = 'done'
 		 where q_idx = #{q_idx}
+	</update>
+		   
+	<!-- 업체 답변 삭제 -->
+	<update id="deleteAnswer">
+	    update question
+	       set q_answer = null,
+	           q_answerDate = null,
+	           q_status = 'received'
+	     where q_idx = #{q_idx}
 	</update>
 
 	<!-- 문의 수정 -->
