@@ -89,12 +89,40 @@ where id = #{id}
 </update>
 
 <!-- 최고 관리자 유저 조회 -->
-<select id="getUserListDev" parameterType="com.spring.home.dto.UserDTO" resultType="com.spring.home.dto.UserDTO">
-select *
-  from users
-  
-  <if test="type !='all'"></if>
-  where type = #{type}
+<select id="getUserListDev"
+    parameterType="com.spring.home.dto.UserDTO"
+    resultType="com.spring.home.dto.UserDTO">
+
+    SELECT
+
+    u.id,
+    u.type,
+    u.code,
+    u.name,
+    u.email,
+    u.birth,
+    u.tel,
+    u.gender,
+    u.addr,
+    u.joined,
+
+    c.C_KIND AS c_kind,
+    c.C_INFO AS c_info,
+    c.C_BOSS AS c_boss,
+    c.C_NAME AS c_name,
+    c.C_ADDR AS c_addr
+
+FROM USERS u
+
+LEFT JOIN COMPANY c
+    ON u.id = c.c_id
+
+    <if test="type != 'all'">
+
+        WHERE u.type = #{type}
+
+    </if>
+
 </select>
 
 <!-- 최고 관리자 유저 탈퇴 변경 -->
@@ -123,9 +151,10 @@ update users
 	<set>
 	        <if test="tel != null and tel != ''">tel = #{tel},</if>
 	        <if test="addr != null and addr != ''">addr = #{addr},</if>
-	        <if test="type != null and type != ''">type = #{type},</if>
 	        <if test="name != null and name != ''">name = #{name},</if>
 	        <if test="email != null and email != ''">email = #{email},</if>
+	        <if test="gender != null and gender != ''">gender = #{gender},</if>
+	        
 	        
 	</set>
 	where id = #{id}

@@ -304,9 +304,6 @@ public class UserService {
 				int result = companyMapper.updateCompanyDev(dto);
 				
 				total += result;
-				
-				System.out.println("update result:" + result);
-				
 	
 				
 			} catch (Exception e) {

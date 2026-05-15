@@ -52,7 +52,10 @@ const TableChkMui = (props) => {
 	} = props;
 	
 
-	const tableColumns = rowData.length > 0 ? Object.keys(rowData[0]) : [];
+	const tableColumns = 
+		columns.length>0
+		? columns	
+		:rowData.length > 0 ? Object.keys(rowData[0]) : [];
 
 	// 전체 선택
 	const handleSelectAll = (event) => {
@@ -98,6 +101,10 @@ const TableChkMui = (props) => {
 		"tel",
 		"addr",
 		'email',
+		"gender",
+		'c_kind',
+		'c_info',
+		'c_boss',
 
 	]
 
