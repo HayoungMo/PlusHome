@@ -30,7 +30,8 @@ public interface CartMapper {
 			@Param("id") String id,
 			@Param("f_name") String f_name,
 			@Param("f_tel") String f_tel,
-			@Param("f_addr") String f_addr);
+			@Param("f_addr") String f_addr,
+			@Param("pay_total") int pay_total);
 	
 	public List<CartDTO> getMyOrders(String id) throws Exception;
 	

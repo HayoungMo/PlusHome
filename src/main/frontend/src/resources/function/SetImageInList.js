@@ -10,7 +10,7 @@ const IMAGE_MATCH_RULES = {
 		dir_d: "id",
 	},
 	F_REVIEW: {
-		dir_a: "f_code",
+		dir_a: "c_code",
 		dir_d: "id",
 	},
 	QUESTION: {

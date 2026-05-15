@@ -156,7 +156,7 @@ const MainHomePage = () => {
                     }}
                 >
                     <h2 style={{ margin: 0 }}>추천 인테리어 업체</h2>
-                    <Link to="/interior/list/company">전체보기</Link>
+                    <Link to="/interior/list">전체보기</Link>
                 </div>
 
                 <div

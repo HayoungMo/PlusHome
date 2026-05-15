@@ -66,7 +66,7 @@ const InteriorExAdd = ({ company }) => {
 
   const handleSubmit2 = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
-    const result2 = onClickInsert2();
+    const result2 = await onClickInsert2();
     const result =
       result2.success && (await InteriorService.AddInteriorExample(form2));
 
@@ -81,8 +81,8 @@ const InteriorExAdd = ({ company }) => {
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status || "이미지 누락"})`,
-        text: result.message || "이미지를 1개 이상 넣어주세요.",
+        title: `에러`,
+        text: "이미지를 1개 이상 넣어주세요.",
       });
     }
   };

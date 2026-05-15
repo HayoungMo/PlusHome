@@ -130,15 +130,7 @@ function App() {
             />
 
             {/* 인테리어 */}
-            <Route path="/interior/list/company" element={<InteriorLists />} />
-            <Route
-              path="/interior/list/review"
-              element={<InteriorAllReivew />}
-            />
-            <Route
-              path="/interior/list/example"
-              element={<InteriorAllExample />}
-            />
+            <Route path="/interior/list" element={<InteriorLists />} />
             <Route path="/interior/article" element={<InteriorArticle />} />
             <Route path="/interior/created" element={<InteriorCreated />} />
             <Route path="/interior/updated" element={<InteriorUpdateAll />} />

@@ -152,7 +152,7 @@ const InteriorQuestion = () => {
 
   const handleSubmit = () => {
     if (company == null) {
-      navigate("/interior/list/company", {
+      navigate("/interior/list", {
         state: { answers: data },
       });
     } else {
