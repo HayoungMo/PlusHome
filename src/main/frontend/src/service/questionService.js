@@ -47,6 +47,13 @@ const deleteQuestion = async (q_idx) => {
     return res.data
 };
 
+const getCompanyQuestions = async (c_id) => {
+    const res = await http.get("/question/company", {
+        params: { c_id },
+    });
+    return res.data;
+};
+
 
 const questionService = {
     getQuestionList,
@@ -56,6 +63,7 @@ const questionService = {
     updateQuestion,
     deleteQuestion,
     getMyQuestions,
+    getCompanyQuestions,
 };
 
 export default questionService;

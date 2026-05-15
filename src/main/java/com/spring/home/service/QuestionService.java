@@ -50,4 +50,9 @@ public class QuestionService {
 	public void deleteData(int q_idx) throws Exception{
 		questionMapper.deleteData(q_idx);
 	}
+	
+	public List<QuestionDTO> getCompanyQuestions(String c_id) throws Exception {
+	    return questionMapper.getCompanyQuestions(c_id);
+	}
+
 }

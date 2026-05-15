@@ -65,5 +65,11 @@ public class QuestionController {
 		questionService.deleteData(q_idx);
 		return "ok";
 	}
+	//업체가 봐야하는 문의 목록
+	@GetMapping("/company")
+	public List<QuestionDTO> getCompanyQuestions(@RequestParam String c_id) throws Exception {
+	    return questionService.getCompanyQuestions(c_id);
+	}
+
 	
 }

@@ -24,6 +24,8 @@ public interface CompanyMapper {
 	public int insertDataDashboard(CompanyDTO dto) throws Exception;
 	
 	public int updateCompanyOne(CompanyDTO dto) throws Exception;
+	
+	public int updateCompanyDev(CompanyDTO dto) throws Exception;
 
 	public int deleteCompanyOne(CompanyDTO dto) throws Exception;
 }
