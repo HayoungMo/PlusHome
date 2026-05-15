@@ -7,12 +7,14 @@ import { Button } from "@mui/material";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import ImageService from "../service/imageService";
-import { color } from "three/src/nodes/TSL.js";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const UserReviewPage = ({ user }) => {
   const [reviews, setReviews] = useState();
   const [refresh, setRefresh] = useState(0);
   const [change, setChange] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [sendList, setSendList] = useState([]);
 
   const changeToUpdate = (idx) => {
     setChange((prv) => {
@@ -47,9 +49,6 @@ const UserReviewPage = ({ user }) => {
     };
     fetchReview();
   }, [user, refresh]);
-
-  const [open, setOpen] = useState(false);
-  const [sendList, setSendList] = useState([]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -144,21 +143,32 @@ const UserReviewPage = ({ user }) => {
     await ImageService.deleteImage(item);
     setRefresh(refresh + 1);
   };
+  const getNextIdx = (item) => {
+    const currentList = item?.logo?.result || [];
 
-  const onClickAdd = () => {
+    if (currentList.length === 0) return 0;
+
+    const maxIdx = Math.max(
+      ...currentList.map((img) => Number(img.img_idx || 0)),
+    );
+
+    return maxIdx;
+  };
+
+  const onClickAdd = (item) => {
     const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
-
+    const nextIdx = getNextIdx(item) + sendList.length;
     setSendList([
       ...sendList,
       {
         img_kind: insertForm2.img_kind.value,
-        img_tag: insertForm2.img_tag.value,
+        img_tag: nextIdx === 0 ? "THUMBNAIL" : "OTHER",
         dir_a: insertForm2.dir_a.value,
         //dir_b: insertForm2.dir_b.value,
         //dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: sendList.length,
+        img_idx: nextIdx,
         file: insertForm2.file.files[0],
       },
     ]);
@@ -199,17 +209,32 @@ const UserReviewPage = ({ user }) => {
               />
               {change[idx] && (
                 <form>
-                  <input
-                    type="file"
-                    name={record.img_originalName}
-                    className="updateFile"
-                  />
-                  <Button onClick={(e) => imageUpload(record, e)}>수정</Button>
-
                   <Button
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    추가할 파일
+                    <input
+                      type="file"
+                      hidden
+                      name={record.img_originalName}
+                      className="updateFile"
+                    />
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={(e) => imageUpload(record, e)}
+                  >
+                    수정
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
                     onClick={() => imageDelete([record.img_originalName])}
                   >
-                    삭제{" "}
+                    삭제
                   </Button>
                 </form>
               )}
@@ -236,8 +261,20 @@ const UserReviewPage = ({ user }) => {
                 value={item.fr_content}
                 onChange={(e) => handleChange(idx, e)}
               />
-              <Button onClick={(e) => handleSubmit(e, item)}>수정</Button>
-              <Button onClick={() => handleOpen()}>삭제</Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={(e) => handleSubmit(e, item)}
+              >
+                수정
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleOpen()}
+              >
+                삭제
+              </Button>
               <DialogMui
                 open={open}
                 onClose={handleClose}
@@ -251,7 +288,7 @@ const UserReviewPage = ({ user }) => {
                   },
                   {
                     title: "삭제",
-                    variant: "contained",
+                    variant: "outlined",
                     color: "error",
                     onClick: () => {
                       console.log("삭제 실행");
@@ -306,7 +343,7 @@ const UserReviewPage = ({ user }) => {
               />
               <input
                 type="hidden"
-                value={item.f_code}
+                value={item.c_code}
                 name="dir_a"
                 placeholder="DIR_A"
               />
@@ -337,9 +374,19 @@ const UserReviewPage = ({ user }) => {
                 value={sendList.length + 1}
                 placeholder="IMG_IDX"
               />
-              <input type="file" name="file" />
-              <br />
-              <input type="button" onClick={onClickAdd} value="Add" />
+              <Button
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+              >
+                추가할 파일
+                <input
+                  type="file"
+                  hidden
+                  name="file"
+                  onChange={() => onClickAdd()}
+                />
+              </Button>
             </form>
           )}
           <Button onClick={() => changeToUpdate(idx)}>
