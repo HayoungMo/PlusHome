@@ -152,7 +152,7 @@ const InteriorQuestion = () => {
 
   const handleSubmit = () => {
     if (company == null) {
-      navigate("/interior/list/company", {
+      navigate("/interior/list", {
         state: { answers: data },
       });
     } else {
@@ -224,7 +224,7 @@ const InteriorQuestion = () => {
             },
             {
               title: "제출",
-              variant: "contained",
+              variant: "outlined",
               onClick: () => {
                 console.log("제출");
                 handleSubmit();

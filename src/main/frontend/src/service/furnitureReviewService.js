@@ -8,6 +8,7 @@ const insertReview = async (data) => {
 			fr_subject: data.subject,
 			fr_star: data.star,
 			fr_content: data.content,
+			c_code : data.c_code
 		});
 
 		return {

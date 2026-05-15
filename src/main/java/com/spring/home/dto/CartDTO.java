@@ -21,4 +21,6 @@ public class CartDTO {
 	private int f_point;
 	
 	private Date cart_statusdate;
+	
+	private int pay_total;
 }
