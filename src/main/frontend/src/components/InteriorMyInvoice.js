@@ -76,33 +76,41 @@ const InteriorMyInvoice = ({ booking }) => {
           />
           {invoice.map((invoiceItem, invoiceIdx) => (
             <div key={invoiceIdx}>
-              {(booking?.b_status === "done" && invoiceItem.invoice_kind==="Y") && (
-                <div>
-                  <Button onClick={() => handleNext(invoiceItem)}>
-                    리뷰 작성
-                  </Button>
+              {booking?.b_status === "done" &&
+                invoiceItem.invoice_kind === "Y" && (
+                  <div>
+                    <Button 
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleNext(invoiceItem)}>
+                      리뷰 작성
+                    </Button>
 
-                  <Button onClick={() => BookingAgain()}>
-                    {reBooking ? "취소" : "재상담 신청"}
-                  </Button>
+                    <Button
+                      variant="contained"
+                      color={reBooking ? "inherit" : "primary"}
+                      onClick={() => BookingAgain()}
+                    >
+                      {reBooking ? "취소" : "재상담 신청"}
+                    </Button>
 
-                  {reBooking && (
-                    <InteriorBooking
-                      company={{
-                        c_id: booking.c_id,
-                        c_kind: booking.c_kind,
-                        c_name: booking.c_name,
-                      }}
-                      answers={JSON.parse(booking.b_answer)}
-                    />
-                  )}
-                </div>
-              )}
+                    {reBooking && (
+                      <InteriorBooking
+                        company={{
+                          c_id: booking.c_id,
+                          c_kind: booking.c_kind,
+                          c_name: booking.c_name,
+                        }}
+                        answers={JSON.parse(booking.b_answer)}
+                      />
+                    )}
+                  </div>
+                )}
             </div>
           ))}
         </div>
       ) : (
-        <p>작성된 견적서가 없습니다.</p>
+        <p>선택된 견적서가 없습니다.</p>
       )}
     </div>
   );

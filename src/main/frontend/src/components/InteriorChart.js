@@ -35,7 +35,7 @@ const InteriorChart = ({ company }) => {
 
   useEffect(() => {
     const fetchBooking = async () => {
-      const data = await InteriorService.fetchAllBookingList(company);
+      const data = await InteriorService.fetchAllBookingList();
       setBooking(data);
     };
     const fetchCompanyBooking = async () => {

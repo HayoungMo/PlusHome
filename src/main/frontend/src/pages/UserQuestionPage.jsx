@@ -18,12 +18,32 @@ const UserQuestionPage = ({ user }) => {
     const [imageRefresh, setImageRefresh] = useState(0);
     //이미지 수정시 바로보이게
     const [editImagePreview, setEditImagePreview] = useState({});
+    //문의 답변용
+    const [answerForms, setAnswerForms] = useState({});
+    //답변 수정
+    const [answerEditIdx, setAnswerEditIdx] = useState(null);
 
+    //회사 확잉
+    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+    const currentUser = user || savedUser;
+    const isCompanyUser = currentUser?.type === "company";
+
+    
     const getMyQuestions = async () => {
-        if (!user?.id) return;
+        if (!currentUser?.id) return;
+        
+        //조회하는 함수 안에서 회사계정일 경우 문의를 불러올수 있게 변경해줌
+        const companyList = currentUser?.companyList || [];
 
-        const data = await questionService.getMyQuestions(user.id);
-        const questionList = Array.isArray(data) ? data : [];
+        const data = isCompanyUser
+            ?(await Promise.all(
+                companyList.map((company) => 
+                    questionService.getCompanyQuestions(company.c_id)
+                )
+            )).flat()
+            : await questionService.getMyQuestions(currentUser.id);
+
+        const questionList = Array.isArray(data) ? data : [];   
 
         setQuestions(questionList);
 
@@ -126,11 +146,78 @@ const UserQuestionPage = ({ user }) => {
         getMyQuestions();
     };
 
+    //문의 삭제
     const deleteQuestion = async (q_idx) => {
         if (!window.confirm("문의를 삭제하시겠습니까?")) return;
 
         await questionService.deleteQuestion(q_idx);
         alert("문의가 삭제되었습니다.");
+        getMyQuestions();
+    };
+
+    //답변 함수임
+    const onAnswerChange = (q_idx, value) => {
+        setAnswerForms((prev) => ({
+            ...prev,
+            [q_idx]: value,
+        }));
+    };
+
+    const onAnswerSubmit = async (q_idx) => {
+        const q_answer = answerForms[q_idx];
+
+        if(!q_answer || !q_answer.trim()) {
+            alert("답변 내용을 입력해주세요");
+            return;
+        }
+
+        await questionService.answerQuestion({
+            q_idx,
+            q_answer,
+        });
+        alert("답변이 저장되었습니다.");
+
+        setAnswerEditIdx(null);
+
+        setAnswerForms((prev) => ({
+            ...prev,
+            [q_idx]: "",
+        }));
+
+        getMyQuestions();
+    };
+
+    //답변 수정과 삭제
+    const startAnswerEdit = (item) => {
+        setAnswerEditIdx(item.q_idx);
+        setAnswerForms((prev) => ({
+            ...prev,
+            [item.q_idx]: item.q_answer || item.Q_ANSWER || "",
+        }));
+    };
+
+    const cancelAnswerEdit = (q_idx) => {
+        setAnswerEditIdx(null);
+
+        setAnswerForms((prev) => ({
+            ...prev,
+            [q_idx]: "",
+        }));
+    };
+
+
+    const deleteAnswer = async (q_idx) => {
+        if (!window.confirm("답변을 삭제하시겠습니까?")) return;
+
+        await questionService.deleteAnswer(q_idx);
+
+        alert("답변이 삭제되었습니다.");
+
+        setAnswerForms((prev) => ({
+            ...prev,
+            [q_idx]: "",
+        }));
+
         getMyQuestions();
     };
 
@@ -206,7 +293,7 @@ const UserQuestionPage = ({ user }) => {
                                 <button type="button" onClick={() => updateQuestion(item.q_idx)}>
                                     저장
                                 </button>
-                                <button type="button" onClick={cancelEdit}>
+                                <button type="button" onClick={() => cancelAnswerEdit(item.q_idx)}>
                                     취소
                                 </button>
                             </div>
@@ -229,20 +316,71 @@ const UserQuestionPage = ({ user }) => {
                                 ))}
 
                                 {item.q_answer ? (
-                                    <p>답변:A.{item.q_answer}</p>
+                                    <div>
+                                        {isCompanyUser && answerEditIdx === item.q_idx ? (
+                                            <div>
+                                                <TextField
+                                                    value={answerForms[item.q_idx] || ""}
+                                                    onChange={(evt) => onAnswerChange(item.q_idx, evt.target.value)}
+                                                    multiline
+                                                    rows={3}
+                                                />
+                                                <br />
+                                                <button type="button" onClick={() => onAnswerSubmit(item.q_idx)}>
+                                                    답변 저장
+                                                </button>
+                                                <button type="button" onClick={cancelAnswerEdit}>
+                                                    취소
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <p>답변: A.{item.q_answer}</p>
+                                        )}
+
+                                        {isCompanyUser && answerEditIdx !== item.q_idx && (
+                                            <>
+                                                <button type="button" onClick={() => startAnswerEdit(item)}>
+                                                    답변 수정
+                                                </button>
+                                                <button type="button" onClick={() => deleteAnswer(item.q_idx)}>
+                                                    답변 삭제
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
                                 ) : (
                                     <p>아직 답변이 없습니다.</p>
                                 )}
 
-                                {!item.q_answer && (
-                                    <button type="button" onClick={() => startEdit(item)}>
-                                        수정
-                                    </button>
+
+                                {/* 답변창 입력 위치 */}
+                                {isCompanyUser && !item.q_answer && (
+                                    <div>
+                                        <TextField
+                                            placeholder="답변 내용을 입력하세요"
+                                            value={answerForms[item.q_idx] || ""}
+                                            onChange={(evt) => onAnswerChange(item.q_idx, evt.target.value)}
+                                            multiline
+                                            rows={3}
+                                        />
+                                        <br/>
+                                        <button type="button" onClick={() => onAnswerSubmit(item.q_idx)}>
+                                            답변 등록
+                                        </button>
+                                    </div>
                                 )}
 
-                                <button type="button" onClick={() => deleteQuestion(item.q_idx)}>
-                                    삭제
-                                </button>
+                                    {!isCompanyUser && !item.q_answer && (
+                                        <button type="button" onClick={() => startEdit(item)}>
+                                            수정
+                                        </button>
+                                    )}
+
+                                    {!isCompanyUser && (
+                                        <button type="button" onClick={() => deleteQuestion(item.q_idx)}>
+                                            삭제
+                                        </button>
+                                    )}
                             </div>
                         )}
 

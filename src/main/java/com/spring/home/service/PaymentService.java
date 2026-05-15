@@ -40,7 +40,7 @@ public class PaymentService {
 		}
 		
 		WalletDTO payWallet = new WalletDTO();
-		payWallet.setId(id);
+		payWallet.setId(id); 
 		payWallet.setMoney(-dto.getPayTotal());
 		
 		walletMapper.updateData(payWallet);
@@ -54,15 +54,17 @@ public class PaymentService {
 
 		    List<CartOptionDTO> optionList = cartOptionMapper.getByCartCode(c_code);
 
+		    int payTotal = calculateCartPayTotal(cart,optionList);
+		    
 		    if (optionList == null || optionList.isEmpty()) {
 		        int stockResult = furnitureMapper.decreaseStock(
 		            cart.getF_code(),
 		            cart.getF_count()
-		        );
+		    );
 
-		        if (stockResult != 1) {
-		            throw new RuntimeException("상품 재고가 부족합니다.");
-		        }
+		    if (stockResult != 1) {
+		    	throw new RuntimeException("상품 재고가 부족합니다.");
+		    }
 		    } else {
 		        for (CartOptionDTO option : optionList) {
 		            int optionResult = optionsMapper.decreaseOptionStock(
@@ -92,7 +94,8 @@ public class PaymentService {
 		        id,
 		        dto.getF_name(),
 		        dto.getF_tel(),
-		        dto.getF_addr()
+		        dto.getF_addr(),
+		        payTotal
 		    );
 
 		    if (result != 1) {
@@ -100,6 +103,18 @@ public class PaymentService {
 		    }
 		}
 
+	}
+	
+	private int calculateCartPayTotal(CartDTO cart, List<CartOptionDTO> optionList) {
+		int optionTotal = 0;
+		
+		if(optionList != null) {
+			for(CartOptionDTO option : optionList) {
+				optionTotal += option.getCo_price();
+			}
+		}
+		
+		return (cart.getF_price() + optionTotal) * cart.getF_count();
 	}
 	
 	public List<CartDTO> getMyOrders(String id) throws Exception{
@@ -152,9 +167,15 @@ public class PaymentService {
 	        }
 	    }
 
+	    int refundMoney = cart.getPay_total();
+
+	    if (refundMoney <= 0) {
+	        refundMoney = calculateCartPayTotal(cart, optionList);
+	    }
+
 	    WalletDTO refundWallet = new WalletDTO();
 	    refundWallet.setId(id);
-	    refundWallet.setMoney(cart.getF_price() * cart.getF_count());
+	    refundWallet.setMoney(refundMoney);
 
 	    walletMapper.updateData(refundWallet);
 

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { Box, Button, Typography } from "@mui/material";
+import TextFieldMui from "../components/TextFieldMui";
 import WalletService from "../service/walletService";
 
 const chargeAmounts = [10000, 30000, 50000, 100000, 300000, 500000];
@@ -48,7 +50,7 @@ const WalletCharge = ({ user, onCharged }) => {
         try {
             await WalletService.chargeWallet({
                 id: user.id,
-                money: chargeMoney
+                money: chargeMoney,
             });
 
             alert("충전이 완료되었습니다.");
@@ -65,63 +67,89 @@ const WalletCharge = ({ user, onCharged }) => {
     };
 
     return (
-        <div>
-            <h3>지갑 충전</h3>
+        <Box sx={{ maxWidth: 560 }}>
+            <Typography variant="h6" component="h3" sx={{ mb: 2, fontWeight: 700 }}>
+                지갑 충전
+            </Typography>
 
-            <p>
-                현재 잔액:{" "}
-                <strong>
+            <Box
+                sx={{
+                    mb: 3,
+                    p: 2,
+                    border: "1px solid #ddd",
+                    borderRadius: 1,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                }}>
+                <Typography color="text.secondary">현재 잔액</Typography>
+                <Typography sx={{ fontSize: 22, fontWeight: 700 }}>
                     {Number(wallet?.money || 0).toLocaleString()}원
-                </strong>
-            </p>
+                </Typography>
+            </Box>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
-                {chargeAmounts.map(amount => (
-                    <button
-                        key={amount}
-                        type="button"
-                        onClick={() => selectAmount(amount)}
-                        style={{
-                            padding: "15px",
-                            border: Number(money) === amount ? "2px solid black" : "1px solid #ddd",
-                            background: "white",
-                            cursor: "pointer"
-                        }}
-                    >
-                        {amount.toLocaleString()}원
-                    </button>
-                ))}
-            </div>
+        <strong>금액 선택</strong>
+        <hr/>
 
-            <div style={{ marginTop: "15px" }}>
-                <label>직접 입력</label>
-                <input
-                    value={money}
-                    onChange={changeMoney}
-                    placeholder="충전 금액"
-                    style={{
-                        width: "100%",
-                        padding: "12px",
-                        marginTop: "5px"
-                    }}
-                />
-            </div>
+            <Box
+                sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: 1.25,
+                    mb: 2,
+                }}>
+                {chargeAmounts.map((amount) => {
+                    const selected = Number(money) === amount;
 
-            <button
+                    return (
+                        <Button
+                            key={amount}
+                            type="button"
+                            variant={selected ? "contained" : "outlined"}
+                            color="inherit"
+                            onClick={() => selectAmount(amount)}
+                            sx={{
+                                py: 1.5,
+                                borderColor: selected ? "#111" : "#ddd",
+                                backgroundColor: selected ? "#111" : "white",
+                                color: selected ? "white" : "black",
+                                "&:hover": {
+                                    borderColor: "#111",
+                                    backgroundColor: selected ? "#111" : "#f7f7f7",
+                                },
+                            }}>
+                            {amount.toLocaleString()}원
+                        </Button>
+                    );
+                })}
+            </Box>
+
+
+            <TextFieldMui
+                label="직접 입력"
+                name="money"
+                value={money}
+                onChange={changeMoney}
+                helperText={money ? `${Number(money).toLocaleString()}원` : "충전 금액을 입력하세요."}
+                width="100%"
+            />
+
+            <Button
                 type="button"
+                variant="contained"
+                fullWidth
                 onClick={onSubmit}
-                style={{
-                    width: "100%",
-                    padding: "15px",
-                    marginTop: "15px",
-                    background: "black",
-                    color: "white",
-                    cursor: "pointer"
-                }}
-            >
+                sx={{
+                    mt: 2,
+                    py: 1.5,
+                    backgroundColor: "#111",
+                    "&:hover": {
+                        backgroundColor: "#333",
+                    },
+                }}>
                 {money ? `${Number(money).toLocaleString()}원 충전하기` : "충전하기"}
-            </button>
-        </div>
+            </Button>
+        </Box>
     );
 };
 

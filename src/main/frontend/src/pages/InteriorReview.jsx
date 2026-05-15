@@ -5,8 +5,7 @@ import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
 import { useLocation, useNavigate } from "react-router-dom";
 import DialogMui from "../components/DialogMui";
-import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
-import AddIcon from "@mui/icons-material/Add";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const InteriorReview = () => {
   const [sendList, setSendList] = useState([]);
@@ -123,7 +122,7 @@ const InteriorReview = () => {
               },
               {
                 title: "제출",
-                variant: "contained",
+                variant: "outlined",
                 onClick: (e) => {
                   console.log("제출");
                   handleSubmit(e);
@@ -181,13 +180,14 @@ const InteriorReview = () => {
           placeholder="DIR_E"
         />
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
-        <input type="file" name="file" />
-        <br />
-        <FloatingActionButtonMui
-          icon={<AddIcon />}
-          color="primary"
-          onClick={() => onClickAdd()}
-        />
+        <Button
+          component="label"
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+        >
+          추가할 파일
+          <input type="file" hidden name="file" onChange={() => onClickAdd()} />
+        </Button>
       </form>
       {preview &&
         preview.map((item) => (

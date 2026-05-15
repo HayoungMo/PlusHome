@@ -7,8 +7,7 @@ import { Button } from "@mui/material";
 import RatingMui from "../components/RatingMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
-import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
-import AddIcon from "@mui/icons-material/Add";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const FurnitureAddReview = () => {
   const navigate = useNavigate()
@@ -16,7 +15,6 @@ const FurnitureAddReview = () => {
   const c_code = location.state?.c_code
 
   const id = localStorage.getItem("id");
-  const { f_code } = useParams();
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);
 
@@ -35,7 +33,7 @@ const FurnitureAddReview = () => {
     text: "",
   });
 
-  const [form, setForm] = useState({ id: id, f_code: f_code, c_code: c_code });
+  const [form, setForm] = useState({ id: id, c_code: c_code });
   const [preview, setPreview] = useState([]);
   const handleChange = (e) => {
     setForm({
@@ -152,7 +150,7 @@ const FurnitureAddReview = () => {
             },
             {
               title: "제출",
-              variant: "contained",
+              variant: "outlined",
               onClick: (e) => {
                 console.log("제출 실행");
                 handleSubmit(e);
@@ -178,7 +176,7 @@ const FurnitureAddReview = () => {
           name="img_tag"
           placeholder="IMG_TAG"
         />
-        <input type="hidden" value={f_code} name="dir_a" placeholder="DIR_A" />
+        <input type="hidden" value={c_code} name="dir_a" placeholder="DIR_A" />
         {/* <input
           type="hidden"
           value={company.c_kind}
@@ -196,13 +194,16 @@ const FurnitureAddReview = () => {
         {/*
  <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
-        <input type="file" name="file" />
+
+        <Button
+          component="label"
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+        >
+          추가할 파일
+          <input type="file" hidden name="file" onChange={() => onClickAdd()} />
+        </Button>
         <br />
-        <FloatingActionButtonMui
-          icon={<AddIcon />}
-          color="primary"
-          onClick={() => onClickAdd()}
-        />
       </form>
       {preview &&
         preview.map((item) => (

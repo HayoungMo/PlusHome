@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CouponService from "../service/couponService";
 import AlertMui from "./AlertMui";
 import TextFieldMui from "./TextFieldMui";
-import { Button } from "@mui/material";
+import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import NumberField from "./NumberFieldMui";
 import DatePickerMui from "./DatePickerMui";
 
@@ -44,27 +44,43 @@ const CouponAdd = () => {
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message,
+        title: `에러${result.status || ""}`,
+        text: result.message|| "등록 실패",
       });
     }
   };
   return (
     <div>
-      {alert.open && (
-        <AlertMui
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
           severity={alert.severity}
-          title={alert.title}
-          text={alert.text}
-          autoHideDuration={3000}
           onClose={() =>
             setAlert((prev) => ({
               ...prev,
               open: false,
             }))
           }
-        />
-      )}
+          sx={{
+            width: "400px",
+            fontSize: "1rem",
+            padding: "16px 20px",
+            alignItems: "center",
+          }}
+        >
+          <AlertTitle>{alert.title}</AlertTitle>
+          {alert.text}
+        </Alert>
+      </Snackbar>
       <form name="coupon">
         <NumberField
           name="discount"
@@ -85,7 +101,9 @@ const CouponAdd = () => {
           name="coupon_end"
           label="유효 기간"
           value={form.coupon_end}
-          onChange={(value) => handleChange(makeEvent("coupon_end", value.format("YYYY-MM-DD") ))}
+          onChange={(value) =>
+            handleChange(makeEvent("coupon_end", value.format("YYYY-MM-DD")))
+          }
         />
         <TextFieldMui
           name="coupon_info"

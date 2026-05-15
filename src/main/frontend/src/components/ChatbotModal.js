@@ -1,4 +1,18 @@
-import { Button } from '@mui/material';
+import {
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    LinearProgress,
+    Paper,
+    Stack,
+    Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import React, { useState } from 'react';
 import AlertMui from "./AlertMui";
 import ButtonGroupMui from "./ButtonGroupMui";
@@ -24,7 +38,7 @@ const ChatbotModal = ({ onClose }) => {
                 { label: "40대 이상", tag: "age_40" }
             ]
         },
-         {
+        {
             key:"gender",
             message: "성별을 선택해주세요.",
             options: [
@@ -32,7 +46,7 @@ const ChatbotModal = ({ onClose }) => {
                 { label: "남성", tag: "male" },
                 { label: "선택 안 함", tag: "gender_none" }
             ]
-       },
+        },
         {
             key:"family",
             message: "함께 거주하는 인원은 몇 명인가요?",
@@ -139,6 +153,20 @@ const ChatbotModal = ({ onClose }) => {
     //현재 질문 고르는 탭
     const questions = mode === "furniture" ? furnitureQuestions : interiorQuestions;
     const isFinished = mode && step >= questions.length;
+
+    const progressValue = mode
+        ? Math.min(100, Math.round((step / questions.length) * 100))
+        : 0;
+
+    const currentQuestion = mode && !isFinished ? questions[step] : null;
+
+    const modeTitle =
+        mode === "furniture"
+            ? "가구 추천"
+            : mode === "interior"
+            ? "인테리어 추천"
+            : "PlusHome 추천";
+
     
     //첫선택 함수
     const selectMode = (nextMode) => {
@@ -223,122 +251,195 @@ const ChatbotModal = ({ onClose }) => {
     };
     
 
-    return (
+return (
         // 임의 모달 창
-        <div 
-        style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999
-        }}
-        >
-            <div
-            style={{
-                width: "500px",
-                minHeight: "300px",
-                backgroundColor: "white",
-                border: "1px solid #333",
-                padding: "20px"
+        <Dialog
+            open={true}
+            onClose={onClose}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{
+                sx: {
+                    borderRadius: 3,
+                    overflow: "hidden",
+                },
             }}
         >
-            <div>
-                <Button onClick={onClose}>닫기</Button>
+            <DialogTitle
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    borderBottom: "1px solid #eee",
+                }}
+            >
+                <Box>
+                    <Typography variant="h6" fontWeight={700}>
+                        {modeTitle}
+                    </Typography>
 
-                {mode && (
-                    <Button onClick={goBack}>이전</Button>
-                )}
-            </div>
+                    {mode && (
+                        <Typography variant="body2" color="text.secondary">
+                            {step + 1 > questions.length ? questions.length : step + 1} / {questions.length}
+                        </Typography>
+                    )}
+                </Box>
+
+                <Box>
+                    {mode && (
+                        <IconButton onClick={goBack}>
+                            <ArrowBackIcon />
+                        </IconButton>
+                    )}
+
+                    <IconButton onClick={onClose}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
+            </DialogTitle>
+
+            {mode && (
+                <LinearProgress
+                    variant="determinate"
+                    value={progressValue}
+                    sx={{ height: 6 }}
+                />
+            )}
+
+            <DialogContent sx={{ p: 3 }}>
                 {selectedLabels.length > 0 && (
-                    <AlertMui
-                        severity="success"
-                        title="선택한 정보"
-                        text={selectedText}
-                    />
+                    <Stack direction="row" spacing={1} flexWrap="wrap" mb={2}>
+                        {selectedLabels.map((item, index) => (
+                            <Chip
+                                key={`${item.value}-${index}`}
+                                label={item.label}
+                                color="primary"
+                                variant="outlined"
+                                size="small"
+                                sx={{ mb: 1 }}
+                            />
+                        ))}
+                    </Stack>
                 )}
-            {/* 첫 화면은 mode(가구,인테리어)가 없을 때 보여주는 용도 */}
-            {!mode && (
-                <div>
-                    <AlertMui
-                        severity="info"
-                        title="PlusHome 추천"
-                        text="어떤 부분을 도와드릴까요?"
-                    />
 
-                    <ButtonGroupMui
-                        button={startOptions.map((option) => ({
-                            title: option.label,
-                            onClick: () => selectMode(option.mode)
-                        }))}
-                        variant="contained"
-                        color="primary"
-                        orientation="vertical"
-                        />
-                </div>
-            )}
+                {!mode && (
+                    <Box>
+                        <Typography variant="h6" fontWeight={700} mb={1}>
+                            어떤 추천을 받아볼까요?
+                        </Typography>
 
-            {mode && !isFinished && (
-                <div>
-                    <AlertMui
-                        severity="info"
-                        title={mode === "furniture" ? "가구 추천" : "인테리어 추천"}
-                        text={questions[step].message}
-                    />
-                    <br />
+                        <Typography variant="body2" color="text.secondary" mb={3}>
+                            원하는 분야를 선택하면 조건에 맞는 결과를 찾아드릴게요.
+                        </Typography>
 
-                    <ButtonGroupMui
-                        button={questions[step].options.map((option) => ({
-                            title: option.label,
-                            onClick: () => selectOption(option)
-                        }))}
-                        variant="contained"
-                        color="primary"
-                        orientation="vertical"
-                        />
-                </div>
-            )}
+                        <Stack spacing={1.5}>
+                            {startOptions.map((option) => (
+                                <Button
+                                    key={option.mode}
+                                    variant="contained"
+                                    size="large"
+                                    onClick={() => selectMode(option.mode)}
+                                    sx={{
+                                        justifyContent: "flex-start",
+                                        py: 1.4,
+                                        borderRadius: 2,
+                                    }}
+                                >
+                                    {option.label}
+                                </Button>
+                            ))}
+                        </Stack>
+                    </Box>
+                )}
 
-            {/* 완료 화면: 가구,인테리어 나누기*/}
-            {isFinished && mode === "furniture" && (
-                <div>
-                    <AlertMui
-                        severity="success"
-                        title="가구 추천 완료"
-                        text="선택하신 조건에 맞는 가구 검색 결과로 이동 하실수 있습니다"
-                    />
+                {mode && !isFinished && currentQuestion && (
+                    <Box>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2,
+                                mb: 2.5,
+                                borderRadius: 2,
+                                backgroundColor: "#fafafa",
+                            }}
+                        >
+                            <Typography variant="subtitle1" fontWeight={700}>
+                                {currentQuestion.message}
+                            </Typography>
+                        </Paper>
 
-                    <Button variant="contained" onClick={goFurnitureSearch}>
-                        추천 가구 보러가기
-                    </Button>
-                </div>
-            )}
+                        <Stack spacing={1.2}>
+                            {currentQuestion.options.map((option) => (
+                                <Button
+                                    key={option.value || option.tag || option.label}
+                                    variant="outlined"
+                                    size="large"
+                                    onClick={() => selectOption(option)}
+                                    sx={{
+                                        justifyContent: "flex-start",
+                                        py: 1.3,
+                                        borderRadius: 2,
+                                    }}
+                                >
+                                    {option.label}
+                                </Button>
+                            ))}
+                        </Stack>
+                    </Box>
+                )}
 
-            {isFinished && mode === "interior" &&(
-                <div>
-                    <InteriorRecommend answers={answers} />
+                {isFinished && mode === "furniture" && (
+                    <Box>
+                        <Typography variant="h6" fontWeight={700} mb={1}>
+                            가구 추천이 완료되었습니다
+                        </Typography>
 
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            onClose();
-                            navigate("/interior/question", {
-                                state: {answers}
-                            });
-                        }}
-                    >
-                        상담 신청하러 가기
-                    </Button>
-                </div>
-            )}
-            </div>
-        </div>
+                        <Typography variant="body2" color="text.secondary" mb={3}>
+                            선택하신 조건에 맞는 쇼핑 검색 결과로 이동할 수 있습니다.
+                        </Typography>
+
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            onClick={goFurnitureSearch}
+                            sx={{ borderRadius: 2, py: 1.4 }}
+                        >
+                            추천 가구 보러가기
+                        </Button>
+                    </Box>
+                )}
+
+                {isFinished && mode === "interior" && (
+                    <Box>
+                        <Typography variant="h6" fontWeight={700} mb={1}>
+                            인테리어 추천 결과
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary" mb={2}>
+                            선택하신 조건과 어울리는 업체를 확인해보세요.
+                        </Typography>
+
+                        <InteriorRecommend answers={answers} />
+
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            size="large"
+                            sx={{ mt: 2, borderRadius: 2, py: 1.4 }}
+                            onClick={() => {
+                                onClose();
+                                navigate("/interior/question", {
+                                    state: { answers },
+                                });
+                            }}
+                        >
+                            상담 신청하러 가기
+                        </Button>
+                    </Box>
+                )}
+            </DialogContent>
+        </Dialog>
     );
-};
-
+}
 export default ChatbotModal;
