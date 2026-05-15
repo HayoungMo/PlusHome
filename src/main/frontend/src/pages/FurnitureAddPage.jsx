@@ -14,6 +14,24 @@ const FurnitureAddPage = ({ onSuccess }) => {
 
 	const navigate = useNavigate();
 
+	//catagory1~5를 프론트에서 조건 걸어줌. - 0515 모하영 
+	const categoryOptions = {
+		f_catagory1: ["침대", "소파", "책상", "의자", "식탁", "수납장", "조명", "매트리스", "화장대", "옷장", "직접 입력"], //상품종류
+		f_catagory2: ["침실", "거실", "주방", "서재", "현관", "아이방","방", "화장실 ", "직접 입력"], //위치,공간
+		f_catagory3: ["모던", "내추럴", "심플", "빈티지", "앤틱", "북유럽", "직접 입력"], //분위기
+		f_catagory4: ["원목", "패브릭", "가죽", "철제", "접이식", "수납형", "저상형", "직접 입력"], //가구 소재 혹은 어떤 특징
+		f_catagory5: ["1인가구", "신혼", "가족", "반려동물", "아이", "소형공간", "직접 입력"], //가구단위
+	};
+
+	const categoryLabels = {
+		f_catagory1: "상품종류",
+		f_catagory2: "공간",
+		f_catagory3: "스타일",
+		f_catagory4: "소재/특징",
+		f_catagory5: "대상/상황",
+	};
+
+
 	const [data, setData] = useState({
 		c_id: company?.c_id || id || "",
 		c_kind: company?.c_kind || "shop",
@@ -30,6 +48,15 @@ const FurnitureAddPage = ({ onSuccess }) => {
 		f_point: "0",
 		f_count: "0",
 		f_deliveryprice: "0"
+	});
+
+	//카테고리 - 0515 모하영 
+	const [customCategory, setCustomCategory] = useState({
+		f_catagory1: "",
+		f_catagory2: "",
+		f_catagory3: "",
+		f_catagory4: "",
+		f_catagory5: "",
 	});
 
 	const [options, setOptions] = useState([
@@ -155,6 +182,14 @@ const FurnitureAddPage = ({ onSuccess }) => {
 		}));
 	};
 
+	//카테고리 값 - 0515 모하영 
+	const getCategoryValue = (field) => {
+		return data[field] === "직접 입력"
+			? customCategory[field].trim()
+			: data[field];
+	};
+
+
 	const changeOption = (index, evt) => {
 		const { name, value } = evt.target;
 
@@ -213,6 +248,21 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				alert("가구 이름을 입력해주세요.");
 				return;
 			}
+			// 0515 모하영 
+			const categoryFields = [
+				"f_catagory1",
+				"f_catagory2",
+				"f_catagory3",
+				"f_catagory4",
+				"f_catagory5",
+			];
+
+			for(const field of categoryFields) {
+				if(!getCategoryValue(field)){
+					alert(`${categoryLabels[field]}을(를) 선택하거나 입력해주세요.`);
+					return;
+				}
+			}
 
 			const optionList = useOptions
 			? options
@@ -251,6 +301,11 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				c_id: data.c_id,
 				c_kind: data.c_kind,
 				c_name: data.c_name,
+				f_catagory1: getCategoryValue("f_catagory1"), // 0515 모하영 밑의 5개 추가
+				f_catagory2: getCategoryValue("f_catagory2"),
+				f_catagory3: getCategoryValue("f_catagory3"),
+				f_catagory4: getCategoryValue("f_catagory4"),
+				f_catagory5: getCategoryValue("f_catagory5"),
 				f_price: Number(data.f_price),
 				f_dprice: Number(data.f_dprice),
 				f_discount: Number(data.f_discount),
@@ -342,25 +397,40 @@ const FurnitureAddPage = ({ onSuccess }) => {
 			<br />
 			<br />
 
-			<label>카테고리1:</label>
-			<input name="f_catagory1" value={data.f_catagory1} onChange={changeInput} />
-			<br />
+			{["f_catagory1", "f_catagory2", "f_catagory3", "f_catagory4", "f_catagory5"].map((field) => (
+				<div key={field}>
+					<label>{categoryLabels[field]}:</label>
 
-			<label>카테고리2:</label>
-			<input name="f_catagory2" value={data.f_catagory2} onChange={changeInput} />
-			<br />
+					<select
+						name={field}
+						value={data[field]}
+						onChange={changeInput}
+					>
+						<option value="">{categoryLabels[field]} 선택</option>
+						{categoryOptions[field].map((item) => (
+							<option key={item} value={item}>
+								{item}
+							</option>
+						))}
+					</select>
 
-			<label>카테고리3:</label>
-			<input name="f_catagory3" value={data.f_catagory3} onChange={changeInput} />
-			<br />
+					{data[field] === "직접 입력" && (
+						<input
+							placeholder={`${categoryLabels[field]} 직접 입력`}
+							value={customCategory[field]}
+							onChange={(evt) =>
+								setCustomCategory((prev) => ({
+									...prev,
+									[field]: evt.target.value,
+								}))
+							}
+						/>
+					)}
 
-			<label>카테고리4:</label>
-			<input name="f_catagory4" value={data.f_catagory4} onChange={changeInput} />
-			<br />
+					<br />
+				</div>
+			))}
 
-			<label>카테고리5:</label>
-			<input name="f_catagory5" value={data.f_catagory5} onChange={changeInput} />
-			<br />
 
 			<label>포인트:</label>
 			<input name="f_point" value={data.f_point} onChange={changeInput} />

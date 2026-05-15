@@ -194,22 +194,7 @@ const MainHomePage = () => {
                     ))}
                 </div>
 
-                <Link
-                    to="/interior/question"
-                    style={{ textDecoration: "none", color: "inherit" }}
-                >
-                    <div
-                        style={{
-                            backgroundColor: "white",
-                            border: "1px solid #e5e1da",
-                            borderRadius: "8px",
-                            padding: "20px"
-                        }}
-                    >
-                        <h3>인테리어 상담 신청</h3>
-                        <p>간단한 질문에 답하고 맞춤 업체를 추천받아보세요.</p>
-                    </div>
-                </Link>
+                
             </section>
 
             <FloatingActionButtonMui

@@ -175,7 +175,9 @@ const UserQuestionPage = ({ user }) => {
             q_idx,
             q_answer,
         });
-        alert("답변이 등록되었습니다.");
+        alert("답변이 저장되었습니다.");
+
+        setAnswerEditIdx(null);
 
         setAnswerForms((prev) => ({
             ...prev,
@@ -190,23 +192,19 @@ const UserQuestionPage = ({ user }) => {
         setAnswerEditIdx(item.q_idx);
         setAnswerForms((prev) => ({
             ...prev,
-            [item.q_idx]: item.q_answer || "",
+            [item.q_idx]: item.q_answer || item.Q_ANSWER || "",
         }));
     };
 
     const cancelAnswerEdit = (q_idx) => {
-        alert("답변이 등록되었습니다.");
-
         setAnswerEditIdx(null);
 
         setAnswerForms((prev) => ({
             ...prev,
             [q_idx]: "",
         }));
-
-        getMyQuestions();
-
     };
+
 
     const deleteAnswer = async (q_idx) => {
         if (!window.confirm("답변을 삭제하시겠습니까?")) return;
@@ -295,7 +293,7 @@ const UserQuestionPage = ({ user }) => {
                                 <button type="button" onClick={() => updateQuestion(item.q_idx)}>
                                     저장
                                 </button>
-                                <button type="button" onClick={cancelEdit}>
+                                <button type="button" onClick={() => cancelAnswerEdit(item.q_idx)}>
                                     취소
                                 </button>
                             </div>
