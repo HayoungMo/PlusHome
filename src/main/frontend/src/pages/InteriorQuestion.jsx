@@ -224,7 +224,7 @@ const InteriorQuestion = () => {
             },
             {
               title: "제출",
-              variant: "contained",
+              variant: "outlined",
               onClick: () => {
                 console.log("제출");
                 handleSubmit();

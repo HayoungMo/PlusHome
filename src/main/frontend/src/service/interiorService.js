@@ -1,5 +1,20 @@
 import http from "../http-common";
 
+const fetchCompany = async (data) => {
+  try {
+        const res = await http.post("interior/getCompany", {
+          c_id: data.c_id,
+          c_kind: data.c_kind,
+          c_name: data.c_name,
+        });
+
+    console.log("응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
 const fetchList = async () => {
   try {
     const res = await http.get("interior/lists");
@@ -378,6 +393,7 @@ const DeleteInteriorExample = async (data) => {
 
 
 const InteriorService = {
+  fetchCompany,
   fetchExample,
   fetchArticle,
   fetchArticleList,

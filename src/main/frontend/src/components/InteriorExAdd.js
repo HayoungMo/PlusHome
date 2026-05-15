@@ -6,9 +6,10 @@ import ImageService from "../service/imageService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FloatingActionButtonMui from "./FloatingActionButtonMui";
-import AddIcon from '@mui/icons-material/Add';
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+
 const InteriorExAdd = ({ company }) => {
   const [sendList2, setSendList2] = useState([]);
   const [sendList3, setSendList3] = useState([]);
@@ -218,11 +219,19 @@ const InteriorExAdd = ({ company }) => {
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
         <input type="file" name="file" />
         <br />
-        <FloatingActionButtonMui
-          icon={<AddIcon />}
-          color="primary"
-          onClick={() => onClickAdd3()}
-        />
+        <Button
+          component="label"
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+        >
+          추가할 파일
+          <input
+            type="file"
+            hidden
+            name="file"
+            onChange={() => onClickAdd2()}
+          />
+        </Button>
         <FloatingActionButtonMui
           icon={<FileUploadIcon />}
           color="secondary"
@@ -271,7 +280,7 @@ const InteriorExAdd = ({ company }) => {
                   },
                   {
                     title: "제출",
-                    variant: "contained",
+                    variant: "outlined",
                     onClick: (e) => {
                       console.log("제출 실행");
                       handleSubmit2(e);
@@ -328,13 +337,20 @@ const InteriorExAdd = ({ company }) => {
             placeholder="DIR_D"
           />
           {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-          <input type="file" name="file" />
-          <br />
-          <FloatingActionButtonMui
-            icon={<AddIcon />}
-            color="primary"
-            onClick={() => onClickAdd2()}
-          />
+
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+          >
+            추가할 파일
+            <input
+              type="file"
+              hidden
+              name="file"
+              onChange={() => onClickAdd2()}
+            />
+          </Button>
         </form>
       )}
       {preview &&
