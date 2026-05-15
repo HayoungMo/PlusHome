@@ -9,7 +9,7 @@ const FreeBoardWritePage = () => {
     const loginUser = getLoginUser();
 
     const handleSave = async (data) => {
-      
+      console.log("현재 로그인 유저 타입:", loginUser?.type);
 
        
         const boardWithUser = {
@@ -19,23 +19,30 @@ const FreeBoardWritePage = () => {
         };
 
         try {
-            console.log("최종 전송 데이터:", boardWithUser);
             await FreeBoardService.insertFreeBoard(boardWithUser);
-
             alert("게시글이 등록되었습니다.");
             navigate("/freeboard/list");
         } catch (error) {
             console.error("자유게시판 등록 실패:", error);
-            alert("게시글 등록에 실패했습니다.");
+            const status = error?.response?.status;
+            const msg    = error?.response?.data;
+            if (status === 403) {
+                alert(typeof msg === "string" ? msg : "해당 카테고리에 작성 권한이 없습니다.");
+            } else if (status === 401) {
+                alert("로그인이 필요합니다.");
+            } else {
+                alert("게시글 등록에 실패했습니다.");
+            }
         }
     };
 
     return (
     <div>
+        
         <FreeBoardWriteMui
             onSave={handleSave}
             onCancel={() => navigate("/freeboard/list")}
-            isAdmin={loginUser?.type === "admin"}
+            userType={loginUser?.type || "guest"}
         />
     </div>
     );

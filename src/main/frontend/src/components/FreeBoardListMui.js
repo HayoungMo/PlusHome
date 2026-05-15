@@ -16,6 +16,18 @@ import {
 import { FreeBoardStatsPanel, PAGE_SIZE } from "./freeboard";
 import FreeBoardStatsService from "../service/freeBoardStatsService";
 
+const categoryColor = (cat) => {
+    switch (cat) {
+        case "공지": return "error";
+        case "질문": return "warning";
+        case "정보": return "info";
+        case "자유": return "success";
+        case "이벤트": return "secondary";
+        case "광고": return "primary";
+        default: return "default";
+    }
+};
+
 const FreeBoardListMui = ({ 
     posts = [], 
     dataCount, 
@@ -38,7 +50,7 @@ const FreeBoardListMui = ({
     useEffect(() => {
         const fetchTopLiked = async () => {
             try {
-                const data = await FreeBoardStatsService.getAdminStats();
+                const data = await FreeBoardStatsService.getPublicStats();
                 setTopLikedPosts(data?.topLiked || []);
             } catch (err) {
                 console.error("인기 게시글 조회 실패:", err);
@@ -80,9 +92,9 @@ const FreeBoardListMui = ({
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Box sx={{
                 display: "grid",
-                gridTemplateColumns: { 
-                    xs: "1fr", 
-                    md: loginUser ? "minmax(0, 1fr) 240px" : "1fr" 
+                gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "minmax(0, 1fr) 240px"
                 },
                 gap: 2,
                 alignItems: "flex-start",
@@ -136,9 +148,11 @@ const FreeBoardListMui = ({
                                 onKeyDown={(e) => e.key === "Enter" && onSearch(inputValue)}
                                 sx={{ flexGrow: 1 }}
                             />
-                            <Button 
-                                variant="outlined" 
-                                startIcon={<SearchIcon />} 
+                            {/* 검색 — success contained */}
+                            <Button
+                                variant="contained"
+                                color="success"
+                                startIcon={<SearchIcon />}
                                 onClick={() => onSearch(inputValue)}
                             >
                                 검색
@@ -192,10 +206,13 @@ const FreeBoardListMui = ({
                                             )}
                                             <TableCell align="center">{post.boardId}</TableCell>
                                             <TableCell align="center">
-                                                {post.category === "공지" 
-                                                    ? <Chip label="공지" size="small" color="error" sx={{ height: 20 }} />
-                                                    : <Chip label={post.category} size="small" variant="outlined" sx={{ height: 20 }} />
-                                                }
+                                                <Chip
+                                                    label={post.category || "자유"}
+                                                    size="small"
+                                                    color={categoryColor(post.category)}
+                                                    variant="outlined"
+                                                    sx={{ height: 20 }}
+                                                />
                                                 {post.hidden === 1 && (
                                                     <Chip label="숨김" size="small" variant="outlined" color="warning" sx={{ ml: 0.5, height: 20 }} />
                                                 )}
@@ -254,11 +271,9 @@ const FreeBoardListMui = ({
                     </Stack>
                 </Box>
 
-                {loginUser && (
-                    <Box sx={{ position: { md: "sticky" }, top: { md: 16 } }}>
-                        <FreeBoardStatsPanel loginUser={loginUser} isAdmin={isAdmin} onRefresh={onRefresh} />
-                    </Box>
-                )}
+                <Box sx={{ position: { md: "sticky" }, top: { md: 16 } }}>
+                    <FreeBoardStatsPanel loginUser={loginUser} isAdmin={isAdmin} onRefresh={onRefresh} />
+                </Box>
             </Box>
         </Container>
     );

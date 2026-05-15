@@ -32,7 +32,7 @@ const FreeBoardArticleMui = ({
                         label={article.category || "자유"} 
                         color={categoryColor(article.category)} 
                         size="small" 
-                        variant="contained"
+                        variant="outlined"
                     />
                     <Typography variant="caption" color="text.secondary">NO. {article.boardId}</Typography>
                 </Stack>

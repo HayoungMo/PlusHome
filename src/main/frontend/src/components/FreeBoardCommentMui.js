@@ -8,34 +8,38 @@ import {
     List,
 } from "@mui/material";
 
-
 import FreeBoardCommentService from "../service/freeBoardCommentService";
 import FreeBoardCommentItemMui from "./FreeBoardCommentItemMui";
+import ConfirmDialog from "./ConfirmDialog";
+import SnackbarAlert from "./SnackbarAlert";
 
-/**
- * 자유게시판 댓글 섹션 컴포넌트
- */
 const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
     const [comments, setComments] = useState([]);
     const [commentContent, setCommentContent] = useState("");
 
+    // 삭제 확인 다이얼로그
+    const [deleteDialog, setDeleteDialog] = useState({ open: false, commentId: null });
+    // 알림 스낵바
+    const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
+
     const isAdmin = loginUser?.type === "admin";
     const currentBoardId = Number(boardId);
 
-    // 댓글 로딩
+    const showSnack = (message, severity = "success") =>
+        setSnack({ open: true, message, severity });
+    const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
+
     const loadComments = useCallback(async () => {
         try {
-            const userType = loginUser?.type || "guest"; 
+            const userType = loginUser?.type || "guest";
             const list = await FreeBoardCommentService.getComments(boardId, userType);
-            
-            const processedList = (list || []).map(comment => ({
+            const processedList = (list || []).map((comment) => ({
                 ...comment,
-                userName: (comment.userName && comment.userName.trim()) ? comment.userName : "탈퇴한 회원"
+                userName: comment.userName?.trim() || "탈퇴한 회원",
             }));
-            
             setComments(processedList);
-        } catch (error) {
-            console.error("댓글 로딩 실패:", error);
+        } catch {
+            showSnack("댓글을 불러오지 못했습니다.", "error");
         }
     }, [boardId, loginUser]);
 
@@ -46,11 +50,11 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
     // 댓글 등록
     const handleCommentSubmit = async () => {
         if (!loginUser) {
-            alert("로그인 후 이용 가능합니다.");
+            showSnack("로그인 후 이용 가능합니다.", "warning");
             return;
         }
         if (!commentContent.trim()) {
-            alert("댓글 내용을 입력해주세요.");
+            showSnack("댓글 내용을 입력해주세요.", "warning");
             return;
         }
         const newComment = {
@@ -66,14 +70,14 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
             await loadComments();
             if (onCommentCountChange) onCommentCountChange(1);
         } catch {
-            alert("댓글 등록 실패");
+            showSnack("댓글 등록 실패", "error");
         }
     };
 
     // 대댓글 등록
     const handleReply = async (parentId, content) => {
         if (!loginUser) {
-            alert("로그인 후 이용 가능합니다.");
+            showSnack("로그인 후 이용 가능합니다.", "warning");
             return;
         }
         const newReply = {
@@ -81,56 +85,52 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
             content,
             userId: loginUser.id,
             userName: loginUser.name,
-            parentId, 
+            parentId,
         };
         try {
             await FreeBoardCommentService.writeComment(newReply);
             await loadComments();
             if (onCommentCountChange) onCommentCountChange(1);
         } catch {
-            alert("답글 등록 실패");
+            showSnack("답글 등록 실패", "error");
         }
     };
 
     // 댓글 수정
     const handleUpdate = async (commentId, content) => {
         try {
-            await FreeBoardCommentService.updateComment({
-                commentId,
-                content,
-            });
+            await FreeBoardCommentService.updateComment({ commentId, content });
             await loadComments();
+            showSnack("댓글이 수정되었습니다.", "success");
         } catch {
-            alert("수정 실패");
+            showSnack("수정 실패", "error");
         }
     };
 
-    const handleDelete = async (commentId) => {
-        
-        if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    // 삭제 요청 → 다이얼로그 열기
+    const handleDeleteRequest = (commentId) => {
+        setDeleteDialog({ open: true, commentId });
+    };
 
+    // 삭제 확정
+    const handleDeleteConfirm = async () => {
+        const { commentId } = deleteDialog;
+        setDeleteDialog({ open: false, commentId: null });
         try {
-        
             await FreeBoardCommentService.deleteComment(boardId, commentId);
-            
-            // 2. 성공 시에만 알림
-            alert("삭제되었습니다."); 
-            loadComments(); 
-            
+            showSnack("삭제되었습니다.", "success");
+            loadComments();
         } catch (error) {
-            console.error("삭제 에러 상세:", error);
-            
-            // 3. 에러 발생 시 상태 코드에 따라 알림창 하나만 띄우기
-            if (error.response && error.response.status === 401) {
-                alert("로그인 정보가 없거나 만료되었습니다. 다시 로그인해 주세요.");
-            } else if (error.response && error.response.status === 403) {
-                alert("삭제 권한이 없습니다. (본인 댓글만 삭제 가능)");
+            if (error?.response?.status === 401) {
+                showSnack("로그인 정보가 없거나 만료되었습니다. 다시 로그인해 주세요.", "error");
+            } else if (error?.response?.status === 403) {
+                showSnack("삭제 권한이 없습니다. (본인 댓글만 삭제 가능)", "error");
             } else {
-                alert("삭제 중 서버 오류가 발생했습니다.");
+                showSnack("삭제 중 서버 오류가 발생했습니다.", "error");
             }
         }
     };
-    // 댓글 정렬
+
     const byCreatedDesc = (a, b) => {
         const ta = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
         const tb = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -138,29 +138,20 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
         return (b?.commentId || 0) - (a?.commentId || 0);
     };
 
-    const rootComments = comments
-        .filter((c) => !c.parentId)
-        .slice()
-        .sort(byCreatedDesc);
-
+    const rootComments = comments.filter((c) => !c.parentId).slice().sort(byCreatedDesc);
     const repliesOf = (commentId) =>
-        comments
-            .filter((c) => c.parentId === commentId)
-            .slice()
-            .sort(byCreatedDesc);
+        comments.filter((c) => c.parentId === commentId).slice().sort(byCreatedDesc);
 
     return (
         <Box sx={{ mt: 5 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
                 댓글 {comments.length}개
             </Typography>
 
             <Stack direction="row" spacing={1} sx={{ my: 2 }}>
                 <TextField
                     placeholder={
-                        loginUser
-                            ? "따뜻한 댓글을 남겨주세요."
-                            : "로그인 후 댓글을 남겨보세요."
+                        loginUser ? "따뜻한 댓글을 남겨주세요." : "로그인 후 댓글을 남겨보세요."
                     }
                     value={commentContent}
                     onChange={(e) => setCommentContent(e.target.value)}
@@ -170,10 +161,12 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
                     fullWidth
                     disabled={!loginUser}
                 />
+                {/* 댓글 등록 — primary contained */}
                 <Button
                     variant="contained"
+                    color="primary"
                     onClick={handleCommentSubmit}
-                    sx={{ minWidth: 80, height: 'fit-content', py: 1.5 }}
+                    sx={{ minWidth: 80, height: "fit-content", py: 1.5 }}
                     disabled={!loginUser}
                 >
                     등록
@@ -189,7 +182,7 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
                             loginUser={loginUser}
                             isAdmin={isAdmin}
                             onUpdate={handleUpdate}
-                            onDelete={handleDelete}
+                            onDelete={handleDeleteRequest}
                             onReply={handleReply}
                         />
                         {repliesOf(c.commentId).map((r) => (
@@ -200,13 +193,32 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
                                 loginUser={loginUser}
                                 isAdmin={isAdmin}
                                 onUpdate={handleUpdate}
-                                onDelete={handleDelete}
+                                onDelete={handleDeleteRequest}
                                 onReply={handleReply}
                             />
                         ))}
                     </React.Fragment>
                 ))}
             </List>
+
+            {/* 삭제 확인 다이얼로그 */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                title="댓글 삭제"
+                message="정말 삭제하시겠습니까?"
+                confirmLabel="삭제"
+                confirmColor="error"
+                onConfirm={handleDeleteConfirm}
+                onClose={() => setDeleteDialog({ open: false, commentId: null })}
+            />
+
+            {/* 결과 알림 */}
+            <SnackbarAlert
+                open={snack.open}
+                message={snack.message}
+                severity={snack.severity}
+                onClose={closeSnack}
+            />
         </Box>
     );
 };

@@ -85,6 +85,7 @@ const FreeBoardEditPage = () => {
             initialData={initialData}
             onSave={handleUpdate}
             onCancel={() => navigate(`/freeboard/article/${boardId}`)}
+            userType={loginUser?.type || "user"}
         />
     );
 };
