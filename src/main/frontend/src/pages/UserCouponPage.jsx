@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Button } from "@mui/material";
+import { Box, Button, Tab, Tabs } from "@mui/material";
 import CouponService from "../service/couponService";
 import TextFieldMui from "../components/TextFieldMui";
 import TableMui from "../components/TableMui";
@@ -18,6 +18,11 @@ const UserCouponPage = ({ user }) => {
     };
     fetchCoupon();
   }, []);
+    const [tab, setTab] = useState(0);
+  
+    const handleChangeTab = (event, newValue) => {
+      setTab(newValue);
+    };
 
   const handleChange = (e) => {
     setForm({
@@ -55,17 +60,39 @@ const UserCouponPage = ({ user }) => {
   };
 
   return (
-    <div>
-      <form>
-        <TextFieldMui
-          name="coupon_code"
-          label="코드 등록"
-          onChange={(e) => handleChange(e)}
-        />
-        <Button onClick={() => handleSubmit()}>등록 </Button>
-      </form>
-      <TableMui rowData={coupon} />
-    </div>
+    <Box>
+      <Tabs value={tab} onChange={handleChangeTab}>
+        <Tab label="쿠폰 등록" />
+        <Tab label="사용 가능 쿠폰" />
+        <Tab label="이미 사용한 쿠폰" />
+      </Tabs>
+
+      <Box sx={{ mt: 2 }}>
+        {tab === 0 && (
+          <form>
+            <TextFieldMui
+              name="coupon_code"
+              label="코드 등록"
+              onChange={(e) => handleChange(e)}
+            />
+            <Button onClick={() => handleSubmit()}>등록 </Button>
+          </form>
+        )}
+
+        {tab === 1 && (
+          <TableMui
+            rowData={coupon.filter((item) => item.coupon_used === "N")}
+          />
+        )}
+
+        {tab === 2 && (
+          <TableMui
+            rowData={coupon.filter((item) => item.coupon_used === "Y")}
+          />
+        )}
+      </Box>
+
+    </Box>
   );
 };
 

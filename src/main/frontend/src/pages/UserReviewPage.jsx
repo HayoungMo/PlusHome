@@ -30,7 +30,7 @@ const UserReviewPage = ({ user }) => {
           const logo = await GetImgDir({
             kind: "F_REVIEW",
             returnType: "list",
-            a: item.f_code,
+            a: item.c_code,
             d: item.id,
             view: false,
           });

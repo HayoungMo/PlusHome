@@ -178,7 +178,7 @@ const FurnitureAddReview = () => {
           name="img_tag"
           placeholder="IMG_TAG"
         />
-        <input type="hidden" value={f_code} name="dir_a" placeholder="DIR_A" />
+        <input type="hidden" value={c_code} name="dir_a" placeholder="DIR_A" />
         {/* <input
           type="hidden"
           value={company.c_kind}

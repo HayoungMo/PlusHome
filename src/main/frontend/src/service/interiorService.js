@@ -192,6 +192,9 @@ const AddInteriorExample = async (data) => {
         };
   } catch (err) {
     console.error(data, err);
+    return {
+      success: false
+    }
   }
 };
 
