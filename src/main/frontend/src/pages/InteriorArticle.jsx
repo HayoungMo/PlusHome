@@ -209,7 +209,7 @@ function InteriorArticle() {
           </div>
 
           {bookingPossible && (
-            <div className="booking-card">
+            <div>
               <InteriorBooking company={company} answers={answers} />
             </div>
           )}

@@ -5,6 +5,7 @@ import { Button } from "@mui/material";
 import TextFieldMui from "./TextFieldMui";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const InteriorMyReview = ({ id }) => {
   const [review, setReview] = useState([]);
@@ -162,16 +163,30 @@ const InteriorMyReview = ({ id }) => {
                   />
                   {change[idx] && (
                     <form>
-                      <input
-                        type="file"
-                        name={record.img_originalName}
-                        className="updateFile"
-                      />
-                      <Button onClick={(e) => imageUpload(record, e)}>
+                      <Button
+                        component="label"
+                        variant="contained"
+                        startIcon={<CloudUploadIcon />}
+                      >
+                        추가할 파일
+                        <input
+                          type="file"
+                          hidden
+                          name={record.img_originalName}
+                          className="updateFile"
+                        />
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={(e) => imageUpload(record, e)}
+                      >
                         적용
                       </Button>
 
                       <Button
+                        variant="contained"
+                        color="error"
                         onClick={() => imageDelete([record.img_originalName])}
                       >
                         삭제{" "}
@@ -235,10 +250,26 @@ const InteriorMyReview = ({ id }) => {
                   value="1"
                   placeholder="IMG_IDX"
                 />
-                <input type="file" name="file" />
-                <br />
-                <Button onClick={onClickAdd}>추가</Button>
-                <Button onClick={onClickInsert}>제출</Button>
+                <Button
+                  component="label"
+                  variant="contained"
+                  startIcon={<CloudUploadIcon />}
+                >
+                  추가할 파일
+                  <input
+                    type="file"
+                    hidden
+                    name="file"
+                    onChange={() => onClickAdd()}
+                  />
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={onClickInsert}
+                >
+                  제출
+                </Button>
               </form>
             )}
             {change[idx] ? (
@@ -249,17 +280,31 @@ const InteriorMyReview = ({ id }) => {
                   value={item.ir_content}
                   onChange={(e) => handleChange(idx, e)}
                 />
-                <Button onClick={() => reviewUpdateSubmit(idx)}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => reviewUpdateSubmit(idx)}
+                >
                   수정 완료
                 </Button>
               </form>
             ) : (
               item.ir_content
             )}
-            <Button onClick={() => changeToUpdate(idx)}>
+            <Button
+              variant="contained"
+              color={!change[idx] ? "primary" : "inherit"}
+              onClick={() => changeToUpdate(idx)}
+            >
               {!change[idx] ? "리뷰 수정" : "수정 취소"}
             </Button>
-            <Button onClick={() => handleOpen()}>리뷰 삭제</Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleOpen()}
+            >
+              리뷰 삭제
+            </Button>
             <DialogMui
               open={open}
               onClose={handleClose}
@@ -274,7 +319,7 @@ const InteriorMyReview = ({ id }) => {
                 {
                   title: "삭제",
                   color: "error",
-                  variant: "contained",
+                  variant: "outlined",
                   onClick: () => {
                     console.log("삭제 실행");
 
