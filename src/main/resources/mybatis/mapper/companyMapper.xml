@@ -70,33 +70,11 @@
 <update id="updateCompanyDev"
     parameterType="com.spring.home.dto.CompanyDTO">
 
-    UPDATE company
+   update company 
+	  set c_tel=#{c_tel}, c_addr=#{c_addr}, c_info=#{c_info}, c_boss=#{c_boss}
+	where c_id=#{c_id}
 
-    <set>
-
-        <if test="c_tel != null and c_tel != ''">
-            c_tel = #{c_tel},
-        </if>
-
-        <if test="c_addr != null and c_addr != ''">
-            c_addr = #{c_addr},
-        </if>
-
-        <if test="c_info != null and c_info != ''">
-            c_info = #{c_info},
-        </if>
-
-        <if test="c_boss != null and c_boss != ''">
-            c_boss = #{c_boss},
-        </if>
-
-        <if test="c_kind != null and c_kind != ''">
-            c_kind = #{c_kind}
-        </if>
-
-    </set>
-
-    WHERE c_id = #{c_id}
+ 
 
 </update>
 

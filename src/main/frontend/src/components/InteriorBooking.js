@@ -122,7 +122,7 @@ const [alert, setAlert] = useState({
             label="content"
             onChange={handleChange}
           />
-          <Button onClick={handleOpen}>제출</Button>
+          <Button variant="contained" color="primary" onClick={handleOpen}>제출</Button>
           <DialogMui
             open={open}
             onClose={handleClose}

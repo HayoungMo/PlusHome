@@ -22,6 +22,8 @@ public interface QuestionMapper {
 	
 	public void updateAnswer(QuestionDTO dto) throws Exception;
 	
+	public void deleteAnswer(@Param("q_idx") int q_idx) throws Exception;
+	
 	public void updateData(QuestionDTO dto) throws Exception;
 	
 	public void deleteData(@Param("q_idx") int q_idx) throws Exception;

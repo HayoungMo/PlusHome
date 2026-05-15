@@ -34,7 +34,7 @@ const Question = ({ f_code }) => {
             company.c_name === item.c_name 
         );
     };
-    
+    //답변 다는것
     const canReadQuestion = (item) => {
         if(item.q_secret !== "Y") return true;
         if(!loginUser) return false;
@@ -45,6 +45,12 @@ const Question = ({ f_code }) => {
 
         return false;
     };
+
+    const canAnswerQuestion = (item) => {
+        if(isAdmin) return true;
+        if(isProductCompany(item)) return true;
+    }
+
     //5월 13일 이미지 파일 올리는 작업 하다 퇴근 5월 14일에 마저 할 예정(완)
     const getQuestionList = async () => {
         if(!f_code) return;
@@ -252,13 +258,14 @@ const Question = ({ f_code }) => {
                             item.q_answer ? (
                                 <div>
                                     <strong>답변</strong>
-                                    <p>{item.q_answer}</p>
+                                    <p>작성자: {item.c_id}</p>
+                                    <p>A.{item.q_answer}</p>
                                 </div>
                             ) : (
                                 <p>아직 답변이 없습니다.</p>
                             )
                         )}
-                        {isAdmin && canReadQuestion(item) && !item.q_answer && (
+                        {canAnswerQuestion && canReadQuestion(item) && !item.q_answer && (
                             <div>
                                 <TextField
                                     placeholder="답변 내용을 입력하세요"

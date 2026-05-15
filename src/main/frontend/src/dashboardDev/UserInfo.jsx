@@ -8,8 +8,17 @@ import DialogMui from '../components/DialogMui';
 
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
-    const userData= JSON.parse(localUserData)
+    const userData= JSON.parse(localUserData) 
     const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
+
+    // const isAdmin = type ==='admin'
+
+    // useEffect(()=>{
+    //     if(!isAdmin){
+    //         alert("관리자만 접근 가능합니다.")
+    //         window.location.href="/"
+    //     }
+    // })
 
     const initUserInfo = {
 		id: id,
@@ -58,6 +67,29 @@ const UserInfo = (props) => {
 
     }
 
+    const userColumns = [
+    "id",
+    "type",
+    "code",
+    "name",
+    "email",
+    "tel",
+    "gender",
+    "addr",
+];
+
+const companyColumns = [
+    "id",
+    "type",
+    "code",
+    "name",
+    "email",
+
+    "c_kind",
+    "c_info",
+    "c_boss",
+];
+
     
 
    
@@ -75,6 +107,8 @@ const UserInfo = (props) => {
             setUserStateList(res.list);
 
             setEditedUserList(res.list)
+
+            console.log("유저조회결과:",res.list)
 
 
         }
@@ -148,27 +182,13 @@ const UserInfo = (props) => {
         try {
             const res = await userService.userGetAll(userType);
 
-            if(res.status===200){
-                const {user, token} = res.data
-                if(!user) return;
+            if(res.success){
+                setUserList(res.list)
+                setUserStateList(res.list)
+                setEditedUserList(res.list)                           
 
-                const serverUserList = user.userList ||[]
-                localStorage.setItem("user",JSON.stringify(user))
-
-                if(token){
-                    localStorage.setItem("token",token)
-                }
-                refreshUserData?.()
-                setUserStateList(serverUserList)
-                
-                setEditedUserList((prevEditedList) => {
-					if (prevEditedList.length === 0) {
-						return serverUserList;
-					}
-
-					return mergeEditedListWithServerList(serverUserList, prevEditedList);
-				});
-			}
+					
+            }
 		} catch (error) {
 			console.error("유저 데이터 갱신 실패:", error);
 		}
@@ -239,23 +259,31 @@ const UserInfo = (props) => {
             userStateList, editedUserList
         )
         try {
-            console.log(changedRows)
+            console.log("changedRows",changedRows)
 
             let result = null
 
            if(userType==="user"){
             result = await userService.updateUser(changedRows)
            }
-         else if(userType==="company"){
+         else if(userType==="company"){        
+            
+            //users테이블
+            await userService.updateUser(changedRows)
 
+            //company테이블
             const companyRows = changedRows.map((row)=>({
-                c_id: row.c_id || row.id,
-                c_tel: row.c_tel || row.tel,
-                c_addr: row.c_addr || row.addr,
-                c_kind: row.c_kind || row.kind,
-                c_info: row.c_info || row.info,
-                c_boss: row.c_boss || row.boss,
+
+                c_id: row.id ||  "",
+                c_tel: row.tel || "",
+                c_addr: row.addr || "",
+                c_kind: row.c_kind || "",
+                c_info: row.c_info || row.info || "",
+               c_boss: row.c_boss || "",
+
             }))
+
+            console.log("companyRows:",companyRows)
 
             result = await userService.updateCompany(companyRows)
          }
@@ -285,7 +313,8 @@ const UserInfo = (props) => {
             
         }
 
-        reloadDataFunc();
+        await getUserList();
+        console.log("재조회 완료")
         
         setConfirmOpen(!confirmOpen)
         setAlertOpen(!alertOpen)
@@ -321,6 +350,7 @@ const UserInfo = (props) => {
 
             return{
                 id:editedRow.id,
+                c_id:editedRow.c_id || editedRow.id,
                 name:editedRow.name,
                 type:editedRow.type,
                 ...changedFields,
@@ -334,7 +364,9 @@ const UserInfo = (props) => {
         setEditedUserList((prevList) =>{
             return prevList.map((prevRow) =>{
                 const updatedRow = data.find(
-                    (row) => row.id ===prevRow.id,
+                    (row) =>  (row.id || row.c_id)
+                    ===
+                    (prevRow.id || prevRow.c_id)
                 )
                 return updatedRow ? updatedRow : prevRow
             })
@@ -540,6 +572,13 @@ const UserInfo = (props) => {
 
                 <TableChkMui
                     rowData={editedUserList}
+
+                    columns = {
+                        userType ==="user"
+                        ? userColumns
+                        : companyColumns
+                    }
+
                     editable={userUpdate}
                     editableOnChange={tableMuiEditableOnChange}
                     setSelectedKeys={setSelectedUserKeys}
