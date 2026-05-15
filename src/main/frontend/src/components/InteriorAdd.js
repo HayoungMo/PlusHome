@@ -9,7 +9,7 @@ import FloatingActionButtonMui from "./FloatingActionButtonMui";
 import AddIcon from "@mui/icons-material/Add";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 
-const InteriorAdd = ({ company }) => {
+const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
 	const [sendList, setSendList] = useState([]);
 	const [form, setForm] = useState({
 		c_id: company.c_id,
@@ -72,8 +72,6 @@ const InteriorAdd = ({ company }) => {
 		{
 			value: "location",
 			title: "출장 장소",
-			options: questionOptions.q3,
-			multi: true,
 		},
 	];
 
@@ -90,8 +88,10 @@ const InteriorAdd = ({ company }) => {
 	};
 	const handleSubmit = async (e) => {
 		e.preventDefault(); // 🔥 페이지 새로고침 막기
+
 		const result = await InteriorService.AddInterior(form);
 		if (result.success) {
+			onSuccess();
 			setAlert({
 				open: true,
 				severity: "success",
@@ -154,11 +154,15 @@ const InteriorAdd = ({ company }) => {
 							required
 						/>
 					)}
-					{form.text && (
-						<Button type="submit" variant="contained">
-							제출
-						</Button>
-					)}
+					<Button
+						onClick={() => setOpenAddDialog(false)}
+						color="error"
+						variant="contained">
+						취소
+					</Button>
+					<Button type="submit" variant="contained">
+						제출
+					</Button>
 				</div>
 			</form>
 		</div>
