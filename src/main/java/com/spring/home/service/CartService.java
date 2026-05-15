@@ -20,17 +20,17 @@ public class CartService {
 	@Autowired
 	private CartOptionMapper cartOptionMapper;
 	
-	public void insertData(CartDTO cartDTO, List<CartOptionDTO> optionsList) throws Exception {
-		String c_code = furnitureCode.generateCartCode();
+	public String insertData(CartDTO cartDTO, List<CartOptionDTO> optionsList) throws Exception {
+	    String c_code = furnitureCode.generateCartCode();
 
-		cartDTO.setC_code(c_code);
-		cartDTO.setF_status("N");
+	    cartDTO.setC_code(c_code);
+	    cartDTO.setF_status("N");
 
-		cartMapper.insertData(cartDTO);
+	    cartMapper.insertData(cartDTO);
 
-		if(optionsList != null && !optionsList.isEmpty()) {
-			for (CartOptionDTO optionDTO : optionsList) {
-				if(optionDTO == null) continue;
+	    if(optionsList != null && !optionsList.isEmpty()) {
+	        for (CartOptionDTO optionDTO : optionsList) {
+	            if(optionDTO == null) continue;
 
 	            optionDTO.setC_code(c_code);
 	            optionDTO.setId(cartDTO.getId());
@@ -38,9 +38,12 @@ public class CartService {
 	            optionDTO.setCo_count(cartDTO.getF_count());
 
 	            cartOptionMapper.insertData(optionDTO);
-			}
-		}
+	        }
+	    }
+
+	    return c_code;
 	}
+
 	
 	public List<CartDTO> getMyCart(String id) throws Exception{
 		return cartMapper.getMyCart(id);

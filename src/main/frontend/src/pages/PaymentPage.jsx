@@ -38,7 +38,7 @@ const PaymentPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payMessage, setPayMessage] = useState("");
-  const [checkedList, setCheckedList] = useState();
+  const [checkedList, setCheckedList] = useState([]);
 
   const selectedReceiver = addressMode === "default" ? receiver : newReceiver;
 
@@ -52,18 +52,44 @@ const PaymentPage = () => {
   const canPay = walletMoney >= finalPayTotal;
 
   const [coupon, setCoupon] = useState();
+  
   useEffect(() => {
     const fetchCoupon = async () => {
       const result = await CouponService.selectCouponList(user.id);
       if (!result.success) {
         return;
       }      
-      console.log(result.data)
-      setCoupon(result.data || []);
+      setCoupon(result.data.filter((item) => item.coupon_used === "N") || []);
     };
     fetchCoupon();
     
   }, []);
+
+  useEffect(() => {
+    if (!coupon || checkedList.length === 0) {
+      setCouponDiscount(0);
+      return;
+    }
+
+    const selectedCoupons = coupon.filter((item) =>
+      checkedList.includes(item.coupon_code),
+    );
+
+    let totalDiscount = 0;
+
+    selectedCoupons.forEach((item) => {
+      const percentDiscount =
+        Number(payTotal || 0) * (Number(item.discount || 0) / 100);
+
+      const maxDiscount = Number(item.coupon_max || 0);
+
+      const appliedDiscount = Math.min(percentDiscount, maxDiscount);
+
+      totalDiscount += appliedDiscount;
+    });
+
+    setCouponDiscount(Math.floor(totalDiscount));
+  }, [checkedList, coupon, payTotal]);
 
   useEffect(() => {
     if (!user.id) return;
@@ -125,6 +151,18 @@ const PaymentPage = () => {
         couponDiscount,
         payTotal: finalPayTotal,
       });
+
+      // 사용한 쿠폰 삭제
+      if (checkedList.length > 0) {
+        await Promise.all(
+          checkedList.map((coupon_code) =>
+            CouponService.deleteCoupon({
+              id: user.id,
+              coupon_code,
+            }),
+          ),
+        );
+      }
 
       setWalletMoney((prev) => prev - finalPayTotal);
       setPayMessage("결제가 완료되었습니다.");

@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.UserDTO;
+import com.spring.home.service.CompanyService;
 import com.spring.home.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,9 @@ public class DevController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private CompanyService companyService;
 	
 	//유저 전체 조회
 	
@@ -100,7 +105,39 @@ public class DevController {
 						
 		}
 		
-		int updateUser = userService.restoreUserDev(dtoList);
+		int restoreUser = userService.restoreUserDev(dtoList);
+		
+		if(restoreUser==0) {
+			result.put("success",false);
+			result.put("message", "복구에 실패했습니다.");
+		}else if (restoreUser !=dtoList.size()) {
+			result.put("success",false);
+			result.put("message", "일부 데이터가 복구되지 않았습니다.");
+		}else {
+			result.put("success", true);
+			result.put("message", "성공적으로 복구 되었습니다.");
+		}
+		
+		return result;
+		
+	}
+	
+	//유저 내용 수정
+	
+	@PostMapping("/update/user")
+	public Map<String,Object> updateUser(@RequestBody List<UserDTO> dtoList) throws Exception{
+		
+		Map<String,Object> result = new HashMap<>();
+		
+		if(dtoList.size()==0) {
+			result.put("success", false);
+			result.put("message", "데이터를 전달받지 못했습니다.");
+			
+			return result;
+						
+		}
+		
+		int updateUser = userService.updateUserDev(dtoList);
 		
 		if(updateUser==0) {
 			result.put("success",false);
@@ -116,6 +153,37 @@ public class DevController {
 		return result;
 		
 	}
+	
+	@PostMapping("/update/company")
+	public Map<String,Object> updateCompany(@RequestBody List<CompanyDTO> dtoList) throws Exception{
+		
+		Map<String,Object> result = new HashMap<>();
+		
+		if(dtoList.size()==0) {
+			result.put("success", false);
+			result.put("message", "데이터를 전달받지 못했습니다.");
+			
+			return result;
+						
+		}
+		
+		int updateCompany = companyService.updateCompany(dtoList);
+		
+		if(updateCompany==0) {
+			result.put("success",false);
+			result.put("message", "수정에 실패했습니다.");
+		}else if (updateCompany !=dtoList.size()) {
+			result.put("success",false);
+			result.put("message", "일부 데이터가 수정되지 않았습니다.");
+		}else {
+			result.put("success", true);
+			result.put("message", "성공적으로 수정 되었습니다.");
+		}
+		
+		return result;
+		
+	}
+	
 	
 	
 

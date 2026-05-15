@@ -47,4 +47,8 @@ public interface UserMapper {
 	
 	public int restoreUserDev(UserDTO dto) throws Exception;
 	
+	public int updateUserDev(UserDTO dto) throws Exception;
+	
+	public int updateCompanyDev(CompanyDTO dto) throws Exception;
+	
 }

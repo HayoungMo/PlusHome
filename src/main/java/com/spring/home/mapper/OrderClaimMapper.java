@@ -28,4 +28,8 @@ public interface OrderClaimMapper {
 	
 	public List<OrderClaimDTO> getCompanyClaims(String company_id) throws Exception;
 
+	public int updateType(
+		    @Param("claim_code") String claim_code,
+		    @Param("claim_type") int claim_type
+		) throws Exception;
 }
