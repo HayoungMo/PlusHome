@@ -169,7 +169,8 @@ const MainHomePage = () => {
                     {interiorCompanies.map((company) => (
                         <Link
                             key={`${company.c_id}-${company.c_kind}-${company.c_name}`}
-                            to="/interior/list/company"
+                            to="/interior/article"
+                            state={{ company }}
                             style={{
                                 color: "inherit",
                                 textDecoration: "none"

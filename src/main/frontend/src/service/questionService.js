@@ -27,6 +27,13 @@ const answerQuestion = async (data) => {
     return res.data;
 };
 
+const deleteAnswer = async (q_idx) => {
+    const res = await http.post("/question/answer/delete", null, {
+        params: { q_idx },
+    });
+    return res.data;
+};
+
 // 마이페이지에서 자신이 작성한 문의 확인하기
 const getMyQuestions = async(id) => {
     const res = await http.get("/question/my", {
@@ -64,6 +71,7 @@ const questionService = {
     deleteQuestion,
     getMyQuestions,
     getCompanyQuestions,
+    deleteAnswer,
 };
 
 export default questionService;
