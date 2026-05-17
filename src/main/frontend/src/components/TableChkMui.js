@@ -147,7 +147,7 @@ const TableChkMui = (props) => {
 						const isSelected = selectedKeys.includes(rowId);
 
 						return (
-							<StyledTableRow key={rowId}>
+							<StyledTableRow key={`${rowId}-${rowIndex}`}>
 								{/* row 체크박스 */}
 								<StyledTableCell padding="checkbox">
 									<Checkbox

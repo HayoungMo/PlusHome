@@ -11,14 +11,14 @@ const UserInfo = (props) => {
     const userData= JSON.parse(localUserData) 
     const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
 
-    // const isAdmin = type ==='admin'
+    const isAdmin = type ==='admin'
 
-    // useEffect(()=>{
-    //     if(!isAdmin){
-    //         alert("관리자만 접근 가능합니다.")
-    //         window.location.href="/"
-    //     }
-    // })
+     useEffect(()=>{
+         if(!isAdmin){
+            alert("관리자만 접근 가능합니다.")
+           window.location.href="/"
+         }
+     })
 
     const initUserInfo = {
 		id: id,
@@ -96,6 +96,7 @@ const companyColumns = [
     const getUserList = async() =>{
         
         console.log("회원 조회")      
+        
 
        const res = await userService.userGetAll(userType)
         console.log(res)
@@ -118,6 +119,14 @@ const companyColumns = [
     useEffect(()=>{
         getUserList();
     },[userType])
+
+    useEffect(() =>{
+        if(!isAdmin){
+            alert("관리자만 접근 가능합니다.")
+            
+            window.location.href = "/";
+        }
+    },[])
 
     const handleRowDeleteInTable = async() =>{
 
