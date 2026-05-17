@@ -33,7 +33,7 @@ public class DevController {
 	
 	@PostMapping("/user/list")
 	public Map<String,Object> getUserList(@RequestBody UserDTO dto){
-		
+		System.out.println("유저 조회 dto:"+ dto);
 		
 		
 		Map<String,Object> result = new HashMap<>();
@@ -46,6 +46,7 @@ public class DevController {
 			
 			result.put("success", true);
 			result.put("list", userList);
+			System.out.println("유저리스트"+ userList);
 			
 		} catch (Exception e) {
 			
@@ -167,7 +168,7 @@ public class DevController {
 						
 		}
 		
-		int updateCompany = companyService.updateCompany(dtoList);
+		int updateCompany = userService.updateCompanyDev(dtoList);
 		
 		if(updateCompany==0) {
 			result.put("success",false);

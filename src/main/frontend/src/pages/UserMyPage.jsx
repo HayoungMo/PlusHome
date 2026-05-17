@@ -48,9 +48,23 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
 
         UserPageService.getMyPageUser()
         .then((res)=> {
-            setUser(res.data)
-            setLoginUser?.(res.data.id)
-            localStorage.setItem("user", JSON.stringify(res.data))
+            // setUser(res.data)
+            // setLoginUser?.(res.data.id)
+            // localStorage.setItem("user", JSON.stringify(res.data))
+
+            //회사계정으로 들어왔을때 마이페이지에서 문의 볼수 있게 하기 위한것. 혹시 몰라서 기존 코드는 주석처리.
+            const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+
+            const mergedUser = {
+                ...savedUser,
+                ...res.data,
+                companyList: savedUser?.companyList || res.data.companyList,
+            };
+
+            setUser(mergedUser);
+            setLoginUser?.(mergedUser.id);
+            localStorage.setItem("user", JSON.stringify(mergedUser));
+            //여기까지
 
             return WalletService.getMyWallet(res.data.id)
         })

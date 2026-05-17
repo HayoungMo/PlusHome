@@ -9,7 +9,7 @@
 	insert into f_review
 	(id, f_code, fr_subject, fr_star, fr_createdDate, fr_content, c_code)
 	values 
-	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content},#{c_code})	            
+	( #{id}, #{f_code}, #{fr_subject}, #{fr_star}, sysdate, #{fr_content}, #{c_code})	            
 
 </insert>
 

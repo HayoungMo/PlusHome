@@ -15,40 +15,57 @@ import {
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
+import SnackbarAlert from "./SnackbarAlert";
 
+/**
+ * userType 에 따른 카테고리 옵션
+ * admin   : 자유 / 질문 / 정보 / 이벤트 / 광고 / 공지
+ * company : 자유 / 정보 / 이벤트 / 광고
+ * user    : 자유 / 질문 / 정보
+ * guest   : 자유 / 질문
+ */
+const getCategoryOptions = (userType) => {
+    switch (userType) {
+        case "admin":   return ["자유", "질문", "정보", "이벤트", "광고", "공지"];
+        case "company": return ["자유", "정보", "이벤트", "광고"];
+        case "guest":   return ["자유", "질문"];
+        default:        return ["자유", "질문", "정보"]; // user
+    }
+};
 
+const FreeBoardWriteMui = ({ initialData, onSave, onCancel, userType = "guest" }) => {
+    const CATEGORYOPTIONS = getCategoryOptions(userType);
+    const defaultCategory =
+        initialData?.category && CATEGORYOPTIONS.includes(initialData.category)
+            ? initialData.category
+            : CATEGORYOPTIONS[0];
 
-
-const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
-    const CATEGORYOPTIONS = isAdmin 
-        ? ["자유", "질문", "정보", "공지"] 
-        : ["자유", "질문", "정보"];
-
-        // 이게 없어요!
     const [formData, setFormData] = useState({
         title: "",
         content: "",
-        category: "자유",
+        category: defaultCategory,
     });
-
     const [errors, setErrors] = useState({ title: false, content: false });
+    const [snack, setSnack] = useState({ open: false, message: "", severity: "warning" });
+
+    const showSnack = (message, severity = "warning") =>
+        setSnack({ open: true, message, severity });
+    const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
 
     useEffect(() => {
         if (initialData) {
             setFormData({
                 title: initialData.title || "",
                 content: initialData.content || "",
-                category: initialData.category || "자유",
+                category: defaultCategory,
             });
         }
-    }, [initialData]);
+    }, [initialData, defaultCategory]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: false }));
-        }
+        if (errors[name]) setErrors((prev) => ({ ...prev, [name]: false }));
     };
 
     const handleSubmit = () => {
@@ -58,7 +75,7 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
         };
         setErrors(nextErrors);
         if (nextErrors.title || nextErrors.content) {
-            alert("제목과 내용을 입력해주세요.");
+            showSnack("제목과 내용을 입력해주세요.");
             return;
         }
         onSave({
@@ -87,9 +104,7 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
                             onChange={handleChange}
                         >
                             {CATEGORYOPTIONS.map((c) => (
-                                <MenuItem key={c} value={c}>
-                                    {c}
-                                </MenuItem>
+                                <MenuItem key={c} value={c}>{c}</MenuItem>
                             ))}
                         </Select>
                     </FormControl>
@@ -126,6 +141,7 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
                     />
                 </Stack>
 
+                {/* 내부 버튼 — outlined */}
                 <Box sx={{ mt: 4, display: "flex", justifyContent: "flex-end", gap: 1 }}>
                     <Button
                         variant="outlined"
@@ -136,7 +152,8 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
                         취소
                     </Button>
                     <Button
-                        variant="contained"
+                        variant="outlined"
+                        color="primary"
                         startIcon={<SaveIcon />}
                         onClick={handleSubmit}
                     >
@@ -144,6 +161,13 @@ const FreeBoardWriteMui = ({ initialData, onSave, onCancel, isAdmin }) => {
                     </Button>
                 </Box>
             </Paper>
+
+            <SnackbarAlert
+                open={snack.open}
+                message={snack.message}
+                severity={snack.severity}
+                onClose={closeSnack}
+            />
         </Container>
     );
 };

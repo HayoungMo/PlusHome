@@ -326,7 +326,7 @@ const InteriorExUpdate = ({ company }) => {
                   },
                   {
                     title: "제출",
-                    variant: "contained",
+                    variant: "outlined",
                     onClick: (e) => {
                       console.log("제출 실행");
                       handleSubmit(e, item);

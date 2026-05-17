@@ -46,6 +46,13 @@ public class QuestionController {
 		return "ok";
 	}
 	
+	//업체측 문의 답변 삭제
+	@PostMapping("/answer/delete")
+	public String deleteAnswer(@RequestParam int q_idx) throws Exception {
+	    questionService.deleteAnswer(q_idx);
+	    return "ok";
+	}
+	
 	//마이페이지에서 자신이 작성한 문의 글
 	@GetMapping("/my")
 	public List<QuestionDTO> getMyQuestions(@RequestParam String id) throws Exception {

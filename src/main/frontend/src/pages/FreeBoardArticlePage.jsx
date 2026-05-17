@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import FreeBoardService from "../service/freeBoardService";
 import FreeBoardArticleMui from "../components/FreeBoardArticleMui";
 import { getLoginUser, isAdminUser, resolveUserName } from "../components/freeboard/constants";
+import ConfirmDialog from "../components/ConfirmDialog";
+import SnackbarAlert from "../components/SnackbarAlert";
 
 const FreeBoardArticlePage = () => {
     const { boardId } = useParams();
@@ -12,121 +14,149 @@ const FreeBoardArticlePage = () => {
     const [article, setArticle] = useState(null);
     const [prevArticle, setPrevArticle] = useState(null);
     const [nextArticle, setNextArticle] = useState(null);
+    const [deleteDialog, setDeleteDialog] = useState(false);
+    const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
 
-    // 1. 사용자 정보 로드 (모듈 공통 유틸 사용)
     const loginUser = useMemo(() => getLoginUser(), []);
-
-    // 2. 권한 관련 변수 설정
     const isAdmin = isAdminUser(loginUser);
     const isArticleOwner = !!loginUser && !!article?.userId && String(loginUser.id) === String(article.userId);
     const hasArticleAuthority = isAdmin || isArticleOwner;
     const canReportArticle = !!loginUser && !isAdmin && !isArticleOwner;
 
-    // 3. 데이터 로드 (게시글 상세 + 이전/다음글)
+    const showSnack = (message, severity = "success") =>
+        setSnack({ open: true, message, severity });
+    const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
+
     const fetchData = useCallback(async () => {
         if (!boardId) return;
         try {
             const data = await FreeBoardService.getFreeBoard(boardId);
-            console.log("article data:", data); 
             if (!data) {
-                alert("존재하지 않는 게시글입니다.");
+                showSnack("존재하지 않는 게시글입니다.", "error");
                 return navigate("/freeboard/list");
             }
-
-            // 탈퇴 회원 및 데이터 정제 (공통 유틸 사용)
-            const processedArticle = {
+            setArticle({
                 ...data,
                 userName: resolveUserName(data.userName),
-                userId: data.userId ? data.userId : "Unknown",
-            };
-            setArticle(processedArticle);
-
-            // 이전글/다음글 정보 조회
+                userId: data.userId || "Unknown",
+            });
             const navData = await FreeBoardService.getNav(boardId);
             setPrevArticle(navData?.prev || null);
             setNextArticle(navData?.next || null);
-        } catch (err) {
-            console.error("데이터 로드 실패:", err);
-            // 에러 발생시 화면전환x,메시지 처리
-            alert("게시글을 불러오는 중 오류가 발생했습니다.");
+        } catch {
+            showSnack("게시글을 불러오는 중 오류가 발생했습니다.", "error");
             navigate("/freeboard/list");
         }
     }, [boardId, navigate]);
 
     useEffect(() => {
         fetchData();
-        
         window.scrollTo(0, 0);
     }, [fetchData]);
 
-    // 4. 공유 핸들러(url복사)
+    // 공유
     const handleShare = async () => {
-        const url = window.location.href;
         try {
-            await navigator.clipboard.writeText(url);
-            alert("공유 링크가 복사되었습니다.");
+            await navigator.clipboard.writeText(window.location.href);
+            showSnack("공유 링크가 복사되었습니다.", "success");
         } catch {
-            alert(`공유 링크: ${url}`);
+            showSnack(`공유 링크: ${window.location.href}`, "info");
         }
     };
 
-    // 5. 좋아요 처리 
-    // 5. 좋아요 처리
+    // 좋아요
     const likedKey = `liked_${boardId}_${loginUser?.id}`;
     const [alreadyLiked, setAlreadyLiked] = useState(
         !!loginUser && !!localStorage.getItem(likedKey)
     );
     const handleLike = async () => {
-        if (!loginUser) return alert("로그인이 필요합니다.");
-        if (alreadyLiked) return alert("이미 좋아요를 누른 게시글입니다.");
+        if (!loginUser) {
+            showSnack("로그인이 필요합니다.", "warning");
+            return;
+        }
+        if (alreadyLiked) {
+            showSnack("이미 좋아요를 누른 게시글입니다.", "info");
+            return;
+        }
         try {
             const updatedData = await FreeBoardService.likeFreeBoard(currentBoardId);
             localStorage.setItem(likedKey, "true");
             setAlreadyLiked(true);
             setArticle((prev) => ({ ...prev, likeCount: updatedData.likeCount }));
-        } catch { 
-            alert("좋아요 처리에 실패했습니다."); 
+        } catch {
+            showSnack("좋아요 처리에 실패했습니다.", "error");
         }
     };
-    // 6. 삭제 처리
-    const handleDelete = async () => {
-        if (!hasArticleAuthority) return alert("삭제 권한이 없습니다.");
-        if (!window.confirm("게시글을 정말 삭제하시겠습니까?")) return;
-        try {
-            await FreeBoardService.deleteFreeBoard(currentBoardId);
-            alert("삭제되었습니다.");
-            navigate("/freeboard/list");
-        } catch { alert("삭제 실패"); }
+
+    // 삭제 요청 → 다이얼로그
+    const handleDeleteRequest = () => {
+        if (!hasArticleAuthority) {
+            showSnack("삭제 권한이 없습니다.", "error");
+            return;
+        }
+        setDeleteDialog(true);
     };
 
-    // 7. 댓글 수 실시간 반영
+    // 삭제 확정
+    const handleDeleteConfirm = async () => {
+        setDeleteDialog(false);
+        try {
+            await FreeBoardService.deleteFreeBoard(currentBoardId);
+            showSnack("삭제되었습니다.", "success");
+            setTimeout(() => navigate("/freeboard/list"), 800);
+        } catch {
+            showSnack("삭제 실패", "error");
+        }
+    };
+
+    // 댓글 수 실시간 반영
     const handleCommentCountChange = (delta) => {
-        setArticle(prev => prev ? {
-            ...prev,
-            commentCount: Math.max(0, (prev.commentCount || 0) + delta)
-        } : prev);
+        setArticle((prev) =>
+            prev ? { ...prev, commentCount: Math.max(0, (prev.commentCount || 0) + delta) } : prev
+        );
     };
 
     if (!article) return null;
 
     return (
-        <FreeBoardArticleMui 
-            article={article}
-            prevArticle={prevArticle}
-            nextArticle={nextArticle}
-            loginUser={loginUser}
-            isAdmin={isAdmin}
-            isOwner={isArticleOwner}
-            hasAuthority={hasArticleAuthority}
-            canReport={canReportArticle}
-            onLike={handleLike}
-            onDelete={handleDelete}
-            onShare={handleShare}
-            onCommentCountChange={handleCommentCountChange}
-            onEdit={() => navigate(`/freeboard/edit/${boardId}`)}
-            onBack={() => navigate("/freeboard/list")}
-            onNavigate={(id) => navigate(`/freeboard/article/${id}`)}
-        />
+        <>
+            <FreeBoardArticleMui
+                article={article}
+                prevArticle={prevArticle}
+                nextArticle={nextArticle}
+                loginUser={loginUser}
+                isAdmin={isAdmin}
+                isOwner={isArticleOwner}
+                hasAuthority={hasArticleAuthority}
+                canReport={canReportArticle}
+                onLike={handleLike}
+                onDelete={handleDeleteRequest}
+                onShare={handleShare}
+                onCommentCountChange={handleCommentCountChange}
+                onEdit={() => navigate(`/freeboard/edit/${boardId}`)}
+                onBack={() => navigate("/freeboard/list")}
+                onNavigate={(id) => navigate(`/freeboard/article/${id}`)}
+            />
+
+            {/* 삭제 확인 다이얼로그 */}
+            <ConfirmDialog
+                open={deleteDialog}
+                title="게시글 삭제"
+                message="게시글을 정말 삭제하시겠습니까?"
+                confirmLabel="삭제"
+                confirmColor="error"
+                onConfirm={handleDeleteConfirm}
+                onClose={() => setDeleteDialog(false)}
+            />
+
+            {/* 알림 스낵바 */}
+            <SnackbarAlert
+                open={snack.open}
+                message={snack.message}
+                severity={snack.severity}
+                onClose={closeSnack}
+            />
+        </>
     );
 };
 

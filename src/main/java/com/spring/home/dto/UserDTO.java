@@ -16,6 +16,14 @@ public class UserDTO {
 	private String name;
 	private String email;
 	
+	private String c_kind;
+	private String c_info;
+	private String c_boss;
+	private String c_name;
+	private String c_addr;
+	
+	
+	
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birth;
 	private String tel;

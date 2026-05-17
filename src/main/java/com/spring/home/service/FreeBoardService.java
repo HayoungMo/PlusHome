@@ -76,16 +76,32 @@ public class FreeBoardService {
         freeBoardMapper.insertData(dto);
     }
 
+    // ─── 카테고리별 쓰기 권한 검증 ─────────────────────────────────
+    // guest 는 컨트롤러에서 별도 처리, 여기선 로그인 유저만 대상
+    private static final Map<String, Set<String>> WRITE_PERMISSIONS = new HashMap<String, Set<String>>() {{
+        put("user",    new HashSet<>(Arrays.asList("자유", "질문", "정보")));
+        put("company", new HashSet<>(Arrays.asList("자유", "정보", "이벤트", "광고")));
+        put("admin",   new HashSet<>(Arrays.asList("자유", "질문", "정보", "이벤트", "광고", "공지")));
+    }};
+
+    public void validateWritePermission(String category, String userType) {
+        Set<String> allowed = WRITE_PERMISSIONS.get(userType);
+        if (allowed == null || !allowed.contains(category)) {
+            throw new RuntimeException("해당 카테고리에 글을 작성할 권한이 없습니다. (category=" + category + ", type=" + userType + ")");
+        }
+    }
+
     // ─── 수정 ────────────────────────────────────────
-    public void updateData(FreeBoardDTO dto, String loggedInUserId) throws Exception {
+    public void updateData(FreeBoardDTO dto, String loggedInUserId, String userType) throws Exception {
         FreeBoardDTO existingPost = freeBoardMapper.getReadData(dto.getBoardId());
-        
+
         if (existingPost == null) {
             throw new Exception("존재하지 않는 게시글입니다.");
         }
 
-        if (!existingPost.getUserId().equals(loggedInUserId)) {
-            throw new Exception("수정 권한이 없습니다.");
+        // 관리자는 모든 게시글 수정 가능
+        if (!"admin".equals(userType) && !existingPost.getUserId().equals(loggedInUserId)) {
+            throw new RuntimeException("수정 권한이 없습니다.");
         }
 
         freeBoardMapper.updateData(dto);
@@ -93,15 +109,16 @@ public class FreeBoardService {
 
     // ─── 삭제 ────────────────────────────
     @Transactional
-    public void deleteData(Long boardId, String loggedInUserId) throws Exception {
+    public void deleteData(Long boardId, String loggedInUserId, String userType) throws Exception {
         FreeBoardDTO existingPost = freeBoardMapper.getReadData(boardId);
 
         if (existingPost == null) {
             throw new Exception("존재하지 않는 게시글입니다.");
         }
 
-        if (!existingPost.getUserId().equals(loggedInUserId)) {
-            throw new Exception("삭제 권한이 없습니다.");
+        // 관리자는 모든 게시글 삭제 가능
+        if (!"admin".equals(userType) && !existingPost.getUserId().equals(loggedInUserId)) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
         freeBoardCommentMapper.deleteByBoardId(boardId);

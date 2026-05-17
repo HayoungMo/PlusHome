@@ -122,7 +122,7 @@ const [alert, setAlert] = useState({
             label="content"
             onChange={handleChange}
           />
-          <Button onClick={handleOpen}>제출</Button>
+          <Button variant="contained" color="primary" onClick={handleOpen}>제출</Button>
           <DialogMui
             open={open}
             onClose={handleClose}
@@ -136,7 +136,7 @@ const [alert, setAlert] = useState({
               },
               {
                 title: "제출",
-                variant: "contained",
+                variant: "outlined",
                 onClick: (e) => {
                   console.log("제출 실행");
                   handleSubmit(e);

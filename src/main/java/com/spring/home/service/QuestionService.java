@@ -51,8 +51,13 @@ public class QuestionService {
 		questionMapper.deleteData(q_idx);
 	}
 	
+	//답변 관련
 	public List<QuestionDTO> getCompanyQuestions(String c_id) throws Exception {
 	    return questionMapper.getCompanyQuestions(c_id);
 	}
+	public void deleteAnswer(int q_idx) throws Exception {
+	    questionMapper.deleteAnswer(q_idx);
+	}
+
 
 }

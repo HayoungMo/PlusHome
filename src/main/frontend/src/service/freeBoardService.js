@@ -1,50 +1,23 @@
 import http from "../http-common";
 
+const authHeader = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+});
+
 const FreeBoardService = {
-    // 목록 조회
-    getLists: async (params) => {
-        const response = await http.get("/freeboard/list", { params });
-        return response.data;
-    },
+    // ── 조회 ──────────────────────────────────────────────────────
+    getLists:        async (params)   => (await http.get("/freeboard/list", { params })).data,
+    getFreeBoard:    async (boardId)  => (await http.get(`/freeboard/article/${boardId}`)).data,
+    getNav:          async (boardId)  => (await http.get(`/freeboard/article/${boardId}/nav`)).data,
 
-    // 상세 조회 (조회수 증가 포함)
-    getFreeBoard: async (boardId) => {
-        const response = await http.get(`/freeboard/article/${boardId}`);
-        return response.data;
-    },
+    // ── 작성 / 수정 / 삭제 ────────────────────────────────────────
+    insertFreeBoard: async (dto)      => http.post("/freeboard/write",        dto,        authHeader()),
+    updateFreeBoard: async (dto)      => http.put("/freeboard/update",        dto,        authHeader()),
+    deleteFreeBoard: async (boardId)  => http.delete(`/freeboard/delete/${boardId}`,      authHeader()),
+    deleteMulti:     async (boardIds) => (await http.post("/freeboard/delete-multi", { boardIds }, authHeader())).data,
 
-    // 이전글 / 다음글 조회
-    getNav: async (boardId) => {
-        const response = await http.get(`/freeboard/article/${boardId}/nav`);
-        return response.data;
-    },
-
-    // 게시글 작성
-    insertFreeBoard: async (dto) => {
-        return await http.post("/freeboard/write", dto);
-    },
-
-    // 게시글 수정
-    updateFreeBoard: async (dto) => {
-        return await http.put("/freeboard/update", dto);
-    },
-
-    // 게시글 삭제
-    deleteFreeBoard: async (boardId) => {
-        return await http.delete(`/freeboard/delete/${boardId}`);
-    },
-
-    // 게시글 다중삭제 
-    deleteMulti: async (boardIds) => {
-        const response = await http.post("/freeboard/delete-multi", { boardIds });
-        return response.data;
-    },
-
-    // 좋아요 (likeCount 증가)
-    likeFreeBoard: async (boardId) => {
-        const response = await http.put(`/freeboard/like/${boardId}`);
-        return response.data;
-    }
+    // ── 좋아요 ────────────────────────────────────────────────────
+    likeFreeBoard:   async (boardId)  => (await http.put(`/freeboard/like/${boardId}`, {}, authHeader())).data,
 };
 
 export default FreeBoardService;

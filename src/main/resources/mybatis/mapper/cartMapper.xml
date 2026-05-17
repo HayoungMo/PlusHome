@@ -112,7 +112,8 @@
 	        f_dstatus = 0,
 	        f_name = #{f_name},
 	        f_tel = #{f_tel},
-	        f_addr = #{f_addr}
+	        f_addr = #{f_addr},
+	        pay_total = #{pay_total}
 	    WHERE c_code = #{c_code}
 	      AND id = #{id}
 	      AND f_status = 'N'

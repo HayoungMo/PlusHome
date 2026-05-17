@@ -1,7 +1,7 @@
 const IMAGE_RULES = {
 	I_REVIEW: { required: ["a", "b", "c", "d", "e"], desc: "Com ID, Name 등 필수" },
 	U_PROFILE: { required: ["d"], desc: "USER ID 필수" },
-	F_REVIEW: { required: ["a", "d"], desc: "F_ID, ID 필수" },
+	F_REVIEW: { required: ["a", "d"], desc: "C_CODE, ID 필수" },
 	QUESTION: { required: ["a", "d"], desc: "F_ID, ID 필수" },
 	BOARD: { required: ["a", "d"], desc: "USER ID 필수" },
 	LOGO: { required: ["a","b","c","d"], desc: "Com ID, Tag, Name 등 필수" },

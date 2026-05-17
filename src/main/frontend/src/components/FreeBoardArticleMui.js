@@ -32,7 +32,7 @@ const FreeBoardArticleMui = ({
                         label={article.category || "자유"} 
                         color={categoryColor(article.category)} 
                         size="small" 
-                        variant="contained"
+                        variant="outlined"
                     />
                     <Typography variant="caption" color="text.secondary">NO. {article.boardId}</Typography>
                 </Stack>
@@ -63,11 +63,11 @@ const FreeBoardArticleMui = ({
 
                 {/* 좋아요 버튼 */}
                 <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 6 }}>
-                    <Button 
-                        variant="outlined" 
-                        color="primary" 
+                    <Button
+                        variant="outlined"
+                        color="primary"
                         size="large"
-                        startIcon={<ThumbUpAltIcon />} 
+                        startIcon={<ThumbUpAltIcon />}
                         onClick={onLike}
                         sx={{ borderRadius: 5, px: 4 }}
                     >
