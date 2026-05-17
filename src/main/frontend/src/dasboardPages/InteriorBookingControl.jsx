@@ -13,8 +13,6 @@ const InteriorBookingControl = () => {
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
 
-
-
 	const interior = companyList.filter((data) => data.c_kind === "interior");
 	const [selectedCompany, setSelectedCompany] = useState(null);
 	const [interiorCompanyList, setInteriorCompanyList] = useState([]);
@@ -49,33 +47,30 @@ const InteriorBookingControl = () => {
 	}, [selectedInvoiceDetailLatestList, emptyList]);
 
 	const buttonData = [
-	{
-		title: "견적서 PDF",
-		key: "exportPDF",
-		color: "success",
-		variant: "contained",
-		icon: <GrDocumentPdf />,
-		onClick: (row) => {
-			if (!selectedInvoice) {
-				alert("견적서를 먼저 선택해주세요.");
-				return;
-			}
+		{
+			title: "견적서 PDF",
+			key: "exportPDF",
+			color: "success",
+			variant: "contained",
+			icon: <GrDocumentPdf />,
+			onClick: (row) => {
+				if (!row) return;
 
-			const invoiceDetail =
-				selectedInvoiceDetailLatestList?.detail || selectedInvoiceDetailLatestList || [];
-
-			navigate("/ExportPDFViewPage", {
-				state: {
-					userData,
-					invoice: selectedInvoice,
-					invoiceDetail,
+				const pdfData = {
+					invoice: row,
+					invoiceDetail: row.detail,
 					company: selectedCompany,
 					orderBy: "insert",
-				},
-			});
+				};
+
+				console.log(pdfData)
+
+				sessionStorage.setItem("exportPDFData", JSON.stringify(pdfData));
+
+				window.open("/ExportPDFViewPage", "_blank", "width=1200,height=900");
+			},
 		},
-	},
-];
+	];
 
 	useEffect(() => {
 		reLoadData();

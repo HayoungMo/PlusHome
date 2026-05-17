@@ -86,7 +86,8 @@
 		parameterType="com.spring.home.dto.InvoiceDTO">
 		INSERT ALL
 		<foreach collection="details" item="item" index="idx">
-			INTO invoice_detail (id,
+			INTO
+			invoice_detail (id,
 			c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price)
 			VALUES (#{id},
 			#{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text},
@@ -148,7 +149,8 @@
 		c_addr,
 		c_info,
 		c_boss
-		FROM company
+		FROM
+		company
 		WHERE c_kind LIKE 'interior'
 	</select>
 
@@ -248,17 +250,18 @@
 
 	<select id="getInvoices" parameterType="hashMap"
 		resultType="com.spring.home.dto.InvoiceDTO">
-		SELECT id,
+		SELECT INVOICE.id as id,
+		name,
 		b_createdDate,
 		c_id,
 		c_kind,
 		c_name,
 		invoice_no,
 		invoice_kind
-		FROM invoice
+		FROM INVOICE JOIN USERS ON INVOICE.id = USERS.id
 		<where>
 			<if test="id != null and id != ''">
-				AND id = #{id}
+				AND INVOICE.id = #{id}
 			</if>
 
 			<if test="c_id != null and c_id != ''">
@@ -277,6 +280,78 @@
 				AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
 			</if>
 		</where>
+	</select>
+
+	<select id="getInvoice" parameterType="hashMap"
+		resultType="com.spring.home.dto.InvoiceDTO">
+		SELECT INVOICE.id as id,
+		name,
+		b_createdDate,
+		c_id,
+		c_kind,
+		c_name,
+		invoice_no,
+		invoice_kind
+		FROM INVOICE JOIN USERS ON INVOICE.id = USERS.id
+		<where>
+			<if test="id != null and id != ''">
+				AND INVOICE.id = #{id}
+			</if>
+
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
+
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
+
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
+
+			<if test="b_createdDate != null">
+				AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+			</if>
+			AND invoice_kind = 'Y'							
+		</where>
+	</select>
+	
+	<select id="getInvoiceCancel" parameterType="hashMap"
+		resultType="com.spring.home.dto.InvoiceDTO">
+		SELECT * FROM (
+			SELECT	INVOICE.id as id,
+					name,
+					b_createdDate,
+					c_id,
+					c_kind,
+					c_name,
+					invoice_no,
+					invoice_kind
+			FROM INVOICE JOIN USERS ON INVOICE.id = USERS.id
+		<where>
+			<if test="id != null and id != ''">
+				AND INVOICE.id = #{id}
+			</if>
+
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
+
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
+
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
+
+			<if test="b_createdDate != null">
+				AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+			</if>
+		</where>
+		ORDER BY invoice_no DESC
+		) WHERE ROWNUM = 1
 	</select>
 
 
@@ -415,7 +490,8 @@
 
 		FROM i_review ir
 		JOIN company c
-		ON ir.c_id = c.c_id
+		ON
+		ir.c_id = c.c_id
 		AND ir.c_kind = c.c_kind
 		AND ir.c_name = c.c_name
 	</select>
@@ -434,11 +510,13 @@
 		c.c_boss,
 		c.c_info
 
-		FROM i_example ie
+		FROM i_example
+		ie
 		JOIN company c
 		ON ie.c_id = c.c_id
 		AND ie.c_kind = c.c_kind
-		AND ie.c_name = c.c_name
+		AND
+		ie.c_name = c.c_name
 	</select>
 
 	<select id="getAllBookings"
@@ -464,7 +542,8 @@
 		SELECT *
 		FROM company
 		WHERE c_id = #{c_id}
-		AND c_name = #{c_name}
+		AND c_name =
+		#{c_name}
 		AND c_kind = #{c_kind}
 	</select>
 
@@ -472,20 +551,24 @@
 		parameterType="com.spring.home.dto.InteriorDTO">
 		UPDATE interior
 		SET i_text = #{i_text}
-		WHERE c_id = #{c_id}
+		WHERE c_id =
+		#{c_id}
 		AND c_kind = #{c_kind}
 		AND c_name = #{c_name}
-		AND i_tag = #{i_tag}
+		AND i_tag =
+		#{i_tag}
 	</update>
 
 	<update id="updateInteriorExample"
 		parameterType="com.spring.home.dto.InteriorExampleDTO">
 		UPDATE i_example
 		SET ie_content = #{ie_content}
-		WHERE c_id = #{c_id}
+		WHERE c_id
+		= #{c_id}
 		AND c_kind = #{c_kind}
 		AND c_name = #{c_name}
-		AND ie_tag = #{ie_tag}
+		AND ie_tag =
+		#{ie_tag}
 		AND ie_tag2 = #{ie_tag2}
 	</update>
 
@@ -500,7 +583,8 @@
 		WHERE c_id = #{c_id}
 		AND c_kind = #{c_kind}
 		AND c_name = #{c_name}
-		AND b_createddate = #{b_createdDate}
+		AND
+		b_createddate = #{b_createdDate}
 		AND id = #{id}
 	</update>
 
@@ -508,10 +592,12 @@
 		parameterType="com.spring.home.dto.InteriorReviewDTO">
 		UPDATE i_review
 		SET ir_content = #{ir_content}
-		WHERE c_id = #{c_id}
+		WHERE c_id
+		= #{c_id}
 		AND c_kind = #{c_kind}
 		AND c_name = #{c_name}
-		AND b_createddate = #{b_createdDate}
+		AND b_createddate
+		= #{b_createdDate}
 		AND id = #{id}
 	</update>
 
@@ -519,7 +605,8 @@
 		parameterType="com.spring.home.dto.InteriorDTO">
 		DELETE FROM interior
 		WHERE c_id = #{c_id}
-		AND c_kind = #{c_kind}
+		AND c_kind =
+		#{c_kind}
 		AND c_name = #{c_name}
 		AND i_tag = #{i_tag}
 	</delete>
@@ -528,17 +615,20 @@
 		parameterType="com.spring.home.dto.InteriorExampleDTO">
 		DELETE FROM i_example
 		WHERE c_id = #{c_id}
-		AND c_kind = #{c_kind}
+		AND c_kind =
+		#{c_kind}
 		AND c_name = #{c_name}
 		AND ie_tag = #{ie_tag}
-		AND ie_tag2 = #{ie_tag2}
+		AND ie_tag2 =
+		#{ie_tag2}
 	</delete>
 
 	<delete id="deleteInteriorReview"
 		parameterType="com.spring.home.dto.InteriorReviewDTO">
 		DELETE FROM i_review
 		WHERE c_id = #{c_id}
-		AND c_kind = #{c_kind}
+		AND c_kind =
+		#{c_kind}
 		AND c_name = #{c_name}
 		AND b_createddate = #{b_createdDate}
 		AND id = #{id}
@@ -551,20 +641,34 @@
 		<where>
 			AND c_id = #{c_id}
 			AND B_STATUS = 'working' or B_STATUS = 'done'
+			or B_STATUS = 'cancel'
 		</where>
 	</select>
-	
-	<update id="workingToDoneOrCancel" parameterType="com.spring.home.dto.BookingDTO">
+
+	<update id="workingToDoneOrCancel"
+		parameterType="com.spring.home.dto.BookingDTO">
 		UPDATE BOOKING
 		SET B_STATUS = #{b_status}
 		<where>
 			AND ID = #{id}
 			AND B_CREATEDDATE = #{b_createdDate}
-			AND C_ID = #{c_id}
+			AND C_ID =
+			#{c_id}
 			AND C_KIND = #{c_kind}
 			AND C_NAME = #{c_name}
 		</where>
 	</update>
+
+	<select id="getCompanyForPDF"
+		parameterType="com.spring.home.dto.CompanyDTO"
+		resultType="com.spring.home.dto.CompanyDTO">
+		SELECT * FROM COMPANY 
+		<where>
+		AND C_ID 	= #{c_id}
+		AND C_KIND 	= 'interior'
+		AND C_NAME 	= #{c_name}
+		</where>
+	</select>
 
 
 </mapper>

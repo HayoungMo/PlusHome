@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.home.dto.BookingDTO;
 import com.spring.home.dto.CartAndFurnitureDTO;
 import com.spring.home.dto.CompanyDTO;
@@ -196,7 +197,7 @@ public class InteriorController {
 		}
 		return result;
 	}
-	
+
 	@PostMapping("/update/workingToDoneOrCancel")
 	public Map<String, Object> workingToDoneOrCancel(@RequestBody BookingDTO dto) throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -221,6 +222,62 @@ public class InteriorController {
 			e.printStackTrace();
 			result.put("success", false);
 			result.put("message", "수정 도중 오류가 발생했습니다.");
+			result.put("error", e.toString());
+		}
+		return result;
+	}
+
+	@PostMapping("/select/getPDFData")
+	public Map<String, Object> getPDFData(@RequestBody Map<String, Object> param) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+
+//		param > 파싱 안된 상태 ( LinkedHashMap )
+//		DTO 변환용
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		try {
+
+			BookingDTO b_dto = objectMapper.convertValue(param.get("booking"), BookingDTO.class);
+			
+			InvoiceDTO invoice = new InvoiceDTO();
+			if(b_dto.getB_status().equals("cancel")) {
+				invoice = interiorService.getInvoiceCancel(b_dto);
+				if(invoice == null || invoice.getInvoice_no() == 0) {
+					result.put("success", false);
+					result.put("message", "발행된 견적서가 없습니다.");
+					return result;
+				}
+				
+			} else {
+				invoice = interiorService.getInvoice(b_dto);
+			}
+			
+			List<InvoiceDetailDTO> invoiceDetail = interiorService.getInvoicedetails(invoice);
+
+			CompanyDTO c_dto = objectMapper.convertValue(param.get("company"), CompanyDTO.class);
+			CompanyDTO company = interiorService.getCompanyForPDF(c_dto);
+
+			if (invoice == null || invoice.getId() == null) {
+				result.put("success", false);
+				result.put("message", "견적서 조회중 오류가 발생했습니다.");
+				return result;
+			} else if (invoiceDetail == null || invoiceDetail.size() <= 0) {
+				result.put("success", false);
+				result.put("message", "견적서 세부 내역 조회중 오류가 발생했습니다.");
+				return result;
+			} else if (company == null || company.getC_id() == null) {
+				result.put("success", false);
+				result.put("message", "회사 정보 조회중 오류가 발생했습니다.");
+				return result;
+			}
+			result.put("success", true);
+			result.put("invoice", invoice);
+			result.put("invoiceDetail", invoiceDetail);
+			result.put("company", company);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+			result.put("message", "견적 조회를 위한 데이터 조회중 오류가 발생했습니다.");
 			result.put("error", e.toString());
 		}
 		return result;

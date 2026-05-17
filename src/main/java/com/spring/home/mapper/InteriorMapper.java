@@ -74,5 +74,11 @@ public interface InteriorMapper {
 	public List<BookingDTO> selectWorkingAndDone(BookingDTO dto) throws Exception;
 
 	public int workingToDoneOrCancel(BookingDTO dto) throws Exception;
+
+	public InvoiceDTO getInvoice(BookingDTO b_dto) throws Exception;
+
+	public CompanyDTO getCompanyForPDF(CompanyDTO c_dto) throws Exception;
+
+	public InvoiceDTO getInvoiceCancel(BookingDTO b_dto) throws Exception;
 	
 }

@@ -48,11 +48,9 @@ public class InteriorService {
 	}
 
 	public List<CompanyDTO> getLists() {
-		// TODO Auto-generated method stub
 		return interiorMapper.getLists();
 	}
 	public List<InteriorDTO> getArticleLists() {
-		// TODO Auto-generated method stub
 		return interiorMapper.getArticleLists();
 	}
 	
@@ -69,7 +67,6 @@ public class InteriorService {
 	}
 
 	public List<InteriorDTO> getReadData(CompanyDTO companyDTO) throws Exception {
-		// TODO Auto-generated method stub
 		return interiorMapper.getReadData(companyDTO);
 	}
 	
@@ -116,7 +113,6 @@ public class InteriorService {
 		interiorMapper.updateInteriorReview(dto);
 	}
 	
-
 	public void deleteInterior(@RequestBody InteriorDTO dto) throws Exception {
 		interiorMapper.deleteInterior(dto);
 	}
@@ -128,11 +124,24 @@ public class InteriorService {
 	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		interiorMapper.deleteInteriorReview(dto);
 	}
+	
 	public List<BookingDTO> selectWorkingAndDone(BookingDTO dto) throws Exception {
 		return interiorMapper.selectWorkingAndDone(dto);
 	}
+	
 	public int workingToDoneOrCancel(BookingDTO dto) throws Exception {
 		return interiorMapper.workingToDoneOrCancel(dto);
+	}
+	
+	public InvoiceDTO getInvoice(BookingDTO b_dto) throws Exception {
+		return interiorMapper.getInvoice(b_dto);
+	}
+	
+	public CompanyDTO getCompanyForPDF(CompanyDTO c_dto) throws Exception {
+		return interiorMapper.getCompanyForPDF(c_dto);
+	}
+	public InvoiceDTO getInvoiceCancel(BookingDTO b_dto) throws Exception {
+		return interiorMapper.getInvoiceCancel(b_dto);
 	}
 
 

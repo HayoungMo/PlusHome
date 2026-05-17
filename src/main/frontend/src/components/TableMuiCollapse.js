@@ -211,12 +211,12 @@ const CollapseRow = ({
 					<StyledTableCell
 						key={`${data.key}__row_cell`}
 						align="center"
-						onClick={data.onClick}
+						
 						sx={{
 							backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
 							cursor: setSelectedRow ? "pointer" : "default",
 						}}>
-						<Button color={data.color} variant={data.variant}>
+						<Button color={data.color} variant={data.variant} onClick={() => data.onClick(row)}>
 							{data.icon}
 						</Button>
 					</StyledTableCell>

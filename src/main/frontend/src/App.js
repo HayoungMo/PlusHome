@@ -155,7 +155,7 @@ function App() {
             <Route path="/component" element={<ComponentEx />} />
             <Route path="/ImageGetTest" element={<ImageGetTest />} />
             <Route path="/exportPDF" element={<ExportPDF />} />
-            <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
+            
 
             <Route path="/coupon" element={<Coupon />} />
             <Route
@@ -170,6 +170,8 @@ function App() {
           <Route path="/DevDashboard" element={<DevDashboard />} />
 
           <Route path="/companyclaim" element={<CompanyClaimManage/>}/>
+
+          <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
         </Routes>
       </div>
     );
