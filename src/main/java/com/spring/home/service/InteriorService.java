@@ -128,6 +128,12 @@ public class InteriorService {
 	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		interiorMapper.deleteInteriorReview(dto);
 	}
+	public List<BookingDTO> selectWorkingAndDone(BookingDTO dto) throws Exception {
+		return interiorMapper.selectWorkingAndDone(dto);
+	}
+	public int workingToDoneOrCancel(BookingDTO dto) throws Exception {
+		return interiorMapper.workingToDoneOrCancel(dto);
+	}
 
 
 }
