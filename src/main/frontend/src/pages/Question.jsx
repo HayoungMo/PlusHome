@@ -265,7 +265,7 @@ const Question = ({ f_code }) => {
                                 <p>아직 답변이 없습니다.</p>
                             )
                         )}
-                        {canAnswerQuestion && canReadQuestion(item) && !item.q_answer && (
+                        {canAnswerQuestion(item) && canReadQuestion(item) && !item.q_answer && (
                             <div>
                                 <TextField
                                     placeholder="답변 내용을 입력하세요"

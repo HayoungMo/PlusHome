@@ -22,6 +22,8 @@ const UserQuestionPage = ({ user }) => {
     const [answerForms, setAnswerForms] = useState({});
     //답변 수정
     const [answerEditIdx, setAnswerEditIdx] = useState(null);
+    //image 다중처리
+    const [addImageFiles, setAddImageFiles] = useState({});
 
     //회사 확잉
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
@@ -56,7 +58,7 @@ const UserQuestionPage = ({ user }) => {
                 a: item.f_code,
                 d: item.id,
                 idx: item.q_idx,
-                view: false,
+                view: true,
             });
             imageMap[item.q_idx] = imgResult.result || [];
         }
@@ -113,6 +115,41 @@ const UserQuestionPage = ({ user }) => {
         }));
     };
 
+    //파일 중복체크 함수 추가
+    const makeFileKey = (file) => {
+        return `${file.name}-${file.size}-${file.lastModified}`;
+    };
+
+    //이미지 중복처리
+    const onAddImageChange = (q_idx, files) => {
+        const selectedFiles = Array.from(files || []);
+
+        setAddImageFiles((prev) => {
+            const prevFiles = prev[q_idx] || [];
+            const mergedFiles = [...prevFiles, ...selectedFiles];
+
+            const uniqueFiles = Array.from(
+                new Map(
+                    mergedFiles.map((file) => [makeFileKey(file), file])
+                ).values()
+            );
+
+            return {
+                ...prev,
+                [q_idx]: uniqueFiles,
+            };
+        });
+    };
+
+    const removeAddImageFile = (q_idx, fileKey) => {
+        setAddImageFiles((prev) => ({
+            ...prev,
+            [q_idx]: (prev[q_idx] || []).filter(
+                (file) => makeFileKey(file) !== fileKey
+            ),
+        }));
+    };
+
 
     //문의 수정
     const updateQuestion = async (q_idx) => {
@@ -136,6 +173,26 @@ const UserQuestionPage = ({ user }) => {
         })
 
         setEditImagePreview((prev) => {
+            const next = { ...prev };
+            delete next[q_idx];
+            return next;
+        });
+        if (addImageFiles[q_idx]?.length > 0) {
+            const targetQuestion = questions.find((item) => item.q_idx === q_idx);
+
+            await ImageService.insertImage(
+                addImageFiles[q_idx].map((file) => ({
+                    file,
+                    img_kind: "QUESTION",
+                    img_tag: "INFO",
+                    dir_a: targetQuestion.f_code,
+                    dir_d: targetQuestion.id,
+                    img_idx: q_idx,
+                }))
+            );
+        }
+
+        setAddImageFiles((prev) => {
             const next = { ...prev };
             delete next[q_idx];
             return next;
@@ -196,6 +253,7 @@ const UserQuestionPage = ({ user }) => {
         }));
     };
 
+    //답변 수정 취소 함수
     const cancelAnswerEdit = (q_idx) => {
         setAnswerEditIdx(null);
 
@@ -275,6 +333,36 @@ const UserQuestionPage = ({ user }) => {
                                             )
                                         }
                                     />
+                                    <div>
+                                        <p>이미지 추가</p>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={(evt) => {
+                                                onAddImageChange(item.q_idx, evt.target.files);
+                                                evt.target.value = "";
+                                            }}
+                                        />
+
+                                        {addImageFiles[item.q_idx]?.length > 0 && (
+                                            <div>
+                                                <p>{addImageFiles[item.q_idx].length}장의 이미지가 추가됩니다.</p>
+
+                                                {addImageFiles[item.q_idx].map((file) => (
+                                                    <div key={makeFileKey(file)}>
+                                                        <span>{file.name}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeAddImageFile(item.q_idx, makeFileKey(file))}
+                                                        >
+                                                            선택 취소
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 ))}
 
@@ -293,7 +381,7 @@ const UserQuestionPage = ({ user }) => {
                                 <button type="button" onClick={() => updateQuestion(item.q_idx)}>
                                     저장
                                 </button>
-                                <button type="button" onClick={() => cancelAnswerEdit(item.q_idx)}>
+                                <button type="button" onClick={cancelEdit}>
                                     취소
                                 </button>
                             </div>
@@ -370,7 +458,7 @@ const UserQuestionPage = ({ user }) => {
                                     </div>
                                 )}
 
-                                    {!isCompanyUser && !item.q_answer && (
+                                    {!isCompanyUser && (
                                         <button type="button" onClick={() => startEdit(item)}>
                                             수정
                                         </button>
