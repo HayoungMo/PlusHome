@@ -136,6 +136,7 @@ const InteriorUpdate = (props) => {
 			c_name: c_name,
 			tag: i_tag,
 		});
+		onSuccess();
 	};
 
 	useEffect(() => {

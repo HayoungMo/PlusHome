@@ -70,5 +70,9 @@ public interface InteriorMapper {
 	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception;
 	
 	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception;
+
+	public List<BookingDTO> selectWorkingAndDone(BookingDTO dto) throws Exception;
+
+	public int workingToDoneOrCancel(BookingDTO dto) throws Exception;
 	
 }

@@ -4,513 +4,567 @@
 
 <mapper namespace="com.spring.home.mapper.InteriorMapper">
 
-    <!-- 데이터 베이스 테스트 -->
-    
-<insert id="insertInteriorData" parameterType="com.spring.home.dto.InteriorDTO">
-	INSERT INTO interior
-            (c_id,
-             c_kind,
-             c_name,
-             i_tag,
-             i_text)
-VALUES      ( #{c_id},
-              #{c_kind},
-              #{c_name},
-              #{i_tag},
-              #{i_text}) 	
-</insert>
+	<!-- 데이터 베이스 테스트 -->
 
-<insert id="insertInteriorExampleData" parameterType="com.spring.home.dto.InteriorExampleDTO">
-INSERT INTO i_example
-            (c_id,
-             c_name,
-             c_kind,
-             ie_tag,
-             ie_tag2,
-             ie_content)
-VALUES      ( #{c_id},
-              #{c_name},
-              #{c_kind},
-              #{ie_tag},
-              #{ie_tag2},
-              #{ie_content}) 
-</insert>
+	<insert id="insertInteriorData"
+		parameterType="com.spring.home.dto.InteriorDTO">
+		INSERT INTO interior
+		(c_id,
+		c_kind,
+		c_name,
+		i_tag,
+		i_text)
+		VALUES ( #{c_id},
+		#{c_kind},
+		#{c_name},
+		#{i_tag},
+		#{i_text})
+	</insert>
 
-<insert id="insertBookingData" parameterType="com.spring.home.dto.BookingDTO">
-INSERT INTO booking
-            (id,
-             c_id,
-             c_kind,
-             c_name,
-             b_kind,
-             b_long,
-             b_date,
-             b_status,
-             b_content,
-             b_answer)
-VALUES      ( #{id},
-              #{c_id},
-              #{c_kind},
-              #{c_name},
-              #{b_kind},
-              #{b_long},
-              #{b_date},
-              #{b_status},
-              #{b_content},
-              #{b_answer}) </insert>
+	<insert id="insertInteriorExampleData"
+		parameterType="com.spring.home.dto.InteriorExampleDTO">
+		INSERT INTO i_example
+		(c_id,
+		c_name,
+		c_kind,
+		ie_tag,
+		ie_tag2,
+		ie_content)
+		VALUES ( #{c_id},
+		#{c_name},
+		#{c_kind},
+		#{ie_tag},
+		#{ie_tag2},
+		#{ie_content})
+	</insert>
 
-<insert id="insertInvoiceData" parameterType="com.spring.home.dto.InvoiceDTO">
-INSERT INTO invoice
-            (id,
-             c_id,
-             c_kind,
-             c_name,
-             b_createdDate,
-             invoice_no,
-             invoice_kind)
-VALUES      ( #{id},
-              #{c_id},
-              #{c_kind},
-              #{c_name},
-              #{b_createdDate},
-              #{invoice_no},
-              #{invoice_kind}) 	
-</insert>
+	<insert id="insertBookingData"
+		parameterType="com.spring.home.dto.BookingDTO">
+		INSERT INTO booking
+		(id,
+		c_id,
+		c_kind,
+		c_name,
+		b_kind,
+		b_long,
+		b_date,
+		b_status,
+		b_content,
+		b_answer)
+		VALUES ( #{id},
+		#{c_id},
+		#{c_kind},
+		#{c_name},
+		#{b_kind},
+		#{b_long},
+		#{b_date},
+		#{b_status},
+		#{b_content},
+		#{b_answer})
+	</insert>
 
-<insert id="insertInvoiceDetails" parameterType="com.spring.home.dto.InvoiceDTO">
-    INSERT ALL
-    <foreach collection="details" item="item" index="idx">
- INTO invoice_detail (id, c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price)
-VALUES (#{id}, #{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text}, #{item.invoice_qty},#{item.invoice_price})
-    </foreach>  
-    SELECT * FROM DUAL  
-</insert>
+	<insert id="insertInvoiceData"
+		parameterType="com.spring.home.dto.InvoiceDTO">
+		INSERT INTO invoice
+		(id,
+		c_id,
+		c_kind,
+		c_name,
+		b_createdDate,
+		invoice_no,
+		invoice_kind)
+		VALUES ( #{id},
+		#{c_id},
+		#{c_kind},
+		#{c_name},
+		#{b_createdDate},
+		#{invoice_no},
+		#{invoice_kind})
+	</insert>
 
-<insert id="insertInvoiceDetailData" parameterType="com.spring.home.dto.InvoiceDetailDTO">
-  INSERT INTO invoice_detail
-            (id,
-             c_id,
-             c_kind,
-             c_name,
-             b_createddate,
-             invoice_no,
-             invoice_text,
-             invoice_qty,
-             invoice_price)
-VALUES      ( #{id},
-              #{c_id},
-              #{c_kind},
-              #{c_name},
-              #{b_createdDate},
-              #{invoice_no},
-              #{invoice_text},
-              #{invoice_qty},
-              #{invoice_price}) 
-</insert>
+	<insert id="insertInvoiceDetails"
+		parameterType="com.spring.home.dto.InvoiceDTO">
+		INSERT ALL
+		<foreach collection="details" item="item" index="idx">
+			INTO invoice_detail (id,
+			c_id,c_kind,c_name,b_createdDate,invoice_no,invoice_kind,invoice_text,invoice_qty,invoice_price)
+			VALUES (#{id},
+			#{c_id},#{c_kind},#{c_name},#{b_createdDate},#{invoice_no},#{invoice_kind},#{item.invoice_text},
+			#{item.invoice_qty},#{item.invoice_price})
+		</foreach>
+		SELECT * FROM DUAL
+	</insert>
 
-<insert id="insertInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
-INSERT INTO i_review
-            (id,
-             c_id,
-             c_kind,
-             c_name,
-             b_createddate,
-             invoice_no,
-             invoice_kind,
-             ir_content)
-VALUES      ( #{id},
-              #{c_id},
-              #{c_kind},
-              #{c_name},
-              #{b_createdDate},
-              #{invoice_no},
-              #{invoice_kind},
-              #{ir_content}) 
-</insert>
+	<insert id="insertInvoiceDetailData"
+		parameterType="com.spring.home.dto.InvoiceDetailDTO">
+		INSERT INTO invoice_detail
+		(id,
+		c_id,
+		c_kind,
+		c_name,
+		b_createddate,
+		invoice_no,
+		invoice_text,
+		invoice_qty,
+		invoice_price)
+		VALUES ( #{id},
+		#{c_id},
+		#{c_kind},
+		#{c_name},
+		#{b_createdDate},
+		#{invoice_no},
+		#{invoice_text},
+		#{invoice_qty},
+		#{invoice_price})
+	</insert>
 
-<select id="getLists" resultType="com.spring.home.dto.CompanyDTO">
-	SELECT c_id,
-       c_kind,
-       c_name,
-       c_tel,
-       c_addr,
-       c_info,
-       c_boss
-FROM   company
-WHERE  c_kind LIKE 'interior' 
-</select>
+	<insert id="insertInteriorReview"
+		parameterType="com.spring.home.dto.InteriorReviewDTO">
+		INSERT INTO i_review
+		(id,
+		c_id,
+		c_kind,
+		c_name,
+		b_createddate,
+		invoice_no,
+		invoice_kind,
+		ir_content)
+		VALUES ( #{id},
+		#{c_id},
+		#{c_kind},
+		#{c_name},
+		#{b_createdDate},
+		#{invoice_no},
+		#{invoice_kind},
+		#{ir_content})
+	</insert>
 
-<select id="getArticleLists" resultType="com.spring.home.dto.InteriorDTO">
-SELECT c_id,
-       c_kind,
-       c_name,
-       i_tag,
-       i_text
-FROM   interior 
-</select>
+	<select id="getLists"
+		resultType="com.spring.home.dto.CompanyDTO">
+		SELECT c_id,
+		c_kind,
+		c_name,
+		c_tel,
+		c_addr,
+		c_info,
+		c_boss
+		FROM company
+		WHERE c_kind LIKE 'interior'
+	</select>
 
-<select id="getReadData" parameterType="hashMap" resultType="com.spring.home.dto.InteriorDTO">
-SELECT c_id,
-       c_kind,
-       c_name,
-       i_tag,
-       i_text
-FROM interior
+	<select id="getArticleLists"
+		resultType="com.spring.home.dto.InteriorDTO">
+		SELECT c_id,
+		c_kind,
+		c_name,
+		i_tag,
+		i_text
+		FROM interior
+	</select>
 
-<where>
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
+	<select id="getReadData" parameterType="hashMap"
+		resultType="com.spring.home.dto.InteriorDTO">
+		SELECT c_id,
+		c_kind,
+		c_name,
+		i_tag,
+		i_text
+		FROM interior
 
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
+		<where>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
 
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
-</where>
-</select>
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
 
-
-<select id="getExamples" parameterType="hashMap" resultType="com.spring.home.dto.InteriorExampleDTO">
-SELECT c_id,
-       c_kind,
-       c_name,
-       ie_content,
-       ie_tag,
-       ie_tag2
-FROM i_example
-<where>
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
-
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
-
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
-</where>
-</select>
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
+		</where>
+	</select>
 
 
-<select id="getBookings" parameterType="hashMap" resultType="com.spring.home.dto.BookingDTO">
-SELECT id,
-       b_createddate,
-       c_id,
-       c_kind,
-       c_name,
-       b_kind,
-       b_long,
-       b_date,
-       b_status,
-       b_content,
-       b_answer
-FROM booking
-<where>
-<if test="id != null and id != ''">
-  AND id = #{id}
-</if>
+	<select id="getExamples" parameterType="hashMap"
+		resultType="com.spring.home.dto.InteriorExampleDTO">
+		SELECT c_id,
+		c_kind,
+		c_name,
+		ie_content,
+		ie_tag,
+		ie_tag2
+		FROM i_example
+		<where>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
 
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
 
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
-
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
-</where>
-</select>
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
+		</where>
+	</select>
 
 
-<select id="getInvoices" parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDTO">
-SELECT id,
-       b_createdDate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind
-FROM invoice
-<where>
-<if test="id != null and id != ''">
-  AND id = #{id}
-</if>
+	<select id="getBookings" parameterType="hashMap"
+		resultType="com.spring.home.dto.BookingDTO">
+		SELECT id,
+		b_createddate,
+		c_id,
+		c_kind,
+		c_name,
+		b_kind,
+		b_long,
+		b_date,
+		b_status,
+		b_content,
+		b_answer
+		FROM booking
+		<where>
+			<if test="id != null and id != ''">
+				AND id = #{id}
+			</if>
 
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
 
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
 
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
-
-<if test="b_createdDate != null">
-  AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
-</if>
-</where>
-</select>
-
-
-<select id="getInvoicedetails" parameterType="hashMap" resultType="com.spring.home.dto.InvoiceDetailDTO">
-SELECT id,
-       b_createdDate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind,
-       invoice_text,
-       invoice_qty,
-       invoice_price
-FROM invoice_detail
-<where>
-<if test="id != null and id != ''">
-  AND id = #{id}
-</if>
-
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
-
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
-
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
-
-<if test="b_createdDate != null">
-  AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
-</if>
-
-<if test="invoice_no != null and invoice_no != ''">
-  AND invoice_no = #{invoice_no}
-</if>
-
-<if test="invoice_kind != null and invoice_kind != ''">
-  AND invoice_kind = #{invoice_kind}
-</if>
-</where>
-</select>
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
+		</where>
+	</select>
 
 
-<select id="getUserInteriorReviews" parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
-SELECT id,
-       b_createddate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind,
-       ir_content,
-       ir_createdDate
-FROM i_review
-<where>
-<if test="id != null and id != ''">
-  AND id = #{id}
-</if>
+	<select id="getInvoices" parameterType="hashMap"
+		resultType="com.spring.home.dto.InvoiceDTO">
+		SELECT id,
+		b_createdDate,
+		c_id,
+		c_kind,
+		c_name,
+		invoice_no,
+		invoice_kind
+		FROM invoice
+		<where>
+			<if test="id != null and id != ''">
+				AND id = #{id}
+			</if>
 
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
 
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
 
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
 
-<if test="invoice_no != null and invoice_no != ''">
-  AND invoice_no = #{invoice_no}
-</if>
-
-<if test="invoice_kind != null and invoice_kind != ''">
-  AND invoice_kind = #{invoice_kind}
-</if>
-
-<if test="b_createdDate != null">
-  AND b_createddate = #{b_createdDate, jdbcType=TIMESTAMP}
-</if>
-</where>
-</select>
+			<if test="b_createdDate != null">
+				AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</select>
 
 
-<select id="getCompanyInteriorReviews" parameterType="hashMap" resultType="com.spring.home.dto.InteriorReviewDTO">
-SELECT id,
-       b_createddate,
-       c_id,
-       c_kind,
-       c_name,
-       invoice_no,
-       invoice_kind,
-       ir_content,
-       ir_createddate
-FROM i_review
-<where>
-<if test="c_id != null and c_id != ''">
-  AND c_id = #{c_id}
-</if>
+	<select id="getInvoicedetails" parameterType="hashMap"
+		resultType="com.spring.home.dto.InvoiceDetailDTO">
+		SELECT id,
+		b_createdDate,
+		c_id,
+		c_kind,
+		c_name,
+		invoice_no,
+		invoice_kind,
+		invoice_text,
+		invoice_qty,
+		invoice_price
+		FROM invoice_detail
+		<where>
+			<if test="id != null and id != ''">
+				AND id = #{id}
+			</if>
 
-<if test="c_kind != null and c_kind != ''">
-  AND c_kind = #{c_kind}
-</if>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
 
-<if test="c_name != null and c_name != ''">
-  AND c_name = #{c_name}
-</if>
-</where>
-</select>
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
 
-<select id="getAllReviewlists"  resultType="com.spring.home.dto.InteriorReviewDTO">
-SELECT ir.id,
-       ir.b_createddate,
-       ir.c_id,
-       ir.c_kind,
-       ir.c_name,
-       ir.invoice_no,
-       ir.invoice_kind,
-       ir.ir_content,
-       ir.ir_createddate,
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
 
-       c.c_addr,
-       c.c_tel,
-       c.c_boss,
-       c.c_info
+			<if test="b_createdDate != null">
+				AND b_createdDate = #{b_createdDate, jdbcType=TIMESTAMP}
+			</if>
 
-FROM   i_review ir
-       JOIN company c
-         ON ir.c_id = c.c_id
-        AND ir.c_kind = c.c_kind
-        AND ir.c_name = c.c_name
-</select>
+			<if test="invoice_no != null and invoice_no != ''">
+				AND invoice_no = #{invoice_no}
+			</if>
 
-<select id="getAllExamples"  resultType="com.spring.home.dto.InteriorExampleDTO">
-SELECT ie.c_id,
-       ie.c_kind,
-       ie.c_name,
-       ie.ie_content,
-       ie.ie_tag,
-       ie.ie_tag2,
-
-       c.c_addr,
-       c.c_tel,
-       c.c_boss,
-       c.c_info
-
-FROM   i_example ie
-       JOIN company c
-         ON ie.c_id = c.c_id
-        AND ie.c_kind = c.c_kind
-        AND ie.c_name = c.c_name
-</select>
-
-<select id="getAllBookings"  resultType="com.spring.home.dto.BookingDTO">
-SELECT id,
-       b_createddate,
-       c_id,
-       c_kind,
-       c_name,
-       b_kind,
-       b_long,
-       b_date,
-       b_status,
-       b_content,
-       b_answer
-FROM   booking
-</select>
+			<if test="invoice_kind != null and invoice_kind != ''">
+				AND invoice_kind = #{invoice_kind}
+			</if>
+		</where>
+	</select>
 
 
-<select id="getCompany" parameterType="com.spring.home.dto.CompanyDTO" resultType="com.spring.home.dto.CompanyDTO">
-SELECT *
-FROM   company
-WHERE  c_id = #{c_id}
-       AND c_name = #{c_name}
-       AND c_kind = #{c_kind} 
-</select>
+	<select id="getUserInteriorReviews" parameterType="hashMap"
+		resultType="com.spring.home.dto.InteriorReviewDTO">
+		SELECT id,
+		b_createddate,
+		c_id,
+		c_kind,
+		c_name,
+		invoice_no,
+		invoice_kind,
+		ir_content,
+		ir_createdDate
+		FROM i_review
+		<where>
+			<if test="id != null and id != ''">
+				AND id = #{id}
+			</if>
 
-<update id="updateInterior" parameterType="com.spring.home.dto.InteriorDTO">
-UPDATE interior
-SET    i_text = #{i_text}
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND i_tag = #{i_tag} 
-</update>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
 
-<update id="updateInteriorExample" parameterType="com.spring.home.dto.InteriorExampleDTO">
-UPDATE i_example
-SET    ie_content = #{ie_content}
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND ie_tag = #{ie_tag}
-       AND ie_tag2 = #{ie_tag2} 
-</update>
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
 
-<update id="updateBooking" parameterType="com.spring.home.dto.BookingDTO">
-UPDATE booking
-SET    b_kind = #{b_kind},
-       b_long = #{b_long},
-       b_status = #{b_status},
-       b_date = #{b_date},
-       b_content = #{b_content}
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND b_createddate = #{b_createdDate}
-       AND id = #{id} 
-</update>
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
 
-<update id="updateInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
-UPDATE i_review
-SET    ir_content = #{ir_content}
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND b_createddate = #{b_createdDate}
-       AND id = #{id} 
-</update>
+			<if test="invoice_no != null and invoice_no != ''">
+				AND invoice_no = #{invoice_no}
+			</if>
 
-<delete id="deleteInterior" parameterType="com.spring.home.dto.InteriorDTO">
-DELETE FROM interior
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND i_tag = #{i_tag} 
-</delete>
+			<if test="invoice_kind != null and invoice_kind != ''">
+				AND invoice_kind = #{invoice_kind}
+			</if>
 
-<delete id="deleteInteriorExample" parameterType="com.spring.home.dto.InteriorExampleDTO">
-DELETE FROM i_example
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND ie_tag = #{ie_tag}
-       AND ie_tag2 = #{ie_tag2}  
-</delete>
+			<if test="b_createdDate != null">
+				AND b_createddate = #{b_createdDate, jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</select>
 
-<delete id="deleteInteriorReview" parameterType="com.spring.home.dto.InteriorReviewDTO">
-DELETE FROM i_review
-WHERE  c_id = #{c_id}
-       AND c_kind = #{c_kind}
-       AND c_name = #{c_name}
-       AND b_createddate = #{b_createdDate}
-       AND id = #{id} 
-</delete>
+
+	<select id="getCompanyInteriorReviews" parameterType="hashMap"
+		resultType="com.spring.home.dto.InteriorReviewDTO">
+		SELECT id,
+		b_createddate,
+		c_id,
+		c_kind,
+		c_name,
+		invoice_no,
+		invoice_kind,
+		ir_content,
+		ir_createddate
+		FROM i_review
+		<where>
+			<if test="c_id != null and c_id != ''">
+				AND c_id = #{c_id}
+			</if>
+
+			<if test="c_kind != null and c_kind != ''">
+				AND c_kind = #{c_kind}
+			</if>
+
+			<if test="c_name != null and c_name != ''">
+				AND c_name = #{c_name}
+			</if>
+		</where>
+	</select>
+
+	<select id="getAllReviewlists"
+		resultType="com.spring.home.dto.InteriorReviewDTO">
+		SELECT ir.id,
+		ir.b_createddate,
+		ir.c_id,
+		ir.c_kind,
+		ir.c_name,
+		ir.invoice_no,
+		ir.invoice_kind,
+		ir.ir_content,
+		ir.ir_createddate,
+
+		c.c_addr,
+		c.c_tel,
+		c.c_boss,
+		c.c_info
+
+		FROM i_review ir
+		JOIN company c
+		ON ir.c_id = c.c_id
+		AND ir.c_kind = c.c_kind
+		AND ir.c_name = c.c_name
+	</select>
+
+	<select id="getAllExamples"
+		resultType="com.spring.home.dto.InteriorExampleDTO">
+		SELECT ie.c_id,
+		ie.c_kind,
+		ie.c_name,
+		ie.ie_content,
+		ie.ie_tag,
+		ie.ie_tag2,
+
+		c.c_addr,
+		c.c_tel,
+		c.c_boss,
+		c.c_info
+
+		FROM i_example ie
+		JOIN company c
+		ON ie.c_id = c.c_id
+		AND ie.c_kind = c.c_kind
+		AND ie.c_name = c.c_name
+	</select>
+
+	<select id="getAllBookings"
+		resultType="com.spring.home.dto.BookingDTO">
+		SELECT id,
+		b_createddate,
+		c_id,
+		c_kind,
+		c_name,
+		b_kind,
+		b_long,
+		b_date,
+		b_status,
+		b_content,
+		b_answer
+		FROM booking
+	</select>
+
+
+	<select id="getCompany"
+		parameterType="com.spring.home.dto.CompanyDTO"
+		resultType="com.spring.home.dto.CompanyDTO">
+		SELECT *
+		FROM company
+		WHERE c_id = #{c_id}
+		AND c_name = #{c_name}
+		AND c_kind = #{c_kind}
+	</select>
+
+	<update id="updateInterior"
+		parameterType="com.spring.home.dto.InteriorDTO">
+		UPDATE interior
+		SET i_text = #{i_text}
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND i_tag = #{i_tag}
+	</update>
+
+	<update id="updateInteriorExample"
+		parameterType="com.spring.home.dto.InteriorExampleDTO">
+		UPDATE i_example
+		SET ie_content = #{ie_content}
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND ie_tag = #{ie_tag}
+		AND ie_tag2 = #{ie_tag2}
+	</update>
+
+	<update id="updateBooking"
+		parameterType="com.spring.home.dto.BookingDTO">
+		UPDATE booking
+		SET b_kind = #{b_kind},
+		b_long = #{b_long},
+		b_status = #{b_status},
+		b_date = #{b_date},
+		b_content = #{b_content}
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND b_createddate = #{b_createdDate}
+		AND id = #{id}
+	</update>
+
+	<update id="updateInteriorReview"
+		parameterType="com.spring.home.dto.InteriorReviewDTO">
+		UPDATE i_review
+		SET ir_content = #{ir_content}
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND b_createddate = #{b_createdDate}
+		AND id = #{id}
+	</update>
+
+	<delete id="deleteInterior"
+		parameterType="com.spring.home.dto.InteriorDTO">
+		DELETE FROM interior
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND i_tag = #{i_tag}
+	</delete>
+
+	<delete id="deleteInteriorExample"
+		parameterType="com.spring.home.dto.InteriorExampleDTO">
+		DELETE FROM i_example
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND ie_tag = #{ie_tag}
+		AND ie_tag2 = #{ie_tag2}
+	</delete>
+
+	<delete id="deleteInteriorReview"
+		parameterType="com.spring.home.dto.InteriorReviewDTO">
+		DELETE FROM i_review
+		WHERE c_id = #{c_id}
+		AND c_kind = #{c_kind}
+		AND c_name = #{c_name}
+		AND b_createddate = #{b_createdDate}
+		AND id = #{id}
+	</delete>
+
+	<select id="selectWorkingAndDone"
+		parameterType="com.spring.home.dto.BookingDTO"
+		resultType="com.spring.home.dto.BookingDTO">
+		SELECT * FROM BOOKING
+		<where>
+			AND c_id = #{c_id}
+			AND B_STATUS = 'working' or B_STATUS = 'done'
+		</where>
+	</select>
+	
+	<update id="workingToDoneOrCancel" parameterType="com.spring.home.dto.BookingDTO">
+		UPDATE BOOKING
+		SET B_STATUS = #{b_status}
+		<where>
+			AND ID = #{id}
+			AND B_CREATEDDATE = #{b_createdDate}
+			AND C_ID = #{c_id}
+			AND C_KIND = #{c_kind}
+			AND C_NAME = #{c_name}
+		</where>
+	</update>
 
 
 </mapper>
