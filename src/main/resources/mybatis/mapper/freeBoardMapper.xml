@@ -40,8 +40,8 @@
                     TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt
                 FROM freeboard
                 <include refid="searchWhere"/>
-                ORDER BY 
-                   CASE WHEN category = '공지' THEN 1 ELSE 2 END ASC, 
+                ORDER BY
+                   CASE WHEN category = '공지' THEN 1 ELSE 2 END ASC,
                    boardId DESC
             ) data
         )
@@ -54,9 +54,9 @@
     </select>
 
     <select id="getReadData" parameterType="long" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT 
-            boardId, userId, userName, category, title, content, 
-            viewCount, likeCount, commentCount, 
+        SELECT
+            boardId, userId, userName, category, title, content,
+            viewCount, likeCount, commentCount,
             hidden, createdAt, updatedAt
         FROM freeboard
         WHERE boardId = #{boardId}
@@ -99,6 +99,10 @@
 
     <update id="updateLikeCount" parameterType="long">
         UPDATE freeboard SET likeCount = likeCount + 1 WHERE boardId = #{boardId}
+    </update>
+
+    <update id="unlikeCount" parameterType="long">
+        UPDATE freeboard SET likeCount = GREATEST(likeCount - 1, 0) WHERE boardId = #{boardId}
     </update>
 
     <update id="updateHiddenStatus" parameterType="map">

@@ -2,13 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Paper, Typography, Divider, Box } from "@mui/material";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import StatsSection from "./StatsSection";
 import FreeBoardStatsService from "../../service/freeBoardStatsService";
 
-/**
- * 사이드 패널 - 비로그인(게스트)용
- * 전체 인기글 / 최신글 목록을 보여줌 (읽기 전용)
- */
 const FreeBoardGuestStatsPanel = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
@@ -54,7 +52,12 @@ const FreeBoardGuestStatsPanel = () => {
                 items={stats.topLiked}
                 onItemClick={goArticle}
                 emptyText="인기 게시글이 없습니다."
-                rightLabel={(it) => `♥ ${it.likeCount ?? 0}`}
+                rightLabel={(it) => (
+                    <>
+                        <ThumbUpAltIcon sx={{ fontSize: 11 }} />
+                        {it.likeCount ?? 0}
+                    </>
+                )}
             />
 
             <StatsSection
@@ -63,7 +66,12 @@ const FreeBoardGuestStatsPanel = () => {
                 items={stats.topCommented}
                 onItemClick={goArticle}
                 emptyText="댓글 달린 게시글이 없습니다."
-                rightLabel={(it) => `💬 ${it.commentCount ?? 0}`}
+                rightLabel={(it) => (
+                    <>
+                        <ChatBubbleOutlineIcon sx={{ fontSize: 11 }} />
+                        {it.commentCount ?? 0}
+                    </>
+                )}
             />
         </Paper>
     );

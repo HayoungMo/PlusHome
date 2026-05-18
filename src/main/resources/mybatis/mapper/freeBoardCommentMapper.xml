@@ -28,36 +28,41 @@
         )
     </insert>
 
- <select id="getCommentsByBoardId" 
-        parameterType="map" 
-        resultType="com.spring.home.dto.FreeBoardCommentDTO">
-    SELECT 
-        commentid AS commentId, 
-        boardid AS boardId, 
-        userid AS userId, 
-        username AS userName, 
-        content, 
-        parentid AS parentId, 
-        hidden, 
-        createdat AS createdAt,
-        updatedat AS updatedAt
-    FROM freeboard_comment
-    WHERE boardid = #{boardId}
-    <if test="type != 'admin'">
-        AND hidden = 0
-    </if>
-    ORDER BY createdat ASC
-</select>
-    
+    <!--
+        탈퇴 회원 표시 정책: DB 트리거(trg_users_joined_freeboard_cmt) 가
+        users.joined='N' 변경 시점에 freeboard_comment.userName 을 '탈퇴한 회원'
+        으로 직접 UPDATE 한다. SELECT 쿼리는 freeboard_comment 단독 조회로 단순화.
+    -->
+    <select id="getCommentsByBoardId"
+            parameterType="map"
+            resultType="com.spring.home.dto.FreeBoardCommentDTO">
+        SELECT
+            commentid AS commentId,
+            boardid   AS boardId,
+            userid    AS userId,
+            username  AS userName,
+            content,
+            parentid  AS parentId,
+            hidden,
+            createdat AS createdAt,
+            updatedat AS updatedAt
+        FROM freeboard_comment
+        WHERE boardid = #{boardId}
+        <if test="type != 'admin'">
+            AND hidden = 0
+        </if>
+        ORDER BY createdat ASC
+    </select>
+
     <select id="getCommentById"
             resultType="com.spring.home.dto.FreeBoardCommentDTO">
         SELECT
             commentid AS commentId,
-            boardid AS boardId,
-            userid AS userId,
-            username AS userName,
+            boardid   AS boardId,
+            userid    AS userId,
+            username  AS userName,
             content,
-            parentid AS parentId,
+            parentid  AS parentId,
             hidden,
             createdat AS createdAt,
             updatedat AS updatedAt

@@ -6,12 +6,19 @@ import {
 } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ReportIcon from "@mui/icons-material/Report";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import StatsSection from "./StatsSection";
 import FreeBoardStatsService from "../../service/freeBoardStatsService";
 import { exportDangerExcel } from "./dangerExport";
+import SnackbarAlert from "../SnackbarAlert";
 
 const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
     const navigate = useNavigate();
+    const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
+    const showSnack = (message, severity = "success") => setSnack({ open: true, message, severity });
+    const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
+
     const [stats, setStats] = useState({
         latest: [],
         latestCount: 0,
@@ -60,7 +67,7 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
             );
             setStats((prev) => ({ ...prev, reportedPosts: nextReportedPosts }));
             if (next) {
-                alert("관리자에 의해 게시글이 숨김 처리되었습니다.");
+                showSnack("관리자에 의해 게시글이 숨김 처리되었습니다.", "warning");
                 await exportDanger({ reportedPosts: nextReportedPosts });
             }
             if (onRefresh) onRefresh();
@@ -69,7 +76,7 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
 
     const handleToggleCommentHidden = async (cmt) => {
         if (!cmt?.commentId) {
-            alert("유효하지 않은 댓글 데이터입니다.");
+            showSnack("유효하지 않은 댓글 데이터입니다.", "error");
             return;
         }
         const next = !cmt.hidden;
@@ -80,7 +87,7 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
             );
             setStats((prev) => ({ ...prev, reportedComments: nextReportedComments }));
             if (next) {
-                alert("관리자에 의해 댓글이 숨김 처리되었습니다.");
+                showSnack("관리자에 의해 댓글이 숨김 처리되었습니다.", "warning");
                 await exportDanger({ reportedComments: nextReportedComments });
             }
             if (onRefresh) onRefresh();
@@ -88,6 +95,8 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
     };
 
     return (
+        <>
+        <SnackbarAlert open={snack.open} message={snack.message} severity={snack.severity} onClose={closeSnack} />
         <Paper variant="outlined" sx={{ p: 2 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <AdminPanelSettingsIcon fontSize="small" color="error" />
@@ -110,7 +119,9 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
                 items={stats.topLiked}
                 onItemClick={goArticle}
                 emptyText="좋아요 받은 게시글이 없습니다."
-                rightLabel={(it) => `♥ ${it.likeCount ?? 0}`}
+                rightLabel={(it) => (
+                    <><ThumbUpAltIcon sx={{ fontSize: 11 }} />{it.likeCount ?? 0}</>
+                )}
             />
             <StatsSection
                 title="댓글많은게시글"
@@ -118,7 +129,9 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
                 items={stats.topCommented}
                 onItemClick={goArticle}
                 emptyText="댓글 달린 게시글이 없습니다."
-                rightLabel={(it) => `💬 ${it.commentCount ?? 0}`}
+                rightLabel={(it) => (
+                    <><ChatBubbleOutlineIcon sx={{ fontSize: 11 }} />{it.commentCount ?? 0}</>
+                )}
             />
 
             {/* 신고 게시글 */}
@@ -227,7 +240,7 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
                                             }}
                                         >
                                             {c.parentId ? "└ " : ""}
-                                            {c.content || `#${c.commentId || "No ID"}`}
+                                            {c.title || `#${c.commentId || "No ID"}`}
                                         </Typography>
                                     }
                                     secondary={
@@ -242,6 +255,7 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
                 )}
             </Box>
         </Paper>
+        </>
     );
 };
 

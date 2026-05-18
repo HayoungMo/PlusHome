@@ -2,19 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Paper, Typography, Divider, Box } from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
 import StatsSection from "./StatsSection";
 import FreeBoardStatsService from "../../service/freeBoardStatsService";
 
-/**
- * 사이드 패널 - 로그인 일반 사용자용 
- * - 내가쓴 최신작성게시글 ( 갯수 )
- * - 내가쓴 좋아요많은게시글 ( 갯수 )
- * - 내가쓴 댓글많은게시글 ( 갯수 )
- *
- * props:
- *   loginUser : 로그인 유저 객체 (있어야 보임)
- */
 const FreeBoardUserStatsPanel = ({ loginUser }) => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
@@ -31,19 +24,15 @@ const FreeBoardUserStatsPanel = ({ loginUser }) => {
         let mounted = true;
         (async () => {
             const data = await FreeBoardStatsService.getUserStats(loginUser.id);
-            if (mounted) setStats(data);
+            if (mounted && data) setStats(data);
         })();
-        return () => {
-            mounted = false;
-        };
+        return () => { mounted = false; };
     }, [loginUser]);
 
     if (!loginUser) return null;
 
     const goArticle = (item) => {
-        if (item && item.boardId) {
-            navigate(`/freeboard/article/${item.boardId}`);
-        }
+        if (item && item.boardId) navigate(`/freeboard/article/${item.boardId}`);
     };
 
     return (
@@ -57,7 +46,7 @@ const FreeBoardUserStatsPanel = ({ loginUser }) => {
             <Divider sx={{ mb: 2 }} />
 
             <StatsSection
-                title="내가쓴 최신작성게시글"
+                title="내가 쓴 최신글"
                 count={stats.latestCount}
                 items={stats.latest}
                 onItemClick={goArticle}
@@ -66,21 +55,31 @@ const FreeBoardUserStatsPanel = ({ loginUser }) => {
             />
 
             <StatsSection
-                title="내가쓴 좋아요많은게시글"
+                title="내가 쓴 좋아요 많은 글"
                 count={stats.topLikedCount}
                 items={stats.topLiked}
                 onItemClick={goArticle}
                 emptyText="좋아요 받은 게시글이 없습니다."
-                rightLabel={(it) => `♥ ${it.likeCount ?? 0}`}
+                rightLabel={(it) => (
+                    <>
+                        <ThumbUpAltIcon sx={{ fontSize: 11 }} />
+                        {it.likeCount ?? 0}
+                    </>
+                )}
             />
 
             <StatsSection
-                title="내가쓴 댓글많은게시글"
+                title="내가 쓴 댓글 많은 글"
                 count={stats.topCommentedCount}
                 items={stats.topCommented}
                 onItemClick={goArticle}
                 emptyText="댓글 달린 게시글이 없습니다."
-                rightLabel={(it) => `💬 ${it.commentCount ?? 0}`}
+                rightLabel={(it) => (
+                    <>
+                        <ChatBubbleOutlineIcon sx={{ fontSize: 11 }} />
+                        {it.commentCount ?? 0}
+                    </>
+                )}
             />
         </Paper>
     );

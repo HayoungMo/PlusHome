@@ -1,0 +1,148 @@
+/* =====================================================
+   FreeBoardArticlePage.css
+   자유게시판 상세(게시글) 페이지 전용 스타일
+   ===================================================== */
+
+/* ── 페이지 진입 애니메이션 ──────────────────────── */
+.freeboard-article-wrapper {
+    animation: fadeIn 0.25s ease;
+}
+
+/* ── 게시글 카드 ──────────────────────────────────── */
+.freeboard-article-card {
+    border-radius: 16px !important;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── 카테고리 + 번호 행 ───────────────────────────── */
+.freeboard-article-meta-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.freeboard-article-no {
+    font-size: 0.72rem;
+    color: #9ca3af;
+}
+
+/* ── 제목 ─────────────────────────────────────────── */
+.freeboard-article-title {
+    font-size: 1.65rem !important;
+    font-weight: 800 !important;
+    color: #111827;
+    line-height: 1.3;
+    word-break: break-all;
+    margin-bottom: 12px !important;
+}
+
+/* ── 작성자 / 날짜 / 조회수 행 ───────────────────── */
+.freeboard-article-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #6b7280;
+}
+
+.freeboard-article-author {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.freeboard-article-date {
+    font-size: 0.82rem;
+    color: #9ca3af;
+}
+
+/* ── 구분선 ───────────────────────────────────────── */
+.freeboard-article-divider {
+    border-color: #f3f4f6 !important;
+    margin: 16px 0 !important;
+}
+
+/* ── 본문 영역 ────────────────────────────────────── */
+.freeboard-article-body {
+    min-height: 280px;
+    padding: 24px 0;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #1f2937;
+    white-space: pre-wrap;
+}
+
+/* ── 좋아요 버튼 영역 ─────────────────────────────── */
+.freeboard-like-section {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0 20px;
+}
+
+.freeboard-like-btn {
+    border-radius: 24px !important;
+    padding: 8px 32px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.freeboard-like-btn:hover {
+    transform: scale(1.04);
+}
+
+/* ── 하단 버튼 바 ─────────────────────────────────── */
+.freeboard-article-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9fafb;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    margin-top: 8px;
+}
+
+/* ── 이전글 / 다음글 네비 ────────────────────────── */
+.freeboard-nav-bar {
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+    margin: 28px 0;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.freeboard-nav-btn {
+    flex: 1;
+    padding: 16px !important;
+    border-radius: 0 !important;
+    color: #374151 !important;
+    font-size: 0.85rem !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: background-color 0.15s ease !important;
+}
+
+.freeboard-nav-btn:hover:not(:disabled) {
+    background-color: #f0f4ff !important;
+}
+
+.freeboard-nav-btn:disabled {
+    color: #d1d5db !important;
+}
+
+/* ── 댓글 섹션 제목 ───────────────────────────────── */
+.freeboard-comment-section-title {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #1f2937;
+    margin-bottom: 12px !important;
+}
+
+/* ── 애니메이션 ───────────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
