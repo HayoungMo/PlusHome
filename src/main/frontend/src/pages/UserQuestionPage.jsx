@@ -30,17 +30,42 @@ const UserQuestionPage = ({ user }) => {
     const currentUser = user || savedUser;
     const isCompanyUser = currentUser?.type === "company";
 
+    //questionService.getCompanyQuestions(company.c_id) 이부분에서 c_id 가 같은게 여러개 있으면 계속 불러서 이걸 제거해주는 함수들
+    const getQuestionKey = (item) => {
+        return `${item.id}-${item.f_code}-${item.q_idx}`;
+    };
+
+    const removeDuplicateQuestions = (list) => {
+        return Array.from(
+            //여기서 Map은 우리가 아는 반복의 map 이 아니라 자바스크립트의 자료구조이다. 비유하면 사물함 같은 개념. 
+            //같은 키가 또 들어오면 기존 값을 덮어 쓴다.-> 그래서 중복 질문을 제거하는 효과가 생긴다
+            new Map( 
+                list.map((item) => [getQuestionKey(item), item])
+            ).values()
+        );
+    };
+
+    const removeDuplicateCompanyIds = (companyList) => {
+        //set은 ES6에 도입된 자바스크립트 내장 객체, 중복되지 않은 값들의 집합을 저장 할 수 있고, 각 값은 한 번만 저장.
+        return Array.from(
+            new Set(
+                companyList.map((company) => company.c_id)
+            )
+        );
+    };
+
     
     const getMyQuestions = async () => {
         if (!currentUser?.id) return;
         
-        //조회하는 함수 안에서 회사계정일 경우 문의를 불러올수 있게 변경해줌
+        //조회하는 함수 안에서 회사계정일 경우 문의를 불러올수 있게 변경해줌 -> 회사 아이디로 여러번 호출하는걸 방지해줌.
         const companyList = currentUser?.companyList || [];
+        const uniqueCompanyIds = removeDuplicateCompanyIds(companyList);
 
         const data = isCompanyUser
             ?(await Promise.all(
-                companyList.map((company) => 
-                    questionService.getCompanyQuestions(company.c_id)
+                uniqueCompanyIds.map((c_id) => 
+                    questionService.getCompanyQuestions(c_id)
                 )
             )).flat()
             : await questionService.getMyQuestions(currentUser.id);
@@ -51,20 +76,22 @@ const UserQuestionPage = ({ user }) => {
 
         const imageMap = {};
 
-        for (const item of questionList) {
-            const imgResult = await GetImgDir({
-                kind: "QUESTION",
-                returnType: "list",
-                a: item.f_code,
-                d: item.id,
-                idx: item.q_idx,
-                view: true,
-            });
-            imageMap[item.q_idx] = imgResult.result || [];
-        }
+        const imageEntries = await Promise.all(
+            questionList.map(async (item) => {
+                const imgResult = await GetImgDir({
+                    kind: "QUESTION",
+                    returnType: "list",
+                    a: item.f_code,
+                    d: item.id,
+                    idx: item.q_idx,
+                    view: true,
+                });
 
-        setQuestionImages(imageMap);
-    };
+                return [item.q_idx, imgResult.result || []];
+            })
+        );
+
+setQuestionImages(Object.fromEntries(imageEntries));
 
     useEffect(() => {
         getMyQuestions();
