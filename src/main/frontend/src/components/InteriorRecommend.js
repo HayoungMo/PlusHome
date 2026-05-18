@@ -264,7 +264,7 @@ const InteriorRecommend = ({ answers }) => {
               <span>tel: {item.c_tel}</span>
               <span>addr: {item.c_addr}</span>
               <div className="interior-recommend-ai">
-                <InteriorAnswerAi
+                {/* <InteriorAnswerAi
                   answers={answers}
                   company={item}
                   tags={tags.filter(
@@ -274,7 +274,7 @@ const InteriorRecommend = ({ answers }) => {
                       tag.c_name === item.c_name,
                   )}
                   score={item.score}
-                />
+                /> */}
               </div>
             </div>
           </div>
