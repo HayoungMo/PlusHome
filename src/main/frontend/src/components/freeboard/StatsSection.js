@@ -1,5 +1,7 @@
 import React from "react";
 import { Box, Stack, Typography, Chip, List, ListItemButton, ListItemText } from "@mui/material";
+import "../../css/freeBoardStats.css";
+
 
 const StatsSection = ({
     title,
@@ -8,16 +10,16 @@ const StatsSection = ({
     onItemClick,
     emptyText = "데이터가 없습니다.",
     rightLabel,
-    showHidden = false,
 }) => {
     return (
-        <Box sx={{ mb: 1.5 }}> {/* 간격을 살짝 줄임 */}
+        <Box sx={{ mb: 1.5 }}>
+            {/* 섹션 헤더 */}
             <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.5 }}>
-                <Typography variant="caption" fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
+                <Typography className="stats-section-title">
                     {title}
                 </Typography>
                 <Chip
-                    label={`${count}`} // '개' 글자를 빼서 공간 확보
+                    label={`${count}`}
                     size="small"
                     color="primary"
                     variant="outlined"
@@ -25,8 +27,9 @@ const StatsSection = ({
                 />
             </Stack>
 
+            {/* 리스트 본문 */}
             {items.length === 0 ? (
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", pl: 0.5 }}>
+                <Typography className="stats-empty-text">
                     {emptyText}
                 </Typography>
             ) : (
@@ -35,50 +38,29 @@ const StatsSection = ({
                         <ListItemButton
                             key={it.boardId || it.commentId}
                             onClick={() => onItemClick && onItemClick(it)}
-                            sx={{ py: 0.1, px: 0.5 }} // 위아래 여백 최소화
+                            sx={{ py: 0.25, px: 0.5 }}
                         >
                             <ListItemText
                                 primary={
-                                    <Stack direction="row" spacing={0.5} alignItems="center" justifyContent="space-between">
-                                        <Stack direction="row" spacing={0.3} alignItems="center" sx={{ minWidth: 0, flexGrow: 1 }}>
-                                            <Typography
-                                                variant="caption"
-                                                noWrap
-                                                sx={{
-                                                    fontSize: "0.7rem", // 글자 크기 축소
-                                                    maxWidth: "110px", // 너비가 좁아졌으므로 최대 폭 줄임
-                                                    textDecoration: showHidden && it.hidden ? "line-through" : "none",
-                                                    color: showHidden && it.hidden ? "text.disabled" : "text.primary",
-                                                }}
-                                            >
-                                                {it.title || it.content || `#${it.boardId || it.commentId}`}
-                                            </Typography>
-                                            
-                                            {showHidden && it.hidden && (
-                                                <Chip
-                                                    label="숨김"
-                                                    size="small"
-                                                    color="warning"
-                                                    sx={{ height: 14, fontSize: "0.55rem", px: 0.3 }}
-                                                />
-                                            )}
-                                        </Stack>
+                                    <Box sx={{ display: "flex", alignItems: "center", width: "100%", gap: 0.5 }}>
+                                        {/* 제목: 왼쪽 정렬, 넘치면 말줄임 */}
+                                        <Typography
+                                            className={`stats-ellipsis-text ${it.hidden ? "stats-item-hidden" : ""}`}
+                                            variant="caption"
+                                            sx={{ flex: 1, textAlign: "left", minWidth: 0 }}
+                                        >
+                                            {it.title || it.content}
+                                        </Typography>
 
+                                        {/* 아이콘+숫자: 오른쪽 고정 */}
                                         {rightLabel && (
-                                            <Typography
-                                                variant="caption"
-                                                color="text.secondary"
-                                                sx={{ 
-                                                    fontSize: "0.65rem", 
-                                                    ml: 0.5,
-                                                    whiteSpace: "nowrap", // 날짜 등이 줄바꿈되지 않게
-                                                    flexShrink: 0 
-                                                }}
+                                            <Box
+                                                sx={{ display: "flex", alignItems: "center", gap: 0.3, flexShrink: 0, fontSize: "0.7rem", color: "text.secondary", ml: "auto" }}
                                             >
                                                 {rightLabel(it)}
-                                            </Typography>
+                                            </Box>
                                         )}
-                                    </Stack>
+                                    </Box>
                                 }
                             />
                         </ListItemButton>

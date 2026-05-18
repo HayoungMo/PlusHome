@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import "../css/FreeBoardArticlePage.css";
 import { useNavigate, useParams } from "react-router-dom";
 import FreeBoardService from "../service/freeBoardService";
 import FreeBoardArticleMui from "../components/FreeBoardArticleMui";
-import { getLoginUser, isAdminUser, resolveUserName } from "../components/freeboard/constants";
+import { getLoginUser, resolveUserName, getPermissions } from "../components/freeboard/constants";
 import ConfirmDialog from "../components/ConfirmDialog";
 import SnackbarAlert from "../components/SnackbarAlert";
 
@@ -18,43 +19,64 @@ const FreeBoardArticlePage = () => {
     const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
 
     const loginUser = useMemo(() => getLoginUser(), []);
-    const isAdmin = isAdminUser(loginUser);
-    const isArticleOwner = !!loginUser && !!article?.userId && String(loginUser.id) === String(article.userId);
-    const hasArticleAuthority = isAdmin || isArticleOwner;
-    const canReportArticle = !!loginUser && !isAdmin && !isArticleOwner;
 
-    const showSnack = (message, severity = "success") =>
-        setSnack({ open: true, message, severity });
+    // 권한 계산
+    const { isAdmin, isOwner, canEdit, canDelete, canReport, canLike } = getPermissions(loginUser, article);
+    const hasArticleAuthority = canEdit || canDelete;
+
+    const showSnack = useCallback((message, severity = "success") =>
+        setSnack({ open: true, message, severity }), []);
     const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
 
-    const fetchData = useCallback(async () => {
-        if (!boardId) return;
+    const likedKey = useMemo(() => `liked_${boardId}_${loginUser?.id}`, [boardId, loginUser]);
+    const [alreadyLiked, setAlreadyLiked] = useState(false);
+
+    const fetchedBoardIdRef = useRef(null);
+
+    const fetchData = useCallback(async (id) => {
         try {
-            const data = await FreeBoardService.getFreeBoard(boardId);
+            setAlreadyLiked(!!loginUser && !!localStorage.getItem(`liked_${id}_${loginUser?.id}`));
+
+            // /api/freeboard/article/{boardId} 순수 데이터 조회 API 호출
+            const data = await FreeBoardService.getFreeBoard(id);
             if (!data) {
                 showSnack("존재하지 않는 게시글입니다.", "error");
                 return navigate("/freeboard/list");
             }
+
+            // 작성시간 기준 24시간 이내 조건 계산 후 데이터 가공
+            const isNewPost = data.createdAt ? (new Date() - new Date(data.createdAt)) < 24 * 60 * 60 * 1000 : false;
+
             setArticle({
                 ...data,
                 userName: resolveUserName(data.userName),
                 userId: data.userId || "Unknown",
+                isNew: isNewPost
             });
-            const navData = await FreeBoardService.getNav(boardId);
+
+            const navData = await FreeBoardService.getNav(id);
             setPrevArticle(navData?.prev || null);
             setNextArticle(navData?.next || null);
         } catch {
             showSnack("게시글을 불러오는 중 오류가 발생했습니다.", "error");
             navigate("/freeboard/list");
         }
-    }, [boardId, navigate]);
+    }, [navigate, loginUser, showSnack]);
 
     useEffect(() => {
-        fetchData();
-        window.scrollTo(0, 0);
-    }, [fetchData]);
+        if (fetchedBoardIdRef.current === String(boardId)) return;
+        fetchedBoardIdRef.current = String(boardId);
 
-    // 공유
+        setArticle(null);
+        setAlreadyLiked(false);
+
+        // [조회수 단일화] 게시글 진입 시 딱 1번만 명확하게 조회수 증가 호출
+        FreeBoardService.incrementView(boardId).catch(() => {});
+        fetchData(boardId);
+        window.scrollTo(0, 0);
+    }, [boardId, fetchData]);
+
+    // 공유 링크 복사
     const handleShare = async () => {
         try {
             await navigator.clipboard.writeText(window.location.href);
@@ -64,31 +86,39 @@ const FreeBoardArticlePage = () => {
         }
     };
 
-    // 좋아요
-    const likedKey = `liked_${boardId}_${loginUser?.id}`;
-    const [alreadyLiked, setAlreadyLiked] = useState(
-        !!loginUser && !!localStorage.getItem(likedKey)
-    );
+    // 좋아요 / 좋아요 취소 토글 처리 기능
     const handleLike = async () => {
-        if (!loginUser) {
+        if (!canLike) {
             showSnack("로그인이 필요합니다.", "warning");
             return;
         }
-        if (alreadyLiked) {
-            showSnack("이미 좋아요를 누른 게시글입니다.", "info");
-            return;
-        }
         try {
-            const updatedData = await FreeBoardService.likeFreeBoard(currentBoardId);
-            localStorage.setItem(likedKey, "true");
-            setAlreadyLiked(true);
-            setArticle((prev) => ({ ...prev, likeCount: updatedData.likeCount }));
+            if (alreadyLiked) {
+                // 좋아요 취소 진행
+                const updatedData = await FreeBoardService.unlikeFreeBoard(currentBoardId);
+                localStorage.removeItem(likedKey);
+                setAlreadyLiked(false);
+                // 백엔드에서 반환된 최신 DTO 객체 안전하게 매핑 (UserStatsPanel 오염 방지)
+                if (updatedData && typeof updatedData === "object") {
+                    setArticle((prev) => ({ ...prev, likeCount: updatedData.likeCount }));
+                }
+                showSnack("좋아요를 취소했습니다.", "success");
+            } else {
+                // 좋아요 등록 진행
+                const updatedData = await FreeBoardService.likeFreeBoard(currentBoardId);
+                localStorage.setItem(likedKey, "true");
+                setAlreadyLiked(true);
+                if (updatedData && typeof updatedData === "object") {
+                    setArticle((prev) => ({ ...prev, likeCount: updatedData.likeCount }));
+                }
+                showSnack("좋아요를 눌렀습니다.", "success");
+            }
         } catch {
             showSnack("좋아요 처리에 실패했습니다.", "error");
         }
     };
 
-    // 삭제 요청 → 다이얼로그
+    // 삭제 처리 개시
     const handleDeleteRequest = () => {
         if (!hasArticleAuthority) {
             showSnack("삭제 권한이 없습니다.", "error");
@@ -97,7 +127,7 @@ const FreeBoardArticlePage = () => {
         setDeleteDialog(true);
     };
 
-    // 삭제 확정
+    // 삭제 수행 확정
     const handleDeleteConfirm = async () => {
         setDeleteDialog(false);
         try {
@@ -109,7 +139,7 @@ const FreeBoardArticlePage = () => {
         }
     };
 
-    // 댓글 수 실시간 반영
+    // 댓글 수 변경 이벤트 리스너
     const handleCommentCountChange = (delta) => {
         setArticle((prev) =>
             prev ? { ...prev, commentCount: Math.max(0, (prev.commentCount || 0) + delta) } : prev
@@ -126,9 +156,10 @@ const FreeBoardArticlePage = () => {
                 nextArticle={nextArticle}
                 loginUser={loginUser}
                 isAdmin={isAdmin}
-                isOwner={isArticleOwner}
+                isOwner={isOwner}
                 hasAuthority={hasArticleAuthority}
-                canReport={canReportArticle}
+                canReport={canReport}
+                alreadyLiked={alreadyLiked}
                 onLike={handleLike}
                 onDelete={handleDeleteRequest}
                 onShare={handleShare}
@@ -138,7 +169,6 @@ const FreeBoardArticlePage = () => {
                 onNavigate={(id) => navigate(`/freeboard/article/${id}`)}
             />
 
-            {/* 삭제 확인 다이얼로그 */}
             <ConfirmDialog
                 open={deleteDialog}
                 title="게시글 삭제"
@@ -149,7 +179,6 @@ const FreeBoardArticlePage = () => {
                 onClose={() => setDeleteDialog(false)}
             />
 
-            {/* 알림 스낵바 */}
             <SnackbarAlert
                 open={snack.open}
                 message={snack.message}

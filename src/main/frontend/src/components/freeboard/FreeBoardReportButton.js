@@ -12,6 +12,12 @@ import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
 
 import http from "../../http-common";
 import { getLoginUser } from "./constants";
+import SnackbarAlert from "../SnackbarAlert";
+
+const authHeader = () => {
+    const token = localStorage.getItem("token");
+    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+};
 
 const REPORT_REASONS = [
     "스팸/광고",
@@ -37,14 +43,18 @@ const FreeBoardReportButton = ({
     const [reason, setReason] = useState(REPORT_REASONS[0]);
     const [detail, setDetail] = useState("");
     const [loading, setLoading] = useState(false);
+    const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
+
+    const showSnack = (message, severity = "success") =>
+        setSnack({ open: true, message, severity });
+    const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
 
     const handleSubmit = async () => {
         if (!targetId) return;
 
-        // 1. 로그인 유저 정보 가져오기 (모듈 공통 유틸 사용 — 서버에서 reporterId 필수)
         const loginUser = getLoginUser();
         if (!loginUser) {
-            alert("로그인이 필요한 서비스입니다.");
+            showSnack("로그인이 필요한 서비스입니다.", "warning");
             return;
         }
 
@@ -55,24 +65,22 @@ const FreeBoardReportButton = ({
                     ? `/freeboard/report/post/${targetId}`
                     : `/freeboard/report/comment/${targetId}`;
 
-            // 2. 서버로 보낼 때 userId를 같이 실어 보냄
-            const res = await http.post(url, { 
-                reason, 
-                detail, 
-                userId: loginUser.id // 서버의 reporterId로 매핑됨
-            });
+            // Authorization 헤더 포함하여 전송
+            const res = await http.post(
+                url,
+                { reason, detail, userId: loginUser.id },
+                authHeader()
+            );
 
             const data = res?.data || {};
 
-            // 3. 서버 응답 상태에 따른 분기 처리
             if (data.status === "DUPLICATE") {
-                alert("이미 신고하신 항목입니다.");
+                showSnack("이미 신고하신 항목입니다.", "warning");
                 setOpen(false);
                 return;
             }
-
             if (data.status === "UNAUTHORIZED") {
-                alert("로그인 세션이 만료되었거나 권한이 없습니다.");
+                showSnack("로그인 세션이 만료되었거나 권한이 없습니다.", "error");
                 return;
             }
 
@@ -80,19 +88,16 @@ const FreeBoardReportButton = ({
             const threshold = data.threshold ?? 0;
 
             if (data.autoHidden) {
-                alert(
-                    `신고가 접수되었습니다.\n누적 ${count}회 신고로 자동 숨김 처리되었습니다.`
-                );
+                showSnack(`신고 접수 완료 — 누적 ${count}회로 자동 숨김 처리되었습니다.`, "success");
             } else {
-                alert(
-                    `신고가 접수되었습니다. (누적 ${count}회${
-                        threshold ? ` / 임계값 ${threshold}회` : ""
-                    })`
+                showSnack(
+                    `신고가 접수되었습니다. (누적 ${count}회${threshold ? ` / 임계값 ${threshold}회` : ""})`,
+                    "success"
                 );
             }
 
             setOpen(false);
-            setDetail(""); // 입력창 초기화
+            setDetail("");
             if (onSubmitted) onSubmitted();
 
         } catch (e) {
@@ -100,18 +105,15 @@ const FreeBoardReportButton = ({
             const body = e?.response?.data;
 
             if (status === 409 || body?.status === "DUPLICATE") {
-                alert("이미 신고한 항목입니다.");
+                showSnack("이미 신고한 항목입니다.", "warning");
                 setOpen(false);
                 return;
             }
             if (status === 401) {
-                alert("로그인이 필요합니다.");
+                showSnack("로그인이 필요합니다.", "warning");
                 return;
             }
-            console.warn("신고 API 호출 실패:", status, body);
-            alert(
-                "신고 처리 중 오류가 발생했습니다. (DB 연결이나 테이블 상태를 확인해주세요)"
-            );
+            showSnack("신고 처리 중 오류가 발생했습니다.", "error");
         } finally {
             setLoading(false);
         }
@@ -127,6 +129,14 @@ const FreeBoardReportButton = ({
             >
                 {label}
             </Button>
+
+            <SnackbarAlert
+                open={snack.open}
+                message={snack.message}
+                severity={snack.severity}
+                onClose={closeSnack}
+            />
+
             <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
                 <DialogTitle sx={{ fontWeight: 'bold' }}>
                     {targetType === "post" ? "게시글 신고" : "댓글 신고"}

@@ -1,0 +1,54 @@
+/* 자유게시판 통계 패널 공통 스타일 */
+
+/* 사이드 패널 베이스 */
+.stats-panel-container {
+    padding: 20px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 8px !important;
+    background-color: #ffffff;
+}
+
+/* 섹션 타이틀 영역 */
+.stats-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.stats-section-title {
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    color: #333333;
+}
+
+/* 데이터가 없을 때의 텍스트 */
+.stats-empty-text {
+    font-size: 0.7rem !important;
+    color: #999999;
+    padding-left: 4px;
+}
+
+/* 리스트 아이템 줄바꿈 방지 및 말줄임표 처리 */
+.stats-ellipsis-text {
+    max-width: 140px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 숨김 처리된 아이템 스타일 */
+.stats-item-hidden {
+    text-decoration: line-through;
+    color: #bdbdbd !important;
+}
+
+/* 우측 라벨 (조회수, 날짜 등) 스타일 */
+.stats-right-label {
+    font-size: 0.65rem !important;
+    color: #666666;
+    margin-left: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}

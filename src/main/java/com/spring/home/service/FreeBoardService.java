@@ -60,11 +60,6 @@ public class FreeBoardService {
         return result;
     }
 
-    // ─── 상세 조회 + 조회수 증가 ────────────────────────────────────
-    public FreeBoardDTO getReadData(Long boardId) throws Exception {
-        freeBoardMapper.updateViewCount(boardId);
-        return freeBoardMapper.getReadData(boardId);
-    }
 
     // ─── 상세 조회 (조회수 증가 없음) ─────────────────
     public FreeBoardDTO getDataOnly(Long boardId) throws Exception {
@@ -133,11 +128,24 @@ public class FreeBoardService {
         return result;
     }
 
-    // ─── 좋아요 ──────────────────────────────────────────────────────
+    // ─── 조회수 증가 (전용, 프론트 최초 1회 호출) ────────────────────
+    public void incrementViewCount(Long boardId) throws Exception {
+        freeBoardMapper.updateViewCount(boardId);
+    }
+
+    // ─── 좋아요 on ───────────────────────────────────────────────────
     public void updateLikeCount(Long boardId) throws Exception {
         freeBoardMapper.updateLikeCount(boardId);
     }
 
+    // ─── 좋아요 off ──────────────────────────────────────────────────
+    public void unlikeCount(Long boardId) throws Exception {
+        freeBoardMapper.unlikeCount(boardId);
+    }
+    public void unlikeFreeBoard(Long boardId) throws Exception {
+    	freeBoardMapper.unlikeCount(boardId);
+    }
+ 
     // ─── [추가] 관리자용: 신고 게시글 목록 ──────────────────────────
     public List<FreeBoardDTO> getReportedPosts() throws Exception {
         return freeBoardMapper.getReportedPosts();
