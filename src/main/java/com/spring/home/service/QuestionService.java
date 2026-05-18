@@ -15,6 +15,7 @@ public class QuestionService {
 	private QuestionMapper questionMapper;
 	
 	public void insertData(QuestionDTO dto) throws Exception{
+		
 		if (dto.getQ_status() == null || dto.getQ_status().isEmpty()) {
 			dto.setQ_status("received");
 		}
@@ -23,8 +24,13 @@ public class QuestionService {
 			dto.setQ_secret("N");
 		}
 		
-		questionMapper.insertData(dto);
+		//자회사 답변 금지
+		int count = questionMapper.isMyCompanyFurniture(dto.getId(), dto.getF_code());
 		
+		if(count > 0) {
+			throw new RuntimeException("자기 회사 상품에는 문의를 작성할 수 없습니다.");
+		}
+		questionMapper.insertData(dto);
 	}
 	public List<QuestionDTO> getMyQuestions(String id) throws Exception {
 		return questionMapper.getMyQuestions(id);

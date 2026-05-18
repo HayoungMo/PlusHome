@@ -70,7 +70,10 @@ const UserQuestionPage = ({ user }) => {
             )).flat()
             : await questionService.getMyQuestions(currentUser.id);
 
-        const questionList = Array.isArray(data) ? data : [];   
+        const questionList = removeDuplicateQuestions 
+            (
+                Array.isArray(data) ? data : []
+            );   
 
         setQuestions(questionList);
 
@@ -339,7 +342,6 @@ const UserQuestionPage = ({ user }) => {
                             {questionImages[item.q_idx]?.map((img) => (
                                 <div key={img.img_name}>
                                     <img
-                                        key={img.img_name}
                                         //수정하면 바로 보이게 하는
                                         src={editImagePreview[item.q_idx] || `${img.img_name}?t=${imageRefresh}`}
                                         alt="문의 이미지"
@@ -350,49 +352,49 @@ const UserQuestionPage = ({ user }) => {
                                             marginRight: "8px"
                                         }}
                                     />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(evt) =>
+                                        onEditImageChange(
+                                            item.q_idx,
+                                            img.img_originalName,
+                                            evt.target.files[0]
+                                        )
+                                    }
+                                />
+                            </div>
+                        ))}
+                            <div>
+                                <p>이미지 추가</p>
                                     <input
                                         type="file"
                                         accept="image/*"
-                                        onChange={(evt) =>
-                                            onEditImageChange(
-                                                item.q_idx,
-                                                img.img_originalName,
-                                                evt.target.files[0]
-                                            )
-                                        }
+                                        multiple
+                                        onChange={(evt) => {
+                                            onAddImageChange(item.q_idx, evt.target.files);
+                                            evt.target.value = "";
+                                        }}
                                     />
+
+                                {addImageFiles[item.q_idx]?.length > 0 && (
                                     <div>
-                                        <p>이미지 추가</p>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            multiple
-                                            onChange={(evt) => {
-                                                onAddImageChange(item.q_idx, evt.target.files);
-                                                evt.target.value = "";
-                                            }}
-                                        />
+                                        <p>{addImageFiles[item.q_idx].length}장의 이미지가 추가됩니다.</p>
 
-                                        {addImageFiles[item.q_idx]?.length > 0 && (
-                                            <div>
-                                                <p>{addImageFiles[item.q_idx].length}장의 이미지가 추가됩니다.</p>
-
-                                                {addImageFiles[item.q_idx].map((file) => (
-                                                    <div key={makeFileKey(file)}>
-                                                        <span>{file.name}</span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeAddImageFile(item.q_idx, makeFileKey(file))}
-                                                        >
-                                                            선택 취소
+                                        {addImageFiles[item.q_idx].map((file) => (
+                                            <div key={makeFileKey(file)}>
+                                                <span>{file.name}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeAddImageFile(item.q_idx, makeFileKey(file))}
+                                                    >
+                                                        선택 취소
                                                         </button>
                                                     </div>
                                                 ))}
                                             </div>
                                         )}
                                     </div>
-                                </div>
-                                ))}
 
                                 <label>
                                     <input
@@ -415,8 +417,9 @@ const UserQuestionPage = ({ user }) => {
                             </div>
                         ) : (
                             <div>
-                                <h4>Q.{item.q_title}</h4>
-                                <p>{item.q_content}</p>
+                                <h4>제목:{item.q_title}</h4>
+                                <p>작성자: {item.c_id}</p>
+                                <p>문의 내용: {item.q_content}</p>
                                 {questionImages[item.q_idx]?.map((img) => (
                                     <img
                                         key={img.img_name}
@@ -450,7 +453,7 @@ const UserQuestionPage = ({ user }) => {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <p>답변: A.{item.q_answer}</p>
+                                            <p>답변:{item.q_answer}</p>
                                         )}
 
                                         {isCompanyUser && answerEditIdx !== item.q_idx && (

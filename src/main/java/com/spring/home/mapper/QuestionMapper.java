@@ -27,4 +27,6 @@ public interface QuestionMapper {
 	public void updateData(QuestionDTO dto) throws Exception;
 	
 	public void deleteData(@Param("q_idx") int q_idx) throws Exception;
+	//자회사 상품페이지 문의 답변 금지 백엔드
+	public int isMyCompanyFurniture(@Param("id") String id, @Param("f_code") String f_code);
 }
