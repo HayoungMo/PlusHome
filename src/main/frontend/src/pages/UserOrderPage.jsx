@@ -12,7 +12,7 @@ import Loading from "./Loading";
 import OrderClaimInfo from "./OrderClaimInfo";
 import OrderClaimModal from "./OrderClaimModal";
 
-const UserOrderPage = ({ user }) => {
+const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const navigate = useNavigate()
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -70,9 +70,12 @@ const UserOrderPage = ({ user }) => {
         }
     };
 
-
     useEffect(() => {
         loadOrders();
+
+        const timer = setInterval(loadOrders, 30000);
+
+        return () => clearInterval(timer);
     }, []);
 
     const loadOrders = async () => {
@@ -168,6 +171,8 @@ const UserOrderPage = ({ user }) => {
             await PaymentService.cancelOrder(c_code);
             setStatusFilter(-1)
             await loadOrders()
+            await loadPoint?.()
+            await loadWallet?.()
 
             alert("주문이 취소되었습니다.");
         } catch (error) {
@@ -266,8 +271,10 @@ const UserOrderPage = ({ user }) => {
             console.log("구매확정 요청 성공");
 
             await loadOrders();
+            await loadPoint?.()
+            await loadWallet?.()
 
-            alert("구매확정되었습니다.");
+            alert("구매확정 되었습니다.");
         } catch (error) {
             console.error("구매확정 실패", error);
             alert(error.response?.data?.message || "구매확정에 실패했습니다.");
@@ -310,6 +317,11 @@ const UserOrderPage = ({ user }) => {
 
     return (
         <div style={{ padding: "20px" }}>
+            
+            <button type="button" onClick={loadOrders}>
+                새로고침
+            </button>
+            
             <h3 style={{ marginBottom: "18px" }}>
                 나의 주문처리 현황{" "}
             </h3>

@@ -53,6 +53,10 @@ public class CartService {
 		return cartOptionMapper.getByCartCode(c_code);
 	}
 
+	public int getAvailablePoint(String id) throws Exception {
+		return cartMapper.getAvailablePoint(id);
+	}
+
 	public void updateData(CartDTO dto) throws Exception {
 		cartMapper.updateData(dto);
 	}
