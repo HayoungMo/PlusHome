@@ -4,6 +4,18 @@ import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
 import FreeBoardService from '../service/freeBoardService';
 import SelectMui from '../components/SelectMui';
+import ButtonGroupMui from '../components/ButtonGroupMui';
+import CheckboxMui from '../components/CheckboxMui';
+import { 
+    Button,
+    Card,
+    CardActionArea,
+    CardContent,
+    CardMedia,
+    Chip,
+    Stack,
+        } from '@mui/material';
+import GetImgDir from '../resources/function/GetImgDir';
 
 const SearchPage = () => {
 
@@ -336,6 +348,36 @@ const SearchPage = () => {
             );
         });
     };
+    //검색페이지에서 이미지 불러오기
+    const addFurnitureImages = async (list) => {
+        return await Promise.all(
+            list.map(async (item) => {
+                try {
+                    const imgResult = await GetImgDir({
+                        kind:"FURNITURE",
+                        returnType:"list",
+                        a: item.f_code,
+                        view: true,
+                    });
+
+                    const imageList = imgResult.result || [];
+                    const thumbnail =
+                        imageList.find((img) => img.img_tag === "THUMBNAIL") ||
+                        imageList[0];
+                    
+                    return {
+                        ...item,
+                        thumbnail: thumbnail?.img_name || "/no-image.png",
+                    };
+                } catch (error) {
+                    return {
+                        ...item,
+                        thumbnail: "/no-image.png",
+                    };
+                }
+            })
+        )
+    }
 
     //자유게시판은 기존의 서비스를 사용함
     const getFreeBoardList = async () => {
@@ -385,7 +427,8 @@ const SearchPage = () => {
                 });
 
             const furnitureList = filterFurnitureByOption(sortedFurnitureList);
-
+            //getSearchResult 안에 이미지 넣기
+            const furnitureListWithImages = await addFurnitureImages(furnitureList);
 
             const interiorList = sortByKorean(
                 filterInteriorByOption(rawInteriorList),
@@ -395,7 +438,7 @@ const SearchPage = () => {
             const freeBoardList = sortByKorean(freeBoardData || [], (item) => item.title);
 
             setResults({
-                furniture: type === "interior" || type === "freeBoard" ? [] : furnitureList,
+                furniture: type === "interior" || type === "freeBoard" ? [] : furnitureListWithImages,
                 interior: type === "furniture" || type === "freeBoard" ? [] : interiorList,
                 freeBoard: type === "furniture" || type === "interior" ? [] : freeBoardList,
             });
@@ -486,17 +529,62 @@ const SearchPage = () => {
 
 
     const renderFurnitureItem = (item) => (
-        <Link 
-            to={`/furniture/article/${item.f_code}`}
+        <Card
             key={item.f_code}
+            variant="outlined"
+            sx={{ height: "100%" }}
         >
-            <div>
-                <p>{item.c_name}</p>
-                <h3>{item.f_name}</h3>
-                <p>카테고리: {item.f_catagory1}</p>
-                <p>{Number(item.f_price || 0).toLocaleString()}원</p>
-            </div>
-        </Link>
+            <CardActionArea
+                component={Link}
+                to={`/furniture/article/${item.f_code}`}
+                sx={{ height: "100%" }}
+            >
+                <CardMedia
+                    component="img"
+                    height="160"
+                    image={item.thumbnail || "/no-image.png"}
+                    alt={item.f_name}
+                    sx={{ objectFit: "cover" }}
+                />
+
+                <CardContent>
+                    <p style={{ margin: "0 0 6px", color: "#666", fontSize: "13px" }}>
+                        {item.c_name}
+                    </p>
+
+                    <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                        {item.f_name}
+                    </h3>
+
+                    <p style={{ margin: "0 0 8px" }}>
+                        카테고리: {item.f_catagory1}
+                    </p>
+
+                    <strong>
+                        {Number(item.f_price || 0).toLocaleString()}원
+                    </strong>
+
+                    <Stack direction="row" spacing={1} mt={1}>
+                        {Number(item.f_discount || 0) > 0 && (
+                            <Chip
+                                size="small"
+                                color="error"
+                                label={`할인 ${item.f_discount}%`}
+                            />
+                        )}
+
+                        {Number(item.f_deliveryprice || 0) === 0 && (
+                            <Chip
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                label="무료배송"
+                            />
+                        )}
+                    </Stack>
+                </CardContent>
+            </CardActionArea>
+        </Card>
     );
     const renderInteriorItem = (item) => (
         <Link 
@@ -530,7 +618,13 @@ const SearchPage = () => {
             <h3>{title}</h3>
 
             {list.length > 0 ? (
-                <div>
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColums: "repeat(3, minmax(0,1fr))",
+                        gap: "16px",
+                    }}
+                >
                     {list.slice(0,previewCount).map(renderItem)}
                 </div>
             ) : (
@@ -552,20 +646,22 @@ const SearchPage = () => {
                         value={inputKeyword}
                         onChange={(evt) => setInputKeyword(evt.target.value)}
                     />
-                    <button type="submit">검색</button>
+                    <Button variant="contained" color="success">검색</Button>
                 </form>
 
                 {/* 검색 카테고리 탭 */}
                 <div>
                     {searchTabs.map((tab) => (
-                        <button
+                        <Button 
+                            variant="contained" 
+                            color="primary"
                             key={tab.value}
                             type="button"
                             onClick={() => onClickTab(tab.value)}
                             style={{fontWeight: type === tab.value ? "bold" : "normal" ,}}
                         >
                             {tab.title}
-                        </button>
+                        </Button>
                         
                     ))}
                 </div>
@@ -601,7 +697,7 @@ const SearchPage = () => {
                             />
 
                             <label>
-                                <input
+                                <CheckboxMui
                                     type="checkbox"
                                     checked={filterInput.discount === "Y"}
                                     onChange={(evt) =>
@@ -615,7 +711,7 @@ const SearchPage = () => {
                             </label>
 
                             <label>
-                                <input
+                                <CheckboxMui
                                     type="checkbox"
                                     checked={filterInput.freeDelivery === "Y"}
                                     onChange={(evt) =>
@@ -628,13 +724,13 @@ const SearchPage = () => {
                                 무료배송
                             </label>
 
-                            <button type="button" onClick={onFilterSearch}>
+                            <Button variant="contained" color="primary" onClick={onFilterSearch}>
                                 필터 검색
-                            </button>
+                            </Button>
 
-                            <button type="button" onClick={resetFilter}>
+                            <Button variant="contained" color="primary" onClick={resetFilter}>
                                 초기화
-                            </button>
+                            </Button>
                         </div>
                     )}
                     {/* 인테리어 필터 UI */}
@@ -654,13 +750,13 @@ const SearchPage = () => {
                                 }
                             />
 
-                            <button type="button" onClick={onFilterSearch}>
+                            <Button variant="contained" color="primary" onClick={onFilterSearch}>
                                 필터 검색
-                            </button>
+                            </Button>
 
-                            <button type="button" onClick={resetFilter}>
+                            <Button variant="contained" color="primary" onClick={resetFilter}>
                                 초기화
-                            </button>
+                            </Button>
                         </div>
                     )}
 
@@ -699,7 +795,13 @@ const SearchPage = () => {
                         {currentItems.length === 0 ? (
                             <p>검색 결과가 없습니다</p>
                         ) : (
-                            <div>
+                            <div
+                                style={{
+                                    display: "grid",
+                                    gridTemplateColums:"repeat(3, minmax(0, 1fr))",
+                                    gap: "16px",
+                                }}
+                            >
                                 {type === "furniture" && currentItems.map(renderFurnitureItem)}
                                 {type === "interior" && currentItems.map(renderInteriorItem)}
                                 {type === "freeBoard" && currentItems.map(renderFreeBoardItem)}
