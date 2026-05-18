@@ -1,0 +1,205 @@
+.interior-lists-page {
+  max-width: 1200px;
+  min-height: calc(100vh - 160px);
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  color: #1f2937;
+}
+
+.interior-lists-header {
+  margin-bottom: 24px;
+}
+
+.interior-lists-title {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.interior-lists-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.interior-lists-tabs {
+  min-height: 48px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.interior-lists-tabs .MuiTab-root {
+  min-height: 48px;
+  padding: 12px 18px;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.interior-lists-tabs .MuiTab-root.Mui-selected {
+  color: #2563eb;
+}
+
+.interior-lists-tabs .MuiTabs-indicator {
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background-color: #2563eb;
+}
+
+.interior-lists-content {
+  margin-top: 24px;
+}
+
+.interior-list-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.interior-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.interior-list-toolbar h3 {
+  width: 100%;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.interior-list-toolbar button,
+.interior-list-section button {
+  white-space: nowrap;
+}
+
+.interior-list-section > .MuiFormControl-root {
+  order: 1;
+  max-width: 360px;
+  margin-bottom: 20px;
+}
+
+.interior-company-grid {
+  order: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.interior-company-card {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 16px;
+  align-items: stretch;
+  min-height: 136px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.interior-company-card:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.interior-company-image {
+  width: 112px;
+  height: 112px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  object-fit: cover;
+}
+
+.interior-company-info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.interior-company-info span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interior-company-name {
+  overflow: hidden;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interior-recommend-grid {
+  grid-template-columns: 1fr;
+}
+
+.interior-recommend-card {
+  grid-template-columns: 132px 1fr;
+}
+
+.interior-recommend-card .interior-company-image {
+  width: 132px;
+  height: 132px;
+}
+
+.interior-recommend-ai {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eef2f7;
+}
+
+.interior-lists-content img {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .interior-lists-page {
+    padding: 28px 16px 48px;
+  }
+
+  .interior-lists-title {
+    font-size: 26px;
+  }
+
+  .interior-lists-tabs .MuiTab-root {
+    min-width: auto;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .interior-company-grid,
+  .interior-recommend-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .interior-company-card,
+  .interior-recommend-card {
+    grid-template-columns: 92px 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .interior-company-image,
+  .interior-recommend-card .interior-company-image {
+    width: 92px;
+    height: 92px;
+  }
+
+  .interior-list-section > .MuiFormControl-root {
+    max-width: none;
+  }
+}

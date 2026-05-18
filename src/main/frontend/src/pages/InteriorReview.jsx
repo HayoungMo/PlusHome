@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import TextFieldMui from "../components/TextFieldMui";
-import { Button } from "@mui/material";
+import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import ImageService from "../service/imageService";
 import InteriorUserService from "../service/interiorUserService";
 import { useLocation, useNavigate } from "react-router-dom";
 import DialogMui from "../components/DialogMui";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import "../css/InteriorReview.css";
 
 const InteriorReview = () => {
   const [sendList, setSendList] = useState([]);
@@ -24,6 +25,14 @@ const InteriorReview = () => {
 
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState([]);
+
+  const [alert, setAlert] = useState({
+      open: false,
+      severity: "info",
+      title: "",
+      text: "",
+    });
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -63,15 +72,43 @@ const InteriorReview = () => {
   const handleSubmit = async (e) => {
     try {
       if (sendList.length === 0) {
-        alert("등록 시 이미지가 최소 1개 있어야 합니다.");
+        setAlert({
+          open: true,
+          severity: "error",
+          title: `에러 (${result.status || "이미지 누락"})`,
+          text: result.message || "등록 시 이미지가 최소 1개 있어야 합니다.",
+        });
         return;
       }
-      await InteriorUserService.AddInteriorReview(form);
-      await ImageService.insertImage(sendList);
+      const result = await InteriorUserService.AddInteriorReview(form);
+      const result2 = await ImageService.insertImage(sendList);
+
+      if (result2.success && result.success) {
+        setAlert({
+          open: true,
+          severity: "success",
+          title: "등록 성공",
+          text: "등록되었습니다.",
+        });
+
+      } else {
+        setAlert({
+          open: true,
+          severity: "error",
+          title: `에러 (${result.status || "이미지 누락"})`,
+          text: result.message || "이미지를 1개 이상 넣어주세요.",
+        });
+      }
+
       handleBack();
     } catch (error) {
       console.error(error);
-      alert("등록 중 오류가 발생했습니다.");
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러`,
+        text: "에러 발생.",
+      });
     }
   };
 
@@ -98,9 +135,45 @@ const InteriorReview = () => {
   };
 
   return (
-    <div>
-      <form name="article">
-        <div>
+    <div className="interior-review-page">
+      <Snackbar
+              open={alert.open}
+              autoHideDuration={3000}
+              onClose={() =>
+                setAlert((prev) => ({
+                  ...prev,
+                  open: false,
+                }))
+              }
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+              <Alert
+                severity={alert.severity}
+                onClose={() =>
+                  setAlert((prev) => ({
+                    ...prev,
+                    open: false,
+                  }))
+                }
+                sx={{
+                  width: "400px",
+                  fontSize: "1rem",
+                  padding: "16px 20px",
+                  alignItems: "center",
+                }}
+              >
+                <AlertTitle>{alert.title}</AlertTitle>
+                {alert.text}
+              </Alert>
+            </Snackbar>
+      <div className="interior-review-card">
+        <div className="interior-review-header">
+          <h2>인테리어 리뷰 작성</h2>
+          <p>시공 후기를 작성하고 사진을 함께 등록해주세요.</p>
+        </div>
+
+      <form name="article" className="interior-review-form">
+        <div className="interior-review-field">
           <TextFieldMui
             name="ir_content"
             label="content"
@@ -134,7 +207,8 @@ const InteriorReview = () => {
         </div>
       </form>
       <p>이미지 업로드</p>
-      <form name="imageInsertTestForm">
+      <div className="interior-review-upload">
+      <form name="imageInsertTestForm" className="interior-review-upload-form">
         <input
           type="hidden"
           value="I_REVIEW"
@@ -189,14 +263,19 @@ const InteriorReview = () => {
           <input type="file" hidden name="file" onChange={() => onClickAdd()} />
         </Button>
       </form>
+      </div>
+      <div className="interior-review-preview-grid">
       {preview &&
-        preview.map((item) => (
+        preview.map((item, idx) => (
           <img
+            key={idx}
+            className="interior-review-preview-image"
             src={item}
-            style={{ width: "150px", height: "150px", objectFit: "cover" }}
             alt=""
           />
         ))}
+      </div>
+      </div>
     </div>
   );
 };

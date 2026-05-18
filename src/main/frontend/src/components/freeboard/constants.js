@@ -1,26 +1,17 @@
-/**
- * 자유게시판 공통 상수 / 유틸
- *  - 관리자 타입, 로그인 유저 파싱, 작성자 표시 등 모듈 내 공통 로직 모음.
- *  - UI/UX는 변경하지 않고 변수명·로직 일관화를 위해 분리.
- */
 
-// USERS.TYPE = 'admin' 인 계정을 관리자로 본다.
 export const ADMIN_TYPE = "admin";
 
-// 게스트 사용자 표기 (백엔드 'Guest' 와 동일)
+
 export const GUEST_ID = "Guest";
 export const GUEST_NAME = "방문자";
 
-// 탈퇴/이름 누락 시 표기
+
 export const WITHDRAWN_USER_NAME = "탈퇴한 회원";
 
-// 자유게시판 페이지 크기 — 백엔드 FreeBoardService.PAGE_SIZE 와 동일하게 유지
+
 export const PAGE_SIZE = 8;
 
-/**
- * localStorage 의 user 키를 파싱해서 반환한다.
- *  - JSON 파싱 실패/미존재 시 null
- */
+
 export const getLoginUser = () => {
     try {
         const raw = localStorage.getItem("user");
@@ -37,3 +28,51 @@ export const isAdminUser = (loginUser) =>
 /** 작성자 이름이 비어 있으면 "탈퇴한 회원" 으로 대체 */
 export const resolveUserName = (userName) =>
     userName && userName.trim() ? userName : WITHDRAWN_USER_NAME;
+
+
+const WRITE_PERMISSIONS = {
+    user:    ["자유", "질문", "정보"],
+    company: ["자유", "정보", "이벤트", "광고"],
+    admin:   ["자유", "질문", "정보", "이벤트", "광고", "공지"],
+};
+
+export const getCategoryOptions = (userType) =>
+    WRITE_PERMISSIONS[userType] || WRITE_PERMISSIONS.user;
+
+
+export const getPermissions = (loginUser, target = null) => {
+    const type       = loginUser?.type || "guest";
+    const isLoggedIn = !!loginUser;
+    const isAdmin    = isLoggedIn && type === ADMIN_TYPE;
+    const isDeleted  = isLoggedIn && type === "deleted";
+
+    // 작성자 본인 여부 (탈퇴 계정은 소유권 없음)
+    const isOwner =
+        isLoggedIn &&
+        !isDeleted &&
+        target != null &&
+        String(loginUser.id) === String(target.userId);
+
+    if (isDeleted) {
+        // 탈퇴 계정: 읽기만 가능
+        return {
+            isLoggedIn, isAdmin: false, isOwner: false,
+            canWrite: false, canEdit: false, canDelete: false,
+            canLike: false, canComment: false, canReport: false,
+            categoryOptions: [],
+        };
+    }
+
+    return {
+        isLoggedIn,
+        isAdmin,
+        isOwner,
+        canWrite:   isLoggedIn,             
+        canEdit:    isLoggedIn && (isAdmin || isOwner),
+        canDelete:  isLoggedIn && (isAdmin || isOwner),
+        canLike:    isLoggedIn,
+        canComment: isLoggedIn,
+        canReport:  isLoggedIn,
+        categoryOptions: getCategoryOptions(type),
+    };
+};

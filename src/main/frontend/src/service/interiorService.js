@@ -1,12 +1,37 @@
 import http from "../http-common";
 
+const aiResponse = async (data) => {
+  console.log("ai 들어가는 데이터:", data);
+
+  try {
+    const res = await http.post("chatgpt/companyanalysis", data);
+
+    console.log("ai 응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
+const aiResponselist = async (data) => {
+  console.log("ai 들어가는 데이터:", data);
+  try {
+    const res = await http.post("chatgpt/recommend", data);
+
+    console.log("ai 응답 데이터:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("에러:", err);
+  }
+};
+
 const fetchCompany = async (data) => {
   try {
-        const res = await http.post("interior/getCompany", {
-          c_id: data.c_id,
-          c_kind: data.c_kind,
-          c_name: data.c_name,
-        });
+    const res = await http.post("interior/getCompany", {
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+    });
 
     console.log("응답 데이터:", res.data);
     return res.data;
@@ -25,7 +50,6 @@ const fetchList = async () => {
     console.error("에러:", err);
   }
 };
-
 
 const fetchArticleList = async (data) => {
   try {
@@ -54,7 +78,7 @@ const fetchArticle = async (data) => {
 };
 
 const fetchExample = async (data) => {
-  console.log("들어온 데이터" , data);
+  console.log("들어온 데이터", data);
   try {
     const res = await http.post("interior/example", {
       c_id: data.c_id,
@@ -140,8 +164,6 @@ const fetchInteriorReview = async (data) => {
   }
 };
 
-
-
 const fetchAllInteriorReview = async () => {
   try {
     const res = await http.get("interior/reviewlists");
@@ -178,15 +200,18 @@ const AddInterior = async (data) => {
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,
-      i_tag : data.tag,
-      i_text : data.text
+      i_tag: data.tag,
+      i_text: data.text,
     });
 
-        return {
-          success: true,
-        };
+    return {
+      success: true,
+    };
   } catch (err) {
     console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -201,22 +226,22 @@ const AddInteriorExample = async (data) => {
       ie_content: data.content,
     });
 
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error(data, err);
     return {
-      success: false
-    }
+      success: false,
+    };
   }
 };
 
 const AddBooking = async (data) => {
   try {
     const res = await http.post("/interior/add/booking", {
-      id: localStorage.getItem('id'),
+      id: localStorage.getItem("id"),
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,
@@ -228,12 +253,15 @@ const AddBooking = async (data) => {
       b_answer: data.answers,
     });
 
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -251,12 +279,15 @@ const AddInvoice = async (data) => {
       details: data.details,
     });
 
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -264,26 +295,27 @@ const AddInvoiceDetail = async (data) => {
   console.log("들어온 데이터", data);
   try {
     const res = await http.post("/interior/add/invoice", {
-      id: localStorage.getItem('id'),
+      id: localStorage.getItem("id"),
       c_id: data.c_id,
       c_kind: data.c_kind,
       c_name: data.c_name,
       b_createdDate: data.b_createdDate,
       invoice_text: data.invoice_text,
       invoice_qty: data.invoice_qty,
-      invoice_price: data.invoice_price
+      invoice_price: data.invoice_price,
     });
 
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
     console.error(err);
+    return {
+      success: false,
+    };
   }
 };
-
-
 
 const UpdateInterior = async (data) => {
   try {
@@ -296,12 +328,15 @@ const UpdateInterior = async (data) => {
     });
 
     console.log("수정 결과:", res.data);
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
-    console.error("수정 에러:", err);
+    console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -317,12 +352,15 @@ const UpdateInteriorExample = async (data) => {
     });
 
     console.log("수정 결과:", res.data);
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
-    console.error("수정 에러:", err);
+    console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -344,12 +382,15 @@ const UpdateBooking = async (data) => {
     });
 
     console.log("예약 수정 결과:", res.data);
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
   } catch (err) {
-    console.error("예약 수정 에러:", err);
+    console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -366,7 +407,10 @@ const DeleteInterior = async (data) => {
       data: res.data,
     };
   } catch (err) {
-    console.error("삭제 에러:", err);
+    console.error(err);
+    return {
+      success: false,
+    };
   }
 };
 
@@ -381,18 +425,53 @@ const DeleteInteriorExample = async (data) => {
     });
 
     console.log("수정 결과:", res.data);
-        return {
-          success: true,
-          data: res.data,
-        };
+    return {
+      success: true,
+      data: res.data,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+    };
+  }
+};
+
+const selectWorkingAndDone = async (data) => {
+  try {
+    const res = await http.post("/interior/select/workingAndDone", {
+      c_id: data,
+    });
+
+    console.log("수정 결과:", res.data);
+    return res.data;
   } catch (err) {
     console.error("수정 에러:", err);
   }
 };
 
+const workingToDoneOrCancel = async (dto) => {
+  try {
+    console.log(dto);
+    const res = await http.post("/interior/update/workingToDoneOrCancel", dto);
+    return res.data;
+  } catch (err) {
+    console.error("수정 에러:", err);
+  }
+};
 
+const getPDFData = async (param) => {
+  try {
+    const res = await http.post("/interior/select/getPDFData", param);
+    return res.data;
+  } catch (error) {
+    console.error("getPDFData : ", error);
+  }
+};
 
 const InteriorService = {
+  aiResponse,
+  aiResponselist,
   fetchCompany,
   fetchExample,
   fetchArticle,
@@ -415,6 +494,9 @@ const InteriorService = {
   UpdateBooking,
   DeleteInterior,
   DeleteInteriorExample,
+  selectWorkingAndDone,
+  workingToDoneOrCancel,
+  getPDFData,
 };
 
 export default InteriorService;

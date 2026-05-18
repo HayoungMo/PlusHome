@@ -6,7 +6,6 @@ const InteriorModelViewer = ({src}) => {
     <div>
       {src !== null && (
         <div>
-          <h3>3D 시공 사례</h3>
           <model-viewer
             src={src}
             alt="인테리어 3D 모델"
@@ -14,8 +13,8 @@ const InteriorModelViewer = ({src}) => {
             auto-rotate
             ar
             style={{
-              width: "400px",
-              height: "400px",
+              width: "300px",
+              height: "300px",
               backgroundColor: "#ffffff",
               border: "1px solid black",
             }}

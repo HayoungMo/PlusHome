@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import TextFieldMui from "../components/TextFieldMui";
 import DatePickerMui from "../components/DatePickerMui";
-import { Button } from "@mui/material";
+import { Button, Snackbar } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
 
-const InteriorBooking = ({company, answers}) => {
-const [alert, setAlert] = useState({
-  open: false,
-  severity: "info",
-  title: "",
-  text: "",
-});
+const InteriorBooking = ({ company, answers, setBookingPossible }) => {
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  });
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -61,7 +61,7 @@ const [alert, setAlert] = useState({
     {
       value: "byVisit",
       title: "직접방문",
-    }
+    },
   ];
 
   const handleSubmit = async (e) => {
@@ -72,26 +72,28 @@ const [alert, setAlert] = useState({
     };
     const result = await InteriorService.AddBooking(payload);
 
-
-  if (result.success) {
-    setAlert({
-      open: true,
-      severity: "success",
-      title: "등록 성공",
-      text: "시공 사례가 등록되었습니다.",
-    });
-  } else {
-    setAlert({
-      open: true,
-      severity: "error",
-      title: `에러 (${result.status})`,
-      text: result.message || "오류가 발생했습니다.",
-    });
-  }
+    if (result.success) {
+      setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "시공 사례가 등록되었습니다.",
+      });
+      setTimeout(() => {
+        setBookingPossible(false);
+      }, 1000);
+    } else {
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러 (${result.status})`,
+        text: result.message || "오류가 발생했습니다.",
+      });
+    }
   };
   return (
     <div style={{ display: "flex" }}>
-      {alert.open && (
+      {alert.open ? (
         <AlertMui
           severity={alert.severity}
           title={alert.title}
@@ -104,49 +106,51 @@ const [alert, setAlert] = useState({
             }))
           }
         />
-      )}
-      <form onSubmit={handleSubmit}>
-        <h5>인테리어 상담 신청</h5>
-        <div>
-          <SelectMui
-            name="kind"
-            value={data.kind}
-            onChange={handleChange}
-            option={option}
-            required
-          />
-          <TextFieldMui name="long" label="long" onChange={handleChange} />
-          <DatePickerMui value={data.date} onChange={handleDateChange} />
-          <TextFieldMui
-            name="content"
-            label="content"
-            onChange={handleChange}
-          />
-          <Button variant="contained" color="primary" onClick={handleOpen}>제출</Button>
-          <DialogMui
-            open={open}
-            onClose={handleClose}
-            title="제출 확인"
-            text="정말 제출하시겠습니까?"
-            buttons={[
-              {
-                title: "취소",
-                color: "inherit",
-                onClick: handleClose,
-              },
-              {
-                title: "제출",
-                variant: "outlined",
-                onClick: (e) => {
-                  console.log("제출 실행");
-                  handleSubmit(e);
-                  handleClose();
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div>
+            <SelectMui
+              name="kind"
+              value={data.kind}
+              onChange={handleChange}
+              option={option}
+              required
+            />
+            <TextFieldMui name="long" label="long" onChange={handleChange} />
+            <DatePickerMui value={data.date} onChange={handleDateChange} />
+            <TextFieldMui
+              name="content"
+              label="content"
+              onChange={handleChange}
+            />
+            <Button variant="contained" color="primary" onClick={handleOpen}>
+              제출
+            </Button>
+            <DialogMui
+              open={open}
+              onClose={handleClose}
+              title="제출 확인"
+              text="정말 제출하시겠습니까?"
+              buttons={[
+                {
+                  title: "취소",
+                  color: "inherit",
+                  onClick: handleClose,
                 },
-              },
-            ]}
-          />
-        </div>
-      </form>
+                {
+                  title: "제출",
+                  variant: "outlined",
+                  onClick: (e) => {
+                    console.log("제출 실행");
+                    handleSubmit(e);
+                    handleClose();
+                  },
+                },
+              ]}
+            />
+          </div>
+        </form>
+      )}
     </div>
   );
 };

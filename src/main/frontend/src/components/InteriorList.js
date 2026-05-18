@@ -6,44 +6,65 @@ import TextFieldMui from "./TextFieldMui";
 import SelectMui from "./SelectMui";
 import { Button } from "@mui/material";
 
-const InteriorList = () => {
+const InteriorList = ({tag,value}) => {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [tags, setTags] = useState([]);
   const [originList, setOriginList] = useState([]);
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("");
-  const [filterValue, setFilterValue] = useState("");
+  const [filterType, setFilterType] = useState(tag);
+  const [filterValue, setFilterValue] = useState(value);
 
   const handleNext = (data) => {
     navigate("/interior/article", {
       state: { company: data },
     });
   };
-  const valueOptionMap = {
-    housingType: [
-      { value: "apt", title: "아파트" },
-      { value: "villa", title: "빌라" },
-      { value: "house", title: "주택" },
-      { value: "officetel", title: "오피스텔" },
-    ],
+   const valueOptionMap = {
+     housingType: [
+       { value: "apt", title: "아파트" },
+       { value: "villa", title: "빌라" },
+       { value: "house", title: "주택" },
+       { value: "officetel", title: "오피스텔" },
+     ],
 
-    purpose: [
-      { value: "신혼집", title: "신혼집" },
-      { value: "반려동물", title: "반려동물" },
-    ],
+     purpose: [
+       { value: "purchase", title: "집 구매 후" },
+       { value: "existing", title: "기존 집 리모델링" },
+       { value: "new_house", title: "새 집 입주" },
+     ],
 
-    spaces: [
-      { value: "livingroom", title: "거실" },
-      { value: "kitchen", title: "주방" },
-    ],
+     spaces: [
+       { value: "livingroom", title: "거실" },
+       { value: "kitchen", title: "주방" },
+       { value: "storage", title: "수납" },
+       { value: "door", title: "중문/문" },
+       { value: "window", title: "창문" },
+       { value: "wallpaper", title: "벽지" },
+       { value: "lighting", title: "조명" },
+       { value: "tile", title: "타일" },
+       { value: "floor", title: "마루" },
+     ],
 
-    budget: [
-      { value: "100만원 이하", title: "100만원 이하" },
-      { value: "300만원 이하", title: "300만원 이하" },
-      { value: "500만원 이하", title: "500만원 이하" },
-    ],
-  };
+     budget: [
+       { value: "1000", title: "1000만원 이하" },
+       { value: "2000", title: "1000~2000만원" },
+       { value: "3000", title: "2000~3000만원" },
+       { value: "5000", title: "3000~5000만원" },
+       { value: "10000", title: "5000만원 이상" },
+     ],
+
+     areaSize: [
+       { value: "10_20", title: "10~20평" },
+       { value: "30", title: "30평대" },
+       { value: "40", title: "40평대" },
+       { value: "50", title: "50평 이상" },
+     ],
+
+     location : [
+      
+     ]
+   };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,8 +140,8 @@ const InteriorList = () => {
     setList(originList);
   };
   return (
-    <div>
-      <div>
+    <div className="interior-list-section">
+      <div className="interior-list-toolbar">
         <h3>결과</h3>
 
         <SelectMui
@@ -133,12 +154,13 @@ const InteriorList = () => {
           }}
           option={[
             { value: "housingType", title: "주거 형태" },
+            { value: "areaSize", title: "면적" },
             { value: "purpose", title: "목적" },
             { value: "spaces", title: "공간" },
             { value: "budget", title: "예산" },
           ]}
         />
-        {filterType && (
+        {filterType !== "location" ? (
           <SelectMui
             label="값"
             name="filterValue"
@@ -146,24 +168,42 @@ const InteriorList = () => {
             onChange={(e) => setFilterValue(e.target.value)}
             option={valueOptionMap[filterType] || []}
           />
+        ) : (
+          <TextFieldMui
+            label="값"
+            name="filterValue"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+          />
         )}
 
         <Button onClick={handleReset}>초기화</Button>
+      </div>
 
+      <div className="interior-company-grid">
         {list.map((item, idx) => (
-          <div key={idx} onClick={() => handleNext(item)}>
-            {item.logo.result[0] && (
+          <div
+            className="interior-company-card"
+            key={idx}
+            onClick={() => handleNext(item)}
+          >
+            {item?.logo?.result?.[0] && (
               <img
-                src={item.logo.result[0].img_name}
+                className="interior-company-image"
+                src={
+                  item?.logo?.result.find((item) => item.img_tag === "PROFILE")
+                    ?.img_name
+                }
                 alt={`${item.c_name} 로고`}
-                style={{ width: "100px", height: "100px", objectFit: "cover" }}
               />
             )}
-            id: {item.c_id}
-            name: {item.c_name}
-            kind: {item.c_kind}
-            tel: {item.c_tel}
-            addr: {item.c_addr}
+            <div className="interior-company-info">
+              <strong className="interior-company-name">{item.c_name}</strong>
+              <span>id: {item.c_id}</span>
+              <span>kind: {item.c_kind}</span>
+              <span>tel: {item.c_tel}</span>
+              <span>addr: {item.c_addr}</span>
+            </div>
           </div>
         ))}
       </div>

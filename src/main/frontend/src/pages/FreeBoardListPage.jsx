@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import "../css/FreeBoardListPage.css";
 import FreeBoardService from "../service/freeBoardService";
 import FreeBoardListMui from "../components/FreeBoardListMui";
 import { getLoginUser, isAdminUser, resolveUserName } from "../components/freeboard/constants";
@@ -52,7 +53,7 @@ const FreeBoardListPage = () => {
         setParams((prev) => ({ ...prev, pageNum: newPage }));
     };
     const handleCategoryChange = (category) => {
-        setParams((prev) => ({ ...prev, pageNum: 1, category }));
+        setParams((prev) => ({ ...prev, pageNum: 1, category, searchValue: "" }));
     };
 
     // 다중삭제 요청 → 다이얼로그

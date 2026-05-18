@@ -1,12 +1,15 @@
 package com.spring.home.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.UserDTO;
 
 import groovy.transform.Undefined.EXCEPTION;
@@ -50,5 +53,7 @@ public interface UserMapper {
 	public int updateUserDev(UserDTO dto) throws Exception;
 	
 	public int updateCompanyDev(CompanyDTO dto) throws Exception;
+	
+	public List<CartDTO> catagoryTotalCountPrice(CartDTO dto) throws Exception;
 	
 }

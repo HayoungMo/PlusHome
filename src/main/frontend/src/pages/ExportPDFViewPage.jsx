@@ -13,16 +13,6 @@ Font.register({
 	],
 });
 
-// const invoiceItems = [
-// 	{ no: "01", desc: "FUCK", qty: 1, price: 900 },
-// 	{ no: "02", desc: "DAMN", qty: 1, price: 600 },
-// 	{ no: "03", desc: "Web Design", qty: 1, price: 600 },
-// 	{ no: "04", desc: "UI/UX Design", qty: 3, price: 600 },
-// 	{ no: "05", desc: "Stationary Design", qty: 2, price: 400 },
-// 	{ no: "06", desc: "Logo Design", qty: 1, price: 300 },
-// ];
-
-// const formatMoney = (value) => `$${value.toFixed(2)}`;
 const formatMoney = (value) => new Intl.NumberFormat("ko-KR").format(value) + "원";
 
 const styles = StyleSheet.create({
@@ -239,8 +229,7 @@ const InvoiceDocument = (props) => {
 	const subTotal = invoiceItems.reduce((sum, item) => sum + item.qty * item.price, 0);
 
 	const taxes = subTotal / 10;
-	const discount = 8000;
-	const grandTotal = subTotal + taxes - discount;
+	const grandTotal = subTotal + taxes;
 	return (
 		<Document>
 			<Page size="A4" style={styles.page}>
@@ -303,10 +292,6 @@ const InvoiceDocument = (props) => {
 							<Text>부과세 (10%)</Text>
 							<Text>{formatMoney(taxes)}</Text>
 						</View>
-						<View style={styles.summaryRow}>
-							<Text>할인금액</Text>
-							<Text>{formatMoney(discount)}</Text>
-						</View>
 						<View style={[styles.summaryRow, styles.grandTotal]}>
 							<Text>총 합계</Text>
 							<Text>{formatMoney(grandTotal)}</Text>
@@ -329,8 +314,8 @@ const InvoiceDocument = (props) => {
 
 					<View style={styles.footerBox}>
 						<Text style={styles.label}>수신자 :</Text>
-						<Text>{loginUser?.name || "Jessica Jone"}</Text>
-						<Text style={styles.smallText}>{loginUser?.id || "Jessica Jone"}</Text>
+						<Text>{invoice?.name || "Jessica Jone"}</Text>
+						<Text style={styles.smallText}>{invoice?.id || "Jessica Jone"}</Text>
 					</View>
 
 					<View style={styles.footerBox}>
@@ -349,18 +334,21 @@ const InvoiceDocument = (props) => {
 };
 
 const ExportPDFViewPage = () => {
-	const location = useLocation();
-	const invoice = location.state?.invoice;
-	const invoiceDetail = location.state?.invoiceDetail;
-	const loginUser = location.state?.loginUser;
-	const company = location.state?.company;
-	const orderBy = location.state?.orderBy;
+	const pdfData = JSON.parse(sessionStorage.getItem("exportPDFData"));
+
+	if (!pdfData) {
+		return <div>PDF 데이터가 없습니다.</div>;
+	}
+
+	const invoice = pdfData?.invoice;
+	const invoiceDetail = pdfData?.invoiceDetail;
+	const company = pdfData?.company;
+	const orderBy = pdfData?.orderBy;
 	return (
 		<PDFViewer style={styles.viewer}>
 			<InvoiceDocument
 				invoice={invoice}
 				invoiceDetail={invoiceDetail}
-				loginUser={loginUser}
 				company={company}
 				orderBy={orderBy}
 			/>

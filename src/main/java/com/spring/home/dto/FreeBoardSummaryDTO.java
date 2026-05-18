@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class FreeBoardSummaryDTO {
     private Long boardId;
+    private Long commentId;   // 신고 댓글 전용 — boardId와 별도로 실제 commentId 보관
+    private Long parentId;    // 대댓글 여부 판단 (null이면 루트 댓글)
     private String userId;
     private String userName;
     private String category;

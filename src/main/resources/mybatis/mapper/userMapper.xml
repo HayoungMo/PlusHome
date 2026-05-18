@@ -160,5 +160,66 @@ update users
 	where id = #{id}
 </update>
 
+<!-- 카테고리별 구매한 물품 개수 및 금액 조회 -->
+<select id="catagoryTotalCountPrice" parameterType="com.spring.home.dto.CartDTO"  resultType="com.spring.home.dto.CartDTO" >
+	select 
+		<if test="f_catagory1 != null and f_catagory1 != ''">
+			f.f_catagory1,
+		</if>
+		<if test="f_catagory2 != null and f_catagory2 != ''">
+			f.f_catagory2,
+		</if>
+		<if test="f_catagory3 != null and f_catagory3 != ''">
+			f.f_catagory3,
+		</if>
+		<if test="f_catagory4 != null and f_catagory4 != ''">
+			f.f_catagory4,
+		</if>
+		<if test="f_catagory5 != null and f_catagory5 != ''">
+			f.f_catagory5,
+		</if>
+		<if test="gender != null and gender != ''">
+			u.gender,
+		</if>
+		count(*)       as category_count,
+	    sum(c.F_COUNT) as f_count,
+	    sum(c.F_PRICE) as f_price
+	FROM CART c
+	JOIN FURNITURE f
+    ON c.F_CODE = f.F_CODE 
+    JOIN USERS u
+    ON c.ID = u.ID 
+	<where>
+		<if test="f_status != 'all' or f_status == null">		
+			AND c.f_status = 'Y' 
+		</if>
+		<if test='f_catagory1 != "null" and f_catagory1 != "" and f_catagory1 != "y"'>		
+			AND f.f_catagory1 = #{f_catagory1}
+		</if>
+	
+	</where>
+    GROUP BY 
+    <trim suffixOverrides=",">
+    	<if test="gender !=null and gender !=''">
+    		u.gender,
+    	</if>
+	    <if test="f_catagory1 != null and f_catagory1 != ''">
+			f.f_catagory1,
+		</if>
+		<if test="f_catagory2 != null and f_catagory2 != ''">
+			f.f_catagory2,
+		</if>
+		<if test="f_catagory3 != null and f_catagory3 != ''">
+			f.f_catagory3,
+		</if> 
+		<if test="f_catagory4 != null and f_catagory4 != ''">
+			f.f_catagory4,
+		</if>
+		<if test="f_catagory5 != null and f_catagory5 != ''">
+			f.f_catagory5,
+		</if>                          
+    </trim>                   
+</select>
+
 
 </mapper>

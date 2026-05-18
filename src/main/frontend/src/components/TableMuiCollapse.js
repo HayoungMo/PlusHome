@@ -12,6 +12,7 @@ import {
 	tableCellClasses,
 	Paper,
 	Typography,
+	Button,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -60,6 +61,7 @@ const TableMuiCollapse = ({
 	renderCollapse,
 	selectedRow,
 	setSelectedRow,
+	buttonData = [],
 }) => {
 	const rows = Array.isArray(rowData) ? rowData : [rowData];
 
@@ -77,6 +79,11 @@ const TableMuiCollapse = ({
 						{tableColumns.map((column) => (
 							<StyledTableCell key={column} align="right">
 								{column}
+							</StyledTableCell>
+						))}
+						{buttonData.map((data) => (
+							<StyledTableCell key={data.key} align="right">
+								{data.title}
 							</StyledTableCell>
 						))}
 					</TableRow>
@@ -100,6 +107,7 @@ const TableMuiCollapse = ({
 								}}
 								setSelectedRow={setSelectedRow}
 								isSelected={isSelected}
+								buttonData={buttonData}
 							/>
 						);
 					})}
@@ -109,10 +117,7 @@ const TableMuiCollapse = ({
 	);
 };
 
-const DefaultCollapseTable = ({
-	data,
-	visibleColumns = [],
-}) => {
+const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
 	if (!data) return null;
 
 	const rows = Array.isArray(data) ? data : [data];
@@ -122,19 +127,15 @@ const DefaultCollapseTable = ({
 			<TableHead>
 				<TableRow>
 					{visibleColumns.map((column) => {
-            return(
-						<TableCell key={column}>{column}</TableCell>
-					)})}
+						return <TableCell key={column}>{column}</TableCell>;
+					})}
 				</TableRow>
 			</TableHead>
 
 			<TableBody>
 				{rows.map((row, index) => {
 					return (
-						<TableRow
-							key={index}
-							onClick={() => {
-							}}>
+						<TableRow key={index} onClick={() => {}}>
 							{visibleColumns.map((column) => (
 								<TableCell key={column}>{row[column]}</TableCell>
 							))}
@@ -156,6 +157,7 @@ const CollapseRow = ({
 	onClickCollapseRow,
 	isSelected,
 	setSelectedRow,
+	buttonData = [],
 }) => {
 	const [open, setOpen] = useState(false);
 
@@ -174,6 +176,8 @@ const CollapseRow = ({
 
 		return value;
 	};
+
+	const colCount = tableColumns.length + 1 + buttonData.length
 
 	return (
 		<>
@@ -202,11 +206,26 @@ const CollapseRow = ({
 						</StyledTableCell>
 					);
 				})}
+
+				{buttonData.map((data) => (
+					<StyledTableCell
+						key={`${data.key}__row_cell`}
+						align="center"
+						
+						sx={{
+							backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
+							cursor: setSelectedRow ? "pointer" : "default",
+						}}>
+						<Button color={data.color} variant={data.variant} onClick={() => data.onClick(row)}>
+							{data.icon}
+						</Button>
+					</StyledTableCell>
+				))}
 			</StyledTableRow>
 
 			<TableRow>
 				<TableCell
-					colSpan={tableColumns.length + 1}
+					colSpan={colCount}
 					sx={{ paddingBottom: 0, paddingTop: 0 }}>
 					<Collapse in={open} timeout="auto" unmountOnExit>
 						<Box sx={{ margin: 2 }}>

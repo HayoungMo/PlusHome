@@ -1,0 +1,129 @@
+/* =====================================================
+   FreeBoardListPage.css
+   자유게시판 목록 페이지 전용 스타일
+
+   색상 팔레트 (모노크로매틱 블루)
+   --blue-dark:   #1e3a8a  딥 네이비    – 제목·강조
+   --blue-mid:    #4b6bbb  미디엄 블루  – 보조 텍스트
+   --blue-light:  #aec4ed  라이트 블루  – 날짜·아이콘
+   --blue-bg:     #eef2fa  연한 블루 배경 – 테이블 헤드·호버
+   --blue-border: #c5d4f0  블루 경계선
+   ===================================================== */
+
+/* ── 페이지 래퍼 ──────────────────────────────────── */
+.freeboard-list-wrapper {
+    animation: fadeInUp 0.3s ease;
+}
+
+/* ── 상단 타이틀 영역 ─────────────────────────────── */
+.freeboard-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.freeboard-list-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    letter-spacing: -0.3px;
+}
+
+/* ── 검색 영역 ────────────────────────────────────── */
+.freeboard-search-bar {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(30, 58, 138, 0.08);
+}
+
+/* ── 테이블 ───────────────────────────────────────── */
+.freeboard-table-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(30, 58, 138, 0.1);
+}
+
+.freeboard-table-head {
+    background-color: #eef2fa;
+}
+
+.freeboard-table-head th {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    border-bottom: 2px solid #c5d4f0;
+    padding: 10px 12px;
+}
+
+.freeboard-table-row {
+    transition: background-color 0.15s ease;
+}
+
+.freeboard-table-row:hover {
+    background-color: #eef2fa !important;
+    cursor: pointer;
+}
+
+.freeboard-table-row.hidden-post {
+    opacity: 0.55;
+}
+
+/* ── NEW 뱃지 ─────────────────────────────────────── */
+.freeboard-new-badge {
+    font-size: 0.55rem !important;
+    font-weight: 800 !important;
+    height: 16px !important;
+    padding: 0 4px !important;
+    border-radius: 4px !important;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* ── 카테고리 칩 ──────────────────────────────────── */
+.freeboard-category-chip {
+    height: 20px !important;
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+}
+
+/* ── 페이지네이션 ─────────────────────────────────── */
+.freeboard-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+    padding-bottom: 12px;
+}
+
+/* ── 사이드 패널 (sticky 고정) ───────────────────── */
+.freeboard-side-panel {
+    position: sticky;
+    top: 16px;
+}
+
+/* ── 통계 숫자 (조회/좋아요/댓글) ────────────────── */
+.freeboard-stat-cell {
+    font-size: 0.82rem;
+    color: #4b6bbb;
+}
+
+/* ── 날짜 셀 ─────────────────────────────────────── */
+.freeboard-date-cell {
+    font-size: 0.78rem;
+    color: #aec4ed;
+    white-space: nowrap;
+}
+
+/* ── 애니메이션 ───────────────────────────────────── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

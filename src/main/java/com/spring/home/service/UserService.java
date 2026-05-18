@@ -11,14 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.FileSaveResult;
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.dto.ResponseIdDTO;
 import com.spring.home.dto.ResponsePwDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.mapper.CompanyMapper;
+import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.UserMapper;
 import com.spring.home.util.FileUtilMethod;
 //
@@ -36,6 +39,9 @@ public class UserService {
 	
 	@Autowired
 	private ImageService imageService;
+	
+	@Autowired
+	private FurnitureMapper furnitureMapper;
 	
 	@Transactional
 	public void insertUser(UserDTO dto) throws Exception{
@@ -315,6 +321,9 @@ public class UserService {
 		return total;
 	}
 	
+	public List<CartDTO> catagoryTotalCountPrice(CartDTO dto) throws Exception{
+		return userMapper.catagoryTotalCountPrice(dto);
+	}
 	
 
 }

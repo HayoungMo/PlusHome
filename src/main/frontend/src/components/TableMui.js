@@ -6,6 +6,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { Button } from "@mui/material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -47,6 +48,10 @@ const TableMui = (props) => {
 		col = [],
 		selectedRow = null,
 		setSelectedRow = null,
+		onRowClick = null,
+		buttonData = [],
+		buttonCol = [],
+		buttonColumns = [],
 	} = props;
 
 	const tableColumns =
@@ -68,6 +73,11 @@ const TableMui = (props) => {
 								{columns.length > 0 ? columns[index] : column}
 							</StyledTableCell>
 						))}
+						{buttonCol.map((column, index) => (
+							<StyledTableCell key={column} align="center">
+								{buttonColumns.length > 0 ? buttonColumns[index] : column}
+							</StyledTableCell>
+						))}
 					</TableRow>
 				</TableHead>
 				<TableBody>
@@ -76,8 +86,10 @@ const TableMui = (props) => {
 						return (
 							<StyledTableRow
 								onClick={() => {
+									onRowClick?.(row)
+									
 									if (!setSelectedRow || setSelectedRow === null) return;
-									setSelectedRow({...row,rowIndex:rowIndex});
+									setSelectedRow({ ...row, rowIndex: rowIndex });
 								}}
 								key={
 									row.f_code
@@ -88,11 +100,25 @@ const TableMui = (props) => {
 									backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
 									cursor: setSelectedRow ? "pointer" : "default",
 								}}>
-								{tableColumns.map((column) => (
-									<StyledTableCell key={column} align="right">
-										{row[column]}
-									</StyledTableCell>
-								))}
+								{tableColumns.map((column) => {
+									return (
+										<StyledTableCell key={column} align="right">
+											{row[column]}
+										</StyledTableCell>
+									);
+								})}
+								{buttonData?.map((column) => {
+									return (
+										<StyledTableCell key={column} align="center">
+											<Button
+												variant={column.variant}
+												color={column.color}
+												onClick={() => column.onClick(row)}>
+												{column.title}
+											</Button>
+										</StyledTableCell>
+									);
+								})}
 							</StyledTableRow>
 						);
 					})}

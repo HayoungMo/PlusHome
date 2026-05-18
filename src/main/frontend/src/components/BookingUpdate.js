@@ -2,14 +2,20 @@ import React, { useEffect, useState } from "react";
 import InteriorService from "../service/interiorService";
 import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
-import InteriorInvoiceAdd from "./InteriorInvoiceAdd";
 import { Button, Table, TableBody, TableCell, TableRow } from "@mui/material";
 import DialogMui from "./DialogMui";
 import SelectMui from "./SelectMui";
 
-const BookingUpdate = ({ company, selectedInvoice, setSelectedInvoice }) => {
+const BookingUpdate = ({
+	company,
+	selectedBooking,
+	setSelectedBooking,
+	selectedInvoice,
+	setSelectedInvoice,
+	selectedInvoiceDetailList,
+	setSelectedInvoiceDetailList,
+}) => {
 	const [booking, setBooking] = useState([]);
-	const [selectedRow, setSelectedRow] = useState(null);
 
 	const reLoadBooking = async () => {
 		const data = await InteriorService.fetchBookingList(company);
@@ -27,7 +33,7 @@ const BookingUpdate = ({ company, selectedInvoice, setSelectedInvoice }) => {
 	useEffect(() => {
 		if (company) reLoadBooking();
 
-		setSelectedRow(null);
+		setSelectedBooking(null);
 	}, [company]);
 
 	const [dialogCancelBooking, setDialogCancelBooking] = useState(false);
@@ -37,43 +43,43 @@ const BookingUpdate = ({ company, selectedInvoice, setSelectedInvoice }) => {
 	};
 
 	const onClickstartRemodel = async () => {
-		if (selectedRow.b_status !== "confirmed") {
+		if (selectedBooking.b_status !== "confirmed") {
 			alert("확정된 상담만 진행 가능합니다");
 			return;
 		}
 
 		const startRemodel = {
-			...selectedRow,
+			...selectedBooking,
 			b_status: "working",
 		};
 
 		await InteriorService.UpdateBooking(startRemodel);
 
-		setSelectedRow(null);
+		setSelectedBooking(null);
 		reLoadBooking();
 	};
 
 	const onClickCancelBooking = async () => {
 		const startRemodel = {
-			...selectedRow,
+			...selectedBooking,
 			b_status: "cancel",
 		};
 
 		await InteriorService.UpdateBooking(startRemodel);
 		handleDialogCancelBooking();
 
-		setSelectedRow(null);
+		setSelectedBooking(null);
 		reLoadBooking();
 	};
 
-	useEffect(() => {}, [selectedRow]);
+	useEffect(() => {}, [selectedBooking]);
 
 	return (
 		<div>
 			<div>
 				<TableMuiCollapse
-					selectedRow={selectedRow}
-					setSelectedRow={setSelectedRow}
+					selectedRow={selectedBooking}
+					setSelectedRow={setSelectedBooking}
 					rowData={booking}
 					hiddenColumns={["b_answer"]}
 					collapseTitle="상담 상세 정보"
@@ -104,7 +110,7 @@ const BookingUpdate = ({ company, selectedInvoice, setSelectedInvoice }) => {
 						);
 					}}
 				/>
-				{selectedRow && (
+				{selectedBooking && (
 					<>
 						<Button variant="contained" color="secondary" onClick={onClickstartRemodel}>
 							시공 시작
@@ -130,11 +136,6 @@ const BookingUpdate = ({ company, selectedInvoice, setSelectedInvoice }) => {
 									onClick: onClickCancelBooking,
 								},
 							]}
-						/>
-						<InteriorInvoiceAdd
-							booking={selectedRow}
-							selectedInvoice={selectedInvoice}
-							setSelectedInvoice={setSelectedInvoice}
 						/>
 					</>
 				)}
