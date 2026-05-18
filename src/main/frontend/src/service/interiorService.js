@@ -416,6 +416,7 @@ const getPDFData = async (param) => {
 };
 
 const InteriorService = {
+	fetchCompany,
 	fetchExample,
 	fetchArticle,
 	fetchArticleList,
