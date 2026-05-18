@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.service.CompanyService;
 import com.spring.home.service.UserService;
@@ -185,6 +187,34 @@ public class DevController {
 		
 	}
 	
+	//카테고리별 판매 통계 및 금액 조회
+	
+	@PostMapping("/statistics/category")
+	public Map<String, Object>catagoryTotalCountPrice(@RequestBody CartDTO dto){
+		
+		Map<String, Object> result = new HashMap<>();
+		System.out.println(dto);
+		
+		try {
+			
+			List<CartDTO> list = userService.catagoryTotalCountPrice(dto);
+			
+			result.put("success", true);
+			result.put("list", list);
+			
+			
+		} catch (Exception e) {
+			
+			result.put("success", false);
+			result.put("message", "통계 조회 실패");
+			result.put("message", e.toString());
+			System.out.println(e.toString());
+			
+		}
+		
+		return result;
+		
+	}
 	
 	
 

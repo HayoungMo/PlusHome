@@ -161,7 +161,7 @@ update users
 </update>
 
 <!-- 카테고리별 구매한 물품 개수 및 금액 조회 -->
-<select id="">
+<select id="catagoryTotalCountPrice" parameterType="com.spring.home.dto.CartDTO"  resultType="com.spring.home.dto.CartDTO" >
 	select 
 		<if test="f_catagory1 != null and f_catagory1 != ''">
 			f.f_catagory1,
@@ -190,13 +190,19 @@ update users
     JOIN USERS u
     ON c.ID = u.ID 
 	<where>
-		<if test="F_STATUS != 'all' or F_STATUS == null">		
-			AND c.F_STATUS = 'Y' 
+		<if test="f_status != 'all' or f_status == null">		
+			AND c.f_status = 'Y' 
+		</if>
+		<if test='f_catagory1 != "null" and f_catagory1 != "" and f_catagory1 != "y"'>		
+			AND f.f_catagory1 = #{f_catagory1}
 		</if>
 	
 	</where>
     GROUP BY 
     <trim suffixOverrides=",">
+    	<if test="gender !=null and gender !=''">
+    		u.gender,
+    	</if>
 	    <if test="f_catagory1 != null and f_catagory1 != ''">
 			f.f_catagory1,
 		</if>

@@ -102,6 +102,7 @@ const TableChkMui = (props) => {
 		"addr",
 		'email',
 		"gender",
+		"c_name",
 		'c_kind',
 		'c_info',
 		'c_boss',

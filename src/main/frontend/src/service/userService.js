@@ -83,6 +83,25 @@ const updateCompany =  async (selectedUserList) =>{
     }
 }
 
-const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany };
+const getCatagoryStatistics = async(data)=>{
+
+    try{
+  
+    const res = await http.post("/dev/statistics/category",data)
+  
+    console.log("카타고리 서비스 실행")
+    console.log("카타고리 판매 리스트",res)
+    
+    return res.data
+    }catch (error) {
+        console.log("API Error:", error)
+
+    }
+    
+   
+    
+}
+
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics };
 
 export default userService;

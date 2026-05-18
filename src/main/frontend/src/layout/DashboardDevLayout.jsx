@@ -5,6 +5,7 @@ import DashboardLeftbar from "./DashboardLeftbar";
 import "../css/Dashboard.css";
 import DashboardDevHome from "../dashboardDev/DashboardDevHome";
 import UserInfo from "../dashboardDev/UserInfo";
+import SalesList from "../dashboardDev/SalesList";
 
 const DashboardDevLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -27,6 +28,15 @@ const DashboardDevLayout = () => {
 				component: (
 					<UserInfo/>
 				),
+			},
+			{
+				key:"salesList",
+				label:"판매량 통계",
+				component:(
+					<SalesList/>
+
+				)
+
 			},
 		],
 		

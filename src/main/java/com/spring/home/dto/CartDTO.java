@@ -23,4 +23,15 @@ public class CartDTO {
 	private Date cart_statusdate;
 	
 	private int pay_total;
+	
+	private String gender;
+	private String f_catagory1;
+	private String f_catagory2;
+	private String f_catagory3;
+	private String f_catagory4;
+	private String f_catagory5;
+	private String F_STATUS;
+	
+	private int groupLevel;
+	
 }

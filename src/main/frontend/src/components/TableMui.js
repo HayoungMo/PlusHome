@@ -48,6 +48,7 @@ const TableMui = (props) => {
 		col = [],
 		selectedRow = null,
 		setSelectedRow = null,
+		onRowClick = null,
 		buttonData = [],
 		buttonCol = [],
 		buttonColumns = [],
@@ -85,6 +86,8 @@ const TableMui = (props) => {
 						return (
 							<StyledTableRow
 								onClick={() => {
+									onRowClick?.(row)
+									
 									if (!setSelectedRow || setSelectedRow === null) return;
 									setSelectedRow({ ...row, rowIndex: rowIndex });
 								}}
