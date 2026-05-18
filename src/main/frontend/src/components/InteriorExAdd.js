@@ -154,8 +154,6 @@ const InteriorExAdd = ({ company }) => {
       console.log("보낼 이미지 없음");
       return; // 🚫 요청 안 보냄
     }
-    console.log("sendlist3");
-    console.log(sendList3);
 
     try {
       await ImageService.insertImage(sendList3);
@@ -217,8 +215,6 @@ const InteriorExAdd = ({ company }) => {
         <input type="hidden" value="LOGO" name="dir_d" placeholder="DIR_D" />
         {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
         <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
-        <input type="file" name="file" />
-        <br />
         <Button
           component="label"
           variant="contained"
@@ -229,7 +225,7 @@ const InteriorExAdd = ({ company }) => {
             type="file"
             hidden
             name="file"
-            onChange={() => onClickAdd2()}
+            onChange={() => onClickAdd3()}
           />
         </Button>
         <FloatingActionButtonMui

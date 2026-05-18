@@ -33,25 +33,41 @@ const InteriorChart = ({ company }) => {
   const [spaceData, setSpaceData] = useState();
   const [customerData, setCustomerData] = useState();
 
-  useEffect(() => {
-    const fetchBooking = async () => {
-      const data = await InteriorService.fetchAllBookingList();
-      setBooking(data);
-    };
-    const fetchCompanyBooking = async () => {
-      const data = await InteriorService.fetchBookingList(company);
-      setCompanyBooking(data);
-    };
-    fetchBooking();
-    fetchCompanyBooking();
-  }, []);
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const allBookingData = await InteriorService.fetchAllBookingList();
 
-  useEffect(() => {
-    setHousingTypeData(makeCountChartData(booking, "housingType"));
-    setBudgetData(makeCountChartData(booking, "budget"));
-    setSpaceData(makeArrayCountChartData(booking, "spaces"));
-    setCustomerData(makeCustomerTypeData(booking));
-  }, [booking]);
+          setBooking(allBookingData || []);
+
+          // 회사 정보가 있을 때만 업체별 조회
+          if (company?.c_id) {
+            const companyData = await InteriorService.fetchBookingList(company);
+
+            setCompanyBooking(companyData || []);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      fetchData();
+    }, [company]);
+
+    useEffect(() => {
+      // company.c_id가 있으면 업체 데이터 사용
+      const targetData = company?.c_id ? companyBooking : booking;
+
+      if (!Array.isArray(targetData)) return;
+
+      setHousingTypeData(makeCountChartData(targetData, "housingType"));
+
+      setBudgetData(makeCountChartData(targetData, "budget"));
+
+      setSpaceData(makeArrayCountChartData(targetData, "spaces"));
+
+      setCustomerData(makeCustomerTypeData(targetData));
+    }, [booking, companyBooking, company]);
 
   const parseAnswer = (b_answer) => {
     try {

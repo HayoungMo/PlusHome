@@ -3,7 +3,7 @@ import FurnitureReviewService from "../service/furnitureReviewService";
 import GetImgDir from "../resources/function/GetImgDir";
 import RatingMui from "../components/RatingMui";
 import TextFieldMui from "../components/TextFieldMui";
-import { Button } from "@mui/material";
+import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import ImageService from "../service/imageService";
@@ -98,7 +98,7 @@ const UserReviewPage = ({ user }) => {
         title: `에러 (${result.status})`,
         text: result.message || "오류가 발생했습니다.",
       });
-    }
+    }    
   };
 
   const reviewDeleteSubmit = async (idx) => {
@@ -185,20 +185,37 @@ const UserReviewPage = ({ user }) => {
   };
   return (
     <div>
-      {alert.open && (
-        <AlertMui
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
           severity={alert.severity}
-          title={alert.title}
-          text={alert.text}
-          autoHideDuration={3000}
           onClose={() =>
             setAlert((prev) => ({
               ...prev,
               open: false,
             }))
           }
-        />
-      )}
+          sx={{
+            width: "400px",
+            fontSize: "1rem",
+            padding: "16px 20px",
+            alignItems: "center",
+          }}
+        >
+          <AlertTitle>{alert.title}</AlertTitle>
+          {alert.text}
+        </Alert>
+      </Snackbar>
+
       {reviews?.map((item, idx) => (
         <div>
           {item?.logo?.result.map((record, i) => (
@@ -264,7 +281,9 @@ const UserReviewPage = ({ user }) => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={(e) => handleSubmit(e, item)}
+                onClick={(e) => {handleSubmit(e, item)
+                  changeToUpdate(idx);
+                }}
               >
                 수정
               </Button>
