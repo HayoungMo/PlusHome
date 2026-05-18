@@ -13,6 +13,8 @@ import GetImgDir from "../resources/function/GetImgDir";
 import Maps from "../maps/Maps";
 
 import { Button, Chip, Stack } from "@mui/material";
+import InteriorArticleAI from "../components/InteriorArticleAI";
+import DialogInside from "../components/DialogInside";
 
 function InteriorArticle() {
   const id = localStorage.getItem("id");
@@ -58,7 +60,22 @@ function InteriorArticle() {
     return result;
   };
 
+  const groupInteriorReviewTags = (list) => {
+    const result = {};
+
+    list.forEach((item) => {
+      if (!result[item.ie_tag]) {
+        result[item.ie_tag] = [];
+      }
+
+      result[item.ie_tag].push(item.ie_tag2 + "__" + item.ie_content);
+    });
+
+    return result;
+  };
+
   const groupedTags = groupInteriorTags(article);
+  const groupedReviewTags = groupInteriorReviewTags(example);
 
   const getWishList = () => {
     return JSON.parse(localStorage.getItem(wishKey)) || [];
@@ -114,8 +131,21 @@ function InteriorArticle() {
   useEffect(() => {
     const fetchCompany = async () => {
       const data = await InteriorService.fetchCompany(company);
-
-      setCompany(data || {});
+      const logo = await GetImgDir({
+        kind: "LOGO",
+        returnType: "list",
+        a: data.c_id,
+        b: data.c_kind,
+        c: data.c_name,
+        d: "LOGO",
+        view: false,
+      });
+      setCompany(
+        {
+          ...data,
+          logo,
+        } || {},
+      );
     };
 
     const fetchArticle = async () => {
@@ -160,6 +190,12 @@ function InteriorArticle() {
     fetchExample();
   }, []);
 
+  const handleFilter = (tag, value) => {
+    navigate("/interior/list", {
+      state: { tag: tag, value: value },
+    });
+  };
+
   return (
     <div className="article-container">
       <div className="article-top">
@@ -178,10 +214,6 @@ function InteriorArticle() {
                   src={item.img_name}
                   alt={`${company.c_name} 로고`}
                 />
-              )}
-
-              {item.img_tag === "MODEL" && (
-                <InteriorModelViewer src={item.img_name} />
               )}
             </div>
           ))}
@@ -210,7 +242,16 @@ function InteriorArticle() {
 
           {bookingPossible && (
             <div>
-              <InteriorBooking company={company} answers={answers} />
+              <DialogInside
+                open={bookingPossible}
+                onClose={() => setBookingPossible(false)}
+              >
+                <InteriorBooking
+                  company={company}
+                  answers={answers}
+                  setBookingPossible={setBookingPossible}
+                />
+              </DialogInside>
             </div>
           )}
         </div>
@@ -229,7 +270,11 @@ function InteriorArticle() {
 
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               {values.map((value) => (
-                <Chip key={value} label={value} />
+                <Chip
+                  key={value}
+                  label={value}
+                  onClick={() => handleFilter(tag, value)}
+                />
               ))}
             </Stack>
           </div>
@@ -269,24 +314,30 @@ function InteriorArticle() {
         </div>
       </div>
 
-      <div className="review-customer-layout">
-        <div className="review-card">
-          <div className="section-title">리뷰 및 후기</div>
-
-          <InteriorReviewList company={company} />
+      <div className="example-card">
+        <div className="section-title">시공 3D 모델</div>
+        <div style={{ display: "flex" }}>
+          {company?.logo?.result?.map(
+            (item) =>
+              item.img_tag === "MODEL" && (
+                <InteriorModelViewer src={item.img_name} />
+              )
+          )}
         </div>
+      </div>
 
-        <div className="customer-card">
-          <div className="section-title">이런 고객에게 추천</div>
+      <div className="example-card">
+        <div className="section-title">리뷰 및 후기</div>
 
-          <div className="customer-item">신혼집 인테리어</div>
+        <InteriorReviewList company={company} />
+      </div>
 
-          <div className="customer-item">모던 스타일 선호</div>
-
-          <div className="customer-item">수납 공간 개선 희망</div>
-
-          <div className="customer-item">욕실 / 주방 리모델링</div>
-        </div>
+      <div className="example-card">
+        <div className="section-title">ai 정보 요약</div>
+        {/* <InteriorArticleAI
+          groupedTags={groupedTags}
+          groupedReviewTags={groupedReviewTags}
+        /> */}
       </div>
 
       {selectedImg && (

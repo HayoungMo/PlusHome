@@ -7,7 +7,7 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import PersonIcon from "@mui/icons-material/Person";
 import FreeBoardReportButton from "./freeboard/FreeBoardReportButton";
 import SnackbarAlert from "./SnackbarAlert";
-import { ADMIN_TYPE } from "./freeboard/constants";
+import { getPermissions, ADMIN_TYPE } from "./freeboard/constants";
 
 const FreeBoardCommentItemMui = ({
     comment,
@@ -24,8 +24,9 @@ const FreeBoardCommentItemMui = ({
     const [replyContent, setReplyContent] = useState("");
     const [snack, setSnack] = useState({ open: false, message: "", severity: "warning" });
 
-    const hasAuthority = isAdmin || (loginUser && loginUser.id === comment.userId);
-    const canReport = !!loginUser && !isAdmin && loginUser.id !== comment.userId;
+    // 권한 중앙 계산
+    const { canEdit, canDelete, canReport, canComment } = getPermissions(loginUser, comment);
+    const hasAuthority = canEdit || canDelete;
 
     const showSnack = (message, severity = "warning") =>
         setSnack({ open: true, message, severity });
@@ -76,8 +77,8 @@ const FreeBoardCommentItemMui = ({
                 <ListItemText
                     disableTypography
                     primary={
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography variant="subtitle2" fontWeight="bold">
+                        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                            <Typography variant="subtitle2" fontWeight="bold" sx={{ color: "#1e3a8a" }}>
                                 {comment.userName}
                                 {(comment.userType === ADMIN_TYPE || comment.userId === "admin1") && (
                                     <Chip
@@ -88,7 +89,7 @@ const FreeBoardCommentItemMui = ({
                                     />
                                 )}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant="caption" sx={{ color: "#aec4ed" }}>
                                 {comment.createdAt}
                             </Typography>
                         </Stack>
@@ -121,7 +122,7 @@ const FreeBoardCommentItemMui = ({
                                         {comment.content}
                                     </Typography>
                                     <Stack direction="row" spacing={0.5} alignItems="center">
-                                        {!isReply && loginUser && (
+                                        {!isReply && canComment && (
                                             <Button size="small" variant="text" onClick={() => setReplyOpen(!replyOpen)}>
                                                 {replyOpen ? "답글취소" : "답글"}
                                             </Button>

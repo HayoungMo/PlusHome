@@ -19,16 +19,7 @@ import com.spring.home.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * 자유게시판 컨트롤러
- *
- * 카테고리별 쓰기 권한:
- *   자유      : guest / user / company / admin
- *   질문      : guest / user / admin
- *   정보      : user / company / admin
- *   이벤트/광고: company / admin
- *   공지      : admin only
- */
+
 
 @RestController
 @RequestMapping("/freeboard")
@@ -48,7 +39,6 @@ public class FreeBoardController {
     // JWT 헬퍼
     // ───────────────────────────────────────────────
 
-    /** Authorization 헤더 → { id, type } 맵. 없거나 만료면 null 반환 */
     private Map<String, String> parseToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
@@ -67,13 +57,10 @@ public class FreeBoardController {
     // ───────────────────────────────────────────────
     // 작성자 표시명 결정
     // ───────────────────────────────────────────────
-
-    /**
-     * users 테이블에서 실제 type 확인 후 표시명 결정.
-     *   company → "[c_kind] c_name"  (DB 에서 조회)
-     *   user / admin → userId 그대로
-     */
     private String resolveDisplayName(String userId) {
+        if (userId == null || userId.trim().isEmpty() || GUEST_ID.equals(userId)) {
+            return GUEST_NAME;
+        }
         try {
             UserDTO user = userMapper.findById(userId);
             if (user != null && "company".equals(user.getType())) {
@@ -84,8 +71,12 @@ public class FreeBoardController {
                     return kind.isEmpty() ? name : kind + " " + name;
                 }
             }
+            // 일반 유저/관리자: name 필드 우선, 없으면 userId
+            if (user != null && user.getName() != null && !user.getName().trim().isEmpty()) {
+                return user.getName().trim();
+            }
         } catch (Exception e) {
-            // 조회 실패 시 userId 그대로 반환
+            // 조회 실패 시 userId 반환
         }
         return userId;
     }
@@ -117,35 +108,26 @@ public class FreeBoardController {
 
         Map<String, String> auth = parseToken(request);
 
-        String userId, userType, displayName;
+        // 비로그인 차단
+        if (auth == null) return ResponseEntity.status(401).body("로그인이 필요합니다.");
 
-        if (auth == null) {
-            // 비로그인 게스트: 자유/질문만 허용
-            String cat = dto.getCategory();
-            if (cat == null || (!cat.equals("자유") && !cat.equals("질문"))) {
-                return ResponseEntity.status(403).body("미가입 사용자는 자유/질문 카테고리만 작성 가능합니다.");
-            }
-            userId      = GUEST_ID;
-            userType    = "guest";
-            displayName = GUEST_NAME;
-        } else {
-            userId   = auth.get("id");
-            userType = auth.get("type");
+        String userId   = auth.get("id");
+        String userType = auth.get("type");
+        String displayName;
 
-            if ("deleted".equals(userType)) {
-                return ResponseEntity.status(403).body("탈퇴한 회원은 게시글을 작성할 수 없습니다.");
-            }
-
-            // 카테고리 권한 검증
-            try {
-                freeBoardService.validateWritePermission(dto.getCategory(), userType);
-            } catch (RuntimeException e) {
-                return ResponseEntity.status(403).body(e.getMessage());
-            }
-
-            // DB 에서 type 확인 후 표시명 결정
-            displayName = resolveDisplayName(userId);
+        if ("deleted".equals(userType)) {
+            return ResponseEntity.status(403).body("탈퇴한 회원은 게시글을 작성할 수 없습니다.");
         }
+
+        // 카테고리 권한 검증
+        try {
+            freeBoardService.validateWritePermission(dto.getCategory(), userType);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+
+        // DB 에서 표시명 결정
+        displayName = resolveDisplayName(userId);
 
         dto.setUserId(userId);
         dto.setUserName(displayName);
@@ -190,7 +172,7 @@ public class FreeBoardController {
     }
 
     // ───────────────────────────────────────────────
-    // 3. 상세 조회
+    // 3. 상세 조회 (조회수 증가 없음 — 순수 데이터만)
     // ───────────────────────────────────────────────
 
     @GetMapping("/article/{boardId}")
@@ -198,7 +180,7 @@ public class FreeBoardController {
             @PathVariable Long boardId,
             HttpServletRequest request) {
         try {
-            FreeBoardDTO dto = freeBoardService.getReadData(boardId);
+            FreeBoardDTO dto = freeBoardService.getDataOnly(boardId);
             if (dto == null) return ResponseEntity.notFound().build();
 
             // 숨김 게시글: 관리자만 열람 가능
@@ -211,6 +193,20 @@ public class FreeBoardController {
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("상세 조회 실패");
+        }
+    }
+
+    // ───────────────────────────────────────────────
+    // 3-0. 조회수 증가 전용 (프론트에서 최초 1회만 호출)
+    // ───────────────────────────────────────────────
+
+    @PutMapping("/article/{boardId}/view")
+    public ResponseEntity<?> incrementView(@PathVariable Long boardId) {
+        try {
+            freeBoardService.incrementViewCount(boardId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("조회수 증가 실패");
         }
     }
 
@@ -263,7 +259,7 @@ public class FreeBoardController {
     }
 
     // ───────────────────────────────────────────────
-    // 4-1. 좋아요 (로그인 필수)
+    // 4-1. 좋아요 on (로그인 필수)
     // ───────────────────────────────────────────────
 
     @PutMapping("/like/{boardId}")
@@ -281,6 +277,28 @@ public class FreeBoardController {
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("좋아요 실패");
+        }
+    }
+
+    // ───────────────────────────────────────────────
+    // 4-2. 좋아요 off / 취소 (로그인 필수)
+    // ───────────────────────────────────────────────
+
+    @PutMapping("/unlike/{boardId}")
+    public ResponseEntity<?> unlike(
+            @PathVariable Long boardId,
+            HttpServletRequest request) {
+
+        Map<String, String> auth = parseToken(request);
+        if (auth == null) return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        if ("deleted".equals(auth.get("type"))) return ResponseEntity.status(403).body("접근 권한이 없습니다.");
+
+        try {
+            freeBoardService.unlikeCount(boardId);
+            FreeBoardDTO dto = freeBoardService.getDataOnly(boardId);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("좋아요 취소 실패");
         }
     }
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InteriorUserService from "../service/interiorUserService";
 import GetImgDir from "../resources/function/GetImgDir";
-import { Button } from "@mui/material";
+import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import TextFieldMui from "./TextFieldMui";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
@@ -26,6 +26,13 @@ const InteriorMyReview = ({ id }) => {
   };
 
   const [open, setOpen] = useState(false);
+
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  });
 
   const handleOpen = () => {
     setOpen(true);
@@ -76,11 +83,24 @@ const InteriorMyReview = ({ id }) => {
         imageDelete([record.img_originalName]),
       ),
     );
+    setAlert({
+      open: true,
+      severity: "error",
+      title: "삭제 성공",
+      text: "삭제되었습니다.",
+    });
+
     await fetchReview();
   };
   const reviewUpdateSubmit = async (idx) => {
     const targetReview = review[idx];
     await InteriorUserService.UpdateInteriorReview(targetReview);
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "수정 성공",
+      text: "수정되었습니다.",
+    });
     await fetchReview();
     changeToUpdate(idx);
   };
@@ -99,7 +119,7 @@ const InteriorMyReview = ({ id }) => {
     }
 
     if (fileList.length === 0) {
-      alert("dumb");
+      alert("파일을 업로드 하세요");
       return;
     }
     // await ImageService.updateImage(fileList, updateTest);
@@ -107,8 +127,25 @@ const InteriorMyReview = ({ id }) => {
     await fetchReview();
   };
 
-  const imageDelete = async (item) => {
-    await ImageService.deleteImage(item);
+  const imageDelete = async (idx, imgName) => {
+    await ImageService.deleteImage([imgName]);
+
+    setReview((prev) =>
+      prev.map((reviewItem, reviewIdx) => {
+        if (reviewIdx !== idx) return reviewItem;
+
+        return {
+          ...reviewItem,
+          logo: {
+            ...reviewItem.logo,
+            result: reviewItem.logo.result.filter(
+              (img) => img.img_originalName !== imgName,
+            ),
+          },
+        };
+      }),
+    );
+
     await fetchReview();
   };
 
@@ -139,11 +176,42 @@ const InteriorMyReview = ({ id }) => {
     }
     console.log(sendList);
     await ImageService.insertImage(sendList);
+    setSendList([]);
     await fetchReview();
   };
 
   return (
     <div>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={alert.severity}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+          sx={{
+            width: "400px",
+            fontSize: "1rem",
+            padding: "16px 20px",
+            alignItems: "center",
+          }}
+        >
+          <AlertTitle>{alert.title}</AlertTitle>
+          {alert.text}
+        </Alert>
+      </Snackbar>
       {Array.isArray(review) && review.length > 0 ? (
         review.map((item, idx) => (
           <div>
@@ -153,7 +221,7 @@ const InteriorMyReview = ({ id }) => {
               .map((record, i) => (
                 <div>
                   <img
-                    src={record.img_name}
+                    src={`${record.img_name}?v=${record.img_CreatedDate || record.img_createdDate || ""}`}
                     alt={`${item.c_name} 예시`}
                     style={{
                       width: "100px",
@@ -187,7 +255,9 @@ const InteriorMyReview = ({ id }) => {
                       <Button
                         variant="contained"
                         color="error"
-                        onClick={() => imageDelete([record.img_originalName])}
+                        onClick={() =>
+                          imageDelete(idx, record.img_originalName)
+                        }
                       >
                         삭제{" "}
                       </Button>

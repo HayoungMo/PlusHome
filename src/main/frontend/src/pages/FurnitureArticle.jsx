@@ -747,7 +747,8 @@ const FurnitureArticle = () => {
                   border: "1px solid #ddd",
                 }}
               >
-                <Question f_code={f_code} />
+                {/* 0518 모하영 자회사 문의작성 금지중 */}
+                <Question f_code={f_code} furniture={furniture}/>
               </div>
             </div>
           )}

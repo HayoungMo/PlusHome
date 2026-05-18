@@ -33,8 +33,11 @@ public interface FreeBoardMapper {
     // 조회수 증가
     public void updateViewCount(@Param("boardId") Long boardId) throws Exception;
 
-    // 좋아요 수 증가
+    // 좋아요  on
     public void updateLikeCount(@Param("boardId") Long boardId) throws Exception;
+    
+    //좋아요 off
+    public void unlikeCount(@Param("boardId") Long boardId) throws Exception;
 
     // 전체 데이터 개수 (유저 타입에 따라 숨김글 제외 카운트 위해 type 추가)
     public int getDataCount(

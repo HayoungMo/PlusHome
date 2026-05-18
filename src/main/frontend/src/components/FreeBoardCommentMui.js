@@ -12,6 +12,7 @@ import FreeBoardCommentService from "../service/freeBoardCommentService";
 import FreeBoardCommentItemMui from "./FreeBoardCommentItemMui";
 import ConfirmDialog from "./ConfirmDialog";
 import SnackbarAlert from "./SnackbarAlert";
+import { getPermissions } from "./freeboard/constants";
 
 const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
     const [comments, setComments] = useState([]);
@@ -22,7 +23,8 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
     // 알림 스낵바
     const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
 
-    const isAdmin = loginUser?.type === "admin";
+    // 권한 중앙 계산 (target 없이 — 댓글 작성 여부만 필요)
+    const { isAdmin, canComment } = getPermissions(loginUser);
     const currentBoardId = Number(boardId);
 
     const showSnack = (message, severity = "success") =>
@@ -49,7 +51,7 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
 
     // 댓글 등록
     const handleCommentSubmit = async () => {
-        if (!loginUser) {
+        if (!canComment) {
             showSnack("로그인 후 이용 가능합니다.", "warning");
             return;
         }
@@ -76,7 +78,7 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
 
     // 대댓글 등록
     const handleReply = async (parentId, content) => {
-        if (!loginUser) {
+        if (!canComment) {
             showSnack("로그인 후 이용 가능합니다.", "warning");
             return;
         }
@@ -144,14 +146,14 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
 
     return (
         <Box sx={{ mt: 5 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#1e3a8a" }}>
                 댓글 {comments.length}개
             </Typography>
 
             <Stack direction="row" spacing={1} sx={{ my: 2 }}>
                 <TextField
                     placeholder={
-                        loginUser ? "따뜻한 댓글을 남겨주세요." : "로그인 후 댓글을 남겨보세요."
+                        canComment ? "따뜻한 댓글을 남겨주세요." : "로그인 후 댓글을 남겨보세요."
                     }
                     value={commentContent}
                     onChange={(e) => setCommentContent(e.target.value)}
@@ -159,15 +161,27 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
                     multiline
                     minRows={2}
                     fullWidth
-                    disabled={!loginUser}
+                    disabled={!canComment}
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                            "&:hover fieldset": { borderColor: "#4b6bbb" },
+                            "&.Mui-focused fieldset": { borderColor: "#1e3a8a" },
+                        },
+                    }}
                 />
-                {/* 댓글 등록 — primary contained */}
+                {/* 댓글 등록 버튼 */}
                 <Button
                     variant="contained"
-                    color="primary"
                     onClick={handleCommentSubmit}
-                    sx={{ minWidth: 80, height: "fit-content", py: 1.5 }}
-                    disabled={!loginUser}
+                    sx={{
+                        minWidth: 80,
+                        height: "fit-content",
+                        py: 1.5,
+                        bgcolor: "#1e3a8a",
+                        "&:hover": { bgcolor: "#1a317a" },
+                        "&.Mui-disabled": { bgcolor: "#c5d4f0" },
+                    }}
+                    disabled={!canComment}
                 >
                     등록
                 </Button>

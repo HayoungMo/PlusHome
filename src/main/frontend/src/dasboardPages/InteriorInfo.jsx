@@ -44,7 +44,10 @@ const InteriorInfo = () => {
 
 		if (value === "add") setOpenAddDialog(!openAddDialog);
 
-		if (value === "update") setOpenUpdateDialog(!openUpdateDialog);
+		if (value === "update") {
+			if (!selectedInterior) return;
+			setOpenUpdateDialog(!openUpdateDialog);
+		}
 
 		// const selectedCompany = tabStateList.find((record) => record.value === newValue);
 	};
@@ -90,7 +93,7 @@ const InteriorInfo = () => {
 		console.log(interior);
 	}, [id]);
 
-	const companyCheck = interiorList?.length > 0;
+	const companyCheck = interiorList?.length < 0;
 	const interiorListCheck = selectedCompany && interiorDisplayList.length > 0;
 
 	return (

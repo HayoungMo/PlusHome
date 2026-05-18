@@ -56,7 +56,7 @@ public class FreeBoardCommentController {
      * users 테이블 type 기반 표시명 결정.
      *   company → "[c_kind] c_name"
      *   user / admin → userId 그대로
-     *   guest → "방문자"
+  
      */
     private String resolveDisplayName(String userId) {
         if (userId == null || userId.isEmpty() || GUEST_ID.equals(userId)) return GUEST_NAME;
@@ -71,7 +71,7 @@ public class FreeBoardCommentController {
                 }
             }
         } catch (Exception e) {
-            // 조회 실패 시 userId 그대로 반환
+            
         }
         return userId;
     }

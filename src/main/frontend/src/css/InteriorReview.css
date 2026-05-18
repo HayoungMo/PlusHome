@@ -1,0 +1,101 @@
+.interior-review-page {
+  max-width: 900px;
+  min-height: calc(100vh - 160px);
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  color: #1f2937;
+}
+
+.interior-review-card {
+  padding: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.interior-review-header {
+  margin-bottom: 24px;
+}
+
+.interior-review-header h2 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.interior-review-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.interior-review-form {
+  margin-bottom: 28px;
+}
+
+.interior-review-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.interior-review-field .MuiFormControl-root {
+  flex: 1 1 420px;
+}
+
+.interior-review-field button,
+.interior-review-upload-form button {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.interior-review-upload {
+  padding-top: 24px;
+  border-top: 1px solid #eef2f7;
+}
+
+.interior-review-upload p {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.interior-review-upload-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.interior-review-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.interior-review-preview-image {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: #f3f4f6;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .interior-review-page {
+    padding: 28px 16px 48px;
+  }
+
+  .interior-review-card {
+    padding: 20px;
+  }
+
+  .interior-review-header h2 {
+    font-size: 24px;
+  }
+}
