@@ -77,8 +77,8 @@ const FreeBoardCommentItemMui = ({
                 <ListItemText
                     disableTypography
                     primary={
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography variant="subtitle2" fontWeight="bold">
+                        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                            <Typography variant="subtitle2" fontWeight="bold" sx={{ color: "#1e3a8a" }}>
                                 {comment.userName}
                                 {(comment.userType === ADMIN_TYPE || comment.userId === "admin1") && (
                                     <Chip
@@ -89,7 +89,7 @@ const FreeBoardCommentItemMui = ({
                                     />
                                 )}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant="caption" sx={{ color: "#aec4ed" }}>
                                 {comment.createdAt}
                             </Typography>
                         </Stack>

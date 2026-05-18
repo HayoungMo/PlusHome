@@ -127,43 +127,46 @@ const FreeBoardListMui = ({
             }}>
                 <Box sx={{ minWidth: 0 }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                        <Typography variant="h5" fontWeight="bold">자유게시판</Typography>
+                        <Typography variant="h5" fontWeight="bold" sx={{ color: "#1e3a8a" }}>자유게시판</Typography>
                         <Stack direction="row" spacing={1}>
                             {isAdmin && (
-                                <Button 
-                                    variant="outlined" 
-                                    color="error" 
-                                    startIcon={<DeleteSweepIcon />} 
-                                    onClick={onDelete} 
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    startIcon={<DeleteSweepIcon />}
+                                    onClick={onDelete}
                                     disabled={selectedIds.length === 0}
                                 >
                                     선택삭제 ({selectedIds.length})
                                 </Button>
                             )}
-                            <Button 
-                                variant="contained" 
-                                startIcon={<CreateIcon />} 
+                            <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<CreateIcon />}
                                 onClick={() => navigate("/freeboard/write")}
+                                sx={{ bgcolor: "#1e3a8a", "&:hover": { bgcolor: "#1a317a" } }}
                             >
                                 글쓰기
                             </Button>
                         </Stack>
                     </Stack>
 
-                    <Paper sx={{ p: 2, mb: 3 }}>
+                    <Paper sx={{ p: 2, mb: 3, border: "1px solid #c5d4f0" }}>
                         <Stack direction={{ xs: "column", md: "row" }} spacing={1} alignItems="center">
                             <FormControl size="small" sx={{ minWidth: 120 }}>
                                 <InputLabel>카테고리</InputLabel>
-                                <Select 
-                                    value={params.category} 
-                                    label="카테고리" 
+                                <Select
+                                    value={params.category}
+                                    label="카테고리"
                                     onChange={(e) => onCategoryChange(e.target.value)}
                                 >
                                     <MenuItem value="">전체</MenuItem>
                                     <MenuItem value="공지">공지</MenuItem>
                                     <MenuItem value="자유">자유</MenuItem>
                                     <MenuItem value="질문">질문</MenuItem>
-                                    <MenuItem value="정보">정보</MenuItem>
+                                    <MenuItem value="광고">광고</MenuItem>
+                                    <MenuItem value="이벤트">이벤트</MenuItem>
                                 </Select>
                             </FormControl>
                             <TextField
@@ -174,12 +177,12 @@ const FreeBoardListMui = ({
                                 onKeyDown={(e) => e.key === "Enter" && onSearch(inputValue)}
                                 sx={{ flexGrow: 1 }}
                             />
-                            {/* 검색 — success contained */}
+                            {/* 검색 버튼 */}
                             <Button
                                 variant="contained"
-                                color="success"
                                 startIcon={<SearchIcon />}
                                 onClick={() => onSearch(inputValue)}
+                                sx={{ bgcolor: "#4b6bbb", "&:hover": { bgcolor: "#3a57a3" } }}
                             >
                                 검색
                             </Button>
@@ -188,7 +191,7 @@ const FreeBoardListMui = ({
 
                     <TableContainer component={Paper}>
                         <Table>
-                            <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+                            <TableHead sx={{ backgroundColor: "#eef2fa" }}>
                                 <TableRow>
                                     {isAdmin && (
                                         <TableCell padding="checkbox">
@@ -268,15 +271,18 @@ const FreeBoardListMui = ({
                                                     </Typography>
                                                     {isNew(post.createdAt) && (
                                                         <Chip
-                                                            label="N"
+                                                            label="NEW"
                                                             size="small"
                                                             color="error"
-                                                            sx={{ height: 16, fontSize: "0.6rem", px: 0.3, fontWeight: "bold", flexShrink: 0 }}
+                                                            variant="outlined"
+                                                            sx={{ height: 18, fontSize: "0.65rem", px: 0.5, fontWeight: "bold", flexShrink: 0 }}
                                                         />
                                                     )}
                                                 </Box>
                                             </TableCell>
-                                            <TableCell align="center">{post.userName || "방문자"}</TableCell>
+                                            <TableCell align="center" sx={{ fontSize: "0.82rem", color: "#4b6bbb" }}>
+                                                {post.userName || ""}
+                                            </TableCell>
                                             <TableCell align="center" sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
                                                 {post.viewCount ?? 0}
                                             </TableCell>
@@ -310,6 +316,16 @@ const FreeBoardListMui = ({
                             color="primary"
                             showFirstButton
                             showLastButton
+                            sx={{
+                                "& .MuiPaginationItem-root.Mui-selected": {
+                                    bgcolor: "#1e3a8a",
+                                    color: "#fff",
+                                    "&:hover": { bgcolor: "#1a317a" },
+                                },
+                                "& .MuiPaginationItem-root:hover": {
+                                    bgcolor: "#eef2fa",
+                                },
+                            }}
                         />
                     </Stack>
                 </Box>

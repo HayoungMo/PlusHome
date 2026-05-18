@@ -1,12 +1,3 @@
-/**
- * 자유게시판 - 관리자 "숨김 처리" 액션 시 호출되는 위험 콘텐츠 백업 유틸
- *
- *  - 신고게시글 DTO 전체 + 신고댓글 DTO 전체를 "black.xlsx" 로 내보냄
- *  - SheetJS(xlsx) 미설치 환경에서는 자동으로 CSV 로 fallback 하여
- *    npm install 전에도 깨지지 않도록 처리
- *
- 
- */
 
 // 게시글 DTO → 행 변환 (DTO 전체 노출)
 const postRow = (p) => ({

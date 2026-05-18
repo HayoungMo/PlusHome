@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import "../css/FreeBoardWritePage.css";
 import { useNavigate, useParams } from "react-router-dom";
 import FreeBoardWriteMui from "../components/FreeBoardWriteMui";
 import FreeBoardService from "../service/freeBoardService";

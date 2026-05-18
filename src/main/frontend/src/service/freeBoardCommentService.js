@@ -1,8 +1,9 @@
 import http from "../http-common";
 
-const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-});
+const authHeader = () => {
+    const token = localStorage.getItem("token");
+    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+};
 
 const FreeBoardCommentService = {
 
