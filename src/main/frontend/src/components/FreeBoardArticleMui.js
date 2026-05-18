@@ -11,16 +11,19 @@ import FreeBoardReportButton from "./freeboard/FreeBoardReportButton";
 
 const categoryColor = (cat) => {
     switch (cat) {
-        case "공지": return "error"; 
-        case "질문": return "warning";
-        case "정보": return "info";
-        case "자유": return "success";
-        default: return "default";
+        case "공지":   return "error";
+        case "질문":   return "warning";
+        case "정보":   return "info";
+        case "자유":   return "success";
+        case "이벤트": return "secondary";
+        case "광고":   return "primary";
+        default:       return "default";
     }
 };
 
 const FreeBoardArticleMui = ({ 
     article, prevArticle, nextArticle, loginUser, isAdmin, isOwner, hasAuthority, canReport,
+    alreadyLiked, 
     onLike, onDelete, onShare, onEdit, onBack, onNavigate, onCommentCountChange 
 }) => {
     return (
@@ -34,7 +37,21 @@ const FreeBoardArticleMui = ({
                         size="small" 
                         variant="outlined"
                     />
-                    <Typography variant="caption" color="text.secondary">NO. {article.boardId}</Typography>
+                    
+                    {/* [NEW 뱃지 기능 통합]: 24시간 이내 생성 글일 때 카테고리 우측 배치 */}
+                    {article.isNew && (
+                        <Chip 
+                            label="NEW" 
+                            color="error" 
+                            size="small" 
+                            variant="filled"
+                            sx={{ 
+                                fontWeight: "bold", 
+                                height: 20, 
+                                fontSize: "0.7rem"
+                            }}
+                        />
+                    )}
                 </Stack>
                 
                 <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ wordBreak: "break-all" }}>
@@ -61,21 +78,25 @@ const FreeBoardArticleMui = ({
                     </Typography>
                 </Box>
 
-                {/* 좋아요 버튼 */}
+                {/* 좋아요 버튼 (토글 상태 연동형) */}
                 <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 6 }}>
                     <Button
-                        variant="outlined"
+                        variant={alreadyLiked ? "contained" : "outlined"} 
                         color="primary"
                         size="large"
                         startIcon={<ThumbUpAltIcon />}
                         onClick={onLike}
-                        sx={{ borderRadius: 5, px: 4 }}
+                        sx={{ 
+                            borderRadius: 5, 
+                            px: 4,
+                            boxShadow: alreadyLiked ? 2 : 0 
+                        }}
                     >
                         좋아요 {article.likeCount || 0}
                     </Button>
                 </Stack>
 
-                {/* 하단 버튼 바 */}
+                {/* 하단 제어 버튼 바 */}
                 <Stack direction="row" justifyContent="space-between" sx={{ bgcolor: "#fcfcfc", p: 2, borderRadius: 2, border: "1px solid #eee" }}>
                     <Button startIcon={<ListAltIcon />} onClick={onBack} color="inherit">목록</Button>
                     <Stack direction="row" spacing={1}>
@@ -92,7 +113,7 @@ const FreeBoardArticleMui = ({
                     </Stack>
                 </Stack>
 
-                {/* 이전글/다음글 네비게이션 */}
+                {/* 이전글/다음글 목록 이동 버튼 */}
                 <Stack direction="row" spacing={0} justifyContent="center" sx={{ my: 4, borderTop: "1px solid #eee", borderBottom: "1px solid #eee" }}>
                     <Button
                         fullWidth
@@ -115,9 +136,10 @@ const FreeBoardArticleMui = ({
                     </Button>
                 </Stack>
 
-               
+                {/* 댓글 하단 결합 영역 */}
                 <Box sx={{ mt: 6 }}>
                     <FreeBoardCommentMui
+                        key={article.boardId} 
                         boardId={article.boardId}
                         loginUser={loginUser}
                         onCommentCountChange={onCommentCountChange}

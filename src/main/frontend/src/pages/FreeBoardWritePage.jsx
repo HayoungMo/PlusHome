@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import "../css/FreeBoardWritePage.css";
 import { useNavigate } from "react-router-dom";
 import FreeBoardWriteMui from "../components/FreeBoardWriteMui";
 import FreeBoardService from "../service/freeBoardService";
-import { getLoginUser, GUEST_ID, GUEST_NAME } from "../components/freeboard/constants";
+import { getLoginUser } from "../components/freeboard/constants";
 import SnackbarAlert from "../components/SnackbarAlert";
 
 const FreeBoardWritePage = () => {
@@ -15,11 +16,20 @@ const FreeBoardWritePage = () => {
         setSnack({ open: true, message, severity });
     const closeSnack = () => setSnack((prev) => ({ ...prev, open: false }));
 
+    // 비로그인 접근 차단 → 로그인 페이지로
+    useEffect(() => {
+        if (!loginUser) {
+            navigate("/login", { replace: true });
+        }
+    }, [loginUser, navigate]);
+
+    if (!loginUser) return null;
+
     const handleSave = async (data) => {
         const boardWithUser = {
             ...data,
-            userId:   loginUser?.id   || GUEST_ID,
-            userName: loginUser?.name || GUEST_NAME,
+            userId:   loginUser.id,
+            userName: loginUser.name,
         };
 
         try {
@@ -33,6 +43,7 @@ const FreeBoardWritePage = () => {
                 showSnack(typeof msg === "string" ? msg : "해당 카테고리에 작성 권한이 없습니다.", "error");
             } else if (status === 401) {
                 showSnack("로그인이 필요합니다.", "warning");
+                setTimeout(() => navigate("/login"), 1000);
             } else {
                 showSnack("게시글 등록에 실패했습니다.", "error");
             }
@@ -44,7 +55,7 @@ const FreeBoardWritePage = () => {
             <FreeBoardWriteMui
                 onSave={handleSave}
                 onCancel={() => navigate("/freeboard/list")}
-                userType={loginUser?.type || "guest"}
+                userType={loginUser.type}
             />
 
             <SnackbarAlert

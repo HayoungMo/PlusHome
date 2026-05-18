@@ -84,7 +84,7 @@ public class FreeBoardStatsController {
 
     /* ───── 2. 관리자 숨김/복원 처리 (401 에러 방지) ───── */
 
-    // 게시글 숨김 토글 (주소: /freeboard/stats/admin/post/{id}/hidden)
+
     @PutMapping("/stats/admin/post/{boardId}/hidden")
     public ResponseEntity<?> togglePostHidden(@PathVariable Long boardId,
                                               @RequestBody Map<String, Object> body,
@@ -103,7 +103,7 @@ public class FreeBoardStatsController {
         return ResponseEntity.ok(response);
     }
 
-    // 댓글 숨김 토글 (주소: /freeboard/stats/admin/comment/{id}/hidden)
+    
     @PutMapping("/stats/admin/comment/{commentId}/hidden")
     public ResponseEntity<?> toggleCommentHidden(@PathVariable Long commentId,
                                                  @RequestBody Map<String, Object> body,
@@ -144,7 +144,8 @@ public class FreeBoardStatsController {
     public ResponseEntity<?> reportPost(@PathVariable Long boardId,
                                         @RequestBody Map<String, Object> body,
                                         HttpServletRequest request) {
-        // 로그인 필수 — 게스트/탈퇴 회원 신고 불가
+       
+    	// 로그인 필수 — 게스트/탈퇴 회원 신고 불가
         String type = extractAdminType(request);
         String auth = request.getHeader("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) {

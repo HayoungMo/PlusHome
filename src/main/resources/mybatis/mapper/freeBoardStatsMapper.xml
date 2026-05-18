@@ -70,8 +70,10 @@
 
     <select id="selectReportedComments" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
         SELECT * FROM (
-            SELECT c.commentId as boardId, c.userId, c.userName, '댓글' as category, c.content as title,
-                   0 as viewCount, 0 as likeCount, 0 as commentCount, TO_CHAR(c.createdAt, 'YYYY-MM-DD') as createdAt,
+            SELECT c.commentId as boardId, c.commentId, c.parentId,
+                   c.userId, c.userName, '댓글' as category, c.content as title,
+                   0 as viewCount, 0 as likeCount, 0 as commentCount,
+                   TO_CHAR(c.createdAt, 'YYYY-MM-DD') as createdAt,
                    NVL(c.hidden, 0) as hidden, NVL(r.cnt, 0) as reportCount
             FROM freeboard_comment c
             INNER JOIN (SELECT targetId, COUNT(*) as cnt FROM freeboard_comment_report GROUP BY targetId) r ON c.commentId = r.targetId

@@ -16,22 +16,7 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import SnackbarAlert from "./SnackbarAlert";
-
-/**
- * userType 에 따른 카테고리 옵션
- * admin   : 자유 / 질문 / 정보 / 이벤트 / 광고 / 공지
- * company : 자유 / 정보 / 이벤트 / 광고
- * user    : 자유 / 질문 / 정보
- * guest   : 자유 / 질문
- */
-const getCategoryOptions = (userType) => {
-    switch (userType) {
-        case "admin":   return ["자유", "질문", "정보", "이벤트", "광고", "공지"];
-        case "company": return ["자유", "정보", "이벤트", "광고"];
-        case "guest":   return ["자유", "질문"];
-        default:        return ["자유", "질문", "정보"]; // user
-    }
-};
+import { getCategoryOptions } from "./freeboard/constants";
 
 const FreeBoardWriteMui = ({ initialData, onSave, onCancel, userType = "guest" }) => {
     const CATEGORYOPTIONS = getCategoryOptions(userType);
