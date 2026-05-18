@@ -90,8 +90,9 @@ const UserQuestionPage = ({ user }) => {
                 return [item.q_idx, imgResult.result || []];
             })
         );
-
-setQuestionImages(Object.fromEntries(imageEntries));
+    
+    setQuestionImages(Object.fromEntries(imageEntries));
+    };
 
     useEffect(() => {
         getMyQuestions();
