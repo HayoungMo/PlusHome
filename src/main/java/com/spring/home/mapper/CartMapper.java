@@ -31,7 +31,9 @@ public interface CartMapper {
 			@Param("f_name") String f_name,
 			@Param("f_tel") String f_tel,
 			@Param("f_addr") String f_addr,
-			@Param("pay_total") int pay_total);
+			@Param("pay_total") int pay_total,
+			@Param("use_point") int use_point,
+			@Param("coupon_discount") int coupon_discount);
 	
 	public List<CartDTO> getMyOrders(String id) throws Exception;
 	
@@ -48,4 +50,15 @@ public interface CartMapper {
 			@Param("c_code") String c_code,
 			@Param("id") String id,
 			@Param("f_dstatus") int f_dstatus);
+
+	public int getAvailablePoint(String id) throws Exception;
+
+	public int savePoint(
+			@Param("c_code") String c_code,
+			@Param("id") String id);
+
+	public int restoreUsedPoint(
+			@Param("c_code") String c_code,
+			@Param("id") String id);
+
 }

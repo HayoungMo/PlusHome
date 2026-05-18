@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PaymentService from "../service/paymentService";
 import WalletService from "../service/walletService";
 import CouponService from "../service/couponService";
+import CartService from "../service/cartService";
 
 import TableCheckBoxMui from "../components/TableCheckBoxMui";
 
@@ -34,6 +35,8 @@ const PaymentPage = () => {
   });
 
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [availablePoint, setAvailablePoint] = useState(0);
+  const [usePoint, setUsePoint] = useState("");
   const [walletMoney, setWalletMoney] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [paying, setPaying] = useState(false);
@@ -41,10 +44,15 @@ const PaymentPage = () => {
   const [checkedList, setCheckedList] = useState([]);
 
   const selectedReceiver = addressMode === "default" ? receiver : newReceiver;
+  const appliedPoint = Math.min(
+    Number(usePoint || 0),
+    Number(availablePoint || 0),
+    Math.max(0, Number(payTotal || 0) - Number(couponDiscount || 0)),
+  );
 
   const finalPayTotal = Math.max(
     0,
-    Number(payTotal || 0) - Number(couponDiscount || 0),
+    Number(payTotal || 0) - Number(couponDiscount || 0) - appliedPoint,
   );
 
   const lackMoney = Math.max(0, finalPayTotal - walletMoney);
@@ -104,6 +112,17 @@ const PaymentPage = () => {
       });
   }, [user.id]);
 
+  useEffect(() => {
+    CartService.getAvailablePoint()
+      .then((res) => {
+        setAvailablePoint(Number(res.data?.point || 0));
+      })
+      .catch((error) => {
+        console.error("포인트 조회 실패", error);
+        setAvailablePoint(0);
+      });
+  }, []);
+
   const changeNewReceiver = (evt) => {
     const { name, value } = evt.target;
 
@@ -111,6 +130,26 @@ const PaymentPage = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const changeUsePoint = (evt) => {
+    const onlyNumber = evt.target.value.replace(/[^0-9]/g, "");
+    const nextPoint = Math.min(
+      Number(onlyNumber || 0),
+      Number(availablePoint || 0),
+      Math.max(0, Number(payTotal || 0) - Number(couponDiscount || 0)),
+    );
+
+    setUsePoint(nextPoint ? String(nextPoint) : "");
+  };
+
+  const useAllPoint = () => {
+    const maxPoint = Math.min(
+      Number(availablePoint || 0),
+      Math.max(0, Number(payTotal || 0) - Number(couponDiscount || 0)),
+    );
+
+    setUsePoint(maxPoint ? String(maxPoint) : "");
   };
 
   const onPayClick = () => {
@@ -149,6 +188,7 @@ const PaymentPage = () => {
         productTotal,
         deliveryTotal,
         couponDiscount,
+        use_point: appliedPoint,
         payTotal: finalPayTotal,
       });
 
@@ -333,6 +373,28 @@ const PaymentPage = () => {
         <p>상품금액: {productTotal.toLocaleString()}원</p>
         <p>배송비: {deliveryTotal.toLocaleString()}원</p>
         <p>쿠폰할인: -{couponDiscount.toLocaleString()}원</p>
+
+        <div style={{ margin: "12px 0" }}>
+        <p>보유 포인트: {availablePoint.toLocaleString()}P</p>
+
+        <input
+          value={usePoint}
+          onChange={changeUsePoint}
+          placeholder="사용할 포인트"
+          style={{
+            width: "180px",
+            padding: "8px",
+            marginRight: "8px",
+          }}
+        />
+
+        <button type="button" onClick={useAllPoint}>
+          전액 사용
+        </button>
+
+        <p>포인트 사용: -{appliedPoint.toLocaleString()}P</p>
+      </div>
+
         <h3>최종 결제금액: {finalPayTotal.toLocaleString()}원</h3>
 
         <hr />
@@ -410,6 +472,17 @@ const PaymentPage = () => {
                 <span>쿠폰할인</span>
                 <strong>-{couponDiscount.toLocaleString()}원</strong>
               </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "8px",
+              }}
+            >
+              <span>포인트 사용</span>
+              <strong>-{appliedPoint.toLocaleString()}P</strong>
             </div>
 
             <div

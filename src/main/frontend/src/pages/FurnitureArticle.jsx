@@ -321,10 +321,17 @@ const FurnitureArticle = () => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
 
       try {
-          const c_codeList = [];
+          const paymentItems = [];
 
           for (const optionSet of selectedOptionSets) {
               const selectedOptionList = getSelectedOptionListBySet(optionSet);
+
+              const cartOptions = selectedOptionList.map(option => ({
+                  co_select: option.o_select,
+                  co_text: option.o_text,
+                  co_count: optionSet.quantity,
+                  co_price: option.o_price
+              }));
 
               const res = await CartService.addCart({
                   cart: {
@@ -336,29 +343,74 @@ const FurnitureArticle = () => {
                       f_price: furniture.f_dprice,
                       f_point: furniture.f_point,
                   },
-                  options: selectedOptionList.map(option => ({
-                      co_select: option.o_select,
-                      co_text: option.o_text,
-                      co_count: optionSet.quantity,
-                      co_price: option.o_price
-                  }))
+                  options: cartOptions
               });
 
               const c_code = res?.data?.c_code || res?.c_code;
 
-              if (c_code) {
-                  c_codeList.push(c_code);
+              if (!c_code) {
+                  continue;
               }
+
+              const thumbnail = furniture.imageList?.find(
+                  img => img.img_tag === "THUMBNAIL"
+              );
+
+              paymentItems.push({
+                  c_code,
+                  id: user.id,
+                  f_code: furniture.f_code,
+                  f_status: "N",
+                  f_count: optionSet.quantity,
+                  f_addr: user.addr || "",
+                  f_name: user.name || "",
+                  f_tel: user.tel || "",
+                  f_price: furniture.f_dprice,
+                  f_point: furniture.f_point,
+                  options: cartOptions,
+                  furniture,
+                  thumbnail: thumbnail?.img_name || null
+              });
           }
 
-          if (c_codeList.length === 0) {
+          if (paymentItems.length === 0) {
               alert("결제 상품 정보를 생성하지 못했습니다.");
               return;
           }
 
+          const productTotal = paymentItems.reduce((sum, item) => {
+              const optionTotal = (item.options || []).reduce(
+                  (optionSum, option) => optionSum + Number(option.co_price || 0),
+                  0
+              );
+
+              return sum + (Number(item.f_price || 0) + optionTotal) * Number(item.f_count || 0);
+          }, 0);
+
+          const deliveryTotal = paymentItems.reduce((sum, item) => {
+              const optionTotal = (item.options || []).reduce(
+                  (optionSum, option) => optionSum + Number(option.co_price || 0),
+                  0
+              );
+
+              const itemProductTotal =
+                  (Number(item.f_price || 0) + optionTotal) * Number(item.f_count || 0);
+
+              const itemDeliveryPrice = Number(
+                  item.furniture?.f_deliveryPrice ??
+                  item.furniture?.f_deliveryprice ??
+                  0
+              );
+
+              return sum + (itemProductTotal >= 50000 ? 0 : itemDeliveryPrice);
+          }, 0);
+
           navigate("/payment", {
               state: {
-                  c_codeList
+                  items: paymentItems,
+                  productTotal,
+                  deliveryTotal,
+                  payTotal: productTotal + deliveryTotal
               }
           });
       } catch (error) {
@@ -366,6 +418,7 @@ const FurnitureArticle = () => {
           alert("바로구매 처리에 실패했습니다.");
       }
   };
+
 
 
     const onBack = () => {

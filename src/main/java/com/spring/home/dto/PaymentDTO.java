@@ -10,8 +10,11 @@ public class PaymentDTO {
 	private String f_name;
 	private String f_tel;
 	private String f_addr;
+	
 	private int productTotal;
-	private int deilveryTotal;
+	private int deliveryTotal;
 	private int couponDiscount;
+	
+	private int use_point;
 	private int payTotal;
 }

@@ -45,6 +45,12 @@ const getCartOptions = (c_code) => {
 	});
 };
 
+const getAvailablePoint = () => {
+	return http.get("/cart/point", {
+		headers: getAuthHeaders(),
+	});
+};
+
 const deleteCart = (c_code) => {
 	return http.delete("/cart", {
 		params: { c_code },
@@ -59,6 +65,7 @@ const CartService = {
 	getMyCart,
 	deleteCart,
 	getCartOptions,
+	getAvailablePoint,
 };
 
 export default CartService;

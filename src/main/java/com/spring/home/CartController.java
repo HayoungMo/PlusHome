@@ -124,6 +124,22 @@ public class CartController {
 		return ResponseEntity.ok(options);
 	}
 
+	@GetMapping("/point")
+	public ResponseEntity<?> getAvailablePoint(
+			@RequestHeader(value = "Authorization", required = false) String authorization
+	) throws Exception {
+		String id = getTokenUserId(authorization);
+
+		if (id == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+		}
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("point", cartService.getAvailablePoint(id));
+
+		return ResponseEntity.ok(result);
+	}
+
 	@DeleteMapping
 	public ResponseEntity<?> deleteCart(
 	        @RequestHeader(value = "Authorization", required = false) String authorization,
