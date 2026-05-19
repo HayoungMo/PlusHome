@@ -58,6 +58,12 @@ const deleteCart = (c_code) => {
 	});
 };
 
+const updateCartCount = (data) =>{
+	return http.patch("/cart/count", data, {
+		headers: getAuthHeaders(),
+	})
+}
+
 const CartService = {
 	getOrderFurnitureList,
 	changeDeliveryState,
@@ -66,6 +72,7 @@ const CartService = {
 	deleteCart,
 	getCartOptions,
 	getAvailablePoint,
+	updateCartCount,
 };
 
 export default CartService;

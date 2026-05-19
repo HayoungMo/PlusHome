@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import questionService from '../service/questionService';
-import { TextField } from '@mui/material';
-import GetImgDir from '../resources/function/GetImgDir';
-import ImageService from '../service/imageService';
+import React, { useEffect, useState } from "react";
+import questionService from "../service/questionService";
+import { TextField } from "@mui/material";
+import GetImgDir from "../resources/function/GetImgDir";
+import ImageService from "../service/imageService";
 
 const UserQuestionPage = ({ user }) => {
     const [questions, setQuestions] = useState([]);

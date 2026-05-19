@@ -13,7 +13,6 @@ import LoginPage from "./pages/LoginPage";
 import { useState } from "react";
 import ExportPDF from "./pages/ExportPDF";
 import ExportPDFViewPage from "./pages/ExportPDFViewPage";
-import WalletCharge from "./pages/WalletCharge";
 import FurnitureList from "./pages/FurnitureList";
 import FurnitureAddPage from "./pages/FurnitureAddPage";
 import FurnitureArticle from "./pages/FurnitureArticle";
@@ -102,9 +101,6 @@ function App() {
 
             {/* 검색 */}
             <Route path="/search" element={<SearchPage />} />
-
-            {/* 가상 머니 충전 */}
-            <Route path="/wallet/charge" element={<WalletCharge />} />
 
             {/* 장바구니 */}
             <Route path="/cart" element={<CartPage />} />

@@ -130,7 +130,6 @@ const InteriorReviewControl = () => {
 			{selectedIntreiorReview && (
 				<TextFieldMui
 					name="ir_content"
-					label="ir_content"
 					value={selectedIntreiorReview.ir_content}
 					multiline={true}
 					minRows={4}

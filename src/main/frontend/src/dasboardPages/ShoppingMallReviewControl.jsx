@@ -118,8 +118,7 @@ const ShoppingMallReviewControl = () => {
 			qty: totals.qtySum,
 			price: totals.priceSum,
 		};
-
-	}, [selectFurniture, displayReviewList]);
+	}, [displayReviewList]);
 
 	const reLoadData = async () => {
 		console.log("===== reLoadData =====");
@@ -242,19 +241,29 @@ const ShoppingMallReviewControl = () => {
 
 	return (
 		<div>
-			<SelectMui
-				label="상품 선택"
-				value={selectFurniture}
-				onChange={(e) => {
-					console.log("SelectMui : " + e.target.value);
-					setSelectFurniture(e.target.value);
-				}}
-				option={displayFurnitureList || []}
-				width="180px"
-			/>
-			별점 평균 :{totalReviewInfo.star}
-			구매 물품 수 :{totalReviewInfo.qty}
-			총 금액 :{totalReviewInfo.price}
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					height: "fit-content",
+					marginBottom: "15px",
+					marginTop: "5px",
+				}}>
+				<SelectMui
+					label="상품 선택"
+					value={selectFurniture}
+					onChange={(e) => {
+						console.log("SelectMui : " + e.target.value);
+						setSelectFurniture(e.target.value);
+					}}
+					option={displayFurnitureList || []}
+					width="180px"
+				/>
+				<TextFieldMui value={totalReviewInfo.star} label="별점 평균" />
+				<TextFieldMui value={totalReviewInfo.qty} label="구매 물품 수" />
+				<TextFieldMui value={totalReviewInfo.price} label="총 금액" />
+			</div>
 			{selectdFurnitureInfo !== null && (
 				<div>
 					{selectdFurnitureInfo?.f_name} |
@@ -272,6 +281,9 @@ const ShoppingMallReviewControl = () => {
 				col={["id", "fr_star", "fr_subject", "f_name", "c_id", "f_code"]}
 				selectedRow={selectedReview}
 				setSelectedRow={setSelectedReview}
+				defaultRowPerPage={5}
+				resetPageKey={selectFurniture}
+				pagination
 			/>
 			선택한 리뷰
 			{selectedReview.fr_idx !== 0 && (

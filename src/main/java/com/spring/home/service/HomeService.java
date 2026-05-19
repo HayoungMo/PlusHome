@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +41,19 @@ public class HomeService {
 	@Autowired
 	private FreeBoardService freeBoardService;
 
-	// 추천 가구 띄우기
-	public List<FurnitureDTO> getBestFurniture() throws Exception {
-		return furnitureService.getLists(1, 4, "f_name", "");
+	// 추천 가구 띄우기 , 5월 19일 메인 알고리즘 숨김처리로 인해 수정함.
+	public List<FurnitureDTO> getBestFurniture(String id) throws Exception {
+		List<FurnitureDTO> lists = furnitureService.getLists(1, 9999, "f_name", "", "latest");
+		
+		if(id != null && !id.trim().isEmpty()) {
+			List<String> hiddenCodes = furnitureMapper.getHiddenFurnitureCodes(id);
+			
+			lists = lists.stream()
+					.filter(item -> !hiddenCodes.contains(item.getF_code()))
+					.collect(Collectors.toList());
+		}
+		
+		return lists.size() <=4 ? lists : lists.subList(0, 4);
 	}
 
 	// 공통 헬퍼
@@ -67,19 +79,19 @@ public class HomeService {
 		Map<String, FurnitureDTO> map = new HashMap<>();
 
 		if (keyword.isEmpty()) {
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", "")) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", "","latest")) {
 				map.put(item.getF_code(), item);
 			}
 		} else {
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", keyword)) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", keyword,"latest")) {
 				map.put(item.getF_code(), item);
 			}
 
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_catagory1", keyword)) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_catagory1", keyword,"latest")) {
 				map.put(item.getF_code(), item);
 			}
 
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "c_name", keyword)) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "c_name", keyword,"latest")) {
 				map.put(item.getF_code(), item);
 			}
 		}
@@ -231,6 +243,33 @@ public class HomeService {
 		result.put("pageNum", pageNum);
 
 		return result;
+	}
+	//추천 가구 숨기기
+	public List<String> getHiddenFurnitureCodes(String id) {
+		if(id == null || id.trim().isEmpty()) {
+			return new ArrayList<>();
+		}
+		return furnitureMapper.getHiddenFurnitureCodes(id);
+	}
+	
+	public void saveHiddenFurniture(String id, List<String> f_codes) {
+		if(id == null || id.trim().isEmpty()) {
+			throw new IllegalArgumentException("로그인 정보가 없습니다.");
+		}
+		
+		furnitureMapper.deleteHiddenFurniture(id);
+		
+		if(f_codes == null || f_codes.isEmpty()) {
+			return;
+		}
+		
+		Set<String> uniqueCodes = new LinkedHashSet<>(f_codes);
+		
+		for(String f_code : uniqueCodes) {
+			if(f_code == null || f_code.trim().isEmpty()) continue;
+			
+			furnitureMapper.insertHiddenFurniture(id, f_code);
+		}
 	}
 
 }

@@ -1,24 +1,17 @@
-import { Box, Button, Tab, Tabs } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
-import TableMui from "./../components/TableMui";
-import CartService from "../service/cartService";
+import { Button } from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import AlertMui from "../components/AlertMui";
-import TableCheckBoxMui from "../components/TableCheckBoxMui";
 import DialogMui from "../components/DialogMui";
+import FilterBar from "../components/FilterBar";
 import SelectMui from "./../components/SelectMui";
+import TableCheckBoxMui from "../components/TableCheckBoxMui";
+import TabsMui from "./../components/TabsMui";
+import CartService from "../service/cartService";
 
 const ShoppingMallOrderControl = () => {
-	const [tabValue, setTabValue] = useState(0);
-
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList = [] } = userData;
-
-	const shopListState = useMemo(() => {
-		const shopList = companyList.filter((data) => data.c_kind === "shop");
-
-		return [{ c_id: id, c_name: "all" }, ...shopList];
-	}, [companyList]);
+	const { id, companyList = [] } = userData;
 
 	const initAlertInfo = {
 		severity: "",
@@ -26,7 +19,7 @@ const ShoppingMallOrderControl = () => {
 		text: "",
 	};
 
-	// State
+	const [tabValue, setTabValue] = useState(0);
 	const [orderFurnitureList, setOrderFurnitureList] = useState([]);
 	const [tableDisplayDataList, setTableDisplayDataList] = useState([]);
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
@@ -36,6 +29,12 @@ const ShoppingMallOrderControl = () => {
 	const [deliveryStateChangeConfirmOpen, setDeliveryStateChangeConfirmOpen] = useState(false);
 	const [deliveryChangeState, setDeliveryChangeState] = useState(null);
 	const [tempState, setTempState] = useState(null);
+	const [filterBarState, setFilterBarState] = useState({});
+
+	const shopListState = useMemo(() => {
+		const shopList = companyList.filter((data) => data.c_kind === "shop");
+		return [{ c_id: id, c_name: "all" }, ...shopList];
+	}, [companyList, id]);
 
 	const orderState = [
 		{ value: 0, title: "주문 접수" },
@@ -47,15 +46,64 @@ const ShoppingMallOrderControl = () => {
 		{ value: -1, title: "주문 취소" },
 	];
 
+	const getUniqueFilterOptions = (list, key) => {
+		return [...new Set(list.map((item) => item[key]).filter(Boolean))].map((item) => ({
+			value: item,
+			title: item,
+		}));
+	};
+
+	const orderFilterList = useMemo(() => {
+		return [
+			{
+				key: "c_name",
+				title: "판매처",
+				options: shopListState
+					.filter((shop) => shop.c_name !== "all")
+					.map((shop) => ({ value: shop.c_name, title: shop.c_name })),
+			},
+			{
+				key: "f_catagory1",
+				title: "가구 종류",
+				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory1"),
+			},
+			{
+				key: "f_catagory2",
+				title: "공간",
+				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory2"),
+			},
+			{
+				key: "f_catagory3",
+				title: "스타일",
+				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory3"),
+			},
+			{
+				key: "f_catagory4",
+				title: "소재/특징",
+				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory4"),
+			},
+			{
+				key: "f_catagory5",
+				title: "라이프스타일",
+				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory5"),
+			},
+			{
+				key: "furnitureproductname",
+				title: "상품",
+				options: getUniqueFilterOptions(orderFurnitureList, "furnitureproductname"),
+			},
+		].filter((filter) => filter.options.length > 0);
+	}, [orderFurnitureList, shopListState]);
+
 	const dialogTabChangeConfirmButtonList = [
 		{
-			title: "Cancel",
+			title: "취소",
 			color: "error",
 			variant: "contained",
-			onClick: () => setTabChangeConfirmOpen(!tabChangeConfirmOpen),
+			onClick: () => setTabChangeConfirmOpen(false),
 		},
 		{
-			title: "Move",
+			title: "이동",
 			color: "primary",
 			variant: "contained",
 			onClick: () => handleMoveTab(),
@@ -64,13 +112,13 @@ const ShoppingMallOrderControl = () => {
 
 	const dialogDeliveryStateChangeConfirmButtonList = [
 		{
-			title: "Cancel",
+			title: "취소",
 			color: "error",
 			variant: "contained",
-			onClick: () => setDeliveryStateChangeConfirmOpen(!deliveryStateChangeConfirmOpen),
+			onClick: () => setDeliveryStateChangeConfirmOpen(false),
 		},
 		{
-			title: "Save",
+			title: "저장",
 			color: "primary",
 			variant: "contained",
 			onClick: () => deliveryChangeSave(),
@@ -79,93 +127,131 @@ const ShoppingMallOrderControl = () => {
 
 	const handleTabChange = (event, newValue) => {
 		if (checkedList.length !== 0) {
-			setTabChangeConfirmOpen(!tabChangeConfirmOpen);
+			setTabChangeConfirmOpen(true);
 			setTempState(newValue);
-		} else {
-			setTabValue(newValue);
+			return;
 		}
+
+		setTabValue(newValue);
 	};
 
 	const handleMoveTab = () => {
 		setTabValue(tempState);
-		setTabChangeConfirmOpen(!tabChangeConfirmOpen);
+		setTabChangeConfirmOpen(false);
 		setTempState(null);
 	};
 
-	const reLoadServerData = async () => {
-		console.log(" reLoadServerData ============  reLoadServerData");
+	const reLoadServerData = useCallback(async () => {
 		CartService.getOrderFurnitureList({
 			c_id: id,
 			f_catagory1: "reload",
 		}).then((res) => {
-			if (res.success === false) setAlertInfo({ severity: "error", text: res.message });
-			else if (res.cartList == null) setAlertInfo({ severity: "info", text: res.message });
-
-			if (res.success === true && res.cartList !== null) {
+			if (res.success === false) {
+				setAlertInfo({ severity: "error", text: res.message });
+			} else if (res.cartList == null) {
+				setAlertInfo({ severity: "info", text: res.message });
+			} else {
 				setAlertInfo({ severity: "success", text: res.message });
 				setOrderFurnitureList(res.cartList);
 			}
-			setAlertOpen(!alertOpen);
+
+			setAlertOpen(true);
 		});
-	};
+	}, [id]);
 
 	const handleChangeDeliveryState = () => {
 		if (checkedList.length === 0) {
 			setAlertInfo({ severity: "error", text: "선택된 주문이 없습니다" });
-			setAlertOpen(!alertOpen);
+			setAlertOpen(true);
 			return;
 		}
-		setDeliveryStateChangeConfirmOpen(!deliveryStateChangeConfirmOpen);
+
+		setDeliveryStateChangeConfirmOpen(true);
 	};
 
 	const deliveryChangeSave = async () => {
-		let dtoList = [];
-		checkedList.map((data) => {
-			dtoList.push({ c_code: data, f_dstatus: deliveryChangeState });
-		});
-		setDeliveryStateChangeConfirmOpen(!deliveryStateChangeConfirmOpen);
+		const dtoList = checkedList.map((data) => ({
+			c_code: data,
+			f_dstatus: deliveryChangeState,
+		}));
+
+		setDeliveryStateChangeConfirmOpen(false);
+
 		CartService.changeDeliveryState(dtoList).then((res) => {
-			if (res.success === false) setAlertInfo({ severity: "error", text: res.message });
+			if (res.success === false) {
+				setAlertInfo({ severity: "error", text: res.message });
+			}
+
 			if (res.success === true && res.cartList !== null) {
 				setAlertInfo({ severity: "success", text: res.message });
 			}
-			setAlertOpen(!alertOpen);
+
+			setAlertOpen(true);
 			reLoadServerData();
 		});
 	};
 
 	useEffect(() => {
 		reLoadServerData();
-	}, [id]);
+	}, [reLoadServerData]);
 
 	useEffect(() => {
-		const displayList = orderFurnitureList.filter((data) => data.f_dstatus === tabValue);
+		const displayList = orderFurnitureList.filter((data) => {
+			const matchTab = data.f_dstatus === tabValue;
+			const matchFilter = Object.entries(filterBarState).every(([key, value]) => {
+				if (value === "" || value === null || value === undefined) return true;
+				return data[key] === value;
+			});
+
+			return matchTab && matchFilter;
+		});
+		console.log(displayList)
 		setTableDisplayDataList(displayList);
-
 		setCheckedList([]);
-	}, [orderFurnitureList, tabValue]);
-
-	// useEffect(() => {
-	// 	console.log("checkedList =====");
-	// 	console.log(checkedList);
-	// 	console.log("===== checkedList");
-	// }, [checkedList]);
+	}, [orderFurnitureList, tabValue, filterBarState]);
 
 	return (
 		<div>
-			<Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-				<Tabs value={tabValue} onChange={handleTabChange}>
-					{orderState.map((record, index) => {
-						return (
-							<Tab
-								key={`${record.value}__${index}__${record.title}`}
-								label={record.title}
-								value={record.value}
-							/>
-						);
-					})}
-				</Tabs>
-			</Box>
+			<div>
+				<FilterBar
+					filterList={orderFilterList}
+					value={filterBarState}
+					onChange={setFilterBarState}
+				/>
+			</div>
+
+			<TabsMui
+				tabValue={tabValue}
+				handleTabChange={handleTabChange}
+				tabList={orderState}
+				tabKey="value"
+				label="title"
+				value="value"
+			/>
+
+			<TableCheckBoxMui
+				rowData={tableDisplayDataList}
+				col={[
+					"cartbuyername",
+					"furnitureproductname",
+					"c_name",
+					"furnitureproductprice",
+					"cartqty",
+					"cartpayedprice",
+					"c_code",
+				]}
+				columns={[
+					"주문자",
+					"주문품목",
+					"판매처",
+					"물품금액",
+					"주문수량",
+					"결제금액",
+					"ID",
+				]}
+				checkedList={checkedList}
+				setCheckedList={setCheckedList}
+			/>
 
 			<div
 				style={{
@@ -191,25 +277,10 @@ const ShoppingMallOrderControl = () => {
 				</Button>
 			</div>
 
-			<TableCheckBoxMui
-				rowData={tableDisplayDataList}
-				col={[
-					"cartbuyername",
-					"furnitureproductname",
-					"c_name",
-					"furnitureproductprice",
-					"cartqty",
-					"cartpayedprice",
-					"c_code",
-				]}
-				columns={["주문자", "주문품목", "판매처", "물품금액", "주문수량", "결제금액", "ID"]}
-				checkedList={checkedList}
-				setCheckedList={setCheckedList}
-			/>
 			{tabChangeConfirmOpen && (
 				<DialogMui
 					open={tabChangeConfirmOpen}
-					onClose={() => setTabChangeConfirmOpen(!tabChangeConfirmOpen)}
+					onClose={() => setTabChangeConfirmOpen(false)}
 					title="선택한 내용이 취소됩니다"
 					text="현재 선택한 내용들이 전부 취소됩니다. 이동하시겠습니까?"
 					buttons={dialogTabChangeConfirmButtonList}
@@ -219,9 +290,7 @@ const ShoppingMallOrderControl = () => {
 			{deliveryStateChangeConfirmOpen && (
 				<DialogMui
 					open={deliveryStateChangeConfirmOpen}
-					onClose={() =>
-						setDeliveryStateChangeConfirmOpen(!deliveryStateChangeConfirmOpen)
-					}
+					onClose={() => setDeliveryStateChangeConfirmOpen(false)}
 					title="배송 상태 변경"
 					text="현재 선택한 주문들의 상태를 변경합니다. 저장하시겠습니까?"
 					buttons={dialogDeliveryStateChangeConfirmButtonList}
@@ -234,7 +303,7 @@ const ShoppingMallOrderControl = () => {
 					variant="standard"
 					title={alertInfo?.title}
 					text={alertInfo?.text}
-					onClose={() => setAlertOpen(!alertOpen)}
+					onClose={() => setAlertOpen(false)}
 					autoHideDuration={3000}
 					icon={true}
 				/>

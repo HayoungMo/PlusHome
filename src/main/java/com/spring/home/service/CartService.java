@@ -65,4 +65,22 @@ public class CartService {
 		cartMapper.deleteData(c_code);
 	}
 	
+	public void updateCartCount(String id, String c_code, int f_count) throws Exception {
+		if (f_count <= 0) {
+			throw new RuntimeException("수량이 올바르지 않습니다.");
+		}
+
+		CartDTO cart = cartMapper.getReadData(c_code);
+
+		if (cart == null || !id.equals(cart.getId()) || !"N".equals(cart.getF_status())) {
+			throw new RuntimeException("수정 가능한 장바구니 상품이 아닙니다.");
+		}
+
+		int result = cartMapper.updateCartCount(c_code, id, f_count);
+
+		if (result != 1) {
+			throw new RuntimeException("수량 변경에 실패했습니다.");
+		}
+	}
+	
 }

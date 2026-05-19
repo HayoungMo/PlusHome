@@ -41,9 +41,11 @@ public class FurnitureController {
 	private ImageService imageService;
 
 	@GetMapping("/list")
-	public Map<String, Object> getLists(@RequestParam(defaultValue = "1") int pageNum,
+	public Map<String, Object> getLists(
+			@RequestParam(defaultValue = "1") int pageNum,
 			@RequestParam(defaultValue = "f_name") String searchKey,
-			@RequestParam(defaultValue = "") String searchValue) throws Exception {
+			@RequestParam(defaultValue = "") String searchValue,
+			@RequestParam(defaultValue = "latest") String sort) throws Exception {
 
 		int numPerPage = 8; // 한 페이지 당 가구 몇개 보이는지
 		// 변수이름이 왜 이렇게 된건지는 물어보지 말아주시길
@@ -55,8 +57,18 @@ public class FurnitureController {
 		if (!searchKey.equals("f_name") && !searchKey.equals("f_catagory1") && !searchKey.equals("c_name")) {
 			searchKey = "f_name";
 		}
+		
+		if (!sort.equals("latest")
+				&& !sort.equals("old")
+				&& !sort.equals("priceHigh")
+				&& !sort.equals("priceLow")
+				&& !sort.equals("viewHigh")
+				&& !sort.equals("viewLow")
+				&& !sort.equals("discountHigh")) {
+			sort = "latest";
+		}
 
-		List<FurnitureDTO> list = furnitureService.getLists(start, end, searchKey, searchValue);
+		List<FurnitureDTO> list = furnitureService.getLists(start, end, searchKey, searchValue,sort);
 
 		int totalCount = furnitureService.countSearchData(searchKey, searchValue);
 

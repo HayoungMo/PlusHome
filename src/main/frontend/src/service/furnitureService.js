@@ -1,7 +1,13 @@
 import http, { fileHttp } from "../http-common";
 
-const getFurniture = async ({ pageNum = 1, searchKey, searchValue } = {}) => {
-	const params = { pageNum };
+const getFurniture = async ({
+	pageNum = 1,
+	searchKey,
+	searchValue,
+	sort = "latest",} = {}) => {
+	
+		const params = { pageNum, sort };
+
 	if (searchKey && searchValue) {
 		params.searchKey = searchKey;
 		params.searchValue = searchValue;
