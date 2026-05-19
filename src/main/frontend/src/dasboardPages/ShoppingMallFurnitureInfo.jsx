@@ -16,6 +16,7 @@ import AlertMui from "../components/AlertMui";
 import GetImgDir, { getImgFurnitureList } from "./../resources/function/GetImgDir";
 import FurnitureUpdatePage from "./../pages/FurnitureUpdatePage";
 import DialogMui from "../components/DialogMui";
+import TabsMui from "../components/TabsMui";
 
 const ShoppingMallFurnitureInfo = () => {
 	const localUserData = localStorage.getItem("user");
@@ -220,19 +221,16 @@ const ShoppingMallFurnitureInfo = () => {
 		<div>
 			<h3>상품 관리</h3>
 			<hr />
-			<Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-				<Tabs value={tabValue} onChange={handleTabChange}>
-					{shopListState.map((record, index) => {
-						return (
-							<Tab
-								key={`${record.c_id}__${index}`}
-								label={record.c_name}
-								value={record.c_name}
-							/>
-						);
-					})}
-				</Tabs>
-			</Box>
+
+			<TabsMui
+				tabValue={tabValue}
+				handleTabChange={handleTabChange}
+				tabList={shopListState}
+				tabKey="c_id"
+				label="c_name"
+				value="c_name"
+			/>
+
 			<div>
 				{tabValue !== "all" && (
 					<div style={{ border: "1px solid black", margin: "5px", padding: "5px" }}>
