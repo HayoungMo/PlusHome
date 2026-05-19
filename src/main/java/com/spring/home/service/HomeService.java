@@ -39,9 +39,19 @@ public class HomeService {
 	@Autowired
 	private FreeBoardService freeBoardService;
 
-	// 추천 가구 띄우기
-	public List<FurnitureDTO> getBestFurniture() throws Exception {
-		return furnitureService.getLists(1, 4, "f_name", "","latest");
+	// 추천 가구 띄우기 , 5월 19일 메인 알고리즘 숨김처리로 인해 수정함.
+	public List<FurnitureDTO> getBestFurniture(String id) throws Exception {
+		List<FurnitureDTO> lists = furnitureService.getLists(1, 9999, "f_name", "", "latest");
+		
+		if(id != null && !id.trim().isEmpty()) {
+			List<String> hiddenCodes = furnitureMapper.getHiddenFurnitureCodes(id);
+			
+			lists = lists.stream()
+					.filter(item -> !hiddenCodes.contains(item.getF_code()))
+					.collect(Collectors.toList());
+		}
+		
+		return lists.size() <=4 ? lists : lists.subList(0, 4);
 	}
 
 	// 공통 헬퍼
