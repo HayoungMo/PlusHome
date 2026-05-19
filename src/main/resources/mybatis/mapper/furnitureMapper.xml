@@ -240,7 +240,7 @@
                              left join (select f_code as furniturecode, count(*) as r_count
                                 		from f_review
                                 		group by f_code) rv on rv.furniturecode = furniture.f_code
-                     		 left join (select f_code as furniturecode, sum(f_count) as s_count
+                     		 left join (select f_code as furniturecode, COALESCE(sum(f_count),0) as s_count
                                 		from cart
                                 		where CART.f_status = 'Y'
                                 		group by f_code) sales on sales.furniturecode = furniture.f_code
@@ -262,6 +262,9 @@
 	                             </when>
 	                             <when test="sort == 'viewLow'">
 		                             order by f_viewcount asc
+	                             </when>
+	                             <when test="sort == 'discountHigh'">
+	                             	order by f_discount desc, f_createddate desc
 	                             </when>
 	                             <otherwise>
 		                             order by f_createddate desc

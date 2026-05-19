@@ -63,7 +63,8 @@ public class FurnitureController {
 				&& !sort.equals("priceHigh")
 				&& !sort.equals("priceLow")
 				&& !sort.equals("viewHigh")
-				&& !sort.equals("viewLow")) {
+				&& !sort.equals("viewLow")
+				&& !sort.equals("discountHigh")) {
 			sort = "latest";
 		}
 
