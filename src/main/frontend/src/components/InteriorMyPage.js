@@ -4,10 +4,9 @@ import InteriorMyReview from "./InteriorMyReview";
 import { useNavigate } from "react-router-dom";
 import { Tabs, Tab, Box } from "@mui/material";
 
-const InteriorMyPage = () => {
+const InteriorMyPage = ({ user }) => {
   const navigate = useNavigate();
-  const id = localStorage.getItem("id");
-  const user = localStorage.getItem("user");
+  const id = user?.id || localStorage.getItem("id")
 
   const handleNext = (data) => {
     navigate("/interior/article", {
@@ -44,7 +43,7 @@ const InteriorMyPage = () => {
             {Array.isArray(like) && like.length > 0 ? (
               like.map((item, idx) => (
                 <div key={idx} onClick={() => handleNext(item)}>
-                  <img src={item?.logo?.result.find((item)=>item.img_tag === "PROFILE")?.img_name} alt="" />
+                  <img src={item?.logo?.result?.find((item)=>item.img_tag === "PROFILE")?.img_name} alt="" />
                   {item.c_name}
                 </div>
               ))

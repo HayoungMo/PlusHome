@@ -133,6 +133,12 @@
 	                             <when test="sort == 'discountHigh'">
 	                             	order by f_discount desc, f_createddate desc
 	                             </when>
+	                             <when test="sort == 'reviewHigh'">
+	                             	order by NVL(r_count, 0) desc, f_createddate desc
+	                             </when>
+	                             <when test="sort == 'salesHigh'">
+	                             	order by NVL(s_count, 0) desc, f_createddate desc
+	                             	</when>
 	                             <otherwise>
 		                             order by f_createddate desc
 	                             </otherwise>
