@@ -122,6 +122,9 @@
 	                             <when test="sort == 'viewLow'">
 		                             order by f_viewcount asc
 	                             </when>
+	                             <when test="sort == 'discountHigh'">
+	                             	order by f_discount desc, f_createddate desc
+	                             </when>
 	                             <otherwise>
 		                             order by f_createddate desc
 	                             </otherwise>
