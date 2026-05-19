@@ -102,10 +102,16 @@
                                       f_viewcount,
                                       f_deliveryPrice
                              from     furniture
+                             left join (select f_code as furniturecode, count(*) as r_count
+                                		from f_review
+                                		group by f_code) rv on rv.furniturecode = furniture.f_code
+                     		left join (select f_code as furniturecode, sum(f_count) as s_count
+                                		from cart
+                                		where CART.f_status = 'Y'
+                                		group by f_code) sales on sales.furniturecode = furniture.f_code
                              where    ${searchKey} like '%'
                                                || #{searchValue}
                                                || '%'
-
                              <choose>
 	                             <when test="sort == 'old'">
 		                             order by f_createddate asc
