@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,6 +243,33 @@ public class HomeService {
 		result.put("pageNum", pageNum);
 
 		return result;
+	}
+	//추천 가구 숨기기
+	public List<String> getHiddenFurnitureCodes(String id) {
+		if(id == null || id.trim().isEmpty()) {
+			return new ArrayList<>();
+		}
+		return furnitureMapper.getHiddenFurnitureCodes(id);
+	}
+	
+	public void saveHiddenFurniture(String id, List<String> f_codes) {
+		if(id == null || id.trim().isEmpty()) {
+			throw new IllegalArgumentException("로그인 정보가 없습니다.");
+		}
+		
+		furnitureMapper.deleteHiddenFurniture(id);
+		
+		if(f_codes == null || f_codes.isEmpty()) {
+			return;
+		}
+		
+		Set<String> uniqueCodes = new LinkedHashSet<>(f_codes);
+		
+		for(String f_code : uniqueCodes) {
+			if(f_code == null || f_code.trim().isEmpty()) continue;
+			
+			furnitureMapper.insertHiddenFurniture(id, f_code);
+		}
 	}
 
 }
