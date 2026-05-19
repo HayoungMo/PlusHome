@@ -14,9 +14,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import React, { useState } from 'react';
-import AlertMui from "./AlertMui";
-import ButtonGroupMui from "./ButtonGroupMui";
-import RatingMui from "./RatingMui";
 import InteriorRecommend from './InteriorRecommend';
 import { useNavigate } from 'react-router-dom';
 

@@ -6,13 +6,24 @@ import { Button } from '@mui/material';
 import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import InteriorService from '../service/interiorService';
+import CheckboxMui from '../components/CheckboxMui';
+import SwitchMui from '../components/SwitchMui';
 
-const MainHomePage = () => {
+const MainHomePage = ({ loginUser }) => {
 
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
     const [chatOpen, setChatOpen] = useState(false);
     const [interiorCompanies, setInteriorCompanies] = useState([]);
+
+    //로그인 알고릐즘에 대해서
+    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+    const currentUser = loginUser || savedUser;
+
+    const [hideMode, setHideMode] = useState(false);
+    const [hiddenFurnitureCodes, setHiddenFurnitureCodes] = useState([]);
+    //숨김 직전 관련해서 준비해둠
+    const [pendingHiddenFurnitureCodes, setPendingHiddenFurnitureCodes] = useState([]);
 
     //백엔드 호출 (가구, 인테리어 업체)
     useEffect(() => {
@@ -34,6 +45,76 @@ const MainHomePage = () => {
                 console.error("인테리어 업체 조회 실패:", err);
             });
     },[]);
+
+    //숨김 목록 관련 동작
+    useEffect(() => {
+        if(!currentUser?.id) return;
+        
+        const savedHidden = JSON.parse(
+            localStorage.getItem(`hiddenFurniture_${currentUser.id}`) || "[]"
+        );
+
+        setHiddenFurnitureCodes(savedHidden);
+        setPendingHiddenFurnitureCodes(savedHidden);
+    },[currentUser?.id]);
+    
+    //숨김 목록 관련 함수
+    const togglePendingHiddenFurniture = (f_code) => {
+        if (!currentUser?.id) {
+            alert("로그인 후 이용할 수 있습니다.");
+            return;
+        }
+
+        setPendingHiddenFurnitureCodes((prev) =>
+            prev.includes(f_code)
+                ? prev.filter((code) => code !== f_code)
+                : [...prev, f_code]
+        );
+    };
+
+    //아무것도 선택하지 않고 숨겼을때~
+    const isSameHiddenList = (listA, listB) => {
+        if (listA.length !== listB.length) return false;    
+
+        return listA.every((code) => listB.includes(code));
+    };
+
+    const onHideModeChange = (evt) => {
+        const checked = evt.target.checked;
+
+        //토글 ON
+        if (checked) {
+            setPendingHiddenFurnitureCodes(hiddenFurnitureCodes);
+            setHideMode(true);
+            return;
+        }
+
+        //토글 OFF인데 아무것도 선택하지 않았을 때
+        if (isSameHiddenList(pendingHiddenFurnitureCodes, hiddenFurnitureCodes)) {
+            setHideMode(false);
+            return;
+        }
+        //토글 OFF
+        const isConfirm = window.confirm("선택한 가구를 추천 목록에서 숨김 처리하시겠습니까?");
+
+            if (!isConfirm) {
+                return;
+            }
+
+        setHiddenFurnitureCodes(pendingHiddenFurnitureCodes);
+
+        localStorage.setItem(
+            `hiddenFurniture_${currentUser.id}`,
+            JSON.stringify(pendingHiddenFurnitureCodes)
+        );
+
+        setHideMode(false);
+    };
+
+    //알고리즘에 의한 추천을 사용자가 숨김함 그리고 그걸 제외한 목록을 보여줌
+    const visibleFurniture = hideMode
+        ? furniture
+        : furniture.filter((item) => !hiddenFurnitureCodes.includes(item.f_code));
 
     return (
         <div>
@@ -57,6 +138,34 @@ const MainHomePage = () => {
                         사용 중인 브라우저에서 영상을 지원하지 않습니다.
                 </video>
             </section>
+
+            <section style={{ marginTop: "24px" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        gap: "12px",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                    }}
+                >
+                    {["침대", "소파", "책상", "의자", "수납", "조명"].map((category) => (
+                        <Link
+                            key={category}
+                            to={`/search?keyword=${encodeURIComponent(category)}&type=furniture&page=1`}
+                            style={{
+                                padding: "10px 18px",
+                                border: "1px solid #ddd",
+                                borderRadius: "20px",
+                                textDecoration: "none",
+                                color: "#333",
+                                backgroundColor: "white",
+                            }}
+                        >
+                            {category}
+                        </Link>
+                    ))}
+                </div>
+            </section>
         
             {/* 백에서 받아온 메세지 뿌리기 */}
             {/* 오늘의 추천 가구 목록 */}
@@ -69,8 +178,21 @@ const MainHomePage = () => {
                         marginBottom: "16px"
                     }}
                 >
-                    <h2 style={{ margin: 0}}>오늘의 추천 가구</h2>
-                    <Link to="/furniture/list">전체보기</Link>
+                    <h2 style={{margin:0}}>
+                        {currentUser ? "맞춤 추천 가구" : "오늘의 추천 가구"}
+                    </h2>
+                    <div style={{display: "flex", gap: "8px", alignItems: "center"}}>
+                        {currentUser && (
+                            <SwitchMui
+                                checked={hideMode}
+                                onChange={onHideModeChange}
+                                label={hideMode ? "숨김 관리 중" : "추천 숨김 관리"}
+                                name="hideMode"
+                                width="180px"
+                            />
+                        )}
+                        <Link to ="/furniture/list">전체보기</Link>
+                    </div>
                 </div>
                 
                 <div
@@ -80,16 +202,22 @@ const MainHomePage = () => {
                         gap: "16px"
                     }}
                 >
-                    {furniture.map((item) => {
+                    {visibleFurniture.map((item) => {
                         const thumbnail = item.imageList?.find(
                             (img) => img.img_tag === "THUMBNAIL"
                         );
 
+                        
                         return(
-
                         <Link 
+                            
                             to={`/furniture/article/${item.f_code}`} 
                             key={item.f_code}
+                            onClick={(evt) => {
+                                if(hideMode) {
+                                    evt.preventDefault();
+                                }
+                            }}
                             style={{
                                 color: "inherit",
                                 textDecoration: "none"
@@ -119,6 +247,30 @@ const MainHomePage = () => {
                                         marginBottom: "12px"
                                     }}
                                 />
+                                {hideMode && (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            marginBottom: "8px",
+                                            fontSize: "14px",
+                                        }}
+                                        onClick={(evt) => {
+                                            evt.stopPropagation();
+                                        }}
+                                    >
+                                        <CheckboxMui
+                                            name={`hide-${item.f_code}`}
+                                            checked={pendingHiddenFurnitureCodes.includes(item.f_code)}
+                                            onChange={(evt) => {
+                                                evt.stopPropagation();
+                                                togglePendingHiddenFurniture(item.f_code);
+                                            }}
+                                            width="40px"
+                                        />
+                                        <span>추천에서 숨기기</span>
+                                    </div>
+                                )}
 
                             <p style={{ margin: "0 0 8px", color: "#666" }}>
                                     {item.c_name}
