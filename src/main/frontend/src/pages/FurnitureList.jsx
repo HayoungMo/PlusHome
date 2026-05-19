@@ -23,6 +23,8 @@ const FurnitureList = () => {
     const [nextPage, setNextPage] = useState(1);
     const [likedMap, setLikedMap] = useState({});
 
+    const [sort, setSort] = useState("latest")
+
     const pageCount = Math.max(0, endPage - startPage + 1);
 
     const getLoginUser = () => {
@@ -51,7 +53,7 @@ const FurnitureList = () => {
 
     useEffect(() => {
         getList(pageNum);
-    }, [pageNum, searchKey, searchValue]);
+    }, [pageNum, searchKey, searchValue, sort]);
 
     useEffect(()=>{
         const token = localStorage.getItem("token")
@@ -80,7 +82,8 @@ const FurnitureList = () => {
             const data = await FurnitureService.getFurniture({
                 pageNum: page,
                 searchKey,
-                searchValue
+                searchValue,
+                sort
             });
 
             setList(data.list);
@@ -148,6 +151,14 @@ const FurnitureList = () => {
             });
     };
 
+    const sortOptions = [
+        { value: "latest", label: "최신순" },
+        { value: "old", label: "오래된순" },
+        { value: "priceHigh", label: "높은 가격순" },
+        { value: "priceLow", label: "낮은 가격순" },
+        { value: "viewHigh", label: "조회수 높은순" },
+        { value: "viewLow", label: "조회수 낮은순" },
+    ];
 
     return (
         <div>
@@ -175,6 +186,47 @@ const FurnitureList = () => {
             />
 
             <button onClick={onSearch}>검색</button>
+
+            <hr />
+
+            <div
+                style={{
+                    display: "flex",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    marginTop: "12px",
+                    marginBottom: "12px",
+                }}
+            >
+                {sortOptions.map((option) => {
+                    const active = sort === option.value;
+
+                    return (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                                setSort(option.value);
+                                navigate("/furniture/list?page=1");
+                            }}
+                            style={{
+                                border: active ? "1px solid #1976d2" : "1px solid #ddd",
+                                background: active ? "#1976d2" : "white",
+                                color: active ? "white" : "#333",
+                                borderRadius: "999px",
+                                padding: "8px 14px",
+                                fontSize: "14px",
+                                fontWeight: active ? 700 : 500,
+                                cursor: "pointer",
+                                lineHeight: 1,
+                            }}
+                        >
+                            {option.label}
+                        </button>
+                    );
+                })}
+            </div>   
 
             <br /><br />
 

@@ -60,5 +60,12 @@ public interface CartMapper {
 	public int restoreUsedPoint(
 			@Param("c_code") String c_code,
 			@Param("id") String id);
+	
+	public int updateCartCount(
+			@Param("c_code") String c_code,
+			@Param("id") String id,
+			@Param("f_count") int f_count
+		) throws Exception;
+
 
 }

@@ -14,8 +14,8 @@ import UserQuestionPage from './UserQuestionPage';
 import UserReviewPage from './UserReviewPage';
 import UserDeletePage from './UserDeletePage';
 import WalletService from '../service/walletService';
-import WalletCharge from './WalletCharge';
 import UserCouponPage from './UserCouponPage';
+import WalletChargeMui from '../components/WalletChargeMui';
 
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
@@ -256,8 +256,13 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
           {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
           {activeMenu === "reviews" && <UserReviewPage user={user} />}
           {activeMenu === "wallet" && (
-            <WalletCharge user={user} onCharged={setWallet} />
-          )}
+            <WalletChargeMui
+                user={user}
+                onCharged={setWallet}
+                open={activeMenu === "wallet"}
+                onClose={() => changeMenu("edit")}
+            />
+            )}
           {activeMenu === "coupon" && <UserCouponPage user={user} />}
           {activeMenu === "delete" && (
             <UserDeletePage

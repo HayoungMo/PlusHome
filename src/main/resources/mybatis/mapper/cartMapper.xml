@@ -211,4 +211,12 @@
           AND id = #{id}
     </update>
 
+	<update id="updateCartCount">
+		UPDATE cart
+		SET f_count = #{f_count}
+		WHERE c_code = #{c_code}
+		  AND id = #{id}
+		  AND f_status = 'N'
+	</update>
+
 </mapper>
