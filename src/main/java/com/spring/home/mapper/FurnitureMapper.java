@@ -41,4 +41,11 @@ public interface FurnitureMapper {
 	public int increaseStock(
 			@Param("f_code") String f_code,
 			@Param("count") int count);
+	
+	//메인페이지 알고리즘 추천가구 숨김 관련 
+	public List<String> getHiddenFurnitureCodes(@Param("id") String id);
+	
+	public void deleteHiddenFurniture(@Param("id") String id);
+	
+	public void insertHiddenFurniture(@Param("id") String id, @Param("f_code") String f_code);
 }

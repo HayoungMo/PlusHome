@@ -78,7 +78,7 @@
 	   order by q_idx desc
 	</select>
 
-	<!-- 업체별 답변 작성 -->
+	<!-- 업체별 답변 수정 -->
 	<update id="updateAnswer" parameterType="com.spring.home.dto.QuestionDTO">
 		update question
      	   set q_answer = #{q_answer},

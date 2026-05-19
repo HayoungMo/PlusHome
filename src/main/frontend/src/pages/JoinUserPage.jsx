@@ -232,13 +232,11 @@ const JoinUserPage = () => {
 
     return (
       <div>
-        <h3>
-          <a href="/">로고</a>
-        </h3>
-        <h3>
+        
+        <h2>
           회원가입
           <span>SIGN UP</span>
-        </h3>
+        </h2>
         <div className="">
           <TextField
             label="아이디"

@@ -7,8 +7,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.home.dto.FurnitureDTO;
@@ -25,10 +28,31 @@ public class HomeController {
      private HomeService homeService;
      
      @GetMapping("/best")
-     public List<FurnitureDTO> getBestFurniture() throws Exception {
+     public List<FurnitureDTO> getBestFurniture(@RequestParam(defaultValue = "") String id) throws Exception {
 	     
-		return homeService.getBestFurniture();
+		return homeService.getBestFurniture(id);
 	}
+     //알고리즘 추천 숨김 기능관련
+     @GetMapping("/recommend/hidden")
+     public List<String> getHiddenFurnitureCodes(@RequestParam String id) throws Exception{
+    	 return homeService.getHiddenFurnitureCodes(id);
+     }
+     
+     @PostMapping("/recommend/hide")
+     public Map<String, Object> saveHiddenFurniture(@RequestBody Map<String, Object> body) throws Exception{
+    	 String id = String.valueOf(body.get("id"));
+    	 
+    	 @SuppressWarnings("unchecked")
+    	 List<String> f_codes = (List<String>) body.get("f_codes");
+    	 
+    	 homeService.saveHiddenFurniture(id, f_codes);
+    	 
+    	 Map<String, Object> result = new HashMap<>();
+    	 result.put("success", true);
+    	 
+    	 return result;
+    	 
+     }
      
      @GetMapping("/search/total")
      public Map<String, Object> searchTotal(@RequestParam(defaultValue = "") String keyword) throws Exception{

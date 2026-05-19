@@ -193,8 +193,20 @@ update users
 		<if test="f_status != 'all' or f_status == null">		
 			AND c.f_status = 'Y' 
 		</if>
-		<if test='f_catagory1 != "null" and f_catagory1 != "" and f_catagory1 != "y"'>		
+		<if test='f_catagory1 != null and f_catagory1 != "null" and f_catagory1 != "" and f_catagory1 != "y"'>		
 			AND f.f_catagory1 = #{f_catagory1}
+		</if>
+		<if test='f_catagory2 != null and f_catagory2 != "null" and f_catagory2 != "" and f_catagory2 != "y"'>		
+			AND f.f_catagory2 = #{f_catagory2}
+		</if>
+		<if test='f_catagory3 != null and f_catagory3 != "null" and f_catagory3 != "" and f_catagory3 != "y"'>	
+			AND f.f_catagory3 = #{f_catagory3}
+		</if>
+		<if test='f_catagory4 != null and f_catagory4 != "null" and f_catagory4 != "" and f_catagory4 != "y"'>			
+			AND f.f_catagory4 = #{f_catagory4}
+		</if>
+		<if test='f_catagory5 != null and f_catagory5 != "null" and f_catagory5 != "" and f_catagory5 != "y"'>			
+			AND f.f_catagory5 = #{f_catagory5}
 		</if>
 	
 	</where>

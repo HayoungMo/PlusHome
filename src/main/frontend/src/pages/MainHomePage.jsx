@@ -206,23 +206,8 @@ const MainHomePage = ({ loginUser }) => {
                         const thumbnail = item.imageList?.find(
                             (img) => img.img_tag === "THUMBNAIL"
                         );
-
-                        
-                        return(
-                        <Link 
-                            
-                            to={`/furniture/article/${item.f_code}`} 
-                            key={item.f_code}
-                            onClick={(evt) => {
-                                if(hideMode) {
-                                    evt.preventDefault();
-                                }
-                            }}
-                            style={{
-                                color: "inherit",
-                                textDecoration: "none"
-                            }}
-                        >
+                        //추천가구 숨기기에서 링크 처리
+                        const furnitureCard = (
                             <div
                                 style={{
                                     minHeight: "150px",
@@ -271,7 +256,6 @@ const MainHomePage = ({ loginUser }) => {
                                         <span>추천에서 숨기기</span>
                                     </div>
                                 )}
-
                             <p style={{ margin: "0 0 8px", color: "#666" }}>
                                     {item.c_name}
                             </p>
@@ -291,6 +275,27 @@ const MainHomePage = ({ loginUser }) => {
                                 배송비 {Number(item.f_deliveryprice || 0).toLocaleString()}원
                             </p>
                             </div>
+                        );
+                        return hideMode ? (
+                            <div 
+                                key={item.f_code}
+                                style={{
+                                    color: "inherit",
+                                    textDecoration: "none"
+                                }}
+                            >
+                                {furnitureCard}
+                            </div>
+                        ) : (   
+                            <Link 
+                                to={`/furniture/article/${item.f_code}`} 
+                                key={item.f_code}
+                                style={{
+                                    color: "inherit",
+                                    textDecoration: "none"
+                                }}
+                            >
+                                {furnitureCard}
                         </Link>
                         );
                     })}

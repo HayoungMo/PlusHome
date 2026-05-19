@@ -15,6 +15,8 @@ public class UserDTO {
 	private String code;
 	private String name;
 	private String email;
+	private String authCode;
+	
 	
 	private String c_name;
 	private String c_kind;
