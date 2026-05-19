@@ -100,12 +100,14 @@
                                       f_point,
                                       f_count,
                                       f_viewcount,
-                                      f_deliveryPrice
+                                      f_deliveryPrice,
+                                      r_count,
+                                      s_count
                              from     furniture
                              left join (select f_code as furniturecode, count(*) as r_count
                                 		from f_review
                                 		group by f_code) rv on rv.furniturecode = furniture.f_code
-                     		left join (select f_code as furniturecode, sum(f_count) as s_count
+                     		 left join (select f_code as furniturecode, sum(f_count) as s_count
                                 		from cart
                                 		where CART.f_status = 'Y'
                                 		group by f_code) sales on sales.furniturecode = furniture.f_code
