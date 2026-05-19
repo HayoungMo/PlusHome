@@ -1,6 +1,7 @@
 package com.spring.home.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +68,8 @@ public class UserService {
 		
 		
 		}
+	
+	private Map<String, String> authMap = new HashMap<>();
 	
 	
 		
@@ -324,6 +327,36 @@ public class UserService {
 	public List<CartDTO> catagoryTotalCountPrice(CartDTO dto) throws Exception{
 		return userMapper.catagoryTotalCountPrice(dto);
 	}
+	
+	//비밀번호 유저 체크
+	public UserDTO findUserPw(UserDTO dto) throws Exception {
+		return userMapper.findUserPw(dto);
+	}
+	
+	//인증번호 생성
+	public String createCode() {
+		return String.valueOf((int)((Math.random() * 900000) + 100000)
+		);
+	}
+	
+	//인증번호 저장
+	public void saveCode(String email,String code) {
+		authMap.put(email, code);
+	}
+	
+	//인증번호 확인
+	public boolean checkCode(String email, String inputCode) {
+		String savedCode = authMap.get(email);
+		
+		if(savedCode == null) {
+			return false;
+		}
+		
+		return savedCode.equals(inputCode);
+				
+		
+	}
+	
 	
 
 }
