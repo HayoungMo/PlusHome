@@ -4,7 +4,7 @@ import GetImgDir from "../resources/function/GetImgDir";
 
 const InteriorReviewList = ({ company }) => {
   const [review, setReview] = useState([]);
-const [selectedImg, setSelectedImg] = useState(null);
+  const [selectedImg, setSelectedImg] = useState(null);
   useEffect(() => {
     const fetchReview = async () => {
       const data = await InteriorService.fetchInteriorReview(company);
@@ -20,7 +20,7 @@ const [selectedImg, setSelectedImg] = useState(null);
             b: item.c_kind,
             c: item.c_name,
             d: item.id,
-            e:item.b_createdDate,
+            e: item.b_createdDate,
             view: false,
           });
           return {

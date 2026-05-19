@@ -1,10 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  Paper,
+  Radio,
+  RadioGroup,
+  Stack,
+  Typography,
+} from "@mui/material";
+
 import PaymentService from "../service/paymentService";
 import WalletService from "../service/walletService";
 import CouponService from "../service/couponService";
+import CartService from "../service/cartService";
 
+import WalletChargeMui from "../components/WalletChargeMui";
 import TableCheckBoxMui from "../components/TableCheckBoxMui";
+import TextFieldMui from "../components/TextFieldMui";
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -26,44 +44,55 @@ const PaymentPage = () => {
   };
 
   const [addressMode, setAddressMode] = useState("default");
-  const [receiver, setReceiver] = useState(defaultReceiver);
+  const [receiver] = useState(defaultReceiver);
   const [newReceiver, setNewReceiver] = useState({
     f_name: "",
     f_tel: "",
     f_addr: "",
   });
 
+  const [coupon, setCoupon] = useState([]);
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [availablePoint, setAvailablePoint] = useState(0);
+  const [usePoint, setUsePoint] = useState("");
   const [walletMoney, setWalletMoney] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payMessage, setPayMessage] = useState("");
   const [checkedList, setCheckedList] = useState([]);
+  const [paySuccess, setPaySuccess] = useState(false);
+  const [walletChargeOpen, setWalletChargeOpen] = useState(false);
 
   const selectedReceiver = addressMode === "default" ? receiver : newReceiver;
 
+  const appliedPoint = Math.min(
+    Number(usePoint || 0),
+    Number(availablePoint || 0),
+    Math.max(0, Number(payTotal || 0) - Number(couponDiscount || 0))
+  );
+
   const finalPayTotal = Math.max(
     0,
-    Number(payTotal || 0) - Number(couponDiscount || 0),
+    Number(payTotal || 0) - Number(couponDiscount || 0) - appliedPoint
   );
 
   const lackMoney = Math.max(0, finalPayTotal - walletMoney);
   const afterPayMoney = walletMoney - finalPayTotal;
   const canPay = walletMoney >= finalPayTotal;
 
-  const [coupon, setCoupon] = useState();
-  
   useEffect(() => {
     const fetchCoupon = async () => {
       const result = await CouponService.selectCouponList(user.id);
-      if (!result.success) {
-        return;
-      }      
-      setCoupon(result.data.filter((item) => item.coupon_used === "N") || []);
+
+      if (!result.success) return;
+
+      setCoupon(result.data?.filter((item) => item.coupon_used === "N") || []);
     };
-    fetchCoupon();
-    
-  }, []);
+
+    if (user.id) {
+      fetchCoupon();
+    }
+  }, [user.id]);
 
   useEffect(() => {
     if (!coupon || checkedList.length === 0) {
@@ -72,7 +101,7 @@ const PaymentPage = () => {
     }
 
     const selectedCoupons = coupon.filter((item) =>
-      checkedList.includes(item.coupon_code),
+      checkedList.includes(item.coupon_code)
     );
 
     let totalDiscount = 0;
@@ -82,10 +111,7 @@ const PaymentPage = () => {
         Number(payTotal || 0) * (Number(item.discount || 0) / 100);
 
       const maxDiscount = Number(item.coupon_max || 0);
-
-      const appliedDiscount = Math.min(percentDiscount, maxDiscount);
-
-      totalDiscount += appliedDiscount;
+      totalDiscount += Math.min(percentDiscount, maxDiscount);
     });
 
     setCouponDiscount(Math.floor(totalDiscount));
@@ -104,6 +130,17 @@ const PaymentPage = () => {
       });
   }, [user.id]);
 
+  useEffect(() => {
+    CartService.getAvailablePoint()
+      .then((res) => {
+        setAvailablePoint(Number(res.data?.point || 0));
+      })
+      .catch((error) => {
+        console.error("포인트 조회 실패", error);
+        setAvailablePoint(0);
+      });
+  }, []);
+
   const changeNewReceiver = (evt) => {
     const { name, value } = evt.target;
 
@@ -111,6 +148,38 @@ const PaymentPage = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const changeUsePoint = (evt) => {
+    const onlyNumber = evt.target.value.replace(/[^0-9]/g, "");
+    const nextPoint = Math.min(
+      Number(onlyNumber || 0),
+      Number(availablePoint || 0),
+      Math.max(0, Number(payTotal || 0) - Number(couponDiscount || 0))
+    );
+
+    setUsePoint(nextPoint ? String(nextPoint) : "");
+  };
+
+  const useAllPoint = () => {
+    const maxPoint = Math.min(
+      Number(availablePoint || 0),
+      Math.max(0, Number(payTotal || 0) - Number(couponDiscount || 0))
+    );
+
+    setUsePoint(maxPoint ? String(maxPoint) : "");
+  };
+
+  const getItemTotal = (item) => {
+    const optionTotal = (item.options || []).reduce(
+      (sum, option) => sum + Number(option.co_price || 0),
+      0
+    );
+
+    return (
+      (Number(item.f_price || 0) + optionTotal) *
+      Number(item.f_count || 0)
+    );
   };
 
   const onPayClick = () => {
@@ -128,6 +197,7 @@ const PaymentPage = () => {
       return;
     }
 
+    setPaySuccess(false);
     setPayMessage("");
     setModalOpen(true);
   };
@@ -137,6 +207,7 @@ const PaymentPage = () => {
       setPayMessage("지갑 잔액이 부족합니다.");
       return;
     }
+
     try {
       setPaying(true);
       setPayMessage("지갑 잔액을 확인하고 있습니다.");
@@ -149,32 +220,24 @@ const PaymentPage = () => {
         productTotal,
         deliveryTotal,
         couponDiscount,
+        use_point: appliedPoint,
         payTotal: finalPayTotal,
       });
 
-      // 사용한 쿠폰 삭제
       if (checkedList.length > 0) {
         await Promise.all(
           checkedList.map((coupon_code) =>
             CouponService.deleteCoupon({
               id: user.id,
               coupon_code,
-            }),
-          ),
+            })
+          )
         );
       }
 
       setWalletMoney((prev) => prev - finalPayTotal);
+      setPaySuccess(true);
       setPayMessage("결제가 완료되었습니다.");
-
-      setTimeout(() => {
-        navigate("/payment/success", {
-          state: {
-            payTotal: finalPayTotal,
-            items,
-          },
-        });
-      }, 800);
     } catch (error) {
       console.error("결제 실패", error);
 
@@ -183,7 +246,7 @@ const PaymentPage = () => {
       setPayMessage(
         serverMessage && serverMessage !== "No message available"
           ? serverMessage
-          : "결제 처리 중 오류가 발생했습니다. \n서버 결제 API를 확인해주세요.",
+          : "결제 처리 중 오류가 발생했습니다.\n서버 결제 API를 확인해주세요."
       );
     } finally {
       setPaying(false);
@@ -191,328 +254,513 @@ const PaymentPage = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h3>결제</h3>
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: 1180,
+        mx: "auto",
+        textAlign: "left",
+        "& *": {
+          textAlign: "left",
+        },
+      }}
+    >
+      <Typography
+        variant="h5"
+        fontWeight={700}
+        mb={2}
+        sx={{ textAlign: "center !important" }}
+      >
+        결제
+      </Typography>
 
-      <section>
-        <h4>배송지</h4>
+      <Divider sx={{ mb: 2 }} />
 
-        <label>
-          <input
-            type="radio"
-            checked={addressMode === "default"}
-            onChange={() => setAddressMode("default")}
-          />
-          기본 배송지
-        </label>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 280px" },
+          gap: 3,
+          alignItems: "start",
+        }}
+      >
+        <Box>
+          <Paper variant="outlined" sx={{ p: 1.5, mb: 1.5, borderRadius: 1 }}>
+            <Typography variant="subtitle1" fontWeight={700} mb={1}>
+              배송지
+            </Typography>
 
-        <div style={{ border: "1px solid #ddd", padding: "10px" }}>
-          <p>받는 사람: {receiver.f_name}</p>
-          <p>연락처: {receiver.f_tel}</p>
-          <p>주소: {receiver.f_addr}</p>
-        </div>
-
-        <label>
-          <input
-            type="radio"
-            checked={addressMode === "new"}
-            onChange={() => setAddressMode("new")}
-          />
-          새 배송지 입력
-        </label>
-
-        {addressMode === "new" && (
-          <div>
-            <label>수령인: </label>
-            <input
-              name="f_name"
-              value={newReceiver.f_name}
-              onChange={changeNewReceiver}
-              placeholder="받는 사람"
-            />
-            <br />
-
-            <label>전화번호: </label>
-            <input
-              name="f_tel"
-              value={newReceiver.f_tel}
-              onChange={changeNewReceiver}
-              placeholder="연락처"
-            />
-            <br />
-
-            <label>주소: </label>
-            <input
-              name="f_addr"
-              value={newReceiver.f_addr}
-              onChange={changeNewReceiver}
-              placeholder="주소"
-            />
-          </div>
-        )}
-      </section>
-
-      <hr />
-
-      <section>
-        <h4>주문 상품</h4>
-
-        {items.map((item) => (
-          <div
-            key={item.c_code}
-            style={{
-              border: "1px solid #ddd",
-              padding: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            <div style={{ display: "flex", gap: "12px" }}>
-              <img
-                src={
-                  item.thumbnail
-                    ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
-                    : "/no-image.png"
-                }
-                alt={item.furniture?.f_name || item.f_code}
-                style={{
-                  width: "90px",
-                  height: "90px",
-                  objectFit: "cover",
-                }}
-              />
-
-              <div>
-                <p>{item.furniture?.f_name || item.f_name}</p>
-                <p>업체명: {item.furniture?.c_name}</p>
-                <p>수량: {item.f_count}</p>
-
-                {(item.options || []).map((option, index) => (
-                  <p key={index}>
-                    {option.co_select}: {option.co_text}
-                    {Number(option.co_price) > 0
-                      ? ` (+${Number(option.co_price).toLocaleString()}원)`
-                      : ""}
-                  </p>
-                ))}
-              </div>
-            </div>
-
-            <p>
-              상품금액:{" "}
-              {(
-                (Number(item.f_price || 0) +
-                  (item.options || []).reduce(
-                    (sum, option) => sum + Number(option.co_price || 0),
-                    0,
-                  )) *
-                Number(item.f_count || 0)
-              ).toLocaleString()}
-              원
-            </p>
-          </div>
-        ))}
-      </section>
-
-      <hr />
-
-      <section>
-        <h4>쿠폰</h4>
-        <TableCheckBoxMui
-          rowData={coupon}
-          col={["discount", "coupon_end", "coupon_max", "coupon_info"]}
-          checkedList={checkedList}
-          setCheckedList={setCheckedList}
-          rowKey="coupon_code"
-        />        
-      </section>
-
-      <hr />
-
-      <section>
-        <h4>결제 금액</h4>
-        <p>상품금액: {productTotal.toLocaleString()}원</p>
-        <p>배송비: {deliveryTotal.toLocaleString()}원</p>
-        <p>쿠폰할인: -{couponDiscount.toLocaleString()}원</p>
-        <h3>최종 결제금액: {finalPayTotal.toLocaleString()}원</h3>
-
-        <hr />
-
-        <p>지갑 잔액: {walletMoney.toLocaleString()}원</p>
-
-        {lackMoney > 0 && (
-          <p style={{ color: "red" }}>
-            부족 금액: {lackMoney.toLocaleString()}원
-          </p>
-        )}
-
-        <button type="button" onClick={() => navigate("/userpage?menu=wallet")}>
-          지갑 충전하기
-        </button>
-      </section>
-
-      <button type="button" onClick={onPayClick}>
-        결제하기
-      </button>
-
-      {modalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
-          <div
-            style={{
-              width: "420px",
-              background: "white",
-              borderRadius: "8px",
-              padding: "24px",
-              boxShadow: "0 12px 30px rgba(0,0,0,0.2)",
-            }}
-          >
-            <h3 style={{ marginTop: 0 }}>결제 확인</h3>
-
-            <div
-              style={{
-                border: "1px solid #ddd",
-                padding: "14px",
-                marginBottom: "14px",
-              }}
+            <RadioGroup
+              value={addressMode}
+              onChange={(evt) => setAddressMode(evt.target.value)}
+              sx={{ gap: 1 }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>상품금액</span>
-                <strong>{productTotal.toLocaleString()}원</strong>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "8px",
+              <Box
+                sx={{
+                  border: "1px solid #ddd",
+                  borderRadius: 1,
+                  px: 1.2,
+                  py: 1,
                 }}
               >
-                <span>배송비</span>
-                <strong>{deliveryTotal.toLocaleString()}원</strong>
-              </div>
+                <FormControlLabel
+                  value="default"
+                  control={<Radio size="small" />}
+                  label={
+                    <Typography fontSize={14} fontWeight={700}>
+                      기본 배송지
+                    </Typography>
+                  }
+                  sx={{ m: 0 }}
+                />
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "8px",
+                <Box sx={{ pl: 3.8, mt: 0.3 }}>
+                  <Typography variant="body2" color="text.secondary" fontSize={13}>
+                    받는 사람: {receiver.f_name || "-"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" fontSize={13}>
+                    연락처: {receiver.f_tel || "-"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" fontSize={13}>
+                    주소: {receiver.f_addr || "-"}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box
+                sx={{
+                  border: "1px solid #ddd",
+                  borderRadius: 1,
+                  px: 1.2,
+                  py: 1,
                 }}
               >
-                <span>쿠폰할인</span>
-                <strong>-{couponDiscount.toLocaleString()}원</strong>
-              </div>
-            </div>
+                <FormControlLabel
+                  value="new"
+                  control={<Radio size="small" />}
+                  label={
+                    <Typography fontSize={14} fontWeight={700}>
+                      새 배송지 입력
+                    </Typography>
+                  }
+                  sx={{ m: 0 }}
+                />
 
-            <div
-              style={{
-                border: "1px solid #ddd",
-                padding: "14px",
-                marginBottom: "14px",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>현재 지갑 잔액</span>
-                <strong>{walletMoney.toLocaleString()}원</strong>
-              </div>
+                {addressMode === "new" && (
+                  <Stack spacing={1} sx={{ pl: 3.8, mt: 1 }}>
+                    <TextFieldMui
+                      label="수령인"
+                      name="f_name"
+                      value={newReceiver.f_name}
+                      onChange={changeNewReceiver}
+                      width="100%"
+                      size="small"
+                    />
+                    <TextFieldMui
+                      label="전화번호"
+                      name="f_tel"
+                      value={newReceiver.f_tel}
+                      onChange={changeNewReceiver}
+                      width="100%"
+                      size="small"
+                    />
+                    <TextFieldMui
+                      label="주소"
+                      name="f_addr"
+                      value={newReceiver.f_addr}
+                      onChange={changeNewReceiver}
+                      width="100%"
+                      size="small"
+                    />
+                  </Stack>
+                )}
+              </Box>
+            </RadioGroup>
+          </Paper>
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "8px",
-                }}
-              >
-                <span>결제 후 잔액</span>
-                <strong
-                  style={{
-                    color: afterPayMoney < 0 ? "red" : "black",
+          <Paper variant="outlined" sx={{ p: 1.5, mb: 1.5, borderRadius: 1 }}>
+            <Typography variant="subtitle1" fontWeight={700} mb={1}>
+              주문 상품
+            </Typography>
+
+            <Stack spacing={1}>
+              {items.map((item) => (
+                <Box
+                  key={item.c_code}
+                  sx={{
+                    border: "1px solid #ddd",
+                    borderRadius: 1,
+                    p: 1.2,
+                    display: "grid",
+                    gridTemplateColumns: "64px minmax(0, 1fr) auto",
+                    gap: 1.2,
+                    alignItems: "start",
                   }}
                 >
-                  {afterPayMoney.toLocaleString()}원
-                </strong>
-              </div>
-            </div>
+                  <Box
+                    component="img"
+                    src={
+                      item.thumbnail
+                        ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
+                        : "/no-image.png"
+                    }
+                    alt={item.furniture?.f_name || item.f_code}
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      objectFit: "cover",
+                      borderRadius: 1,
+                      border: "1px solid #eee",
+                    }}
+                  />
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderTop: "1px solid #ddd",
-                paddingTop: "14px",
-                marginBottom: "18px",
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography fontWeight={700} fontSize={14} lineHeight={1.4}>
+                      {item.furniture?.f_name || item.f_name}
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary" fontSize={13}>
+                      업체명: {item.furniture?.c_name || "-"}
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary" fontSize={13}>
+                      수량: {item.f_count}
+                    </Typography>
+
+                    {(item.options || []).map((option, index) => (
+                      <Typography
+                        key={index}
+                        variant="body2"
+                        color="text.secondary"
+                        fontSize={13}
+                      >
+                        {option.co_select}: {option.co_text}
+                        {Number(option.co_price) > 0
+                          ? ` (+${Number(option.co_price).toLocaleString()}원)`
+                          : ""}
+                      </Typography>
+                    ))}
+                  </Box>
+
+                  <Typography fontWeight={700} fontSize={14} sx={{ whiteSpace: "nowrap" }}>
+                    {getItemTotal(item).toLocaleString()}원
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Paper>
+
+          <Paper variant="outlined" sx={{ p: 1.5, mb: 1.5, borderRadius: 1 }}>
+            <Typography variant="subtitle1" fontWeight={700} mb={1}>
+              쿠폰
+            </Typography>
+
+            <Box
+              sx={{
+                "& table th, & table td": {
+                  textAlign: "left !important",
+                },
               }}
             >
-              <span>최종 결제금액</span>
-              <strong style={{ fontSize: "22px" }}>
-                {finalPayTotal.toLocaleString()}원
-              </strong>
-            </div>
+              <TableCheckBoxMui
+                rowData={coupon}
+                col={["discount", "coupon_end", "coupon_max", "coupon_info"]}
+                checkedList={checkedList}
+                setCheckedList={setCheckedList}
+                rowKey="coupon_code"
+              />
+            </Box>
+          </Paper>
 
-            {payMessage && (
-              <p
-                style={{
-                  color: payMessage.includes("완료") ? "green" : "red",
-                  whiteSpace: "pre-line",
-                }}
-              >
-                {payMessage}
-              </p>
-            )}
+          <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
+            <Typography variant="subtitle1" fontWeight={700} mb={1}>
+              포인트
+            </Typography>
+
+            <Typography variant="body2" fontSize={13} mb={1}>
+              보유 포인트: {availablePoint.toLocaleString()}P
+            </Typography>
+
+            <Stack direction="row" spacing={1} alignItems="center">
+              <TextFieldMui
+                label="사용할 포인트"
+                value={usePoint}
+                onChange={changeUsePoint}
+                width="220px"
+                size="small"
+              />
+
+              <Button variant="outlined" color="inherit" size="small" onClick={useAllPoint}>
+                전액 사용
+              </Button>
+            </Stack>
+
+            <Typography variant="body2" fontSize={13} mt={1} color="error">
+              포인트 사용: -{appliedPoint.toLocaleString()}P
+            </Typography>
+          </Paper>
+        </Box>
+
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            borderRadius: 1,
+            position: { md: "sticky" },
+            top: { md: 20 },
+          }}
+        >
+          <Typography fontWeight={700} mb={2}>
+            총 금액 ({items.length}개)
+          </Typography>
+
+          <Stack spacing={1}>
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                상품 금액
+              </Typography>
+              <Typography variant="body2">
+                {productTotal.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                배송비
+              </Typography>
+              <Typography variant="body2">
+                {deliveryTotal.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                쿠폰 할인
+              </Typography>
+              <Typography variant="body2" color="error">
+                -{couponDiscount.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                포인트 사용
+              </Typography>
+              <Typography variant="body2" color="error">
+                -{appliedPoint.toLocaleString()}P
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography fontWeight={700}>최종 결제 금액</Typography>
+            <Typography variant="h6" fontWeight={800}>
+              {finalPayTotal.toLocaleString()}원
+            </Typography>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Stack spacing={0.8}>
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                지갑 잔액
+              </Typography>
+              <Typography variant="body2">
+                {walletMoney.toLocaleString()}원
+              </Typography>
+            </Box>
 
             {lackMoney > 0 && (
-              <button
-                type="button"
-                onClick={() => navigate("/userpage?menu=wallet")}
-                style={{ marginBottom: "12px" }}
+              <Box display="flex" justifyContent="space-between">
+                <Typography variant="body2" color="error">
+                  부족 금액
+                </Typography>
+                <Typography variant="body2" color="error">
+                  {lackMoney.toLocaleString()}원
+                </Typography>
+              </Box>
+            )}
+          </Stack>
+
+          {lackMoney > 0 && (
+            <Button
+              fullWidth
+              variant="outlined"
+              color="inherit"
+              sx={{ mt: 2 }}
+              onClick={() => setWalletChargeOpen(true)}
+            >
+              지갑 충전하기
+            </Button>
+          )}
+
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 2, textAlign: "center" }}
+            onClick={onPayClick}
+          >
+            {items.length}개 상품 결제하기
+          </Button>
+        </Paper>
+      </Box>
+
+      <Dialog
+        open={modalOpen}
+        onClose={() => !paying && setModalOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle fontWeight={700}>결제 확인</DialogTitle>
+
+        <DialogContent>
+          <Stack spacing={1.2}>
+            <Box display="flex" justifyContent="space-between">
+              <Typography>상품금액</Typography>
+              <Typography fontWeight={700}>
+                {productTotal.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography>배송비</Typography>
+              <Typography fontWeight={700}>
+                {deliveryTotal.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography>쿠폰할인</Typography>
+              <Typography fontWeight={700} color="error">
+                -{couponDiscount.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography>포인트 사용</Typography>
+              <Typography fontWeight={700} color="error">
+                -{appliedPoint.toLocaleString()}P
+              </Typography>
+            </Box>
+
+            <Divider />
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography>현재 지갑 잔액</Typography>
+              <Typography fontWeight={700}>
+                {walletMoney.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Box display="flex" justifyContent="space-between">
+              <Typography>결제 후 잔액</Typography>
+              <Typography
+                fontWeight={700}
+                color={afterPayMoney < 0 ? "error" : "text.primary"}
               >
-                지갑 충전하기
-              </button>
+                {afterPayMoney.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            <Divider />
+
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography>최종 결제금액</Typography>
+              <Typography variant="h6" fontWeight={800}>
+                {finalPayTotal.toLocaleString()}원
+              </Typography>
+            </Box>
+
+            {payMessage && (
+              <Typography
+                color={payMessage.includes("완료") ? "success.main" : "error"}
+                sx={{ whiteSpace: "pre-line" }}
+              >
+                {payMessage}
+              </Typography>
             )}
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "8px",
-              }}
-            >
-              <button
-                type="button"
-                disabled={paying}
-                onClick={() => setModalOpen(false)}
+            {lackMoney > 0 && !paySuccess && (
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => setWalletChargeOpen(true)}
               >
-                취소
-              </button>
+                지갑 충전하기
+              </Button>
+            )}
 
-              <button
-                type="button"
-                disabled={paying || !canPay}
-                onClick={onConfirmPay}
-                style={{
-                  background: "black",
-                  color: "white",
-                  padding: "8px 16px",
-                  border: "none",
-                  cursor: paying || !canPay ? "not-allowed" : "pointer",
-                }}
-              >
-                {canPay ? "결제" : "잔액 부족"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+            <Stack direction="row" spacing={1} justifyContent="flex-end" pt={1}>
+              {paySuccess ? (
+                <>
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    onClick={() => navigate("/")}
+                  >
+                    쇼핑 계속하기
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() =>
+                      navigate("/payment/success", {
+                        state: {
+                          items,
+                          productTotal,
+                          deliveryTotal,
+                          couponDiscount,
+                          usePoint: appliedPoint,
+                          payTotal: finalPayTotal,
+                        },
+                      })
+                    }
+                  >
+                    결제 내역 확인
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    disabled={paying}
+                    onClick={() => setModalOpen(false)}
+                  >
+                    취소
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={paying || !canPay}
+                    onClick={onConfirmPay}
+                  >
+                    {canPay ? "결제" : "잔액 부족"}
+                  </Button>
+                </>
+              )}
+            </Stack>
+          </Stack>
+        </DialogContent>
+      </Dialog>
+
+      <WalletChargeMui
+        user={user}
+        open={walletChargeOpen}
+        onClose={() => setWalletChargeOpen(false)}
+        onCharged={(updatedWallet) => {
+          setWalletMoney(Number(updatedWallet?.money || 0));
+          setWalletChargeOpen(false);
+        }}
+      />
+    </Box>
   );
 };
 

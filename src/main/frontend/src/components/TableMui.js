@@ -49,6 +49,7 @@ const TableMui = (props) => {
 		col = [],
 		selectedRow = null,
 		setSelectedRow = null,
+		onRowClick = null,
 		buttonData = [],
 		buttonCol = [],
 		buttonColumns = [],

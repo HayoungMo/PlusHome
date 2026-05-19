@@ -41,7 +41,7 @@ public class HomeService {
 
 	// 추천 가구 띄우기
 	public List<FurnitureDTO> getBestFurniture() throws Exception {
-		return furnitureService.getLists(1, 4, "f_name", "");
+		return furnitureService.getLists(1, 4, "f_name", "","latest");
 	}
 
 	// 공통 헬퍼
@@ -67,19 +67,19 @@ public class HomeService {
 		Map<String, FurnitureDTO> map = new HashMap<>();
 
 		if (keyword.isEmpty()) {
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", "")) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", "","latest")) {
 				map.put(item.getF_code(), item);
 			}
 		} else {
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", keyword)) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", keyword,"latest")) {
 				map.put(item.getF_code(), item);
 			}
 
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_catagory1", keyword)) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_catagory1", keyword,"latest")) {
 				map.put(item.getF_code(), item);
 			}
 
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "c_name", keyword)) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "c_name", keyword,"latest")) {
 				map.put(item.getF_code(), item);
 			}
 		}

@@ -3,18 +3,20 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TextFieldMui from "../components/TextFieldMui";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import ImageService from "../service/imageService";
-import { Button } from "@mui/material";
+import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import RatingMui from "../components/RatingMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import "../css/FurnitureAddReview.css";
 
 const FurnitureAddReview = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const c_code = location.state?.c_code
+  const navigate = useNavigate();
+  const location = useLocation();
+  const c_code = location.state?.c_code;
 
   const id = localStorage.getItem("id");
+  const f_code = useParams();
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);
 
@@ -33,7 +35,7 @@ const FurnitureAddReview = () => {
     text: "",
   });
 
-  const [form, setForm] = useState({ id: id, c_code: c_code });
+  const [form, setForm] = useState({ id: id, f_code: f_code, c_code: c_code });
   const [preview, setPreview] = useState([]);
   const handleChange = (e) => {
     setForm({
@@ -42,16 +44,15 @@ const FurnitureAddReview = () => {
     });
   };
   const handleSubmit = async (e) => {
-
-    if(!c_code){
+    if (!c_code) {
       setAlert({
         open: true,
         severity: "error",
         title: "주문 정보 없음",
-        text: "주문 내역에서 리뷰 쓰기 버튼으로 다시 돌아와주세요."
-      })
+        text: "주문 내역에서 리뷰 쓰기 버튼으로 다시 돌아와주세요.",
+      });
 
-      return
+      return;
     }
 
     const result2 = await onClickInsert();
@@ -66,8 +67,7 @@ const FurnitureAddReview = () => {
         text: "등록되었습니다.",
       });
 
-      navigate(`/userpage?menu=orders`)
-      
+      navigate(`/userpage?menu=orders`);
     } else {
       setAlert({
         open: true,
@@ -112,31 +112,57 @@ const FurnitureAddReview = () => {
   };
 
   return (
-    <div>
-      {alert.open && (
-        <AlertMui
+    <div className="furniture-review-page">
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
           severity={alert.severity}
-          title={alert.title}
-          text={alert.text}
-          autoHideDuration={3000}
           onClose={() =>
             setAlert((prev) => ({
               ...prev,
               open: false,
             }))
           }
-        />
-      )}
-      <form name="review">
+          sx={{
+            width: "400px",
+            fontSize: "1rem",
+            padding: "16px 20px",
+            alignItems: "center",
+          }}
+        >
+          <AlertTitle>{alert.title}</AlertTitle>
+          {alert.text}
+        </Alert>
+      </Snackbar>
+      <div className="furniture-review-card">
+        <div className="furniture-review-header">
+          <h2>가구 리뷰 작성</h2>
+          <p>구매한 상품의 별점과 후기를 남겨주세요.</p>
+        </div>
+
+      <form name="review" className="furniture-review-form">
+        <div className="furniture-review-rating">
         <RatingMui
           name="star"
           label="별점"
           onChange={handleChange}
           precision={0.5}
         />
+        </div>
+        <div className="furniture-review-fields">
         <TextFieldMui name="subject" label="subject" onChange={handleChange} />
         <TextFieldMui name="content" label="content" onChange={handleChange} />
         <Button onClick={() => handleOpen()}>제출</Button>
+        </div>
         <DialogMui
           open={open}
           onClose={handleClose}
@@ -161,7 +187,8 @@ const FurnitureAddReview = () => {
         />
       </form>
       <p>가구 리뷰 이미지 업로드</p>
-      <form name="imageInsertTestForm">
+      <div className="furniture-review-upload">
+      <form name="imageInsertTestForm" className="furniture-review-upload-form">
         <input
           type="hidden"
           value="F_REVIEW"
@@ -203,16 +230,20 @@ const FurnitureAddReview = () => {
           추가할 파일
           <input type="file" hidden name="file" onChange={() => onClickAdd()} />
         </Button>
-        <br />
       </form>
+      </div>
+      <div className="furniture-review-preview-grid">
       {preview &&
-        preview.map((item) => (
+        preview.map((item, idx) => (
           <img
+            key={idx}
+            className="furniture-review-preview-image"
             src={item}
-            style={{ width: "150px", height: "150px", objectFit: "cover" }}
             alt=""
           />
         ))}
+      </div>
+      </div>
     </div>
   );
 };

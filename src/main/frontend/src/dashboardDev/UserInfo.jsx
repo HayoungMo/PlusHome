@@ -85,6 +85,7 @@ const companyColumns = [
     "name",
     "email",
 
+    "c_name",
     "c_kind",
     "c_info",
     "c_boss",
@@ -126,7 +127,7 @@ const companyColumns = [
             
             window.location.href = "/";
         }
-    },[])
+    },[isAdmin])
 
     const handleRowDeleteInTable = async() =>{
 
@@ -284,6 +285,7 @@ const companyColumns = [
             const companyRows = changedRows.map((row)=>({
 
                 c_id: row.id ||  "",
+                c_name:row.name || "",
                 c_tel: row.tel || "",
                 c_addr: row.addr || "",
                 c_kind: row.c_kind || "",

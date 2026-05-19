@@ -134,9 +134,9 @@ public class FurnitureService {
 		return f_code;
 	}
 	
-	public List<FurnitureDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception{
+	public List<FurnitureDTO> getLists(int start, int end, String searchKey, String searchValue, String sort) throws Exception{
 		
-		List<FurnitureDTO> lists = furnitureMapper.getLists(start, end, searchKey, searchValue);
+		List<FurnitureDTO> lists = furnitureMapper.getLists(start, end, searchKey, searchValue, sort);
 		
 		for(FurnitureDTO dto: lists) {
 			
@@ -152,6 +152,7 @@ public class FurnitureService {
 			dto.setImageList(imageList);
 			
 		}
+		
 		return lists;
 	}
 	

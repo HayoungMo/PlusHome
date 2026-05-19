@@ -44,7 +44,7 @@ const InteriorMyPage = () => {
             {Array.isArray(like) && like.length > 0 ? (
               like.map((item, idx) => (
                 <div key={idx} onClick={() => handleNext(item)}>
-                  <img src={item.logo.result.img_name} alt="" />
+                  <img src={item?.logo?.result.find((item)=>item.img_tag === "PROFILE")?.img_name} alt="" />
                   {item.c_name}
                 </div>
               ))

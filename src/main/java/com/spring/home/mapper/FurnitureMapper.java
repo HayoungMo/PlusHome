@@ -16,7 +16,8 @@ public interface FurnitureMapper {
 			@Param("start") int start, 
 			@Param("end") int end, 
 			@Param("searchKey") String searchKey, 
-			@Param("searchValue") String searchValue) throws Exception;
+			@Param("searchValue") String searchValue,
+			@Param("sort") String sort) throws Exception;
 	
 	public FurnitureDTO getReadData(@Param("f_code") String f_code) throws Exception;
 	

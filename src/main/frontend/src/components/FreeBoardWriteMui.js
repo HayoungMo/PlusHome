@@ -18,7 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import SnackbarAlert from "./SnackbarAlert";
 import { getCategoryOptions } from "./freeboard/constants";
 
-const FreeBoardWriteMui = ({ initialData, onSave, onCancel, userType = "guest" }) => {
+const FreeBoardWriteMui = ({ initialData, onSave, onCancel, userType = "user" }) => {
     const CATEGORYOPTIONS = getCategoryOptions(userType);
     const defaultCategory =
         initialData?.category && CATEGORYOPTIONS.includes(initialData.category)

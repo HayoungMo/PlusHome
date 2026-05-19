@@ -43,74 +43,116 @@ const insertCouponDev = async (data) => {
 };
 
 const checkCouponDuplicate = async (data) => {
-  const res = await http.post("/coupon/checkData", {
-    coupon_code : data.coupon_code,
-    id : data.id,
-  });
-  if(res >= 1) return{
-    success: false
+  try {
+    const res = await http.post("/coupon/checkData", {
+      coupon_code: data.coupon_code,
+      id: data.id,
+    });
+    if (res >= 1)
+      return {
+        success: false,
+      };
+    else
+      return {
+        success: true,
+        data: res.data,
+      };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+    };
   }
-  else return {
-    success: true,
-    data: res.data,
-  };
 };
 
 // 조회
 const selectCouponDev = async () => {
-  const res = await http.get("/coupon/getListsDev");
+   try {
+     const res = await http.get("/coupon/getListsDev");
 
-  return {
-    success: true,
-    data: res.data,
-  };
+     return {
+       success: true,
+       data: res.data,
+     };
+   } catch (err) {
+     console.error(err);
+     return {
+       success: false,
+     };
+   }
 };
 
 const selectCouponList = async (id) => {
-  const res = await http.post("/coupon/getLists", {
-    id,
-  });
+  try {
+    const res = await http.post("/coupon/getLists", {
+      id,
+    });
 
-  return {
-    success: true,
-    data: res.data,
-  };
+    return {
+      success: true,
+      data: res.data,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+    };
+  }
 };
 
 const selectCoupon= async (coupon_code) => {
-  const res = await http.post("/coupon/getReadData", {
-    coupon_code,
-    id : coupon_code
-  });
+    try {
+      const res = await http.post("/coupon/getReadData", {
+        coupon_code,
+        id: coupon_code,
+      });
 
-  return {
-    success: true,
-    data: res.data,
-  };
+      return {
+        success: true,
+        data: res.data,
+      };
+    } catch (err) {
+      console.error(err);
+      return {
+        success: false,
+      };
+    }
 };
 
 // 수정
 const updateCoupon = async (data) => {
-  await http.post("/coupon/update", {
-    id: data.id,
-    discount: data.discount,
-    coupon_end: data.coupon_end,
-    coupon_max: data.coupon_max,
-    coupon_info: data.coupon_info,
-  });
-  return {
-    success: true,
-  };
+  try {
+    await http.post("/coupon/update", {
+      id: data.id,
+      discount: data.discount,
+      coupon_end: data.coupon_end,
+      coupon_max: data.coupon_max,
+      coupon_info: data.coupon_info,
+    });
+    return {
+      success: true,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+    };
+  }
 };
 
 // 삭제
 const deleteCoupon = async (coupon_code) => {
-  await http.post("/coupon/delete", 
-    coupon_code
-  );
-  return {
-    success: true,
-  };
+  try {
+    await http.post("/coupon/delete", coupon_code);
+    return {
+      success: true,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+    };
+  }
 };
 
 const CouponService = {

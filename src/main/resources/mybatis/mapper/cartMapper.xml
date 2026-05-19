@@ -44,11 +44,15 @@
             f_tel,
             f_price,
             f_point,
+            pay_total,
+            use_point,
+            save_point,
+            coupon_discount,
             cart_statusdate
         FROM cart
         WHERE id = #{id}
           AND f_status = 'N'
-        ORDER BY c_code DESC
+        ORDER BY cart_statusdate DESC
     </select>
 
     <select id="getReadData" parameterType="string" resultType="com.spring.home.dto.CartDTO">
@@ -63,7 +67,12 @@
             f_name,
             f_tel,
             f_price,
-            f_point
+            f_point,
+            pay_total,
+            use_point,
+            save_point,
+            coupon_discount,
+            cart_statusdate
         FROM cart
         WHERE c_code = #{c_code}
     </select>
@@ -99,61 +108,115 @@
             f_name,
             f_tel,
             f_price,
-            f_point
+            f_point,
+            pay_total,
+            use_point,
+            save_point,
+            coupon_discount,
+            cart_statusdate
         FROM cart
         WHERE id = #{id}
           AND f_code = #{f_code}
           AND f_status = 'N'
     </select>
-    
+
     <update id="updatePaymentStatus">
-	    UPDATE cart
-	    SET f_status = 'Y',
-	        f_dstatus = 0,
-	        f_name = #{f_name},
-	        f_tel = #{f_tel},
-	        f_addr = #{f_addr},
-	        pay_total = #{pay_total}
-	    WHERE c_code = #{c_code}
-	      AND id = #{id}
-	      AND f_status = 'N'
+        UPDATE cart
+        SET f_status = 'Y',
+            f_dstatus = 0,
+            f_name = #{f_name},
+            f_tel = #{f_tel},
+            f_addr = #{f_addr},
+            pay_total = #{pay_total},
+            use_point = #{use_point},
+            coupon_discount = #{coupon_discount},
+            save_point = 0
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+          AND f_status = 'N'
+    </update>
+
+    <select id="getMyOrders" parameterType="string" resultType="com.spring.home.dto.CartDTO">
+        SELECT
+            c_code,
+            id,
+            f_code,
+            f_status,
+            f_dstatus,
+            f_count,
+            f_addr,
+            f_name,
+            f_tel,
+            f_price,
+            f_point,
+            pay_total,
+            use_point,
+            save_point,
+            coupon_discount,
+            cart_statusdate
+        FROM cart
+        WHERE id = #{id}
+          AND f_status = 'Y'
+        ORDER BY cart_statusdate DESC
+    </select>
+
+    <update id="cancelOrderToCart">
+        UPDATE cart
+        SET f_status = 'N',
+            f_dstatus = null
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+          AND f_status = 'Y'
+          AND f_dstatus IN (0, 1)
+    </update>
+
+    <update id="cancelOrder">
+        UPDATE cart
+        SET f_dstatus = -1
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+          AND f_status = 'Y'
+          AND f_dstatus IN (0, 1)
+    </update>
+
+    <update id="updateDeliveryStatus">
+        UPDATE cart
+        SET f_dstatus = #{f_dstatus}
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+          AND f_status = 'Y'
+    </update>
+
+    <select id="getAvailablePoint" parameterType="string" resultType="int">
+        SELECT NVL(SUM(save_point), 0) - NVL(SUM(use_point), 0)
+        FROM cart
+        WHERE id = #{id}
+    </select>
+
+    <update id="savePoint">
+        UPDATE cart
+        SET save_point = f_point * f_count
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+          AND f_status = 'Y'
+          AND f_dstatus = 5
+          AND save_point = 0
+    </update>
+
+    <update id="restoreUsedPoint">
+        UPDATE cart
+        SET use_point = 0,
+            save_point = 0
+        WHERE c_code = #{c_code}
+          AND id = #{id}
+    </update>
+
+	<update id="updateCartCount">
+		UPDATE cart
+		SET f_count = #{f_count}
+		WHERE c_code = #{c_code}
+		  AND id = #{id}
+		  AND f_status = 'N'
 	</update>
-    
-<select id="getMyOrders" parameterType="string" resultType="com.spring.home.dto.CartDTO">
-    SELECT
-        c_code, id, f_code, f_status, f_dstatus,
-        f_count, f_addr, f_name, f_tel, f_price, f_point, cart_statusdate
-    FROM cart
-    WHERE id = #{id}
-      AND f_status = 'Y'
-    ORDER BY c_code DESC
-</select>
-
-<update id="cancelOrderToCart">
-    UPDATE cart
-    SET f_status = 'N',
-        f_dstatus = null
-    WHERE c_code = #{c_code}
-      AND id = #{id}
-      AND f_status = 'Y'
-      AND f_dstatus IN (0, 1)
-</update>
-
-<update id="cancelOrder">
-    UPDATE cart
-    SET f_dstatus = -1
-    WHERE c_code = #{c_code}
-      AND id = #{id}
-      AND f_status = 'Y'
-      AND f_dstatus IN (0, 1)
-</update>
-
-<update id="updateDeliveryStatus">
-    UPDATE cart
-    SET f_dstatus = #{f_dstatus}
-    WHERE c_code = #{c_code}
-      AND id = #{id}
-      AND f_status = 'Y'
-</update>
 
 </mapper>

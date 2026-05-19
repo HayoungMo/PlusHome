@@ -1,7 +1,6 @@
 import http from "../http-common";
 
 /**
- * 비로그인(토큰 없음) 사용자도 글쓰기 가능해야 하므로
  * 토큰이 있을 때만 Authorization 헤더를 첨부한다.
  * (없을 때 'Bearer null' 을 보내면 백엔드 JWT 파싱이 예외에 의존하게 됨)
  */

@@ -5,7 +5,7 @@ import CheckboxMui from '../components/CheckboxMui';
 import ImageService from '../service/imageService';
 import GetImgDir from '../resources/function/GetImgDir';
 
-const Question = ({ f_code }) => {
+const Question = ({ f_code,furniture }) => {
     const [questions, setQuestions] = useState([]);
     const [questionForm, setQuestionForm] = useState({
         q_title:"",
@@ -25,6 +25,23 @@ const Question = ({ f_code }) => {
         userType === "admin" ||
         userType === "dev";
     
+    //문의 관련 자회사 답변 함수
+    const myCompanies = [
+        ...(loginUser?.companyList || []),
+        ...(loginUser?.companyDto ? [loginUser.companyDto] : []),
+    ];
+
+    const isMyCompanyProduct = () => {
+        if(userType !== "company") return false;
+        if(!furniture) return false;
+
+        return myCompanies.some((company) => 
+            company.c_id === furniture.c_id &&
+            company.c_kind === furniture.c_kind &&
+            company.c_name === furniture.c_name
+        );
+    };
+
     const isProductCompany = (item) => {
         if(userType !== "company") return false;
 
@@ -100,6 +117,11 @@ const Question = ({ f_code }) => {
 
         if(!user) {
             alert("로그인 후 문의를 작성할 수 있습니다");
+            return;
+        }
+
+        if(isMyCompanyProduct()) {
+            alert("자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.");
             return;
         }
 
@@ -185,44 +207,46 @@ const Question = ({ f_code }) => {
 
     return (
         <section style={{ marginTop: "40px" }}>
-
-            <form onSubmit={onQuestionSubmit}>
-                <TextField
-                    name="q_title"
-                    placeholder="문의 제목"
-                    value={questionForm.q_title}
-                    onChange={onQuestionChange}
-                />
-                <br/>
-
-                <TextField
-                    name="q_content"
-                    placeholder="문의 내용을 입력하세요"
-                    value={questionForm.q_content}
-                    onChange={onQuestionChange}
-                    rows={4}
-                />
-                <br/>
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(evt) => setQuestionFiles(Array.from(evt.target.files || []))}
-                />
-                <br />
-
-                <label>
-                    <CheckboxMui
-                        name="q_secret"
-                        checked={questionForm.q_secret === "Y"}
+            {isMyCompanyProduct() ? (
+                <p>자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.</p>
+            ):(
+                <form onSubmit={onQuestionSubmit}>
+                    <TextField
+                        name="q_title"
+                        placeholder="문의 제목"
+                        value={questionForm.q_title}
                         onChange={onQuestionChange}
-                        label="비밀글"
                     />
-                </label>
+                    <br/>
 
-                <button type="submit">문의 등록</button>
-            </form>
+                    <TextField
+                        name="q_content"
+                        placeholder="문의 내용을 입력하세요"
+                        value={questionForm.q_content}
+                        onChange={onQuestionChange}
+                        rows={4}
+                    />
+                    <br/>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(evt) => setQuestionFiles(Array.from(evt.target.files || []))}
+                    />
+                    <br />
 
+                    <label>
+                        <CheckboxMui
+                            name="q_secret"
+                            checked={questionForm.q_secret === "Y"}
+                            onChange={onQuestionChange}
+                            label="비밀글"
+                        />
+                    </label>
+
+                    <button type="submit">문의 등록</button>
+                </form>
+            )}
             <hr />
 
             {questions.length === 0 ? (
@@ -231,10 +255,10 @@ const Question = ({ f_code }) => {
                 questions.map((item) => (
                     <div key={item.q_idx}>
 
-                        <h4>Q.{canReadQuestion(item) ? item.q_title: "비밀글입니다."}</h4>
+                        <h4>제목: {canReadQuestion(item) ? item.q_title: "비밀글입니다."}</h4>
                         {canReadQuestion(item) ? (
                             <>
-                                <p>{item.q_content}</p>
+                                <p>문의 내용: {item.q_content}</p>
                                 <p>작성자: {item.id}</p>
                             </>
                         ) : (
@@ -259,7 +283,7 @@ const Question = ({ f_code }) => {
                                 <div>
                                     <strong>답변</strong>
                                     <p>작성자: {item.c_id}</p>
-                                    <p>A.{item.q_answer}</p>
+                                    <p>답변 내용:{item.q_answer}</p>
                                 </div>
                             ) : (
                                 <p>아직 답변이 없습니다.</p>

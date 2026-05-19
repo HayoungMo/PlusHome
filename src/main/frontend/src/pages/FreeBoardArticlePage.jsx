@@ -70,7 +70,7 @@ const FreeBoardArticlePage = () => {
         setArticle(null);
         setAlreadyLiked(false);
 
-        // [조회수 단일화] 게시글 진입 시 딱 1번만 명확하게 조회수 증가 호출
+      
         FreeBoardService.incrementView(boardId).catch(() => {});
         fetchData(boardId);
         window.scrollTo(0, 0);
@@ -86,7 +86,7 @@ const FreeBoardArticlePage = () => {
         }
     };
 
-    // 좋아요 / 좋아요 취소 토글 처리 기능
+  
     const handleLike = async () => {
         if (!canLike) {
             showSnack("로그인이 필요합니다.", "warning");
@@ -98,7 +98,7 @@ const FreeBoardArticlePage = () => {
                 const updatedData = await FreeBoardService.unlikeFreeBoard(currentBoardId);
                 localStorage.removeItem(likedKey);
                 setAlreadyLiked(false);
-                // 백엔드에서 반환된 최신 DTO 객체 안전하게 매핑 (UserStatsPanel 오염 방지)
+             
                 if (updatedData && typeof updatedData === "object") {
                     setArticle((prev) => ({ ...prev, likeCount: updatedData.likeCount }));
                 }

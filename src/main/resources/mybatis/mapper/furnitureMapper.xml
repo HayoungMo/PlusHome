@@ -105,11 +105,33 @@
                              where    ${searchKey} like '%'
                                                || #{searchValue}
                                                || '%'
-                             order by f_createddate desc ) data)
 
-					      <![CDATA[
-					      where rnum>=#{start} and rnum<=#{end}
-					      ]]>
+                             <choose>
+	                             <when test="sort == 'old'">
+		                             order by f_createddate asc
+	                             </when>
+	                             <when test="sort == 'priceHigh'">
+		                             order by f_dprice desc
+	                             </when>
+	                             <when test="sort == 'priceLow'">
+		                             order by f_dprice asc
+	                             </when>
+	                             <when test="sort == 'viewHigh'">
+		                             order by f_viewcount desc
+	                             </when>
+	                             <when test="sort == 'viewLow'">
+		                             order by f_viewcount asc
+	                             </when>
+	                             <otherwise>
+		                             order by f_createddate desc
+	                             </otherwise>
+                             </choose>
+                      ) data
+           )
+	<![CDATA[
+	where rnum >= #{start}
+	  and rnum <= #{end}
+	]]>
 </select>
 
 <!-- 조회수+1 -->

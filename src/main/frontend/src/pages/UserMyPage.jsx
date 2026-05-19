@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {getImgDirSimple} from "../resources/function/GetImgDir"
+
 import UserPageService from "../service/userPageService";
+import CartService from '../service/cartService';
+
 import  Loading  from "./Loading"
 
 import UserProfilePage from './UserProfilePage';
@@ -11,8 +14,8 @@ import UserQuestionPage from './UserQuestionPage';
 import UserReviewPage from './UserReviewPage';
 import UserDeletePage from './UserDeletePage';
 import WalletService from '../service/walletService';
-import WalletCharge from './WalletCharge';
 import UserCouponPage from './UserCouponPage';
+import WalletChargeMui from '../components/WalletChargeMui';
 
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
@@ -24,8 +27,29 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const [loading, setLoading] = useState(true)
     const [activeMenu, setActiveMenu] = useState(queryMenu || "edit");
     const [profileImage, setProfileImage] = useState(null);
-    const [wallet, setWallet]= useState(null)
+    const [wallet, setWallet] = useState(null)
+    const [point, setPoint] = useState(0)
     
+    const loadPoint = async () => {
+        try{
+            const res = await CartService.getAvailablePoint()
+            setPoint(Number(res.data?.point || 0))
+        }catch (error) {
+            console.error("포인트 조회 실패", error)
+            setPoint(0)
+        }
+    }
+
+    const loadWallet = async (id = user?.id) => {
+        if(!id) return
+        try {
+            const walletData = await WalletService.getMyWallet(id);
+            setWallet(walletData);
+        } catch (error) {
+            console.error("지갑 조회 실패", error);
+        }
+    }
+
     useEffect(()=>{
         if(queryMenu){
             setActiveMenu(queryMenu)
@@ -65,6 +89,15 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             setLoginUser?.(mergedUser.id);
             localStorage.setItem("user", JSON.stringify(mergedUser));
             //여기까지
+
+            CartService.getAvailablePoint()
+            .then((res) => {
+                setPoint(Number(res.data?.point || 0));
+            })
+            .catch((error) => {
+                console.error("포인트 조회 실패", error);
+                setPoint(0);
+            });
 
             return WalletService.getMyWallet(res.data.id)
         })
@@ -193,6 +226,10 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
               <strong>지갑 잔액: </strong>
               <span>{Number(wallet?.money || 0).toLocaleString()}원</span>
             </p>
+            <p>
+                <strong>포인트: </strong>
+                <span>{Number(point || 0).toLocaleString()}P</span>
+            </p>    
           </div>
         </aside>
 
@@ -214,13 +251,18 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             />
           )}
 
-          {activeMenu === "orders" && <UserOrderPage user={user} />}
+          {activeMenu === "orders" && <UserOrderPage user={user} loadPoint={loadPoint} loadWallet={loadWallet}/>}
           {activeMenu === "wishlist" && <UserWishListPage user={user} />}
           {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
           {activeMenu === "reviews" && <UserReviewPage user={user} />}
           {activeMenu === "wallet" && (
-            <WalletCharge user={user} onCharged={setWallet} />
-          )}
+            <WalletChargeMui
+                user={user}
+                onCharged={setWallet}
+                open={activeMenu === "wallet"}
+                onClose={() => changeMenu("edit")}
+            />
+            )}
           {activeMenu === "coupon" && <UserCouponPage user={user} />}
           {activeMenu === "delete" && (
             <UserDeletePage

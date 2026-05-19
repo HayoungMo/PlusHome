@@ -45,7 +45,7 @@ const CouponAdd = () => {
         open: true,
         severity: "error",
         title: `에러${result.status || ""}`,
-        text: result.message|| "등록 실패",
+        text: result.message || "등록 실패",
       });
     }
   };

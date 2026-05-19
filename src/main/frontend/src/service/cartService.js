@@ -45,12 +45,24 @@ const getCartOptions = (c_code) => {
 	});
 };
 
+const getAvailablePoint = () => {
+	return http.get("/cart/point", {
+		headers: getAuthHeaders(),
+	});
+};
+
 const deleteCart = (c_code) => {
 	return http.delete("/cart", {
 		params: { c_code },
 		headers: getAuthHeaders(),
 	});
 };
+
+const updateCartCount = (data) =>{
+	return http.patch("/cart/count", data, {
+		headers: getAuthHeaders(),
+	})
+}
 
 const CartService = {
 	getOrderFurnitureList,
@@ -59,6 +71,8 @@ const CartService = {
 	getMyCart,
 	deleteCart,
 	getCartOptions,
+	getAvailablePoint,
+	updateCartCount,
 };
 
 export default CartService;
