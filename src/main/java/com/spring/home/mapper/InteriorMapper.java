@@ -19,7 +19,7 @@ public interface InteriorMapper {
 	
 	public void insertInteriorData(InteriorDTO dto) throws Exception;
 	
-	public void insertInteriorExampleData(InteriorExampleDTO dto) throws Exception;
+	public int insertInteriorExampleData(InteriorExampleDTO dto) throws Exception;
 	
 	public void insertBookingData(BookingDTO dto) throws Exception;
 	
@@ -59,7 +59,7 @@ public interface InteriorMapper {
 	
 	public void updateInterior(InteriorDTO dto) throws Exception ;
 
-	public void updateInteriorExample(InteriorExampleDTO dto);
+	public int updateInteriorExample(InteriorExampleDTO dto);
 	
 	public void updateBooking(BookingDTO dto) throws Exception ;
 
@@ -67,7 +67,7 @@ public interface InteriorMapper {
 	
 	public void deleteInterior(@RequestBody InteriorDTO dto) throws Exception ;
 
-	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception;
+	public int deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception;
 	
 	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception;
 

@@ -23,19 +23,26 @@
 
 	<insert id="insertInteriorExampleData"
 		parameterType="com.spring.home.dto.InteriorExampleDTO">
+		
+		<selectKey keyProperty="ie_index" resultType="int" order="BEFORE">
+        	SELECT SEQ_I_EXAMPLE_INDEX.NEXTVAL FROM DUAL
+    	</selectKey>
+    
 		INSERT INTO i_example
 		(c_id,
 		c_name,
 		c_kind,
 		ie_tag,
 		ie_tag2,
-		ie_content)
+		ie_content,
+		ie_index)
 		VALUES ( #{c_id},
 		#{c_name},
 		#{c_kind},
 		#{ie_tag},
 		#{ie_tag2},
-		#{ie_content})
+		#{ie_content},
+		#{ie_index})
 	</insert>
 
 	<insert id="insertBookingData"
@@ -212,6 +219,7 @@
 				AND c_name = #{c_name}
 			</if>
 		</where>
+		ORDER BY IE_INDEX DESC
 	</select>
 
 
@@ -562,14 +570,18 @@
 	<update id="updateInteriorExample"
 		parameterType="com.spring.home.dto.InteriorExampleDTO">
 		UPDATE i_example
-		SET ie_content = #{ie_content}
-		WHERE c_id
-		= #{c_id}
-		AND c_kind = #{c_kind}
-		AND c_name = #{c_name}
-		AND ie_tag =
-		#{ie_tag}
-		AND ie_tag2 = #{ie_tag2}
+		<set>
+	        <if test="ie_content != null and ie_content != ''">
+	        	ie_content = #{ie_content},
+	        </if>
+	        <if test="ie_tag != null and ie_tag != ''">
+	        	ie_tag = #{ie_tag},
+	        </if>
+	        <if test="ie_tag2 != null and ie_tag2 != ''">
+	        	ie_tag2 = #{ie_tag2},
+	        </if>
+		</set>
+		WHERE IE_INDEX = #{ie_index}
 	</update>
 
 	<update id="updateBooking"
@@ -614,13 +626,7 @@
 	<delete id="deleteInteriorExample"
 		parameterType="com.spring.home.dto.InteriorExampleDTO">
 		DELETE FROM i_example
-		WHERE c_id = #{c_id}
-		AND c_kind =
-		#{c_kind}
-		AND c_name = #{c_name}
-		AND ie_tag = #{ie_tag}
-		AND ie_tag2 =
-		#{ie_tag2}
+		WHERE ie_index = #{ie_index}
 	</delete>
 
 	<delete id="deleteInteriorReview"

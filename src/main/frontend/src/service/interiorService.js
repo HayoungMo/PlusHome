@@ -1,4 +1,4 @@
-import http from "../http-common";
+import http, { fileHttp } from "../http-common";
 
 const aiResponse = async (data) => {
 	console.log("ai 들어가는 데이터:", data);
@@ -217,14 +217,7 @@ const AddInterior = async (data) => {
 
 const AddInteriorExample = async (data) => {
 	try {
-		const res = await http.post("/interior/add/example", {
-			c_id: data.c_id,
-			c_kind: data.c_kind,
-			c_name: data.c_name,
-			ie_tag: data.tag,
-			ie_tag2: data.tag2,
-			ie_content: data.content,
-		});
+		const res = await fileHttp.post("/interior/add/example", data);
 
 		return {
 			success: true,
@@ -343,17 +336,16 @@ const UpdateInterior = async (data) => {
 const UpdateInteriorExample = async (data) => {
 	try {
 		const res = await http.post("/interior/update/example", {
-			c_id: data.c_id,
-			c_kind: data.c_kind,
-			c_name: data.c_name,
-			ie_tag: data.tag,
-			ie_tag2: data.tag2,
-			ie_content: data.content,
+			ie_index: data.ie_index,
+			ie_tag: data.ie_tag,
+			ie_tag2: data.ie_tag2,
+			ie_content: data.ie_content,
 		});
 
 		console.log("수정 결과:", res.data);
 		return {
-			success: true,
+			success: res.data?.success ?? true,
+			message: res.data?.message,
 			data: res.data,
 		};
 	} catch (err) {
@@ -417,16 +409,13 @@ const DeleteInterior = async (data) => {
 const DeleteInteriorExample = async (data) => {
 	try {
 		const res = await http.post("/interior/delete/example", {
-			c_id: data.c_id,
-			c_kind: data.c_kind,
-			c_name: data.c_name,
-			ie_tag: data.tag,
-			ie_tag2: data.tag2,
+			ie_index: data.ie_index,
 		});
 
 		console.log("수정 결과:", res.data);
 		return {
-			success: true,
+			success: res.data?.success ?? true,
+			message: res.data?.message,
 			data: res.data,
 		};
 	} catch (err) {

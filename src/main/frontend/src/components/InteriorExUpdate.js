@@ -1,374 +1,566 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Button } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import TextFieldMui from "./TextFieldMui";
-import { Button } from "@mui/material";
-import GetImgDir from "../resources/function/GetImgDir";
+import SelectMui from "./SelectMui";
 import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
-import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import FloatingActionButtonMui from "./FloatingActionButtonMui";
-const InteriorExUpdate = ({ company }) => {
-  const [sendList, setSendList] = useState([]);
-  const [example, setExample] = useState([]);
 
-  const [open, setOpen] = useState(false);
+const tagOptions1 = [
+	{ value: "apt", title: "아파트" },
+	{ value: "villa", title: "빌라" },
+	{ value: "house", title: "단독주택" },
+	{ value: "officetel", title: "오피스텔" },
+];
 
-  const [alert, setAlert] = useState({
-    open: false,
-    severity: "info",
-    title: "",
-    text: "",
-  });
+const tagOptions2 = [
+	{ value: "kitchen", title: "키친" },
+	{ value: "bath", title: "바스" },
+	{ value: "storage", title: "수납" },
+	{ value: "door", title: "중문/문" },
+	{ value: "window", title: "창문" },
+	{ value: "wallpaper", title: "벽지" },
+	{ value: "lighting", title: "조명" },
+	{ value: "tile", title: "타일" },
+	{ value: "floor", title: "마루" },
+];
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+const InteriorExUpdate = ({ selectedExample, imageList = [], onReload }) => {
+	const [insertImageList, setInsertImageList] = useState([]);
+	const [updateImageFileMap, setUpdateImageFileMap] = useState({});
+	const [deleteImageNameList, setDeleteImageNameList] = useState([]);
+	const [exampleList, setExampleList] = useState([]);
+	const updateImageFileMapRef = useRef(updateImageFileMap);
+	const insertImageListRef = useRef(insertImageList);
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+	const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [alert, setAlert] = useState({
+		open: false,
+		severity: "info",
+		title: "",
+		text: "",
+	});
 
-  const [open1, setOpen1] = useState(false);
+	const resetImageEditState = () => {
+		Object.values(updateImageFileMap).forEach((record) => {
+			if (record.previewUrl) {
+				URL.revokeObjectURL(record.previewUrl);
+			}
+		});
+		insertImageList.forEach((record) => URL.revokeObjectURL(record.previewUrl));
+		setUpdateImageFileMap({});
+		setDeleteImageNameList([]);
+		setInsertImageList([]);
+	};
 
-  const handleOpen1 = () => {
-    setOpen1(true);
-  };
+	const onChangeExample = (index, e) => {
+		const { name, value } = e.target;
 
-  const handleClose1 = () => {
-    setOpen1(false);
-  };
+		const newExampleList = [...exampleList];
+		newExampleList[index] = {
+			...newExampleList[index],
+			[name]: value,
+		};
 
-  const [reload, setReload] = useState(0);
+		setExampleList(newExampleList);
+	};
 
-  const refresh = () => {
-    setReload((prev) => prev + 1);
-  };
+	const getImagePreview = (record) => {
+		return updateImageFileMap[record.img_name]?.previewUrl || record.img_dir || record.img_name;
+	};
 
-  const handleChange = (index, e) => {
-    const { name, value } = e.target;
+	const isDeleteTarget = (imgName) => {
+		return deleteImageNameList.includes(imgName);
+	};
 
-    const newExample = [...example];
-    newExample[index] = {
-      ...newExample[index],
-      [name === "tag" ? "ie_tag" : name === "tag2" ? "ie_tag2" : "ie_content"]:
-        value,
-    };
+	const onChangeUpdateImage = (record, e) => {
+		const file = e.target.files?.[0];
+		if (!file) {
+			return;
+		}
 
-    setExample(newExample);
-  };
-  const handleSubmit = async (e, item) => {
-    e.preventDefault();
+		const previewUrl = URL.createObjectURL(file);
+		setUpdateImageFileMap((prev) => {
+			if (prev[record.img_name]?.previewUrl) {
+				URL.revokeObjectURL(prev[record.img_name].previewUrl);
+			}
 
-    const result = await InteriorService.UpdateInteriorExample({
-      c_id: company.c_id,
-      c_kind: company.c_kind,
-      c_name: company.c_name,
-      tag: item.ie_tag,
-      tag2: item.ie_tag2,
-      content: item.ie_content,
-    });
-    if (result.success) {
-      setAlert({
-        open: true,
-        severity: "success",
-        title: "등록 성공",
-        text: "등록되었습니다.",
-      });
-    } else {
-      setAlert({
-        open: true,
-        severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
-      });
-    }
+			return {
+				...prev,
+				[record.img_name]: {
+					file,
+					previewUrl,
+				},
+			};
+		});
+		setDeleteImageNameList((prev) => prev.filter((imgName) => imgName !== record.img_name));
+	};
 
-    refresh();
-  };
+	const onClickToggleDeleteImage = (record) => {
+		const exampleImageList = exampleList[0]?.logo?.result || [];
+		const thumbnailImageName = exampleImageList[0]?.img_name;
 
-  const handleDelete = async (e, item) => {
-    e.preventDefault();
+		if (record.img_name === thumbnailImageName) {
+			setAlert({
+				open: true,
+				severity: "warning",
+				title: "삭제 불가",
+				text: "첫 번째 이미지는 썸네일로 사용되어 삭제할 수 없습니다.",
+			});
+			return;
+		}
 
-    await InteriorService.DeleteInteriorExample({
-      c_id: company.c_id,
-      c_kind: company.c_kind,
-      c_name: company.c_name,
-      tag: item.ie_tag,
-      tag2: item.ie_tag2,
-    });
+		setDeleteImageNameList((prev) => {
+			if (prev.includes(record.img_name)) {
+				return prev.filter((imgName) => imgName !== record.img_name);
+			}
 
-    item?.logo?.result
-      .filter((record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2)
-      .map((record, i) => imageDelete([record.img_originalName]));
-    refresh();
-  };
+			return [...prev, record.img_name];
+		});
 
-  const imageUpload = async (e) => {
-    const updateList = document.getElementsByClassName("updateFile");
-    if (updateList.length === 0) {
-      alert("Idiot");
-      return;
-    }
-    let fileList = [];
-    for (const element of updateList) {
-      if (element.files.length !== 0) {
-        fileList.push({ file: element.files[0], name: element.name });
-      }
-    }
+		setUpdateImageFileMap((prev) => {
+			if (!prev[record.img_name]) {
+				return prev;
+			}
 
-    if (fileList.length === 0) {
-      alert("dumb");
-      return;
-    }
-    // await ImageService.updateImage(fileList, updateTest);
-    await ImageService.updateImage(fileList);
-  };
+			if (prev[record.img_name].previewUrl) {
+				URL.revokeObjectURL(prev[record.img_name].previewUrl);
+			}
 
-  const imageDelete = async (item) => {
-    await ImageService.deleteImage(item);
-  };
+			const newMap = { ...prev };
+			delete newMap[record.img_name];
+			return newMap;
+		});
+	};
 
-  const onClickAdd = () => {
-    const insertForm2 = document.getElementsByName(
-      "imageInteriorExampleInsertTestForm",
-    )[0];
-    setSendList([
-      ...sendList,
-      {
-        img_kind: insertForm2.img_kind.value,
-        img_tag: insertForm2.img_tag.value,
-        dir_a: insertForm2.dir_a.value,
-        dir_b: insertForm2.dir_b.value,
-        dir_c: insertForm2.dir_c.value,
-        dir_d: insertForm2.dir_d.value,
-        // dir_e: insertForm.dir_e.value,
-        img_idx: sendList.length,
-        file: insertForm2.file.files[0],
-      },
-    ]);
-  };
+	const onChangeInsertImage = (e) => {
+		const files = Array.from(e.target.files || []);
+		if (files.length === 0) {
+			return;
+		}
 
-  const onClickInsert = () => {
-    if (!sendList || sendList.length === 0) {
-      console.log("보낼 이미지 없음");
-      return; // 🚫 요청 안 보냄
-    }
-    console.log(sendList);
-    ImageService.insertImage(sendList);
-  };
+		const newImages = files.map((file, index) => ({
+			id: `${Date.now()}-${index}-${file.name}`,
+			file,
+			previewUrl: URL.createObjectURL(file),
+		}));
 
-  useEffect(() => {
-    const fetchExample = async () => {
-      const data = await InteriorService.fetchExample(company);
-      const companyList = Array.isArray(data) ? data : [];
-      const listWithImages = await Promise.all(
-        companyList.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "I_EXAMPLE",
-            returnType: "list",
-            a: item.c_id,
-            b: item.c_kind,
-            c: item.c_name,
-            d: item.ie_tag + "_" + item.ie_tag2,
-            view: false,
-          });
-          if (!logo?.result?.length) {
-            return item;
-          }
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
+		setInsertImageList((prev) => [...prev, ...newImages]);
+		e.target.value = "";
+	};
 
-      setExample(listWithImages);
-    };
-    fetchExample();
-  }, [reload]);
+	const onClickRemoveInsertImage = (imageId) => {
+		setInsertImageList((prev) => {
+			const removeTarget = prev.find((record) => record.id === imageId);
+			if (removeTarget) {
+				URL.revokeObjectURL(removeTarget.previewUrl);
+			}
 
-  return (
-    <div>
-      {alert.open && (
-        <AlertMui
-          severity={alert.severity}
-          title={alert.title}
-          text={alert.text}
-          autoHideDuration={3000}
-          onClose={() =>
-            setAlert((prev) => ({
-              ...prev,
-              open: false,
-            }))
-          }
-        />
-      )}
-      <p>인테리어 시공 사례 수정 예시</p>
-      {example.map((item, index) => (
-        <div>
-          {item?.logo?.result
-            .filter(
-              (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
-            )
-            .map((record, i) => (
-              <div>
-                <img src={record.img_name} alt={`${item.c_name} 예시`} />
-                <form>
-                  <input
-                    type="file"
-                    name={record.img_originalName}
-                    className="updateFile"
-                  />
+			return prev.filter((record) => record.id !== imageId);
+		});
+	};
 
-                  <FloatingActionButtonMui
-                    icon={<FileUploadIcon />}
-                    color="primary"
-                    onClick={(e) => imageUpload(record, e)}
-                  />
-                </form>
-                <FloatingActionButtonMui
-                  icon={<DeleteIcon />}
-                  color="error"
-                  onClick={() => imageDelete([record.img_originalName])}
-                />
-              </div>
-            ))}
-          <p>시공사례 이미지 추가 업로드</p>
-          <form name="imageInteriorExampleInsertTestForm">
-            <input
-              type="hidden"
-              value="I_EXAMPLE"
-              name="img_kind"
-              placeholder="IMG_KIND"
-            />
-            <input
-              type="hidden"
-              value={
-                sendList === null || sendList.length === 0
-                  ? "THUMBNAIL"
-                  : "OTHER"
-              }
-              name="img_tag"
-              placeholder="IMG_TAG"
-            />
-            <input
-              type="hidden"
-              value={item.c_id}
-              name="dir_a"
-              placeholder="DIR_A"
-            />
-            <input
-              type="hidden"
-              value={item.c_kind}
-              name="dir_b"
-              placeholder="DIR_B"
-            />
-            <input
-              type="hidden"
-              value={item.c_name}
-              name="dir_c"
-              placeholder="DIR_C"
-            />
-            <input
-              type="hidden"
-              value={item.ie_tag + "_" + item.ie_tag2}
-              name="dir_d"
-              placeholder="DIR_D"
-            />
-            {/* <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-            <input
-              type="hidden"
-              name="img_idx"
-              value="1"
-              placeholder="IMG_IDX"
-            />
-            <input type="file" name="file" />
-            <br />
-            <FloatingActionButtonMui
-              icon={<AddIcon />}
-              color="secondary"
-              onClick={() => onClickAdd()}
-            />
-            <FloatingActionButtonMui
-              icon={<FileUploadIcon />}
-              color="primary"
-              onClick={() => onClickInsert()}
-            />
-          </form>
-          <form name="example">
-            <div>
-              <TextFieldMui name="tag" value={item.ie_tag} />
-              <TextFieldMui name="tag2" value={item.ie_tag2} />
-              <TextFieldMui
-                name="content"
-                value={item.ie_content}
-                onChange={(e) => handleChange(index, e)}
-              />
+	const processImageChanges = async (item) => {
+		const exampleImageList = item?.logo?.result || [];
+		const remainingImageCount = exampleImageList.filter(
+			(record) => !deleteImageNameList.includes(record.img_name),
+		).length;
 
-              <FloatingActionButtonMui
-                icon={<FileUploadIcon />}
-                color="primary"
-                onClick={() => handleOpen()}
-              />
-              <DialogMui
-                open={open}
-                onClose={handleClose}
-                title="제출 확인"
-                text="정말 제출하시겠습니까?"
-                buttons={[
-                  {
-                    title: "취소",
-                    color: "inherit",
-                    onClick: handleClose,
-                  },
-                  {
-                    title: "제출",
-                    variant: "outlined",
-                    onClick: (e) => {
-                      console.log("제출 실행");
-                      handleSubmit(e, item);
-                      handleClose();
-                    },
-                  },
-                ]}
-              />
-              <FloatingActionButtonMui
-                icon={<DeleteIcon />}
-                color="error"
-                onClick={() => handleOpen1()}
-              />
-              <DialogMui
-                open={open1}
-                onClose={handleClose1}
-                title="삭제 확인"
-                text="정말 삭제하시겠습니까?"
-                buttons={[
-                  {
-                    title: "취소",
-                    color: "inherit",
-                    onClick: handleClose1,
-                  },
-                  {
-                    title: "삭제",
-                    color: "error",
-                    variant: "contained",
-                    onClick: (e) => {
-                      console.log("삭제 실행");
-                      handleDelete(e, item);
-                      handleClose1();
-                    },
-                  },
-                ]}
-              />
-            </div>
-          </form>
-        </div>
-      ))}
-    </div>
-  );
+		if (remainingImageCount + insertImageList.length === 0) {
+			setAlert({
+				open: true,
+				severity: "warning",
+				title: "이미지 필요",
+				text: "시공 사례 이미지는 최소 1장 이상 필요합니다.",
+			});
+			return false;
+		}
+
+		const updateImageList = Object.entries(updateImageFileMap)
+			.filter(([imgName]) => !deleteImageNameList.includes(imgName))
+			.map(([imgName, record]) => ({
+				file: record.file,
+				name: imgName,
+			}));
+
+		if (deleteImageNameList.length > 0) {
+			await ImageService.deleteImage(deleteImageNameList);
+		}
+
+		if (updateImageList.length > 0) {
+			await ImageService.updateImage(updateImageList);
+		}
+
+		if (insertImageList.length > 0) {
+			const insertList = insertImageList.map((record, index) => ({
+				img_kind: "I_EXAMPLE",
+				img_tag: remainingImageCount + index === 0 ? "THUMBNAIL" : "OTHER",
+				dir_a: item.c_id,
+				dir_b: item.c_kind,
+				dir_c: item.c_name,
+				dir_d: item.ie_index,
+				img_idx: remainingImageCount + index,
+				file: record.file,
+			}));
+
+			await ImageService.insertImage(insertList);
+		}
+
+		return true;
+	};
+
+	const onClickUpdateExample = async (e, item) => {
+		e.preventDefault();
+
+		const result = await InteriorService.UpdateInteriorExample({
+			ie_index: item.ie_index,
+			ie_tag: item.ie_tag,
+			ie_tag2: item.ie_tag2,
+			ie_content: item.ie_content,
+		});
+
+		if (!result.success) {
+			setAlert({
+				open: true,
+				severity: "error",
+				title: `에러 (${result.status})`,
+				text: result.message || "오류가 발생했습니다.",
+			});
+			return;
+		}
+
+		try {
+			const imageResult = await processImageChanges(item);
+			if (!imageResult) {
+				return;
+			}
+
+			setAlert({
+				open: true,
+				severity: "success",
+				title: "수정 성공",
+				text: result.message || "수정되었습니다.",
+			});
+			resetImageEditState();
+			onReload?.();
+		} catch (error) {
+			console.error(error);
+			setAlert({
+				open: true,
+				severity: "error",
+				title: "이미지 처리 실패",
+				text: "기본 정보는 수정되었지만 이미지 처리 중 오류가 발생했습니다.",
+			});
+		}
+	};
+
+	const onClickDeleteExample = async (e, item) => {
+		e.preventDefault();
+
+		const result = await InteriorService.DeleteInteriorExample({
+			ie_index: item.ie_index,
+		});
+
+		if (!result.success) {
+			setAlert({
+				open: true,
+				severity: "error",
+				title: `에러 (${result.status})`,
+				text: result.message || "오류가 발생했습니다.",
+			});
+			return;
+		}
+
+		const deleteImageNames = item?.logo?.result?.map((record) => record.img_name) || [];
+		if (deleteImageNames.length > 0) {
+			await ImageService.deleteImage(deleteImageNames);
+		}
+
+		resetImageEditState();
+		onReload?.();
+	};
+
+	useEffect(() => {
+		if (!selectedExample?.c_id) {
+			setExampleList([]);
+			return;
+		}
+
+		setExampleList([
+			{
+				...selectedExample,
+				logo: {
+					result: Array.isArray(imageList) ? imageList : [],
+				},
+			},
+		]);
+	}, [selectedExample, imageList]);
+
+	useEffect(() => {
+		updateImageFileMapRef.current = updateImageFileMap;
+	}, [updateImageFileMap]);
+
+	useEffect(() => {
+		insertImageListRef.current = insertImageList;
+	}, [insertImageList]);
+
+	useEffect(() => {
+		Object.values(updateImageFileMapRef.current).forEach((record) => {
+			if (record.previewUrl) {
+				URL.revokeObjectURL(record.previewUrl);
+			}
+		});
+		insertImageListRef.current.forEach((record) => URL.revokeObjectURL(record.previewUrl));
+		setUpdateImageFileMap({});
+		setDeleteImageNameList([]);
+		setInsertImageList([]);
+	}, [selectedExample?.ie_index]);
+
+	useEffect(() => {
+		return () => {
+			Object.values(updateImageFileMapRef.current).forEach((record) => {
+				if (record.previewUrl) {
+					URL.revokeObjectURL(record.previewUrl);
+				}
+			});
+			insertImageListRef.current.forEach((record) => URL.revokeObjectURL(record.previewUrl));
+		};
+	}, []);
+
+	return (
+		<div>
+			{alert.open && (
+				<AlertMui
+					severity={alert.severity}
+					title={alert.title}
+					text={alert.text}
+					autoHideDuration={3000}
+					onClose={() =>
+						setAlert((prev) => ({
+							...prev,
+							open: false,
+						}))
+					}
+				/>
+			)}
+			<p>인테리어 시공 사례 수정 예시</p>
+			{exampleList.map((item, index) => {
+				const exampleImageList = item?.logo?.result || [];
+
+				return (
+					<div
+						key={`${item.c_id}-${item.ie_index}`}
+						style={{
+							marginBottom: "24px",
+							padding: "16px",
+							border: "1px solid #ddd",
+							borderRadius: "8px",
+						}}>
+						<div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+							<SelectMui
+								name="ie_tag"
+								option={tagOptions1}
+								value={item.ie_tag}
+								onChange={(e) => onChangeExample(index, e)}
+							/>
+							<SelectMui
+								name="ie_tag2"
+								option={tagOptions2}
+								value={item.ie_tag2}
+								onChange={(e) => onChangeExample(index, e)}
+							/>
+						</div>
+
+						<div
+							style={{
+								display: "grid",
+								gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+								gap: "12px",
+								marginBottom: "16px",
+							}}>
+							{exampleImageList.map((record, imageIndex) => {
+								const markedDelete = isDeleteTarget(record.img_name);
+								const changed = Boolean(updateImageFileMap[record.img_name]);
+								const canDeleteImage = imageIndex > 0;
+
+								return (
+									<div
+										key={`${record.img_name}-${imageIndex}`}
+										style={{
+											border: markedDelete ? "1px solid #d32f2f" : "1px solid #e0e0e0",
+											borderRadius: "8px",
+											padding: "8px",
+											opacity: markedDelete ? 0.45 : 1,
+										}}>
+										<img
+											src={getImagePreview(record)}
+											alt={`${item.c_name} 시공사례`}
+											style={{
+												width: "100%",
+												height: "120px",
+												objectFit: "cover",
+												borderRadius: "6px",
+												marginBottom: "8px",
+											}}
+										/>
+										<div
+											style={{
+												fontSize: "12px",
+												minHeight: "20px",
+												marginBottom: "8px",
+												color: markedDelete ? "#d32f2f" : "#1976d2",
+											}}>
+											{markedDelete ? "삭제 예정" : changed ? "교체 예정" : ""}
+										</div>
+										<form
+											style={{
+												display: "flex",
+												gap: "8px",
+												alignItems: "center",
+											}}>
+											<input
+												type="file"
+												name={record.img_name}
+												className="updateFile"
+												disabled={markedDelete}
+												onChange={(e) => onChangeUpdateImage(record, e)}
+											/>
+											{canDeleteImage && (
+												<FloatingActionButtonMui
+													icon={<DeleteIcon />}
+													color={markedDelete ? "inherit" : "error"}
+													onClick={() => onClickToggleDeleteImage(record)}
+												/>
+											)}
+										</form>
+									</div>
+								);
+							})}
+
+							{insertImageList.map((record) => (
+								<div
+									key={record.id}
+									style={{
+										border: "1px solid #1976d2",
+										borderRadius: "8px",
+										padding: "8px",
+									}}>
+									<img
+										src={record.previewUrl}
+										alt="추가 예정 이미지"
+										style={{
+											width: "100%",
+											height: "120px",
+											objectFit: "cover",
+											borderRadius: "6px",
+											marginBottom: "8px",
+										}}
+									/>
+									<div
+										style={{
+											fontSize: "12px",
+											minHeight: "20px",
+											marginBottom: "8px",
+											color: "#1976d2",
+										}}>
+										추가 예정
+									</div>
+									<FloatingActionButtonMui
+										icon={<DeleteIcon />}
+										color="error"
+										onClick={() => onClickRemoveInsertImage(record.id)}
+									/>
+								</div>
+							))}
+						</div>
+
+						<div
+							style={{
+								display: "flex",
+								gap: "8px",
+								alignItems: "center",
+								marginBottom: "16px",
+							}}>
+							<input type="file" multiple onChange={onChangeInsertImage} />
+						</div>
+
+						<form name="example">
+							<div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+								<TextFieldMui
+									name="ie_content"
+									value={item.ie_content}
+									onChange={(e) => onChangeExample(index, e)}
+								/>
+
+								<Button
+									color="primary"
+									variant="contained"
+									startIcon={<FileUploadIcon />}
+									onClick={() => setUpdateDialogOpen(true)}>
+									수정
+								</Button>
+
+								<FloatingActionButtonMui
+									icon={<DeleteIcon />}
+									color="error"
+									onClick={() => setDeleteDialogOpen(true)}
+								/>
+							</div>
+
+							<DialogMui
+								open={updateDialogOpen}
+								onClose={() => setUpdateDialogOpen(false)}
+								title="제출 확인"
+								text="정말 제출하시겠습니까?"
+								buttons={[
+									{
+										title: "취소",
+										color: "inherit",
+										onClick: () => setUpdateDialogOpen(false),
+									},
+									{
+										title: "제출",
+										variant: "outlined",
+										onClick: (e) => {
+											onClickUpdateExample(e, item);
+											setUpdateDialogOpen(false);
+										},
+									},
+								]}
+							/>
+							<DialogMui
+								open={deleteDialogOpen}
+								onClose={() => setDeleteDialogOpen(false)}
+								title="삭제 확인"
+								text="정말 삭제하시겠습니까?"
+								buttons={[
+									{
+										title: "취소",
+										color: "inherit",
+										onClick: () => setDeleteDialogOpen(false),
+									},
+									{
+										title: "삭제",
+										color: "error",
+										variant: "contained",
+										onClick: (e) => {
+											onClickDeleteExample(e, item);
+											setDeleteDialogOpen(false);
+										},
+									},
+								]}
+							/>
+						</form>
+					</div>
+				);
+			})}
+		</div>
+	);
 };
 
 export default InteriorExUpdate;

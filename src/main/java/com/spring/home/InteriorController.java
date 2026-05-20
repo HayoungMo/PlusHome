@@ -3,6 +3,7 @@ package com.spring.home;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +16,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.home.dto.BookingDTO;
 import com.spring.home.dto.CartAndFurnitureDTO;
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.FileSaveResult;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.dto.InteriorDTO;
@@ -30,6 +34,7 @@ import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.service.ImageService;
 import com.spring.home.service.InteriorService;
+import com.spring.home.util.FileUtilMethod;
 
 import lombok.RequiredArgsConstructor;
 
@@ -117,8 +122,48 @@ public class InteriorController {
 	}
 
 	@PostMapping("/add/example")
-	public void insertInteriorExampleData(@RequestBody InteriorExampleDTO dto) throws Exception {
-		interiorService.insertInteriorExampleData(dto);
+	public Map<String, Object> insertInteriorExampleData(@RequestPart("dto") InteriorExampleDTO dto,
+			@RequestPart(value = "files", required = false) List<MultipartFile> files,
+			@RequestPart(value = "imageDtos", required = false) List<ImageDTO> imageDtos) throws Exception {
+
+		Map<String, Object> result = new HashMap<>();
+
+		int exResult = interiorService.insertInteriorExampleData(dto);
+
+		if (exResult <= 0) {
+			result.put("success", false);
+			result.put("message", "시공 사례 등록에 실패했습니다.");
+			return result;
+		}
+
+		boolean hasImages = files != null && !files.isEmpty() && imageDtos != null && !imageDtos.isEmpty();
+		if (hasImages) {
+			for (ImageDTO imageDto : imageDtos) {
+				imageDto.setImg_kind("I_EXAMPLE");
+				imageDto.setDir_a(dto.getC_id());
+				imageDto.setDir_b(dto.getC_kind());
+				imageDto.setDir_c(dto.getC_name());
+				imageDto.setDir_d(String.valueOf(dto.getIe_index()));
+			}
+
+			FileSaveResult fileSaveResult = FileUtilMethod.fileSaveFromServer(files, imageDtos);
+
+			if (!fileSaveResult.isSuccess()) {
+				result.put("success", false);
+				result.put("message", fileSaveResult.getError());
+				result.put("ie_index", dto.getIe_index());
+				return result;
+			}
+
+			fileSaveResult.getSavedList().forEach(imageService::insertImage);
+
+			result.put("savedImages", fileSaveResult.getSavedList());
+		}
+		result.put("success", true);
+		result.put("message", "시공 사례가 등록되었습니다.");
+		result.put("ie_index", dto.getIe_index());
+
+		return result;
 	}
 
 	@PostMapping("/add/booking")
@@ -148,8 +193,15 @@ public class InteriorController {
 	}
 
 	@PostMapping("/update/example")
-	public void updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
-		interiorService.updateInteriorExample(dto);
+	public Map<String, Object> updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+		int updateResult = interiorService.updateInteriorExample(dto);
+		
+		result.put("success", updateResult > 0);
+		result.put("message", updateResult > 0 ? "시공 사례가 수정되었습니다." : "수정할 시공 사례를 찾지 못했습니다.");
+		result.put("ie_index", dto.getIe_index());
+		
+		return result;
 	}
 
 	@PostMapping("/update/booking")
@@ -169,8 +221,15 @@ public class InteriorController {
 	}
 
 	@PostMapping("/delete/example")
-	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
-		interiorService.deleteInteriorExample(dto);
+	public Map<String, Object> deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+		int deleteResult = interiorService.deleteInteriorExample(dto);
+		
+		result.put("success", deleteResult > 0);
+		result.put("message", deleteResult > 0 ? "시공 사례가 삭제되었습니다." : "삭제할 시공 사례를 찾지 못했습니다.");
+		result.put("ie_index", dto.getIe_index());
+		
+		return result;
 	}
 
 	@PostMapping("/delete/interiorreview")
@@ -340,8 +399,7 @@ public class InteriorController {
 		}
 		return result;
 	}
-	
-	
+
 	@PostMapping("/select/getInteriorExampleByCompanyId")
 	public Map<String, Object> getInteriorExampleByCompanyId(@RequestBody CompanyDTO c_dto) throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -387,7 +445,7 @@ public class InteriorController {
 			result.put("message", "조회에 성공하였습니다.");
 			result.put("listSize", exampleWithImageList.size());
 			result.put("exampleList", exampleWithImageList);
-			result.put("ModelDataList",ModelDataList);
+			result.put("ModelDataList", ModelDataList);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.put("success", false);
@@ -397,4 +455,10 @@ public class InteriorController {
 		return result;
 	}
 
+//	@PostMapping("")
+//	public Map<String, Object> getInteriorExampleByCompanyId(@RequestBody CompanyDTO c_dto) throws Exception {
+//		Map<String, Object> result = new HashMap<>();
+//
+//		return result;
+//	}
 }

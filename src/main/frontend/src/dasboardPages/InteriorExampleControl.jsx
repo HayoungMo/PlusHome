@@ -6,9 +6,8 @@ import InteriorExAdd from "../components/InteriorExAdd";
 import AlertMui from "../components/AlertMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
 import InteriorModelViewer from "../components/InteriorModelViewer";
-import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import TextFieldMui from "./../components/TextFieldMui";
-import SelectMui from "./../components/SelectMui";
+import { Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import InteriorExUpdate from "../components/InteriorExUpdate";
 
 const InteriorExampleControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -29,6 +28,9 @@ const InteriorExampleControl = () => {
 
 	const [model3DImageList, setModel3DImageList] = useState([]);
 	const [selectedModel3DImage, setSelectedModel3DImageList] = useState({});
+
+	const [isUpdateAvailable, setUpdateAvailable] = useState(false);
+	const [isAddAvailable, setAddAvailable] = useState(false);
 
 	const emptyList = useMemo(() => [], []);
 
@@ -124,6 +126,21 @@ const InteriorExampleControl = () => {
 		}
 	};
 
+	const onClickNewPost = () => {
+		setUpdateAvailable(false);
+		setAddAvailable(true);
+	};
+
+	const onClickPostUpdate = () => {
+		if (!selectedInteriorExample.c_id) {
+			setAlertInfo({ severity: "error", text: "수정할 데이터를 선택하세요." });
+			setAlertOpen(true);
+			return;
+		}
+		setUpdateAvailable(true);
+		setAddAvailable(false);
+	};
+
 	const tagOptions1 = [
 		{ value: "apt", title: "아파트" },
 		{ value: "villa", title: "빌라" },
@@ -155,6 +172,7 @@ const InteriorExampleControl = () => {
 			(data) => data.index === selectedInteriorExample.index,
 		);
 		console.log(imageList);
+		console.log(selectedInteriorExample);
 		setSelectedInteriorExampleImage(imageList || []);
 	}, [selectedInteriorExample]);
 
@@ -189,28 +207,49 @@ const InteriorExampleControl = () => {
 					</div>
 				) : (
 					<div>
+						<div
+							style={{
+								margin: "15px 15px 15px 0px",
+								display: "flex",
+								width: "200px",
+								justifyContent: "space-between",
+							}}>
+							{tabValue !== "all" && (
+								<Button
+									variant="contained"
+									color="success"
+									onClick={onClickNewPost}>
+									새로쓰기
+								</Button>
+							)}
+							{selectedInteriorExample?.c_id && (
+								<Button
+									variant="contained"
+									color="primary"
+									onClick={onClickPostUpdate}>
+									수정하기
+								</Button>
+							)}
+						</div>
 						<TableMui
 							col={["ie_tag", "ie_tag2", "ie_content"]}
 							rowData={exampleMuiDisplayList}
 							selectedRow={selectedInteriorExample}
 							setSelectedRow={setSelectedInteriorExample}
 						/>
-						{Array.isArray(selectedInteriorExampleImage) &&
-							selectedInteriorExampleImage.length !== 0 &&
-							selectedInteriorExampleImage.map((record) => {
-								return <img width={200} src={record.img_dir} alt="" />;
-							})}
-						<div>
-							<SelectMui
-								option={tagOptions1}
-								value={selectedInteriorExample.ie_tag}
+						{isUpdateAvailable && (
+							<InteriorExUpdate
+								selectedExample={selectedInteriorExample}
+								imageList={selectedInteriorExampleImage}
+								onReload={reLoadData}
 							/>
-							<SelectMui
-								option={tagOptions2}
-								value={selectedInteriorExample.ie_tag2}
-							/>
-							<TextFieldMui value={selectedInteriorExample.ie_content} />
-						</div>
+						)}
+						{selectedInteriorExampleImage?.map((record) => (
+							<img src={record.img_dir} alt={record.img_dir} />
+						))}
+						{tabValue !== "all" && isAddAvailable && (
+							<InteriorExAdd company={tabCompany} />
+						)}
 					</div>
 				))}
 			{viewType === "model" && (
@@ -226,7 +265,6 @@ const InteriorExampleControl = () => {
 					)}
 				</div>
 			)}
-			{/* {tabValue !== "all" && <InteriorExAdd company={tabCompany} />} */}
 
 			{alertOpen && (
 				<AlertMui

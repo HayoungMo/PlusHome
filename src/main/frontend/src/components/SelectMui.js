@@ -24,17 +24,20 @@ const SelectMui = (props) => {
 		required = false,
 		width,
 	} = props;
+	const selectId = `select-${name}`;
+	const labelId = `select-label-${name}`;
+	const selectValue = value ?? "";
 
 	return (
 		<div style={{ width: width ? width : "200px", display: "flex", flexDirection: "column" }}>
 			<FormControl>
-				<InputLabel id={`select-label-${name}`}>{label}</InputLabel>
+				{label && <InputLabel id={labelId}>{label}</InputLabel>}
 				<Select
-					labelId={`select-label-${name}`}
+					labelId={label ? labelId : undefined}
 					name={name}
-					id="demo-select-name"
+					id={selectId}
 					onChange={onChange}
-					value={value}
+					value={selectValue}
 					label={label}>
 					{option?.map((item) => (
 						<MenuItem key={`${name}-${item.value}`} value={item.value}>

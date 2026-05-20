@@ -26,8 +26,8 @@ public class InteriorService {
 	public void insertInteriorData(InteriorDTO dto) throws Exception{
 		interiorMapper.insertInteriorData(dto);
 	}
-	public void insertInteriorExampleData(InteriorExampleDTO dto) throws Exception{
-		interiorMapper.insertInteriorExampleData(dto);
+	public int insertInteriorExampleData(InteriorExampleDTO dto) throws Exception{
+		return interiorMapper.insertInteriorExampleData(dto);
 	}
 	public void insertBookingData(BookingDTO dto) throws Exception{
 		interiorMapper.insertBookingData(dto);
@@ -101,8 +101,8 @@ public class InteriorService {
 		interiorMapper.updateInterior(dto);
 	}
 
-	public void updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
-		interiorMapper.updateInteriorExample(dto);
+	public int updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		return interiorMapper.updateInteriorExample(dto);
 	}
 
 	public void updateBooking(@RequestBody BookingDTO dto) throws Exception {
@@ -117,8 +117,8 @@ public class InteriorService {
 		interiorMapper.deleteInterior(dto);
 	}
 
-	public void deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
-		interiorMapper.deleteInteriorExample(dto);
+	public int deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
+		return interiorMapper.deleteInteriorExample(dto);
 	}
 	
 	public void deleteInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
