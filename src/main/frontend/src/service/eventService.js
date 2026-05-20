@@ -6,7 +6,8 @@ const insertEvent = async (data) => {
       e_id: data.e_id,
       e_title: data.e_title,
       e_content: data.e_content,
-      e_long: data.e_long || null,
+      e_startDate: data.e_startDate || null,
+      e_endDate: data.e_endDate || null,
       e_type: data.e_type,
     });
 

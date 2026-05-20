@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 const EventPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
+  const [canUpdate, setCanUpdate] = useState(false);
+
   const [tab, setTab] = useState(0);
 
   const handleNext = (data) => {
@@ -28,7 +30,6 @@ const EventPage = () => {
       const dataList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
         dataList?.map(async (item) => {
-          console.log("아이템" + item);
           const logo = await GetImgDlr({
             kind: "DEV",
             returnType: "list",
@@ -39,6 +40,7 @@ const EventPage = () => {
           if (!logo?.result?.length) {
             return item;
           }
+
           return {
             ...item,
             logo,
@@ -63,7 +65,11 @@ const EventPage = () => {
 
       {tab === 0 &&
         events
-          .filter((item) => new Date(item.e_long) >= new Date())
+          .filter(
+            (item) =>
+              new Date(item.e_endDate) >= new Date() &&
+              new Date(item.e_startDate) < new Date(),
+          )
           ?.filter((item) => item.e_type === "event")
           .map((record) => (
             <div>
@@ -76,15 +82,15 @@ const EventPage = () => {
                 alt=""
                 onClick={() => handleNext(record.e_id)}
               />
-              {record.e_title}
-              {record.e_content}
-              <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
+              {canUpdate && (
+                <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
+              )}
             </div>
           ))}
 
       {tab === 1 &&
         events
-          .filter((item) => new Date(item.e_long) < new Date())
+          .filter((item) => new Date(item.e_endDate) < new Date())
           ?.filter((item) => item.e_type === "event")
           .map((record) => (
             <div>
@@ -96,8 +102,9 @@ const EventPage = () => {
                 }
                 alt=""
               />
-              {record.e_title}
-              {record.e_content}
+              {canUpdate && (
+                <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
+              )}
             </div>
           ))}
 
@@ -115,9 +122,9 @@ const EventPage = () => {
                 alt=""
                 onClick={() => handleNext(record.e_id)}
               />
-              {record.e_title}
-              {record.e_content}
-              <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
+              {canUpdate && (
+                <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
+              )}
             </div>
           ))}
     </div>
