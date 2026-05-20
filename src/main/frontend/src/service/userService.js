@@ -122,6 +122,12 @@ const checkCode = async(data) => {
     return res.data;
 }
 
-const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode };
+const insertCouponUser = async(data) =>{
+    console.log("서비스 쿠폰 가능?")
+    const res = await http.post("/dev/insertCoupon",data)
+    return res.data
+}
+
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode,insertCouponUser };
 
 export default userService;

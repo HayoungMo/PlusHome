@@ -34,32 +34,41 @@ const FreeBoardArticlePage = () => {
     const fetchedBoardIdRef = useRef(null);
 
     const fetchData = useCallback(async (id) => {
+        // ── 게시글 본문 ──────────────────────────────────────────
         try {
             setAlreadyLiked(!!loginUser && !!localStorage.getItem(`liked_${id}_${loginUser?.id}`));
 
-            // /api/freeboard/article/{boardId} 순수 데이터 조회 API 호출
             const data = await FreeBoardService.getFreeBoard(id);
             if (!data) {
                 showSnack("존재하지 않는 게시글입니다.", "error");
-                return navigate("/freeboard/list");
+                navigate("/freeboard/list");
+                return;
             }
 
-            // 작성시간 기준 24시간 이내 조건 계산 후 데이터 가공
-            const isNewPost = data.createdAt ? (new Date() - new Date(data.createdAt)) < 24 * 60 * 60 * 1000 : false;
+            const isNewPost = data.createdAt
+                ? (new Date() - new Date(data.createdAt)) < 24 * 60 * 60 * 1000
+                : false;
 
             setArticle({
                 ...data,
                 userName: resolveUserName(data.userName),
                 userId: data.userId || "Unknown",
-                isNew: isNewPost
+                isNew: isNewPost,
             });
+        } catch {
+            showSnack("게시글을 불러오는 중 오류가 발생했습니다.", "error");
+            navigate("/freeboard/list");
+            return;
+        }
 
+        // ── 이전/다음글  ──────────────
+        try {
             const navData = await FreeBoardService.getNav(id);
             setPrevArticle(navData?.prev || null);
             setNextArticle(navData?.next || null);
         } catch {
-            showSnack("게시글을 불러오는 중 오류가 발생했습니다.", "error");
-            navigate("/freeboard/list");
+            setPrevArticle(null);
+            setNextArticle(null);
         }
     }, [navigate, loginUser, showSnack]);
 
@@ -76,17 +85,6 @@ const FreeBoardArticlePage = () => {
         window.scrollTo(0, 0);
     }, [boardId, fetchData]);
 
-    // 공유 링크 복사
-    const handleShare = async () => {
-        try {
-            await navigator.clipboard.writeText(window.location.href);
-            showSnack("공유 링크가 복사되었습니다.", "success");
-        } catch {
-            showSnack(`공유 링크: ${window.location.href}`, "info");
-        }
-    };
-
-  
     const handleLike = async () => {
         if (!canLike) {
             showSnack("로그인이 필요합니다.", "warning");
@@ -94,7 +92,7 @@ const FreeBoardArticlePage = () => {
         }
         try {
             if (alreadyLiked) {
-                // 좋아요 취소 진행
+              
                 const updatedData = await FreeBoardService.unlikeFreeBoard(currentBoardId);
                 localStorage.removeItem(likedKey);
                 setAlreadyLiked(false);
@@ -104,7 +102,7 @@ const FreeBoardArticlePage = () => {
                 }
                 showSnack("좋아요를 취소했습니다.", "success");
             } else {
-                // 좋아요 등록 진행
+                
                 const updatedData = await FreeBoardService.likeFreeBoard(currentBoardId);
                 localStorage.setItem(likedKey, "true");
                 setAlreadyLiked(true);
@@ -162,7 +160,7 @@ const FreeBoardArticlePage = () => {
                 alreadyLiked={alreadyLiked}
                 onLike={handleLike}
                 onDelete={handleDeleteRequest}
-                onShare={handleShare}
+                showSnack={showSnack}
                 onCommentCountChange={handleCommentCountChange}
                 onEdit={() => navigate(`/freeboard/edit/${boardId}`)}
                 onBack={() => navigate("/freeboard/list")}

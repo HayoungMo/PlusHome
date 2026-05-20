@@ -20,10 +20,10 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
 
     // 삭제 확인 다이얼로그
     const [deleteDialog, setDeleteDialog] = useState({ open: false, commentId: null });
-    // 알림 스낵바
+  
     const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
 
-    // 권한 중앙 계산 (target 없이 — 댓글 작성 여부만 필요)
+   
     const { isAdmin, canComment } = getPermissions(loginUser);
     const currentBoardId = Number(boardId);
 
@@ -121,7 +121,8 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
         try {
             await FreeBoardCommentService.deleteComment(boardId, commentId);
             showSnack("삭제되었습니다.", "success");
-            loadComments();
+            await loadComments();
+            if (onCommentCountChange) onCommentCountChange(-1);
         } catch (error) {
             if (error?.response?.status === 401) {
                 showSnack("로그인 정보가 없거나 만료되었습니다. 다시 로그인해 주세요.", "error");
@@ -133,20 +134,20 @@ const FreeBoardCommentMui = ({ boardId, loginUser, onCommentCountChange }) => {
         }
     };
 
-    const byCreatedDesc = (a, b) => {
+    const byCreatedAsc = (a, b) => {
         const ta = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
         const tb = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
-        if (tb !== ta) return tb - ta;
-        return (b?.commentId || 0) - (a?.commentId || 0);
+        if (ta !== tb) return ta - tb;
+        return (a?.commentId || 0) - (b?.commentId || 0);
     };
 
-    const rootComments = comments.filter((c) => !c.parentId).slice().sort(byCreatedDesc);
+    const rootComments = comments.filter((c) => !c.parentId).slice().sort(byCreatedAsc);
     const repliesOf = (commentId) =>
-        comments.filter((c) => c.parentId === commentId).slice().sort(byCreatedDesc);
+        comments.filter((c) => c.parentId === commentId).slice().sort(byCreatedAsc);
 
     return (
         <Box sx={{ mt: 5 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#1e3a8a" }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", color: "#1e3a8a", textAlign: "left" }}>
                 댓글 {comments.length}개
             </Typography>
 

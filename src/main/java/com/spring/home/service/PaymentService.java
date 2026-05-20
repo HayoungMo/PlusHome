@@ -1,7 +1,9 @@
 package com.spring.home.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,15 @@ public class PaymentService {
 
 		int usePoint = dto.getUse_point();
 		int couponDiscount = dto.getCouponDiscount();
+		
+		Map<String, Integer> couponDiscountMap = new HashMap<>();
+		
+		if(dto.getCouponList() != null) {
+			for(PaymentDTO.CouponPayDTO couponItem : dto.getCouponList()) {
+				int itemCouponDiscount = Math.max(0, couponItem.getCoupon_discount());
+				couponDiscountMap.put(couponItem.getC_code(), itemCouponDiscount);
+			}
+		}
 
 		if (usePoint < 0) {
 			throw new RuntimeException("사용 포인트가 올바르지 않습니다.");
@@ -64,9 +75,17 @@ public class PaymentService {
 			}
 
 			List<CartOptionDTO> optionList = cartOptionMapper.getByCartCode(c_code);
+			
 			int itemProductTotal = calculateCartProductTotal(cart, optionList);
 
-			paymentItems.add(new PaymentItem(cart, optionList, itemProductTotal));
+			int itemCouponDiscount = couponDiscountMap.getOrDefault(c_code, 0);
+
+			if (itemCouponDiscount > itemProductTotal) {
+				throw new RuntimeException("쿠폰 할인 금액이 상품 금액보다 클 수 없습니다.");
+			}
+
+			paymentItems.add(new PaymentItem(cart, optionList, itemProductTotal, itemCouponDiscount));
+			
 			productTotal += itemProductTotal;
 		}
 
@@ -81,7 +100,7 @@ public class PaymentService {
 			throw new RuntimeException("할인 금액이 결제 금액보다 클 수 없습니다.");
 		}
 
-		allocatePaymentAmount(paymentItems, productTotal, deliveryTotal, usePoint, couponDiscount);
+		allocatePaymentAmount(paymentItems, productTotal, deliveryTotal, usePoint);
 
 		int finalPayTotal = 0;
 		for (PaymentItem item : paymentItems) {
@@ -121,45 +140,40 @@ public class PaymentService {
 	}
 
 	private void allocatePaymentAmount(
-		List<PaymentItem> paymentItems,
-		int productTotal,
-		int deliveryTotal,
-		int usePoint,
-		int couponDiscount
-	) {
-		int allocatedDelivery = 0;
-		int allocatedUsePoint = 0;
-		int allocatedCouponDiscount = 0;
+			List<PaymentItem> paymentItems,
+			int productTotal,
+			int deliveryTotal,
+			int usePoint
+		) {
+			int allocatedDelivery = 0;
+			int allocatedUsePoint = 0;
 
-		for (int i = 0; i < paymentItems.size(); i++) {
-			PaymentItem item = paymentItems.get(i);
-			boolean last = i == paymentItems.size() - 1;
+			for (int i = 0; i < paymentItems.size(); i++) {
+				PaymentItem item = paymentItems.get(i);
+				boolean last = i == paymentItems.size() - 1;
 
-			int itemDelivery = last
-				? deliveryTotal - allocatedDelivery
-				: deliveryTotal * item.productTotal / productTotal;
+				int itemDelivery = last
+					? deliveryTotal - allocatedDelivery
+					: deliveryTotal * item.productTotal / productTotal;
 
-			allocatedDelivery += itemDelivery;
+				allocatedDelivery += itemDelivery;
 
-			int itemOriginalTotal = item.productTotal + itemDelivery;
-			int originalTotal = productTotal + deliveryTotal;
+				int itemOriginalTotal = item.productTotal + itemDelivery;
+				int originalTotal = productTotal + deliveryTotal;
 
-			int itemUsePoint = last
-				? usePoint - allocatedUsePoint
-				: usePoint * itemOriginalTotal / originalTotal;
+				int itemUsePoint = last
+					? usePoint - allocatedUsePoint
+					: usePoint * itemOriginalTotal / originalTotal;
 
-			int itemCouponDiscount = last
-				? couponDiscount - allocatedCouponDiscount
-				: couponDiscount * itemOriginalTotal / originalTotal;
+				allocatedUsePoint += itemUsePoint;
 
-			allocatedUsePoint += itemUsePoint;
-			allocatedCouponDiscount += itemCouponDiscount;
-
-			item.usePoint = itemUsePoint;
-			item.couponDiscount = itemCouponDiscount;
-			item.payTotal = Math.max(0, itemOriginalTotal - itemUsePoint - itemCouponDiscount);
+				item.usePoint = itemUsePoint;
+				item.payTotal = Math.max(
+					0,
+					itemOriginalTotal - itemUsePoint - item.couponDiscount
+				);
+			}
 		}
-	}
 
 	private int calculateCartProductTotal(CartDTO cart, List<CartOptionDTO> optionList) {
 		int optionTotal = 0;
@@ -286,6 +300,7 @@ public class PaymentService {
 		}
 
 		cartMapper.restoreUsedPoint(c_code, id);
+		cartMapper.restoreCouponDiscountAsPoint(c_code, id);
 	}
 
 	@Transactional
@@ -317,10 +332,18 @@ public class PaymentService {
 		private int usePoint;
 		private int couponDiscount;
 
-		private PaymentItem(CartDTO cart, List<CartOptionDTO> optionList, int productTotal) {
+		private PaymentItem(
+			CartDTO cart,
+			List<CartOptionDTO> optionList,
+			int productTotal,
+			int couponDiscount
+		) {
 			this.cart = cart;
 			this.optionList = optionList;
 			this.productTotal = productTotal;
+			this.couponDiscount = couponDiscount;
 		}
 	}
+	
+	
 }

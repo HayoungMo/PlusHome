@@ -1,7 +1,12 @@
-import React from "react";
-import { Box, Stack, Typography, Chip, List, ListItemButton, ListItemText } from "@mui/material";
+import React, { useState } from "react";
+import {
+    Box, Stack, Typography, Chip, List, ListItemButton, ListItemText, Button, Snackbar, Alert,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import "../../css/freeBoardStats.css";
 
+const PREVIEW_COUNT = 3; // 기본으로 보여줄 개수
 
 const StatsSection = ({
     title,
@@ -11,6 +16,20 @@ const StatsSection = ({
     emptyText = "데이터가 없습니다.",
     rightLabel,
 }) => {
+    const [expanded, setExpanded] = useState(false);
+    const [hiddenSnack, setHiddenSnack] = useState(false);
+
+    const visibleItems = expanded ? items : items.slice(0, PREVIEW_COUNT);
+    const hasMore = items.length > PREVIEW_COUNT;
+
+    const handleItemClick = (it) => {
+        if (it.hidden) {
+            setHiddenSnack(true);
+            return;
+        }
+        onItemClick && onItemClick(it);
+    };
+
     return (
         <Box sx={{ mb: 1.5 }}>
             {/* 섹션 헤더 */}
@@ -27,23 +46,20 @@ const StatsSection = ({
                 />
             </Stack>
 
-            {/* 리스트 본문 */}
+            {/* 리스트 */}
             {items.length === 0 ? (
-                <Typography className="stats-empty-text">
-                    {emptyText}
-                </Typography>
+                <Typography className="stats-empty-text">{emptyText}</Typography>
             ) : (
                 <List dense disablePadding>
-                    {items.map((it) => (
+                    {visibleItems.map((it) => (
                         <ListItemButton
                             key={it.boardId || it.commentId}
-                            onClick={() => onItemClick && onItemClick(it)}
+                            onClick={() => handleItemClick(it)}
                             sx={{ py: 0.25, px: 0.5 }}
                         >
                             <ListItemText
                                 primary={
                                     <Box sx={{ display: "flex", alignItems: "center", width: "100%", gap: 0.5 }}>
-                                        {/* 제목: 왼쪽 정렬, 넘치면 말줄임 */}
                                         <Typography
                                             className={`stats-ellipsis-text ${it.hidden ? "stats-item-hidden" : ""}`}
                                             variant="caption"
@@ -51,12 +67,8 @@ const StatsSection = ({
                                         >
                                             {it.title || it.content}
                                         </Typography>
-
-                                        {/* 아이콘+숫자: 오른쪽 고정 */}
                                         {rightLabel && (
-                                            <Box
-                                                sx={{ display: "flex", alignItems: "center", gap: 0.3, flexShrink: 0, fontSize: "0.7rem", color: "text.secondary", ml: "auto" }}
-                                            >
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, flexShrink: 0, fontSize: "0.7rem", color: "text.secondary", ml: "auto" }}>
                                                 {rightLabel(it)}
                                             </Box>
                                         )}
@@ -67,6 +79,31 @@ const StatsSection = ({
                     ))}
                 </List>
             )}
+
+            {/* 더보기 / 접기 버튼 */}
+            {hasMore && (
+                <Button
+                    size="small"
+                    variant="text"
+                    endIcon={expanded ? <ExpandLessIcon fontSize="inherit" /> : <ExpandMoreIcon fontSize="inherit" />}
+                    onClick={() => setExpanded((prev) => !prev)}
+                    sx={{ fontSize: "0.7rem", color: "#4b6bbb", mt: 0.3, p: 0, minWidth: 0 }}
+                >
+                    {expanded ? "접기" : `더보기 (${items.length - PREVIEW_COUNT}개 더)`}
+                </Button>
+            )}
+
+            {/* 숨김 게시글 클릭 알림 */}
+            <Snackbar
+                open={hiddenSnack}
+                autoHideDuration={3000}
+                onClose={() => setHiddenSnack(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert onClose={() => setHiddenSnack(false)} severity="warning" sx={{ width: "100%" }}>
+                    관리자에 의해 비공개 처리 되었습니다.
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

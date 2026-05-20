@@ -1,5 +1,7 @@
 package com.spring.home.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.FreeBoardDTO;
 import com.spring.home.dto.FurnitureDTO;
+import com.spring.home.dto.UserDTO;
 import com.spring.home.mapper.FurnitureMapper;
 
 /*
@@ -40,12 +43,34 @@ public class HomeService {
 
 	@Autowired
 	private FreeBoardService freeBoardService;
+	
+	//알고리즘 
+	@Autowired
+	private UserService userService;
 
 	// 추천 가구 띄우기 , 5월 19일 메인 알고리즘 숨김처리로 인해 수정함.
 	public List<FurnitureDTO> getBestFurniture(String id) throws Exception {
 		List<FurnitureDTO> lists = furnitureService.getLists(1, 9999, "f_name", "", "latest");
 		
+		UserDTO user = null;
+		
+		List<String> popularCodes = new ArrayList<>();
+		
 		if(id != null && !id.trim().isEmpty()) {
+			user = userService.getReadData(id);
+			
+			if (user != null && user.getGender() != null && user.getBirth() != null) {
+			    int age = getAge(user);
+			    int minAge = (age / 10) * 10;
+			    int maxAge = minAge + 9;
+
+			    popularCodes = furnitureMapper.getPopularFurnitureCodesByUserGroup(
+			            user.getGender(),
+			            minAge,
+			            maxAge
+			    );
+			}
+			
 			List<String> hiddenCodes = furnitureMapper.getHiddenFurnitureCodes(id);
 			
 			lists = lists.stream()
@@ -53,9 +78,101 @@ public class HomeService {
 					.collect(Collectors.toList());
 		}
 		
+		final UserDTO recommendUser = user;
+		
+		final List<String> recommendPopularCodes = popularCodes;
+		
+		if(recommendUser != null) {
+				lists = lists.stream()
+						.sorted(Comparator
+								.comparingInt((FurnitureDTO item) -> {
+									int score = getRecommendScore(item, recommendUser);
+									
+									int popularIndex = recommendPopularCodes.indexOf(item.getF_code());
+									if(popularIndex >= 0) {
+										score += Math.max(10 - popularIndex, 1);
+									}
+									return score;
+								})
+								.reversed())
+						.collect(Collectors.toList());
+		}
+		
 		return lists.size() <=4 ? lists : lists.subList(0, 4);
 	}
+	
+	//알고리즘 헬퍼
+	private int getAge(UserDTO user) {
+		if(user == null || user.getBirth() == null) {
+			return 0;
+		}
+		
+		LocalDate birth = user.getBirth()
+				.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDate();
+		
+		return LocalDate.now().getYear() - birth.getYear();
+		
+	}
+	//알고리즘 헬퍼 
+	private String furnitureText(FurnitureDTO item) {
+		return (
+				String.valueOf(item.getF_name()) + " " +
+				String.valueOf(item.getF_catagory1()) + " " +
+				String.valueOf(item.getF_catagory2()) + " " +
+				String.valueOf(item.getF_catagory3()) + " " +
+				String.valueOf(item.getF_catagory4()) + " " +
+				String.valueOf(item.getF_catagory5())
+			).toLowerCase();
+	}
+	
+	private int getRecommendScore(FurnitureDTO item, UserDTO user) {
+	    if (user == null) {
+	        return 0;
+	    }
 
+	    int score = 0;
+	    int age = getAge(user);
+	    String gender = user.getGender();
+	    String text = furnitureText(item);
+
+	    if ("female".equals(gender)) {
+	        if (text.contains("침대")) score += 3;
+	        if (text.contains("조명")) score += 2;
+	        if (text.contains("수납")) score += 2;
+	        if (text.contains("내추럴") || text.contains("심플")) score += 1;
+	    }
+
+	    if ("male".equals(gender)) {
+	        if (text.contains("책상")) score += 3;
+	        if (text.contains("의자")) score += 2;
+	        if (text.contains("수납")) score += 2;
+	        if (text.contains("모던") || text.contains("심플")) score += 1;
+	    }
+
+	    if (age >= 20 && age < 30) {
+	        if (text.contains("원룸")) score += 3;
+	        if (text.contains("책상")) score += 2;
+	        if (text.contains("조명")) score += 2;
+	        if (text.contains("소파")) score += 1;
+	    } else if (age >= 30 && age < 40) {
+	        if (text.contains("소파")) score += 3;
+	        if (text.contains("침대")) score += 2;
+	        if (text.contains("식탁")) score += 2;
+	    } else if (age >= 40) {
+	        if (text.contains("침대")) score += 2;
+	        if (text.contains("소파")) score += 2;
+	        if (text.contains("수납")) score += 3;
+	    }
+
+	    if (item.getF_discount() > 0) {
+	        score += 1;
+	    }
+
+	    return score;
+	}
+	
 	// 공통 헬퍼
 	private boolean contains(String value, String keyword) {
 		if (value == null || keyword == null) {
@@ -271,5 +388,6 @@ public class HomeService {
 			furnitureMapper.insertHiddenFurniture(id, f_code);
 		}
 	}
-
+	
+	
 }

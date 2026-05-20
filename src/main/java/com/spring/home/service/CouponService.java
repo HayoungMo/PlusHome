@@ -39,4 +39,14 @@ public class CouponService {
 	public void deleteData(CouponDTO dto) throws Exception{
 		couponMapper.deleteData(dto);
 	}
+	
+	public void insertCouponUsers(CouponDTO dto) throws Exception {
+		for(String userId : dto.getUserIds()) {
+			System.out.println("현재 유저:" +userId);
+			dto.setId(userId);
+			
+			System.out.println("세팅된 id" + dto.getId());
+			couponMapper.insertData(dto);
+		}
+	}
 }

@@ -17,6 +17,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { AiFillCar } from "react-icons/ai";
 
 import PaymentService from "../service/paymentService";
 import WalletService from "../service/walletService";
@@ -24,7 +25,6 @@ import CouponService from "../service/couponService";
 import CartService from "../service/cartService";
 
 import WalletChargeMui from "../components/WalletChargeMui";
-import TableCheckBoxMui from "../components/TableCheckBoxMui";
 import TextFieldMui from "../components/TextFieldMui";
 
 const PaymentPage = () => {
@@ -35,7 +35,7 @@ const PaymentPage = () => {
 
   const {
     items = [],
-    itemCount = 0,
+    itemCount: stateItemCount = 0,
     productTotal = 0,
     deliveryTotal = 0,
     payTotal = 0,
@@ -56,18 +56,88 @@ const PaymentPage = () => {
   });
 
   const [coupon, setCoupon] = useState([]);
-  const [couponDiscount, setCouponDiscount] = useState(0);
   const [availablePoint, setAvailablePoint] = useState(0);
   const [usePoint, setUsePoint] = useState("");
   const [walletMoney, setWalletMoney] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [paying, setPaying] = useState(false);
   const [payMessage, setPayMessage] = useState("");
-  const [checkedList, setCheckedList] = useState([]);
+  const [itemCouponMap, setItemCouponMap] = useState({});
   const [paySuccess, setPaySuccess] = useState(false);
   const [walletChargeOpen, setWalletChargeOpen] = useState(false);
 
   const selectedReceiver = addressMode === "default" ? receiver : newReceiver;
+
+  const getItemTotal = (item) => {
+    const optionTotal = (item.options || []).reduce(
+      (sum, option) => sum + Number(option.co_price || 0),
+      0
+    );
+
+    return (
+      (Number(item.f_price || 0) + optionTotal) *
+      Number(item.f_count || 0)
+    );
+  };
+
+  const itemCount =
+  Number(stateItemCount || 0) ||
+  items.reduce((sum, item) => sum + Number(item.f_count || 0), 0);
+
+  const canApplyCouponToItem = (couponItem, item) => {
+    const couponType = couponItem.coupon_type || "all";
+    const couponCatagory = couponItem.coupon_catagory || "";
+
+    if (couponType === "all") {
+      return true;
+    }
+
+    if (!couponCatagory) {
+      return false;
+    }
+
+    if (couponType === "company") {
+      return couponCatagory === item.furniture?.c_id;
+    }
+
+    if (couponType === "catagory") {
+      const itemCategories = [
+        item.furniture?.f_catagory1,
+        item.furniture?.f_catagory2,
+        item.furniture?.f_catagory3,
+        item.furniture?.f_catagory4,
+        item.furniture?.f_catagory5,
+      ].filter(Boolean);
+
+      return itemCategories.includes(couponCatagory);
+    }
+
+    return false;
+  };
+
+  const getItemCouponDiscount = (item) => {
+    const couponCode = itemCouponMap[item.c_code];
+
+    const selectedCoupon = coupon.find(
+      (couponItem) => couponItem.coupon_code === couponCode
+    );
+
+    if (!selectedCoupon) return 0;
+    if (!canApplyCouponToItem(selectedCoupon, item)) return 0;
+
+    const itemTotal = getItemTotal(item);
+    const percentDiscount =
+      itemTotal * (Number(selectedCoupon.discount || 0) / 100);
+    const maxDiscount = Number(selectedCoupon.coupon_max || 0);
+
+    return Math.floor(Math.min(percentDiscount, maxDiscount));
+  };
+
+  const couponDiscount = items.reduce((sum, item) => {
+    return sum + getItemCouponDiscount(item);
+  }, 0);
+
+  const selectedCouponCodes = Object.values(itemCouponMap).filter(Boolean);
 
   const appliedPoint = Math.min(
     Number(usePoint || 0),
@@ -97,29 +167,6 @@ const PaymentPage = () => {
       fetchCoupon();
     }
   }, [user.id]);
-
-  useEffect(() => {
-    if (!coupon || checkedList.length === 0) {
-      setCouponDiscount(0);
-      return;
-    }
-
-    const selectedCoupons = coupon.filter((item) =>
-      checkedList.includes(item.coupon_code)
-    );
-
-    let totalDiscount = 0;
-
-    selectedCoupons.forEach((item) => {
-      const percentDiscount =
-        Number(payTotal || 0) * (Number(item.discount || 0) / 100);
-
-      const maxDiscount = Number(item.coupon_max || 0);
-      totalDiscount += Math.min(percentDiscount, maxDiscount);
-    });
-
-    setCouponDiscount(Math.floor(totalDiscount));
-  }, [checkedList, coupon, payTotal]);
 
   useEffect(() => {
     if (!user.id) return;
@@ -174,16 +221,18 @@ const PaymentPage = () => {
     setUsePoint(maxPoint ? String(maxPoint) : "");
   };
 
-  const getItemTotal = (item) => {
-    const optionTotal = (item.options || []).reduce(
-      (sum, option) => sum + Number(option.co_price || 0),
-      0
-    );
+  const changeItemCoupon = (c_code, coupon_code) => {
+    setItemCouponMap((prev) => {
+      const next = { ...prev };
 
-    return (
-      (Number(item.f_price || 0) + optionTotal) *
-      Number(item.f_count || 0)
-    );
+      if (!coupon_code) {
+        delete next[c_code];
+        return next;
+      }
+
+      next[c_code] = coupon_code;
+      return next;
+    });
   };
 
   const onPayClick = () => {
@@ -226,11 +275,16 @@ const PaymentPage = () => {
         couponDiscount,
         use_point: appliedPoint,
         payTotal: finalPayTotal,
+        couponList: items.map((item) => ({
+          c_code: item.c_code,
+          coupon_code: itemCouponMap[item.c_code] || null,
+          coupon_discount: getItemCouponDiscount(item),
+        })),
       });
 
-      if (checkedList.length > 0) {
+      if (selectedCouponCodes.length > 0) {
         await Promise.all(
-          checkedList.map((coupon_code) =>
+          selectedCouponCodes.map((coupon_code) =>
             CouponService.deleteCoupon({
               id: user.id,
               coupon_code,
@@ -388,92 +442,127 @@ const PaymentPage = () => {
             </Typography>
 
             <Stack spacing={1}>
-              {items.map((item) => (
-                <Box
-                  key={item.c_code}
-                  sx={{
-                    border: "1px solid #ddd",
-                    borderRadius: 1,
-                    p: 1.2,
-                    display: "grid",
-                    gridTemplateColumns: "64px minmax(0, 1fr) auto",
-                    gap: 1.2,
-                    alignItems: "start",
-                  }}
-                >
+              {items.map((item) => {
+                const itemCouponDiscount = getItemCouponDiscount(item);
+
+                return (
                   <Box
-                    component="img"
-                    src={
-                      item.thumbnail
-                        ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
-                        : "/no-image.png"
-                    }
-                    alt={item.furniture?.f_name || item.f_code}
+                    key={item.c_code}
                     sx={{
-                      width: 64,
-                      height: 64,
-                      objectFit: "cover",
+                      border: "1px solid #ddd",
                       borderRadius: 1,
-                      border: "1px solid #eee",
+                      p: 1.2,
+                      display: "grid",
+                      gridTemplateColumns: "64px minmax(0, 1fr) auto",
+                      gap: 1.2,
+                      alignItems: "start",
                     }}
-                  />
+                  >
+                    <Box
+                      component="img"
+                      src={
+                        item.thumbnail
+                          ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
+                          : "/no-image.png"
+                      }
+                      alt={item.furniture?.f_name || item.f_code}
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        objectFit: "cover",
+                        borderRadius: 1,
+                        border: "1px solid #eee",
+                      }}
+                    />
 
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography fontWeight={700} fontSize={14} lineHeight={1.4}>
-                      {item.furniture?.f_name || item.f_name}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" fontSize={13}>
-                      업체명: {item.furniture?.c_name || "-"}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" fontSize={13}>
-                      수량: {item.f_count}
-                    </Typography>
-
-                    {(item.options || []).map((option, index) => (
-                      <Typography
-                        key={index}
-                        variant="body2"
-                        color="text.secondary"
-                        fontSize={13}
-                      >
-                        {option.co_select}: {option.co_text}
-                        {Number(option.co_price) > 0
-                          ? ` (+${Number(option.co_price).toLocaleString()}원)`
-                          : ""}
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography fontWeight={700} fontSize={14} lineHeight={1.4}>
+                        {item.furniture?.f_name || item.f_name}
                       </Typography>
-                    ))}
+
+                      <Typography variant="body2" color="text.secondary" fontSize={13}>
+                        업체명: {item.furniture?.c_name || "-"}
+                      </Typography>
+
+                      <Typography variant="body2" color="text.secondary" fontSize={13}>
+                        수량: {item.f_count}
+                      </Typography>
+
+                      {(item.options || []).map((option, index) => (
+                        <Typography
+                          key={index}
+                          variant="body2"
+                          color="text.secondary"
+                          fontSize={13}
+                        >
+                          {option.co_select}: {option.co_text}
+                          {Number(option.co_price) > 0
+                            ? ` (+${Number(option.co_price).toLocaleString()}원)`
+                            : ""}
+                        </Typography>
+                      ))}
+
+                      <FormControl size="small" sx={{ mt: 1, minWidth: 240 }}>
+                        <Select
+                          displayEmpty
+                          value={itemCouponMap[item.c_code] || ""}
+                          onChange={(evt) =>
+                            changeItemCoupon(item.c_code, evt.target.value)
+                          }
+                          sx={{ height: 32, fontSize: 13 }}
+                        >
+                          <MenuItem value="">쿠폰 선택 안 함</MenuItem>
+
+                          {coupon.map((couponItem) => {
+                            const usedByOtherItem = Object.entries(
+                              itemCouponMap
+                            ).some(
+                              ([c_code, coupon_code]) =>
+                                c_code !== item.c_code &&
+                                coupon_code === couponItem.coupon_code
+                            );
+
+                            const cannotApplyToThisItem =
+                              !canApplyCouponToItem(couponItem, item);
+
+                            return (
+                              <MenuItem
+                                key={couponItem.coupon_code}
+                                value={couponItem.coupon_code}
+                                disabled={usedByOtherItem || cannotApplyToThisItem}
+                              >
+                                {couponItem.coupon_info} / {couponItem.discount}% 할인
+                                {usedByOtherItem ? " (다른 상품에 적용됨)" : ""}
+                                {cannotApplyToThisItem ? " (적용 불가)" : ""}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+
+                      {itemCouponDiscount > 0 && (
+                        <Typography
+                          variant="body2"
+                          color="error"
+                          fontSize={13}
+                          mt={0.5}
+                        >
+                          쿠폰 할인: -{itemCouponDiscount.toLocaleString()}원
+                        </Typography>
+                      )}
+                    </Box>
+
+                    <Typography
+                      fontWeight={700}
+                      fontSize={14}
+                      sx={{ whiteSpace: "nowrap" }}
+                    >
+                      {getItemTotal(item).toLocaleString()}원
+                    </Typography>
                   </Box>
-
-                  <Typography fontWeight={700} fontSize={14} sx={{ whiteSpace: "nowrap" }}>
-                    {getItemTotal(item).toLocaleString()}원
-                  </Typography>
-                </Box>
-              ))}
+                );
+              })}
             </Stack>
-          </Paper>
-
-          <Paper variant="outlined" sx={{ p: 1.5, mb: 1.5, borderRadius: 1 }}>
-            <Typography variant="subtitle1" fontWeight={700} mb={1}>
-              쿠폰
-            </Typography>
-
-            <Box
-              sx={{
-                "& table th, & table td": {
-                  textAlign: "left !important",
-                },
-              }}
-            >
-              <TableCheckBoxMui
-                rowData={coupon}
-                col={["discount", "coupon_end", "coupon_max", "coupon_info"]}
-                checkedList={checkedList}
-                setCheckedList={setCheckedList}
-                rowKey="coupon_code"
-              />
-            </Box>
           </Paper>
 
           <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
@@ -620,10 +709,34 @@ const PaymentPage = () => {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle fontWeight={700}>결제 확인</DialogTitle>
+        <DialogTitle fontWeight={700}>
+          {paySuccess ? "결제 완료" : "결제 확인"}
+        </DialogTitle>
 
         <DialogContent>
           <Stack spacing={1.2}>
+            {paySuccess && (
+              <Box
+                sx={{
+                  py: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center !important",
+                }}
+              >
+                <AiFillCar size={48} color="#1976d2" />
+                <Typography
+                  variant="h6"
+                  fontWeight={800}
+                  mt={1}
+                  sx={{ textAlign: "center !important" }}
+                >
+                  결제가 완료되었습니다
+                </Typography>
+              </Box>
+            )}
+
             <Box display="flex" justifyContent="space-between">
               <Typography>상품금액</Typography>
               <Typography fontWeight={700}>
@@ -680,9 +793,9 @@ const PaymentPage = () => {
               </Typography>
             </Box>
 
-            {payMessage && (
+            {payMessage && !paySuccess && (
               <Typography
-                color={payMessage.includes("완료") ? "success.main" : "error"}
+                color="error"
                 sx={{ whiteSpace: "pre-line" }}
               >
                 {payMessage}
@@ -713,21 +826,11 @@ const PaymentPage = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={() =>
-                      navigate("/payment/success", {
-                        state: {
-                          items,
-                          productTotal,
-                          deliveryTotal,
-                          couponDiscount,
-                          usePoint: appliedPoint,
-                          payTotal: finalPayTotal,
-                        },
-                      })
-                    }
+                    onClick={() => navigate("/userpage?menu=orders")}
                   >
-                    결제 내역 확인
+                    주문 내역 보기
                   </Button>
+
                 </>
               ) : (
                 <>

@@ -470,14 +470,14 @@ const companyColumns = [
         <div>
 
             <Button
-                color='error'
+                color='primary'
                 variant='contained'
                 onClick={() => setUserType("user")}>
                 user
             </Button>
 
             <Button
-                color='error'
+                color='primary'
                 variant='contained'
                 onClick={() => setUserType("company")}>
                 company
@@ -502,10 +502,10 @@ const companyColumns = [
             {userUpdate && (
                 <>
                     <Button
-                        color="secondary"
-                        variant="outlined"
+                        color="primary"
+                        variant="contained"
                         onClick={() => setConfirmOpen(!confirmOpen)}>
-                        Save
+                        저장하기
                     </Button>
 
                     <Button
@@ -516,7 +516,7 @@ const companyColumns = [
                                 !deleteConfirmOpen
                             )
                         }>
-                        Delete
+                        삭제하기
                     </Button>
 
                     {deleteConfirmOpen && (
@@ -527,21 +527,21 @@ const companyColumns = [
                                     !deleteConfirmOpen
                                 )
                             }
-                            title="Data delete?"
-                            text="Are you sure? Once deleted, this data cannot be recovered."
+                            title="Delete User"
+                            text="사용자를 삭제하시겠습니까?"
                             buttons={dialogDeleteConfirmButtonList}
                         />
                     )}
 
                     <Button
-                        color='error'
-                        variant='contained'
+                        color='inherit'
+                        variant='outlined'
                         onClick={() =>
                             setRestoreConfirmOpen(
                                 !restoreConfirmOpen
                             )
                         }>
-                        restore
+                        복구하기
                     </Button>
 
                     {restoreConfirmOpen && (
@@ -552,8 +552,8 @@ const companyColumns = [
                                     !restoreConfirmOpen
                                 )
                             }
-                            title="Restore user?"
-                            text="Do you want to restore selected users?"
+                            title="Restore User"
+                            text="선택된 사용자를 복구하시겠습니까?"
                             buttons={dialogRestoreConfirmButtonList}
                         />
                     )}
@@ -564,8 +564,8 @@ const companyColumns = [
         onClose={() =>
             setConfirmOpen(!confirmOpen)
         }
-        title="Update user?"
-        text="Do you want to save changes?"
+        title="Update User"
+        text="사용자 정보를 수정하시겠습니까?"
         buttons={dialogConfirmButtonList}
     />
 )}

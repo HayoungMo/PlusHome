@@ -96,12 +96,12 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         localStorage.removeItem("id");
-        
+
         setLoginUser(null);
         setLoginInfo(null);
 
         navigate("/login")
-        
+
     }
 
     return (

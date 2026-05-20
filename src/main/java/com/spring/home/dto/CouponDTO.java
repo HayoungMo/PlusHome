@@ -2,6 +2,7 @@ package com.spring.home.dto;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -24,4 +25,7 @@ public class CouponDTO {
 	
 	private String coupon_type;
 	private String coupon_catagory;
+	
+	//26년5월 20일 안예린 추가함
+	private List<String> userIds;
 }

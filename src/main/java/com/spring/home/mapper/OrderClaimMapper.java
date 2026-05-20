@@ -32,4 +32,7 @@ public interface OrderClaimMapper {
 		    @Param("claim_code") String claim_code,
 		    @Param("claim_type") int claim_type
 		) throws Exception;
+
+	public OrderClaimDTO getByClaimCode(String claim_code) throws Exception;
+	
 }

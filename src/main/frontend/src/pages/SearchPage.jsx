@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
@@ -66,7 +66,31 @@ const SearchPage = () => {
     //페이징 처리
     //const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 9; //한페이지에 9개씩
-    const previewCount = 3;
+    //전체 탭에서 한 번에 보여줄 카드 수
+    const carouselPageSize = 5; 
+
+    const [carouselIndex, setCarouselIndex] = useState({
+        furniture: 0,
+        interior: 0,
+        freeBoard: 0,
+    });
+
+    const moveCarousel = (sectionKey, listLength, direction) => {
+        setCarouselIndex((prev) => {
+            const currentIndex = prev[sectionKey] || 0;
+
+            const nextIndex = 
+                direction === "next"
+                    ? currentIndex + carouselPageSize
+                    : currentIndex - carouselPageSize;
+            const maxIndex = Math.max(0, listLength - carouselPageSize);
+
+            return {
+                ...prev,
+                [sectionKey]: Math.min(Math.max(nextIndex, 0), maxIndex),
+            };
+        });
+    };
 
     const onClickTab = (nextType) => {
         setSearchParams({
@@ -125,6 +149,14 @@ const SearchPage = () => {
         getSearchResult();
     }, [keyword, type, category, priceRange, discount, freeDelivery,interiorRegion]);
 
+    //검색 조건 바뀔 때 캐러셀 초기화 추가
+    useEffect(() => {
+        setCarouselIndex({
+            furniture: 0,
+            interior: 0,
+            freeBoard: 0,
+        });
+    },[keyword, type, category, priceRange, discount, freeDelivery, interiorRegion]);
 
     const priceOptions = [
         { value: "", title: "전체 가격" },
@@ -527,12 +559,28 @@ const SearchPage = () => {
         setSearchParams(params);
     };
 
+    //검색시 카드에 적힌 정보와 쇼핑리스트와 같아보이게 
+    const renderFurnitureItem = (item) => {
+        const productDeliveryPrice = Number(
+            item.f_deliveryPrice ?? item.f_deliveryPrice ?? 0
+        );
 
-    const renderFurnitureItem = (item) => (
+        const deliveryPrice =
+            Number(item.f_dprice || 0) >= 50000
+                ? 0
+                : productDeliveryPrice;
+        
+        const discountRate = Number(item.f_discount || 0);
+        const hasDiscount = Number(item.f_price || 0) > Number(item.f_dprice || 0);
+    
+    return(
         <Card
             key={item.f_code}
             variant="outlined"
-            sx={{ height: "100%" }}
+            sx={{ 
+                width: 180,
+                height: "100%" 
+            }}
         >
             <CardActionArea
                 component={Link}
@@ -541,44 +589,63 @@ const SearchPage = () => {
             >
                 <CardMedia
                     component="img"
-                    height="160"
+                    height="110"
                     image={item.thumbnail || "/no-image.png"}
                     alt={item.f_name}
                     sx={{ objectFit: "cover" }}
                 />
 
-                <CardContent>
-                    <p style={{ margin: "0 0 6px", color: "#666", fontSize: "13px" }}>
-                        {item.c_name}
+                <CardContent sx={{ p: 1}}>
+                    <p style={{ margin: "0 0 6px", color: "#666", fontSize: "12px" }}>
+                        {item.c_name || "업체"}
                     </p>
 
-                    <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                    <h3 style={{ margin: "0 0 6px", fontSize: "14px" }}>
                         {item.f_name}
                     </h3>
 
-                    <p style={{ margin: "0 0 8px" }}>
-                        카테고리: {item.f_catagory1}
-                    </p>
 
-                    <strong>
-                        {Number(item.f_price || 0).toLocaleString()}원
-                    </strong>
+                    {hasDiscount && (
+                        <p  
+                            style={{
+                                margin: "0 0 2px",
+                                fontSize: "15px",
+                                color: "#aaa",
+                                textDecoration: "line-through",
+                            }}
+                        >
+                            {Number(item.f_price || 0).toLocaleString()}원
+                        </p>
+                    )}
+
+                    <div style={{ display: "flex", gap: "4px", alignItems: "baseline"}}>
+                        
+                        <strong>
+                            {Number(item.f_dprice || 0).toLocaleString()}원
+                        </strong>
+                    </div>
 
                     <Stack direction="row" spacing={1} mt={1}>
-                        {Number(item.f_discount || 0) > 0 && (
-                            <Chip
-                                size="small"
-                                color="error"
-                                label={`할인 ${item.f_discount}%`}
-                            />
-                        )}
-
-                        {Number(item.f_deliveryprice || 0) === 0 && (
+                        {deliveryPrice === 0 ? (
                             <Chip
                                 size="small"
                                 color="primary"
                                 variant="outlined"
                                 label="무료배송"
+                            />
+                        ) : (
+                            <Chip
+                                size="small"
+                                variant="outlined"
+                                label={`배송비 ${deliveryPrice.toLocaleString()}원`}
+                            />
+                        )}
+
+                        {discountRate > 0 && (
+                            <Chip
+                                size="small"
+                                color="error"
+                                label={`할인 ${discountRate}%`}
                             />
                         )}
                     </Stack>
@@ -586,6 +653,7 @@ const SearchPage = () => {
             </CardActionArea>
         </Card>
     );
+};
     const renderInteriorItem = (item) => (
         <Link 
             to="/interior/article"
@@ -613,26 +681,93 @@ const SearchPage = () => {
         </Link>
     );
 
-    const SearchSection = ({title, list, renderItem}) => (
-        <section>
-            <h3>{title}</h3>
+    const SearchSection = ({sectionKey, title, list, renderItem}) => {
+        const startIndex = carouselIndex[sectionKey] || 0;
+        const visibleList = list.slice(startIndex, startIndex + carouselPageSize);
 
-            {list.length > 0 ? (
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColums: "repeat(3, minmax(0,1fr))",
-                        gap: "16px",
-                    }}
-                >
-                    {list.slice(0,previewCount).map(renderItem)}
-                </div>
-            ) : (
-                <p>검색 결과가 없습니다.</p>
-            )}
-        </section>
-    )
+        const isFirst = startIndex === 0;
+        const isLast = startIndex + carouselPageSize >= list.length;
+        
+        return(
+            <section>
+                <h3>{title}</h3>
 
+                {list.length > 0 ? (
+                    <div
+                        style={{
+                            position: "relative",
+                            width: "fit-content",
+                            maxWidth: "100%",
+                            margin: "0 auto",
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${carouselPageSize}, 180px)`,
+                                gap: "16px",
+                            }}
+                        >
+                            {visibleList.map(renderItem)}
+                        </div>
+
+                        {!isFirst && (
+                            <Button
+                                type="button"
+                                variant="contained"
+                                onClick={() => moveCarousel(sectionKey, list.length, "prev")}
+                                sx={{
+                                    position: "absolute",
+                                    left: "-22px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    minWidth: "44px",
+                                    width: "44px",
+                                    height: "44px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#fff",
+                                    color: "#333",
+                                    boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
+                                    "&:hover": {
+                                        backgroundColor: "#f5f5f5",
+                                    },
+                                }}
+                            >
+                                {"<"}
+                            </Button>
+                        )}
+                        {!isLast && (
+                            <Button
+                                type="button"
+                                variant="contained"
+                                onClick={() => moveCarousel(sectionKey, list.length, "next")}
+                                sx={{
+                                    position: "absolute",
+                                    right: "-22px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    minWidth: "44px",
+                                    width: "44px",
+                                    height: "44px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#fff",
+                                    color: "#333",
+                                    boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
+                                    "&:hover": {
+                                        backgroundColor: "#f5f5f5",
+                                    },
+                                }}
+                            >
+                                {">"}
+                            </Button>
+                        )}
+                    </div>
+                ) : (
+                    <p>검색 결과가 없습니다.</p>
+                )}
+            </section>
+        );
+    };
     return (
         <div>
             {/* 상단 검색창 + 탭*/}
@@ -646,7 +781,7 @@ const SearchPage = () => {
                         value={inputKeyword}
                         onChange={(evt) => setInputKeyword(evt.target.value)}
                     />
-                    <Button variant="contained" color="success">검색</Button>
+                    <Button type="submit" variant="success" color="success">검색</Button>
                 </form>
 
                 {/* 검색 카테고리 탭 */}
@@ -774,17 +909,20 @@ const SearchPage = () => {
                 {!loading && !isEmptyKeywordCategory && type === "all" && (
                     <>
                         <SearchSection
-                            title={keyword ? `'${keyword}'이 포함된 쇼핑 결과` : "쇼핑 결과 가나다 순"}
+                            sectionKey="furniture"
+                            title={keyword ? `'${keyword}'이 포함된 쇼핑 결과` : "쇼핑 결과 '가나다' 순"}
                             list={results.furniture}
                             renderItem={renderFurnitureItem}
                         />
                         <SearchSection
-                            title={keyword ? `'${keyword}'이 포함된 인테리어 결과` : "인테리어 결과 가나다 순"}
+                            sectionKey="interior"
+                            title={keyword ? `'${keyword}'이 포함된 인테리어 결과` : "인테리어 결과 '가나다' 순"}
                             list={results.interior}
                             renderItem={renderInteriorItem}
                         />
                         <SearchSection
-                            title={keyword ? `'${keyword}'이 포함된 자유게시판 결과` : "자유게시판 결과 가나다 순"}
+                            sectionKey="freeBoard"
+                            title={keyword ? `'${keyword}'이 포함된 자유게시판 결과` : "자유게시판 결과 '가나다' 순"}
                             list={results.freeBoard}
                             renderItem={renderFreeBoardItem}
                         />
@@ -798,7 +936,8 @@ const SearchPage = () => {
                             <div
                                 style={{
                                     display: "grid",
-                                    gridTemplateColums:"repeat(3, minmax(0, 1fr))",
+                                    gridTemplateColumns: "repeat(auto-fill, 180px)",
+                                    justifyContent: "start",
                                     gap: "16px",
                                 }}
                             >

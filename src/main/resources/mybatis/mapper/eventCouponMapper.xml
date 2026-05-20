@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.EventCouponMapper">
+
+	<insert id="insertData" parameterType="com.spring.home.dto.EventCouponDTO">
+		INSERT INTO EVENT_COUPON (COUPON_CODE, E_ID, ID)
+		VALUES (#{coupon_code}, #{e_id}, #{id})
+	</insert>
+	
+	<delete id="deleteData" parameterType="com.spring.home.dto.EventCouponDTO">
+		DELETE FROM EVENT_COUPON
+		WHERE COUPON_CODE = #{coupon_code}
+		AND E_ID = #{e_id}
+		AND ID = #{id}
+	</delete>
+	
+	<delete id="deleteByEvent" parameterType="int">
+		DELETE FROM EVENT_COUPON
+		WHERE E_ID = #{e_id}
+	</delete>
+	
+	<select id="getCouponsByEvent" parameterType="int" resultType="com.spring.home.dto.CouponDTO">
+		SELECT
+			C.COUPON_CODE,
+			C.DISCOUNT,
+			C.COUPON_END,
+			C.COUPON_MAX,
+			C.COUPON_INFO,
+			C.COUPON_USED,
+			C.ID,
+			C.COUPON_TYPE,
+			C.COUPON_CATAGORY
+		FROM COUPON C
+		JOIN EVENT_COUPON EC
+		ON C.COUPON_CODE = EC.COUPON_CODE
+		AND C.ID = EC.ID
+		WHERE EC.E_ID = #{e_id}
+		AND C.COUPON_END >= SYSDATE
+	</select>
+
+</mapper>
