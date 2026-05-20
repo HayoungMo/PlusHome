@@ -34,5 +34,10 @@ public class FurnitureDTO {
 	
 	private int f_deliveryPrice;
 	
+	// 리뷰 갯수
+	private int r_count;
+	// 구매 횟수
+	private int s_count;
+	
 	private List<ImageDTO> imageList;
 }

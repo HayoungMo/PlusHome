@@ -6,6 +6,7 @@ import "../css/Dashboard.css";
 import DashboardDevHome from "../dashboardDev/DashboardDevHome";
 import UserInfo from "../dashboardDev/UserInfo";
 import SalesList from "../dashboardDev/SalesList";
+import CouponList from "../dashboardDev/CouponList";
 
 const DashboardDevLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -38,6 +39,19 @@ const DashboardDevLayout = () => {
 				)
 
 			},
+
+			{
+				key:"couponList",
+				label:"쿠폰 발급 현황",
+				component:(
+					<CouponList/>
+
+				)
+
+			},
+
+
+
 		],
 		
 	};

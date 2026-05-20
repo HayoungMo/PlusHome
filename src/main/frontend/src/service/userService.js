@@ -98,10 +98,30 @@ const getCatagoryStatistics = async(data)=>{
 
     }
     
-   
-    
 }
 
-const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics };
+const sendCode = async(data) => {
+
+    console.log("서비스 도착했음")
+    const res = await http.post(
+        "/user/find/sendCode",
+        data
+    );
+
+    return res.data;
+}
+
+
+const checkCode = async(data) => {
+
+    const res = await http.post(
+        "/user/find/checkCode",
+        data
+    );
+
+    return res.data;
+}
+
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode };
 
 export default userService;

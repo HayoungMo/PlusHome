@@ -122,6 +122,15 @@
 	                             <when test="sort == 'viewLow'">
 		                             order by f_viewcount asc
 	                             </when>
+	                             <when test="sort == 'discountHigh'">
+	                             	order by f_discount desc, f_createddate desc
+	                             </when>
+	                             <when test="sort == 'reviewHigh'">
+	                             	order by NVL(r_count, 0) desc, f_createddate desc
+	                             </when>
+	                             <when test="sort == 'salesHigh'">
+	                             	order by NVL(s_count, 0) desc, f_createddate desc
+	                             	</when>
 	                             <otherwise>
 		                             order by f_createddate desc
 	                             </otherwise>
@@ -197,5 +206,29 @@
     SET f_count = f_count + #{count}
     WHERE f_code = #{f_code}
 </update>
-
+	<!-- 메인화면 알고리즘 추천 관련 숨김처리 -->
+	<select id="getHiddenFurnitureCodes" resultType="String">
+		select f_code
+		  from furniturehide
+		 where id = #{id}
+	</select>
+	
+	<delete id="deleteHiddenFurniture">
+		delete from furniturehide
+		 where id = #{id}
+	</delete>
+	
+	<insert id="insertHiddenFurniture">
+		insert into furniturehide
+		(
+			id,
+			f_code,
+			fh_createddate
+	    ) values 
+	    (
+	    	#{id},
+	    	#{f_code},
+	    	sysdate
+	    )
+	</insert>
 </mapper>

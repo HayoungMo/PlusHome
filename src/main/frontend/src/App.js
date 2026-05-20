@@ -133,7 +133,6 @@ function App() {
             <Route path="/interior/updated" element={<InteriorUpdateAll />} />
             <Route path="/interior/question" element={<InteriorQuestion />} />
             <Route path="/interior/review" element={<InteriorReview />} />
-            <Route path="/interior/mypage" element={<InteriorMyPage />} />
             <Route path="/interior/chart" element={<InteriorChart />} />
 
             {/* 자유게시판 */}

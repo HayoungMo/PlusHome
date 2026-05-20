@@ -17,7 +17,14 @@ const findId = async(data) =>{
     }
 }
 
-    //비밀번호 찾기
+    //비밀번호 변경을 위한 회원 조회
+    const checkUser = async(data)=>{
+        const res = await http.post("/user/check-user",data)
+    
+     return res.data
+    }
+
+    //비밀번호 변경
     const findPw = async(data) =>{
 
     try {
@@ -38,7 +45,8 @@ const findId = async(data) =>{
 //객체 묶어서 내보내기
 const findService = {
     findId,
-    findPw
+    findPw,
+    checkUser,
 };
 
 

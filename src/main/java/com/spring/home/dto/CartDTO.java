@@ -27,7 +27,8 @@ public class CartDTO {
 	private int use_point;
 	private int save_point;
 	private int coupon_discount;
-
+	
+	private String F_STATUS;
 	private String gender;
 	private String f_catagory1;
 	private String f_catagory2;
