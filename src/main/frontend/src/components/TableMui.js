@@ -42,6 +42,19 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	},
 }));
 
+/**
+ * 테이블 컴포넌트
+ * 
+ * @param {Object} props
+ * @param {Array} props.rowData 테이블 데이터
+ * @param {string[]} props.col 실제 데이터 key 목록
+ * @param {string[]} props.columns 헤더 이름
+ * @param {state} props.selectedRow Row Select 활성화 및 선택할 Row Data를 담을 State
+ * @param {state} props.setSelectedRow Row Select 활성화 및 선택할 Row Data를 Set 할 State
+ * @param {object[]} props.buttonData 버튼을 Row에 넣을 경우 버튼 Data
+ * @param {string[]} props.buttonCol 버튼 헤더 ( 반드시 버튼과 length 맞출것 )
+ * @param {string[]} props.buttonColumns 버튼 헤더 이름 ( 반드시 버튼과 length 맞출것 )
+ */
 const TableMui = (props) => {
 	const {
 		rowData = [],
