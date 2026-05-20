@@ -152,6 +152,12 @@ public class ChatGPTController {
 
     		    + "- 주택 시공 사례 수: "
     		    + data.get("house") + "\n\n"
+    		    
+	    	    + "조건:\n"
+	    	    + "- 3~4문장 이내\n"
+	    	    + "- 짧고 자연스럽게\n"
+	    	    + "- 광고 문구처럼 과장하지 말 것\n"
+	    	    + "- 핵심 특징만 설명\n"
 
     		    + "위 데이터를 기반으로\n"
     		    + "이 업체의 특징과 강점을\n"
@@ -181,9 +187,13 @@ public class ChatGPTController {
     		    + listToString(data.get("tags"))  +
 
     		    "\n\n추천 점수:"
-    		    + listToString(data.get("score"))  +
+    		    + listToString(data.get("score"))  
 
-    		    "\n\n"
+    		    + "조건:\n"
+    		    + "- 2~3문장 이내\n"
+    		    + "- 짧고 자연스럽게\n"
+    		    + "- 광고 문구처럼 과장하지 말 것\n"
+    		    + "- 핵심 특징만 설명\n"
 
     		    + "이 업체가 사용자에게 적합한 이유를 설명해주세요.";
 

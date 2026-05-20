@@ -7,9 +7,9 @@
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.CouponDTO">
 	insert into coupon
-	(coupon_code, discount, coupon_end, coupon_max, coupon_info, id)
+	(coupon_code, discount, coupon_end, coupon_max, coupon_info, id,coupon_type, coupon_catagory)
 	values 
-	( #{coupon_code}, #{discount}, #{coupon_end}, #{coupon_max}, #{coupon_info}, #{id})	            
+	( #{coupon_code}, #{discount}, #{coupon_end}, #{coupon_max}, #{coupon_info}, #{id},#{coupon_type}, #{coupon_catagory})	            
 </insert>
 
 <!-- SELECT DEV ALL -->
@@ -21,7 +21,9 @@
         coupon_max,
         coupon_info,
         coupon_used,
-        id
+        id,
+        coupon_type,
+        coupon_catagory
     FROM coupon
     WHERE id = coupon_code
     
@@ -36,6 +38,8 @@
         coupon_max,
         coupon_info,
         coupon_used,
+        coupon_type,
+        coupon_catagory,
         id
     FROM coupon
     WHERE id = #{id}
@@ -52,6 +56,8 @@
         coupon_max,
         coupon_info,
         coupon_used,
+        coupon_type,
+        coupon_catagory,
         id
     FROM coupon
     WHERE coupon_code = #{coupon_code}

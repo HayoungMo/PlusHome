@@ -122,6 +122,21 @@ public class UserController {
 		return userService.findUserId(dto);
 	}
 	
+	//비번 찾기 유저 체크
+	@PostMapping("/check-user")
+	public Map<String,Object> checkUser(@RequestBody UserDTO dto) throws Exception{
+		Map<String,Object> result = new HashMap<>();
+		
+		UserDTO user = userService.findUserPw(dto);
+		if(user==null) {
+			result.put("success", false);
+			result.put("message", "회원정보가 없습니다.");
+		}else {
+			result.put("success", true);
+		}
+		return result;
+	}
+	
 	
 	//비밀번호 수정
 	@PostMapping("/reset-Pw")
@@ -212,5 +227,55 @@ public class UserController {
 	public void deleteData(@RequestParam String id) throws Exception {
 		userService.deleteData(id);
 	}
+	
+	
+	//아이디찾기 코드	
+	@PostMapping("/find/sendCode")
+	public Map<String, Object> sendCode(@RequestBody UserDTO dto){
+		Map<String, Object> result = new HashMap<>();
+		
+		String code = userService.createCode();
+		
+		userService.saveCode(dto.getEmail(), code);
+		
+		System.out.println("============");
+		System.out.println("인증번호 : " + code);
+		System.out.println("============");
+		
+		result.put("success", true);
+		
+		return result;
+	}
+	
+	//인증 확인
+	@PostMapping("/find/checkCode")
+	public Map<String, Object> checkCode(
+	        @RequestBody UserDTO dto) {
+
+	    Map<String, Object> result = new HashMap<>();
+
+
+	    boolean check = userService.checkCode(
+	            dto.getEmail(),
+	            dto.getCode()
+	    );
+
+	    result.put("success", check);
+
+	    return result;
+	}
+	
+	
+	
+	
 
 }
+
+
+
+
+
+
+
+
+

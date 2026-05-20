@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginService from '../service/loginService';
-import { TextField } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 //
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
@@ -106,9 +106,9 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
     return (
         <div>
-            <h3>로그인
+            <h2>로그인
                 <span>Login</span>
-            </h3>
+            </h2>
         <form
             onSubmit={(e) => {e.preventDefault(); //새로고침 방지
                 onLogin();
@@ -122,6 +122,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 value={form.id}
                 onChange={onText}
             />
+            <br/><br/>
             {idFormatMsg && <div style={{ color: 'red' }}>{idFormatMsg}</div>}
 
            
@@ -132,6 +133,8 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 value={form.pw}
                 onChange={onText}
             />
+            <br/>
+            <br/>
 
             {errorMsg && <div style={{ color: 'red' }}>{errorMsg}</div>}
 
@@ -143,9 +146,9 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                     </button>
                 </>
             ):(
-                 <button type='submit' disabled={!form.id || !form.pw}>
+                 <Button color='primary' variant='contained' type='submit' disabled={!form.id || !form.pw}>
                     로그인
-                </button>
+                </Button>
             )}
 
            
@@ -161,7 +164,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                    }}>
                     회원가입
                 </a>
-                <br/>
+                <br/><br/>
 
                 <a href='/findId'>
                     아이디 찾기

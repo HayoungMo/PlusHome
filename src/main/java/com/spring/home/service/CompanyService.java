@@ -19,8 +19,8 @@ public class CompanyService {
 		companyMapper.insertData(dto);
 	}
 
-	public List<CompanyDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception {
-		return companyMapper.getLists(start, end, searchKey, searchValue);
+	public List<CompanyDTO> getLists() throws Exception {
+		return companyMapper.getLists();
 	}
 
 	public CompanyDTO getReadData(String c_id) throws Exception {

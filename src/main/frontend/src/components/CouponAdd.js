@@ -1,15 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CouponService from "../service/couponService";
 import AlertMui from "./AlertMui";
 import TextFieldMui from "./TextFieldMui";
 import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import NumberField from "./NumberFieldMui";
 import DatePickerMui from "./DatePickerMui";
+import CompanyService from "../service/companyService";
+import SelectMui from "./SelectMui";
 
 const CouponAdd = () => {
   //쿠폰 발급 페이지
   const id = localStorage.getItem("id");
-  const [form, setForm] = useState({ id: id }); 
+  const [companyList, setCompanyList] = useState();
+  const [form, setForm] = useState({ 
+    id: id,
+    coupon_type: "all",
+    coupon_catagory: "" 
+  }); 
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -18,10 +25,21 @@ const CouponAdd = () => {
   });
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const {name, value} = e.target
+
+    if(name === "coupon_type"){
+      setForm((prev) => ({
+        ...prev,
+        coupon_type: value,
+        coupon_catagory: "",
+      }))
+      return
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const makeEvent = (name, value) => ({
@@ -30,6 +48,42 @@ const CouponAdd = () => {
       value,
     },
   });
+
+  const tagOptions1 = [
+    { value: "all", title: "전부 적용" },
+    { value: "company", title: "회사별 적용" },
+    { value: "catagory", title: "카테고리별 적용" },
+  ];
+
+  const categoryOptions = [
+    { value: "bed", title: "침대" },
+    { value: "sofa", title: "소파" },
+    { value: "desk", title: "책상" },
+    { value: "chair", title: "의자" },
+    { value: "table", title: "식탁" },
+    { value: "storage", title: "수납장" },
+    { value: "light", title: "조명" },
+    { value: "mattress", title: "매트리스" },
+    { value: "dresser", title: "화장대" },
+    { value: "closet", title: "옷장" },
+    { value: "custom", title: "직접 입력" },
+  ];
+  
+  useEffect(()=>{
+    const fetchCompany = async() => {
+      const result = await CompanyService.getLists();
+
+      const optionList = result.map((item) => ({
+        value: item.c_id,
+        //value: item.c_id + "_" + item.c_name + "_" + item.c_kind,
+        title: item.c_name,
+      }));
+
+      setCompanyList(optionList);
+    }
+    fetchCompany();
+  },[])
+
   const handleSubmit = async (e) => {
     const result = await CouponService.insertCouponDev(form);
 
@@ -110,6 +164,22 @@ const CouponAdd = () => {
           label="쿠폰 정보"
           onChange={handleChange}
         />
+        <SelectMui
+          name="coupon_type"
+          label="쿠폰 타입"
+          onChange={handleChange}
+          option={tagOptions1}
+        />
+
+        {form.coupon_type !== "all" && 
+        <SelectMui 
+        name="coupon_catagory" 
+        label={form.coupon_type === "company" ? "회사 선택" : "카테고리 선택"}
+        value={form.coupon_catagory || ""}
+        onChange={handleChange}
+        option={ form.coupon_type === "company" ? companyList : categoryOptions}
+         />}
+
         <Button onClick={(e) => handleSubmit(e)}>발급</Button>
       </form>
     </div>

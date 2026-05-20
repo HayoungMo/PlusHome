@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.EventMapper">
+
+	<insert id="insertData" parameterType="com.spring.home.dto.EventDTO"> 
+	INSERT INTO EVENT ( E_ID, E_TITLE,  E_CONTENT, E_LONG, E_CREATEDDATE ) 
+	VALUES ( #{e_id}, #{e_title}, #{e_content}, #{e_long}, SYSDATE ) 
+	</insert>
+
+	<!-- SELECT ALL -->
+	<select id="getlistData" resultType="com.spring.home.dto.EventDTO"> 
+	SELECT E_ID, E_TITLE, E_INDEX, E_CONTENT, E_LONG, E_CREATEDDATE FROM EVENT 
+	ORDER BY TO_NUMBER(E_INDEX) ASC 
+	</select>
+	
+	<select id="getReadData" parameterType="hashMap" resultType="com.spring.home.dto.EventDTO"> 
+	SELECT E_ID, E_TITLE, E_INDEX, E_CONTENT, E_LONG, E_CREATEDDATE 
+	FROM EVENT 
+	WHERE E_ID = #{e_id}
+	 </select>
+	 
+	<!-- UPDATE -->
+	<update id="updateData" parameterType="com.spring.home.dto.EventDTO"> 
+	UPDATE EVENT SET E_TITLE = #{e_title}, E_INDEX = #{e_index}, E_CONTENT = #{e_content}, E_LONG = #{e_long} 
+	WHERE E_ID = #{e_id} 
+	</update>
+	
+	<!-- DELETE -->
+	<delete id="deleteData" parameterType="hashMap"> 
+	DELETE FROM EVENT WHERE E_ID = #{e_id} 
+	</delete>
+
+</mapper>
