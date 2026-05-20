@@ -518,6 +518,7 @@ const CartPage = () => {
     navigate("/payment", {
       state: {
         items: selectedItems,
+        itemCount: selectedItemCount,
         productTotal: selectedProductTotal,
         deliveryTotal: selectedDeliveryTotal,
         payTotal: selectedPayTotal,

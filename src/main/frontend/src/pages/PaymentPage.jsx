@@ -35,6 +35,7 @@ const PaymentPage = () => {
 
   const {
     items = [],
+    itemCount = 0,
     productTotal = 0,
     deliveryTotal = 0,
     payTotal = 0,
@@ -514,7 +515,7 @@ const PaymentPage = () => {
           }}
         >
           <Typography fontWeight={700} mb={2}>
-            총 금액 ({items.length}개)
+            총 금액 ({itemCount}개)
           </Typography>
 
           <Stack spacing={1}>
@@ -608,7 +609,7 @@ const PaymentPage = () => {
             sx={{ mt: 2, textAlign: "center" }}
             onClick={onPayClick}
           >
-            {items.length}개 상품 결제하기
+            {itemCount}개 상품 결제하기
           </Button>
         </Paper>
       </Box>
