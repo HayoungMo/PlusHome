@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const EventPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
-  const [canUpdate, setCanUpdate] = useState(false);
+  const [canUpdate, setCanUpdate] = useState(true);
 
   const [tab, setTab] = useState(0);
 
