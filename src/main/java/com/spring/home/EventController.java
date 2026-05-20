@@ -39,7 +39,7 @@ public class EventController {
 	}
 	
 	@PostMapping("/getdata")
-	public List<EventDTO> getReadData(@RequestBody EventDTO dto) throws Exception{
+	public EventDTO getReadData(@RequestBody EventDTO dto) throws Exception{
 		return eventService.getReadData(dto);
 	}
 	
