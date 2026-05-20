@@ -5,25 +5,25 @@
 <mapper namespace="com.spring.home.mapper.EventMapper">
 
 	<insert id="insertData" parameterType="com.spring.home.dto.EventDTO"> 
-	INSERT INTO EVENT ( E_ID, E_TITLE,  E_CONTENT, E_LONG, E_CREATEDDATE ) 
-	VALUES ( #{e_id}, #{e_title}, #{e_content}, #{e_long}, SYSDATE ) 
+	INSERT INTO EVENT ( E_ID, E_TITLE,  E_CONTENT, E_LONG, E_CREATEDDATE, E_TYPE ) 
+	VALUES ( #{e_id}, #{e_title}, #{e_content}, #{e_long, jdbcType=DATE}, SYSDATE, #{e_type} ) 
 	</insert>
 
 	<!-- SELECT ALL -->
 	<select id="getlistData" resultType="com.spring.home.dto.EventDTO"> 
-	SELECT E_ID, E_TITLE, E_INDEX, E_CONTENT, E_LONG, E_CREATEDDATE FROM EVENT 
+	SELECT * FROM EVENT 
 	ORDER BY TO_NUMBER(E_INDEX) ASC 
 	</select>
 	
 	<select id="getReadData" parameterType="hashMap" resultType="com.spring.home.dto.EventDTO"> 
-	SELECT E_ID, E_TITLE, E_INDEX, E_CONTENT, E_LONG, E_CREATEDDATE 
+	SELECT *
 	FROM EVENT 
 	WHERE E_ID = #{e_id}
 	 </select>
 	 
 	<!-- UPDATE -->
 	<update id="updateData" parameterType="com.spring.home.dto.EventDTO"> 
-	UPDATE EVENT SET E_TITLE = #{e_title}, E_INDEX = #{e_index}, E_CONTENT = #{e_content}, E_LONG = #{e_long} 
+	UPDATE EVENT SET E_TITLE = #{e_title}, E_INDEX = #{e_index}, E_CONTENT = #{e_content}, E_LONG = #{e_long}, E_TYPE=#{e_type} 
 	WHERE E_ID = #{e_id} 
 	</update>
 	

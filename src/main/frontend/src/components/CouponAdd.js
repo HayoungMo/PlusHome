@@ -8,7 +8,7 @@ import DatePickerMui from "./DatePickerMui";
 import CompanyService from "../service/companyService";
 import SelectMui from "./SelectMui";
 
-const CouponAdd = () => {
+const CouponAdd = ({onCreated}) => {
   //쿠폰 발급 페이지
   const id = localStorage.getItem("id");
   const [companyList, setCompanyList] = useState();
@@ -94,6 +94,9 @@ const CouponAdd = () => {
         title: "등록 성공",
         text: "등록되었습니다.",
       });
+      if(onCreated){
+        onCreated(result.data);
+      }
     } else {
       setAlert({
         open: true,
@@ -167,6 +170,7 @@ const CouponAdd = () => {
         <SelectMui
           name="coupon_type"
           label="쿠폰 타입"
+          value={form.coupon_type}
           onChange={handleChange}
           option={tagOptions1}
         />

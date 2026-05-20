@@ -1,12 +1,13 @@
-import http, { fileHttp } from "../http-common";
+import http from "../http-common";
 
 const insertEvent = async (data) => {
   try {
-    const res = await http.post("/event/insert", {
+    await http.post("/event/insert", {
       e_id: data.e_id,
       e_title: data.e_title,
       e_content: data.e_content,
-      e_long: data.e_long,
+      e_long: data.e_long || null,
+      e_type: data.e_type,
     });
 
     return {
@@ -24,7 +25,7 @@ const selectEventList = async () => {
   try {
     const res = await http.get("/event/getlist");
 
-    return res.data
+    return res.data;
   } catch (err) {
     console.error(err);
     return {
@@ -39,7 +40,7 @@ const selectEvent = async (e_id) => {
       e_id: e_id,
     });
 
-    return res.data 
+    return res.data;
   } catch (err) {
     console.error(err);
     return {
@@ -56,6 +57,7 @@ const updateEvent = async (data) => {
       e_title: data.e_title,
       e_content: data.e_content,
       e_long: data.e_long,
+      e_type: data.e_type,
     });
     return {
       success: true,
@@ -83,12 +85,45 @@ const deleteEvent = async (e_id) => {
   }
 };
 
+const insertEventCoupon = async (data) => {
+  try {
+    await http.post("/eventCoupon/insert", data);
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { success: false };
+  }
+};
+
+const deleteEventCoupon = async (data) => {
+  try {
+    await http.post("/eventCoupon/delete", data);
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { success: false };
+  }
+};
+
+const selectCouponsByEvent = async (e_id) => {
+  try {
+    const res = await http.get(`/eventCoupon/event/${e_id}`);
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    return { success: false };
+  }
+};
+
 const EventService = {
   insertEvent,
   selectEventList,
   selectEvent,
   updateEvent,
   deleteEvent,
+  insertEventCoupon,
+  deleteEventCoupon,
+  selectCouponsByEvent,
 };
 
 export default EventService;

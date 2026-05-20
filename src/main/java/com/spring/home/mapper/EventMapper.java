@@ -12,7 +12,7 @@ public interface EventMapper {
 
 	public List<EventDTO> getlistData() throws Exception;
 	
-	public List<EventDTO> getReadData(EventDTO dto) throws Exception;
+	public EventDTO getReadData(EventDTO dto) throws Exception;
 	
 	public void updateData(EventDTO dto) throws Exception;
 

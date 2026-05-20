@@ -5,12 +5,19 @@ import DatePickerMui from "./DatePickerMui";
 import TextFieldMui from "./TextFieldMui";
 import ImageService from "../service/imageService";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import SelectMui from "./SelectMui";
+import CouponAdd from "./CouponAdd";
+import CouponService from "../service/couponService";
+import TableCheckBoxMui from "./TableCheckBoxMui";
 
 const EventCreated = () => {
-    const randomNum = Math.floor(100000 + Math.random() * 900000);
+  const randomNum = Math.floor(100000 + Math.random() * 900000);
   const [sendList, setSendList] = useState([]);
-  const [form, setForm] = useState({e_id : randomNum});
+  const [form, setForm] = useState({ e_id: randomNum });
   const [preview, setPreview] = useState([]);
+  const [couponList, setCouponList] = useState([]);
+  const [selectedCouponCodes, setSelectedCouponCodes] = useState([]);
+
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -18,12 +25,50 @@ const EventCreated = () => {
     text: "",
   });
 
+  const option = [
+    { value: "notice", title: "공지사항" },
+    { value: "event", title: "이벤트" },
+  ];
+
+  const isAvailableCoupon = (coupon) => {
+    if (!coupon?.coupon_end) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return new Date(coupon.coupon_end) >= today;
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
+
+      ...(name === "e_type" &&
+        value !== "event" && {
+          e_long: null, // 또는 dayjs().format("YYYY-MM-DD")
+        }),
     });
+  };
+
+  useEffect(() => {
+    const fetchCoupon = async () => {
+      const result = await CouponService.selectCouponDev();
+      if (!result.success) {
+        return;
+      }
+      setCouponList((result.data || []).filter(isAvailableCoupon));
+    };
+    fetchCoupon();
+  }, []);
+
+  const handleCouponCreated = (newCoupon) => {
+    if (!isAvailableCoupon(newCoupon)) return;
+
+    setCouponList((prev) => [newCoupon, ...prev]);
+    setSelectedCouponCodes((prev)=>[...prev, newCoupon.coupon_code])
   };
 
   const makeEvent = (name, value) => ({
@@ -76,24 +121,45 @@ const EventCreated = () => {
   };
 
   const handleSubmit = async (e) => {
-    const result = await EventService.insertEvent(form);    
-    if (result.success) {
-      setAlert({
-        open: true,
-        severity: "success",
-        title: "등록 성공",
-        text: "등록되었습니다.",
-      });
-      onClickInsert();
-    } else {
+    e.preventDefault();
+
+    const result = await EventService.insertEvent(form);
+
+    if (!result.success) {
       setAlert({
         open: true,
         severity: "error",
         title: `에러${result.status || ""}`,
         text: result.message || "등록 실패",
       });
+      return;
     }
+
+    const selectedCouponObjects = couponList.filter((coupon) =>
+      selectedCouponCodes.includes(coupon.coupon_code),
+    );
+
+    await Promise.all(
+      selectedCouponObjects.map((coupon) =>
+        EventService.insertEventCoupon({
+          e_id: form.e_id,
+          coupon_code: coupon.coupon_code,
+          id: coupon.id,
+        }),
+      ),
+    );
+
+    await onClickInsert();
+
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "등록 성공",
+      text: "등록되었습니다.",
+    });
+
   };
+
   return (
     <div>
       <Snackbar
@@ -127,25 +193,32 @@ const EventCreated = () => {
         </Alert>
       </Snackbar>
       <form name="event">
+        <SelectMui
+          name="e_type"
+          label="이벤트/공지사항"
+          option={option}
+          onChange={handleChange}
+        />
         <TextFieldMui
           name="e_title"
           label="이벤트 제목"
           onChange={handleChange}
         />
-        <DatePickerMui
-          name="e_long"
-          label="이벤트 기간"
-          value={form.e_long}
-          onChange={(value) =>
-            handleChange(makeEvent("e_long", value.format("YYYY-MM-DD")))
-          }
-        />
+        {form.e_type === "event" && (
+          <DatePickerMui
+            name="e_long"
+            label="이벤트 기간"
+            value={form.e_long}
+            onChange={(value) =>
+              handleChange(makeEvent("e_long", value.format("YYYY-MM-DD")))
+            }
+          />
+        )}
         <TextFieldMui
           name="e_content"
           label="이벤트 정보"
           onChange={handleChange}
         />
-
         <Button onClick={(e) => handleSubmit(e)}>게시</Button>
       </form>
       {form.e_title && (
@@ -192,6 +265,21 @@ const EventCreated = () => {
           </Button>
         </form>
       )}
+      <CouponAdd onCreated={handleCouponCreated} />
+
+      <TableCheckBoxMui
+        rowData={couponList}
+        col={[
+          "coupon_code",
+          "discount",
+          "coupon_end",
+          "coupon_max",
+          "coupon_info",
+        ]}
+        checkedList={selectedCouponCodes}
+        setCheckedList={setSelectedCouponCodes}
+        rowKey="coupon_code"
+      />
       {preview &&
         preview.map((item) => (
           <img

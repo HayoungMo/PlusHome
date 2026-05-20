@@ -1,8 +1,8 @@
-import http, { fileHttp } from "../http-common";
+import http from "../http-common";
 
 const insertCoupon = async (data) => {
   try {
-    const res = await http.post("/coupon/insert", {
+    await http.post("/coupon/insert", {
       coupon_code: data.coupon_code,
       discount: data.discount,
       coupon_end: data.coupon_end,
@@ -13,7 +13,7 @@ const insertCoupon = async (data) => {
       coupon_catagory: data.coupon_catagory || "",
     });
 
-    return {
+    return {      
       success: true,
     };
   } catch (err) {
@@ -36,6 +36,7 @@ const insertCouponDev = async (data) => {
     });
 
     return {
+      data: res.data,
       success: true,
     };
   } catch (err) {
@@ -52,7 +53,7 @@ const checkCouponDuplicate = async (data) => {
       coupon_code: data.coupon_code,
       id: data.id,
     });
-    if (res >= 1)
+    if (res.data >= 1)
       return {
         success: false,
       };

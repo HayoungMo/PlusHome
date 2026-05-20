@@ -20,5 +20,7 @@ public class EventDTO {
 	private Date e_createddate;
 	
 	private int e_id;
+	
+	private String e_type;
 
 }
