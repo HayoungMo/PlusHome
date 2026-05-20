@@ -25,8 +25,14 @@
 		            <when test='kind == "U_PROFILE"'>
 		                AND      dir_d = #{d}
 		            </when>
-		            <when test='kind == "LOGO" or kind == "I_EX" or kind == "C_PROFILE"'>
+		            <when test='kind == "LOGO" or kind == "C_PROFILE"'>
 		                AND      dir_a = #{a}
+		                AND      dir_b = #{b}
+		                AND      dir_c = #{c}
+		                AND      dir_d = #{d}
+		            </when>
+		            <when test='kind == "I_EXAMPLE"'>
+		            	AND      dir_a = #{a}
 		                AND      dir_b = #{b}
 		                AND      dir_c = #{c}
 		                AND      dir_d = #{d}
@@ -80,12 +86,20 @@
 						AND DIR_D = #{d}
 					</when>
 					<when
-						test='kind == "LOGO" or kind == "I_EX" or kind == "C_PROFILE"'>
+						test='kind == "LOGO" or kind == "C_PROFILE"'>
 						AND DIR_A = #{a} 
 						AND DIR_B = #{b} 
 						AND DIR_C = #{c} 
 						AND DIR_D = #{d}
 					</when>
+					<when test='kind == "I_EXAMPLE"'>
+	            		AND      dir_a = #{a}
+	                	AND      dir_b = #{b}
+						<if test='tag != "MODEL" and d != "LOGO"'>
+			                AND      dir_c = #{c}
+						</if>
+		                AND      dir_d = #{d}							
+		            </when>
 					<when test='kind == "FURNITURE"'>
 						AND DIR_A = #{a}
 					</when>
@@ -102,7 +116,7 @@
 					AND img_idx = #{idx}
 				</if>
 				<if test="tag != null and tag != ''">
-					AND TAG LIKE '%' || #{tag} || '%'
+					AND IMG_TAG LIKE '%' || #{tag} || '%'
 				</if>
 				AND img_kind = #{kind}
 			</if>

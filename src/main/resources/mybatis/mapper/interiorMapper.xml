@@ -196,7 +196,8 @@
 		c_name,
 		ie_content,
 		ie_tag,
-		ie_tag2
+		ie_tag2,
+		ie_index
 		FROM i_example
 		<where>
 			<if test="c_id != null and c_id != ''">
@@ -510,8 +511,7 @@
 		c.c_boss,
 		c.c_info
 
-		FROM i_example
-		ie
+		FROM i_example ie
 		JOIN company c
 		ON ie.c_id = c.c_id
 		AND ie.c_kind = c.c_kind

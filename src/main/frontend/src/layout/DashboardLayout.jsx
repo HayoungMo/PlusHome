@@ -17,6 +17,9 @@ import EmptyCompanyGuide from "../dasboardPages/EmptyCompanyGuide";
 
 import "../css/Dashboard.css";
 import { useNavigate } from "react-router-dom";
+import ShoppingMallCouponControl from "../dasboardPages/ShoppingMallCouponControl";
+import InteriorExampleControl from "../dasboardPages/InteriorExampleControl";
+import InteriorConstructionControl from "../dasboardPages/InteriorConstructionControl";
 
 const DashboardLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -47,10 +50,10 @@ const DashboardLayout = () => {
 		// navigate("/login");
 	}
 
-	const interior = companyList.filter((data) => data.c_kind === "interior");
+	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
 	const hasInterior = interior.length > 0;
 
-	const shoppingMall = companyList.filter((data) => data.c_kind === "shop");
+	const shoppingMall = companyList.filter((data) => data.c_kind === "shop") ?? [];
 	const hasShoppingMall = shoppingMall.length > 0;
 
 	const menuMap = {
@@ -82,6 +85,11 @@ const DashboardLayout = () => {
 						component: <ShoppingMallQuestionControl />,
 					},
 					{
+						key: "coupon",
+						label: "쿠폰 관리",
+						component: <ShoppingMallCouponControl />,
+					},
+					{
 						key: "mallDashboard",
 						label: "쇼핑몰 통계",
 						component: <ShoppingMallDashboard />,
@@ -92,6 +100,8 @@ const DashboardLayout = () => {
 			? [
 					{ key: "interiorInfo", label: "정보 관리", component: <InteriorInfo /> },
 					{ key: "consult", label: "상담 관리", component: <InteriorBookingControl /> },
+					{ key: "example", label: "게시물 관리", component: <InteriorExampleControl /> },
+					{ key: "construction", label: "시공 관리", component: <InteriorConstructionControl /> },
 					{ key: "schedule", label: "일정 관리", component: <InteriorScheduleControl /> },
 					{ key: "review", label: "리뷰 관리", component: <InteriorReviewControl /> },
 					{
