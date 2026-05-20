@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.CouponDTO;
 import com.spring.home.dto.FileSaveResult;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.ImageDTO;
@@ -22,6 +23,7 @@ import com.spring.home.dto.ResponseIdDTO;
 import com.spring.home.dto.ResponsePwDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.mapper.CompanyMapper;
+import com.spring.home.mapper.CouponMapper;
 import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.UserMapper;
 import com.spring.home.util.FileUtilMethod;
@@ -43,6 +45,9 @@ public class UserService {
 	
 	@Autowired
 	private FurnitureMapper furnitureMapper;
+	
+	@Autowired
+	private CouponMapper couponMapper;
 	
 	@Transactional
 	public void insertUser(UserDTO dto) throws Exception{
@@ -355,6 +360,14 @@ public class UserService {
 		return savedCode.equals(inputCode);
 				
 		
+	}
+	
+	//유저 쿠폰 발급 
+	public void insertCouponUser(CouponDTO dto) throws Exception {
+		for(String userId : dto.getUserIds()) {
+			dto.setId(userId);
+			couponMapper.insertData(dto);
+		}
 	}
 	
 	
