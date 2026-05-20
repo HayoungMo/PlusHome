@@ -1,4 +1,6 @@
-
+/**
+ 
+ */
 export const ADMIN_TYPE = "admin";
 
 

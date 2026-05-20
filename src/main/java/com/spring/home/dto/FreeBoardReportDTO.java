@@ -4,8 +4,8 @@ import lombok.Data;
 
 /**
  * 자유게시판 신고 단건 DTO
- *  - targetType: "post"    → freeboard_report (targetId = boardId)
- *  - targetType: "comment" → freeboard_comment_report (targetId = commentId)
+ * - targetType: "post"    -> freeboard_report (targetId = boardId)
+ * - targetType: "comment" -> freeboard_comment_report (targetId = commentId)
  *
  * Mapper 에서는 둘 다 같은 구조로 사용 (테이블만 분기)
  */

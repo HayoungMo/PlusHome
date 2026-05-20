@@ -15,6 +15,8 @@ const FreeBoardListPage = () => {
         searchKey: "title",
         searchValue: "",
         category: "",
+        startDate: "",
+        endDate: "",
     });
 
     const [deleteDialog, setDeleteDialog] = useState(false);
@@ -46,14 +48,22 @@ const FreeBoardListPage = () => {
         fetchPosts();
     }, [fetchPosts]);
 
-    const handleSearch = (inputValue) => {
-        setParams((prev) => ({ ...prev, pageNum: 1, searchValue: inputValue }));
+    /* 텍스트 검색 (검색어 + 검색키) */
+    const handleSearch = ({ value, key }) => {
+        setParams((prev) => ({ ...prev, pageNum: 1, searchValue: value, searchKey: key }));
     };
+
     const handlePageChange = (newPage) => {
         setParams((prev) => ({ ...prev, pageNum: newPage }));
     };
+
     const handleCategoryChange = (category) => {
         setParams((prev) => ({ ...prev, pageNum: 1, category, searchValue: "" }));
+    };
+
+    /* 날짜 범위 검색 */
+    const handleDateSearch = ({ startDate, endDate }) => {
+        setParams((prev) => ({ ...prev, pageNum: 1, startDate, endDate }));
     };
 
     // 다중삭제 요청 → 다이얼로그
@@ -94,6 +104,7 @@ const FreeBoardListPage = () => {
                 onSearch={handleSearch}
                 onPageChange={handlePageChange}
                 onCategoryChange={handleCategoryChange}
+                onDateSearch={handleDateSearch}
                 onDelete={handleMultiDelete}
                 onRefresh={fetchPosts}
             />
