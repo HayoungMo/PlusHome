@@ -291,14 +291,14 @@ const MainHomePage = ({ loginUser }) => {
                             </h3>
 
                             <p style={{ margin: "0 0 8px" }}>
-                                가격: {Number(item.f_price || 0).toLocaleString()}원
+                                가격: {Number(item.f_price || item.f_price ||0).toLocaleString()}원
                             </p>
 
                             <p style={{ margin: 0 }}>
                                 {item.f_discount > 0 && (
                                     <span>할인 {item.f_discount}% </span>
                                 )}
-                                배송비 {Number(item.f_deliveryprice || 0).toLocaleString()}원
+                                배송비 {Number(item.f_deliveryPrice || 0).toLocaleString()}원
                             </p>
                             </div>
                         );
