@@ -6,6 +6,7 @@ import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
 import FurnitureReview from "../components/FurnitureReview";
 import Question from "./Question";
+import Loading from "../components/Loading";
 
 const FurnitureArticle = () => {
     const called = useRef(false);
@@ -433,9 +434,7 @@ const FurnitureArticle = () => {
           navigate(`/furniture/review/${f_code}`);
         };
 
-         const onCoupon = () => {
-           navigate(`/coupon/download/CP-88d30796-9982-435d-9ded-baa9db0c0e27`);
-         };
+
 
     const onDelete = async (f_code) => {
         try {
@@ -449,7 +448,7 @@ const FurnitureArticle = () => {
     };
 
     if (!furniture) {
-        return <div>로딩 중...</div>;
+        return <Loading message="상품 정보를 불러오는 중입니다."/>;
     }
 
     const productDeliveryPrice = Number(
@@ -478,8 +477,7 @@ const FurnitureArticle = () => {
         )}
 
         <button onClick={() => onReview(f_code)}>리뷰등록</button>
-        <button onClick={() => onCoupon()}>쿠폰발급</button>
-        <button onClick={onBack}>list로 돌아가기</button>
+          <button onClick={onBack}>list로 돌아가기</button>
 
         <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
           <div>

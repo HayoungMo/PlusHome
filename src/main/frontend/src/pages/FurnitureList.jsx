@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FurnitureService from "../service/furnitureService";
 import LikeService from "../service/likeService";
+import Loading from "../components/Loading";
 
 const FurnitureList = () => {
     const location = useLocation();
@@ -22,9 +23,10 @@ const FurnitureList = () => {
     const [prevPage, setPrevPage] = useState(1);
     const [nextPage, setNextPage] = useState(1);
     const [likedMap, setLikedMap] = useState({});
+    
+    const [loading , setLoading] = useState(true)
 
     const [sort, setSort] = useState("latest");
-
     const pageCount = Math.max(0, endPage - startPage + 1);
 
     const sortOptions = [
@@ -88,6 +90,8 @@ const FurnitureList = () => {
 
     const getList = async (page = pageNum) => {
         try {
+            setLoading(true)
+
             const data = await FurnitureService.getFurniture({
                 pageNum: page,
                 searchKey,
@@ -105,6 +109,8 @@ const FurnitureList = () => {
         } catch (error) {
             console.error("가구 조회 실패:", error);
             alert("가구 조회에 실패했습니다.");
+        } finally{
+            setLoading(false)
         }
     };
 
@@ -158,6 +164,10 @@ const FurnitureList = () => {
                 alert("찜 처리에 실패했습니다.");
             });
     };
+
+    if (loading) {
+        return <Loading message="상품 목록을 불러오는 중입니다." />;
+    }
 
     return (
         <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "24px" }}>

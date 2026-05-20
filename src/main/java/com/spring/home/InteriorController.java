@@ -340,5 +340,61 @@ public class InteriorController {
 		}
 		return result;
 	}
+	
+	
+	@PostMapping("/select/getInteriorExampleByCompanyId")
+	public Map<String, Object> getInteriorExampleByCompanyId(@RequestBody CompanyDTO c_dto) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			List<InteriorExampleDTO> interiorExampleList = interiorService.getExamples(c_dto);
+
+			if (interiorExampleList.size() <= 0) {
+				result.put("success", true);
+				result.put("listSize", 0);
+				result.put("message", "작성된 시공 사례가 없습니다.");
+				return result;
+			}
+
+			List<Map<String, Object>> exampleWithImageList = new ArrayList<>();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (InteriorExampleDTO example : interiorExampleList) {
+				ImageQueryDTO imageQuery = new ImageQueryDTO();
+				imageQuery.setKind("I_EXAMPLE");
+				imageQuery.setRange("");
+				imageQuery.setA(example.getC_id());
+				imageQuery.setB(example.getC_kind());
+				imageQuery.setC(example.getC_name());
+				imageQuery.setD(Integer.toString(example.getIe_index()));
+				imageQuery.setIdx(-1);
+
+				List<ImageDTO> imageList = imageService.getList(imageQuery);
+				Map<String, Object> item = new HashMap<>();
+				item.put("example", example);
+				item.put("image", imageList);
+
+				exampleWithImageList.add(item);
+			}
+			ImageQueryDTO imageQuery = new ImageQueryDTO();
+			imageQuery.setA(c_dto.getC_id());
+			imageQuery.setB("interior");
+			imageQuery.setD("LOGO");
+			imageQuery.setTag("MODEL");
+			imageQuery.setKind("I_EXAMPLE");
+			List<ImageDTO> ModelDataList = imageService.getList(imageQuery);
+
+			result.put("success", true);
+			result.put("message", "조회에 성공하였습니다.");
+			result.put("listSize", exampleWithImageList.size());
+			result.put("exampleList", exampleWithImageList);
+			result.put("ModelDataList",ModelDataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+			result.put("message", "견적 조회를 위한 데이터 조회중 오류가 발생했습니다.");
+			result.put("error", e.toString());
+		}
+		return result;
+	}
 
 }

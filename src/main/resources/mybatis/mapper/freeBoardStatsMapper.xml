@@ -4,90 +4,165 @@
 <mapper namespace="com.spring.home.mapper.FreeBoardStatsMapper">
 
     <sql id="postSummaryCols">
-        boardId, userId, userName, category, title,
-        viewCount, likeCount, commentCount,
+        boardId, 
+        userId, 
+        userName, 
+        category, 
+        title,
+        viewCount, 
+        likeCount, 
+        commentCount,
         TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt,
         NVL(hidden, 0) as hidden,
         0 as reportCount
     </sql>
 
     <select id="selectMyLatest" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
-        SELECT * FROM (SELECT <include refid="postSummaryCols"/> FROM freeboard WHERE userId = #{userId} ORDER BY boardId DESC)
+        SELECT * FROM (
+            SELECT <include refid="postSummaryCols"/> 
+            FROM freeboard 
+            WHERE userId = #{userId} 
+            ORDER BY boardId DESC
+        )
         WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countMyAll" resultType="int">
-        SELECT COUNT(*) FROM freeboard WHERE userId = #{userId}
+        SELECT COUNT(*) 
+        FROM freeboard 
+        WHERE userId = #{userId}
     </select>
+
     <select id="selectMyTopLiked" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
-        SELECT * FROM (SELECT <include refid="postSummaryCols"/> FROM freeboard WHERE userId = #{userId} AND likeCount > 0 ORDER BY likeCount DESC, boardId DESC)
+        SELECT * FROM (
+            SELECT <include refid="postSummaryCols"/> 
+            FROM freeboard 
+            WHERE userId = #{userId} AND likeCount > 0 
+            ORDER BY likeCount DESC, boardId DESC
+        )
         WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countMyWithLikes" resultType="int">
-        SELECT COUNT(*) FROM freeboard WHERE userId = #{userId} AND likeCount > 0
+        SELECT COUNT(*) 
+        FROM freeboard 
+        WHERE userId = #{userId} AND likeCount > 0
     </select>
+
     <select id="selectMyTopCommented" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
-        SELECT * FROM (SELECT <include refid="postSummaryCols"/> FROM freeboard WHERE userId = #{userId} AND commentCount > 0 ORDER BY commentCount DESC, boardId DESC)
+        SELECT * FROM (
+            SELECT <include refid="postSummaryCols"/> 
+            FROM freeboard 
+            WHERE userId = #{userId} AND commentCount > 0 
+            ORDER BY commentCount DESC, boardId DESC
+        )
         WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countMyWithComments" resultType="int">
-        SELECT COUNT(*) FROM freeboard WHERE userId = #{userId} AND commentCount > 0
+        SELECT COUNT(*) 
+        FROM freeboard 
+        WHERE userId = #{userId} AND commentCount > 0
     </select>
 
     <select id="selectAllLatest" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
-        SELECT * FROM (SELECT <include refid="postSummaryCols"/> FROM freeboard ORDER BY boardId DESC)
+        SELECT * FROM (
+            SELECT <include refid="postSummaryCols"/> 
+            FROM freeboard 
+            ORDER BY boardId DESC
+        )
         WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countAll" resultType="int">
         SELECT COUNT(*) FROM freeboard
     </select>
+
     <select id="selectAllTopLiked" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
-        SELECT * FROM (SELECT <include refid="postSummaryCols"/> FROM freeboard WHERE likeCount > 0 ORDER BY likeCount DESC, boardId DESC)
+        SELECT * FROM (
+            SELECT <include refid="postSummaryCols"/> 
+            FROM freeboard 
+            WHERE likeCount > 0 
+            ORDER BY likeCount DESC, boardId DESC
+        )
         WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countAllWithLikes" resultType="int">
         SELECT COUNT(*) FROM freeboard WHERE likeCount > 0
     </select>
+
     <select id="selectAllTopCommented" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
-        SELECT * FROM (SELECT <include refid="postSummaryCols"/> FROM freeboard WHERE commentCount > 0 ORDER BY commentCount DESC, boardId DESC)
+        SELECT * FROM (
+            SELECT <include refid="postSummaryCols"/> 
+            FROM freeboard 
+            WHERE commentCount > 0 
+            ORDER BY commentCount DESC, boardId DESC
+        )
         WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countAllWithComments" resultType="int">
         SELECT COUNT(*) FROM freeboard WHERE commentCount > 0
     </select>
 
     <select id="selectReportedPosts" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
         SELECT * FROM (
-            SELECT f.boardId, f.userId, f.userName, f.category, f.title, f.viewCount, f.likeCount, f.commentCount,
-                   TO_CHAR(f.createdAt, 'YYYY-MM-DD') as createdAt, NVL(f.hidden, 0) as hidden, NVL(r.cnt, 0) as reportCount
+            SELECT 
+                f.boardId, f.userId, f.userName, f.category, f.title, 
+                f.viewCount, f.likeCount, f.commentCount,
+                TO_CHAR(f.createdAt, 'YYYY-MM-DD') as createdAt, 
+                NVL(f.hidden, 0) as hidden, 
+                NVL(r.cnt, 0) as reportCount
             FROM freeboard f
-            INNER JOIN (SELECT targetId, COUNT(*) as cnt FROM freeboard_report GROUP BY targetId) r ON f.boardId = r.targetId
+            INNER JOIN (
+                SELECT targetId, COUNT(*) as cnt 
+                FROM freeboard_report 
+                GROUP BY targetId
+            ) r ON f.boardId = r.targetId
             ORDER BY r.cnt DESC, f.boardId DESC
-        ) WHERE rownum &lt;= #{limit}
+        ) 
+        WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countReportedPosts" resultType="int">
         SELECT COUNT(DISTINCT targetId) FROM freeboard_report
     </select>
 
     <select id="selectReportedComments" resultType="com.spring.home.dto.FreeBoardSummaryDTO">
         SELECT * FROM (
-            SELECT c.commentId as boardId, c.commentId, c.parentId,
-                   c.userId, c.userName, '댓글' as category, c.content as title,
-                   0 as viewCount, 0 as likeCount, 0 as commentCount,
-                   TO_CHAR(c.createdAt, 'YYYY-MM-DD') as createdAt,
-                   NVL(c.hidden, 0) as hidden, NVL(r.cnt, 0) as reportCount
+            SELECT 
+                c.commentId as boardId, c.commentId, c.parentId,
+                c.userId, c.userName, '댓글' as category, c.content as title,
+                0 as viewCount, 0 as likeCount, 0 as commentCount,
+                TO_CHAR(c.createdAt, 'YYYY-MM-DD') as createdAt,
+                NVL(c.hidden, 0) as hidden, 
+                NVL(r.cnt, 0) as reportCount
             FROM freeboard_comment c
-            INNER JOIN (SELECT targetId, COUNT(*) as cnt FROM freeboard_comment_report GROUP BY targetId) r ON c.commentId = r.targetId
+            INNER JOIN (
+                SELECT targetId, COUNT(*) as cnt 
+                FROM freeboard_comment_report 
+                GROUP BY targetId
+            ) r ON c.commentId = r.targetId
             ORDER BY r.cnt DESC, c.commentId DESC
-        ) WHERE rownum &lt;= #{limit}
+        ) 
+        WHERE rownum &lt;= #{limit}
     </select>
+
     <select id="countReportedComments" resultType="int">
         SELECT COUNT(DISTINCT targetId) FROM freeboard_comment_report
     </select>
 
     <update id="updatePostHidden">
-        UPDATE freeboard SET hidden = #{hidden} WHERE boardId = #{boardId}
+        UPDATE freeboard 
+        SET hidden = #{hidden} 
+        WHERE boardId = #{boardId}
     </update>
+
     <update id="updateCommentHidden">
-        UPDATE freeboard_comment SET hidden = #{hidden} WHERE commentId = #{commentId}
+        UPDATE freeboard_comment 
+        SET hidden = #{hidden} 
+        WHERE commentId = #{commentId}
     </update>
+
 </mapper>

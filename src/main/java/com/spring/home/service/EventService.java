@@ -26,7 +26,7 @@ public class EventService {
 		return eventmapper.getlistData();
 	}
 	
-	public List<EventDTO> getReadData(EventDTO dto) throws Exception{
+	public EventDTO getReadData(EventDTO dto) throws Exception{
 		return eventmapper.getReadData(dto);
 	}
 	

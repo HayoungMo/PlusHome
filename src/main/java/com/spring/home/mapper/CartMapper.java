@@ -67,5 +67,8 @@ public interface CartMapper {
 			@Param("f_count") int f_count
 		) throws Exception;
 
+	public int restoreCouponDiscountAsPoint(
+			@Param("c_code") String c_code,
+			@Param("id") String id);
 
 }

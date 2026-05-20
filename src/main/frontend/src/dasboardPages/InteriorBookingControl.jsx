@@ -13,7 +13,7 @@ const InteriorBookingControl = () => {
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
 
-	const interior = companyList.filter((data) => data.c_kind === "interior");
+	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
 	const [selectedCompany, setSelectedCompany] = useState(null);
 	const [interiorCompanyList, setInteriorCompanyList] = useState([]);
 
@@ -63,7 +63,7 @@ const InteriorBookingControl = () => {
 					orderBy: "insert",
 				};
 
-				console.log(pdfData)
+				console.log(pdfData);
 
 				sessionStorage.setItem("exportPDFData", JSON.stringify(pdfData));
 

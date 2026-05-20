@@ -219,4 +219,12 @@
 		  AND f_status = 'N'
 	</update>
 
+	<update id="restoreCouponDiscountAsPoint">
+	    UPDATE cart
+	    SET save_point = NVL(save_point, 0) + NVL(coupon_discount, 0),
+	        coupon_discount = 0
+	    WHERE c_code = #{c_code}
+	      AND id = #{id}
+	      AND NVL(coupon_discount, 0) > 0
+	</update>
 </mapper>

@@ -26,12 +26,14 @@ public class CouponController {
 	private CouponService couponService;
 	
 	@PostMapping("/insertDev")
-	public void insertDataDev(@RequestBody CouponDTO dto) throws Exception{
+	public CouponDTO insertDataDev(@RequestBody CouponDTO dto) throws Exception{
 		dto.setCoupon_code(
 		        UUID.randomUUID().toString()
 		    );
 		dto.setId(dto.getCoupon_code());
 		couponService.insertData(dto);
+		
+		return dto;
 	}
 	
 	@PostMapping("/insert")

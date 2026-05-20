@@ -23,9 +23,7 @@ public class FreeBoardService {
     private final FreeBoardMapper freeBoardMapper;
     private final FreeBoardCommentMapper freeBoardCommentMapper;
 
-    /**
-     * 자유게시판 페이지 크기 (controller 의 totalPage 계산과 공통)
-     */
+    /** 페이지당 게시글 수 (controller의 totalPage 계산에도 사용) */
     public static final int PAGE_SIZE = 8;
 
     private static final Set<String> ALLOWED_SEARCH_KEYS =
@@ -38,21 +36,21 @@ public class FreeBoardService {
         return searchKey;
     }
 
-    // ─── 목록 조회 + 페이징 (type 인자 추가 반영) ──────────────────────────
+    // -- 목록 조회 + 페이징 (날짜 범위 검색 포함)
     public Map<String, Object> getLists(int pageNum, String searchKey,
-                                        String searchValue, String category, String type) throws Exception {
+                                        String searchValue, String category, String type,
+                                        String startDate, String endDate) throws Exception {
         if (pageNum < 1) pageNum = 1;
         int start = (pageNum - 1) * PAGE_SIZE + 1;
         int end   = pageNum * PAGE_SIZE;
 
         String safeKey = sanitizeSearchKey(searchKey);
 
-        // 매퍼 호출 시 type 파라미터 추가 전달
         List<FreeBoardDTO> lists = freeBoardMapper.getLists(
-                start, end, safeKey, searchValue, category, type);
-        
-        // 데이터 개수 카운트 시에도 type 전달 (숨김 게시글 제외 카운트 목적)
-        int dataCount = freeBoardMapper.getDataCount(safeKey, searchValue, category, type);
+                start, end, safeKey, searchValue, category, type, startDate, endDate);
+
+        int dataCount = freeBoardMapper.getDataCount(
+                safeKey, searchValue, category, type, startDate, endDate);
 
         Map<String, Object> result = new HashMap<>();
         result.put("lists",     lists);
@@ -60,94 +58,83 @@ public class FreeBoardService {
         return result;
     }
 
-
-    // ─── 상세 조회 (조회수 증가 없음) ─────────────────
+    // -- 게시글 단건 조회 (조회수 증가 없음)
     public FreeBoardDTO getDataOnly(Long boardId) throws Exception {
         return freeBoardMapper.getReadData(boardId);
     }
 
-    // ─── 작성 ────────────────────────────────────────────────────────
-    public void insertData(FreeBoardDTO dto) throws Exception {
-        freeBoardMapper.insertData(dto);
-    }
-
-    // ─── 카테고리별 쓰기 권한 검증 ─────────────────────────────────
-    // guest 는 컨트롤러에서 별도 처리, 여기선 로그인 유저만 대상
-    private static final Map<String, Set<String>> WRITE_PERMISSIONS = new HashMap<String, Set<String>>() {{
-        put("user",    new HashSet<>(Arrays.asList("자유", "질문", "정보")));
-        put("company", new HashSet<>(Arrays.asList("자유", "정보", "이벤트", "광고")));
-        put("admin",   new HashSet<>(Arrays.asList("자유", "질문", "정보", "이벤트", "광고", "공지")));
-    }};
-
-    public void validateWritePermission(String category, String userType) {
-        Set<String> allowed = WRITE_PERMISSIONS.get(userType);
-        if (allowed == null || !allowed.contains(category)) {
-            throw new RuntimeException("해당 카테고리에 글을 작성할 권한이 없습니다. (category=" + category + ", type=" + userType + ")");
-        }
-    }
-
-    // ─── 수정 ────────────────────────────────────────
-    public void updateData(FreeBoardDTO dto, String loggedInUserId, String userType) throws Exception {
-        FreeBoardDTO existingPost = freeBoardMapper.getReadData(dto.getBoardId());
-
-        if (existingPost == null) {
-            throw new Exception("존재하지 않는 게시글입니다.");
-        }
-
-        // 관리자는 모든 게시글 수정 가능
-        if (!"admin".equals(userType) && !existingPost.getUserId().equals(loggedInUserId)) {
-            throw new RuntimeException("수정 권한이 없습니다.");
-        }
-
-        freeBoardMapper.updateData(dto);
-    }
-
-    // ─── 삭제 ────────────────────────────
+    // -- 조회수 증가
     @Transactional
-    public void deleteData(Long boardId, String loggedInUserId, String userType) throws Exception {
-        FreeBoardDTO existingPost = freeBoardMapper.getReadData(boardId);
-
-        if (existingPost == null) {
-            throw new Exception("존재하지 않는 게시글입니다.");
-        }
-
-        // 관리자는 모든 게시글 삭제 가능
-        if (!"admin".equals(userType) && !existingPost.getUserId().equals(loggedInUserId)) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
-        }
-
-        freeBoardCommentMapper.deleteByBoardId(boardId);
-        freeBoardMapper.deleteData(boardId);
-    }
-
-    // ─── 이전/다음 글 조회 ──────────────────────────────────────────
-    public Map<String, Object> getNav(Long boardId) throws Exception {
-        Map<String, Object> result = new HashMap<>();
-        result.put("prev", freeBoardMapper.getPrev(boardId));
-        result.put("next", freeBoardMapper.getNext(boardId));
-        return result;
-    }
-
-    // ─── 조회수 증가 (전용, 프론트 최초 1회 호출) ────────────────────
     public void incrementViewCount(Long boardId) throws Exception {
         freeBoardMapper.updateViewCount(boardId);
     }
 
-    // ─── 좋아요 on ───────────────────────────────────────────────────
+    // -- 이전글 / 다음글 내비게이션
+    public Map<String, FreeBoardDTO> getNav(Long boardId) throws Exception {
+        Map<String, FreeBoardDTO> nav = new HashMap<>();
+        nav.put("prev", freeBoardMapper.getPrev(boardId));
+        nav.put("next", freeBoardMapper.getNext(boardId));
+        return nav;
+    }
+
+    // -- 게시글 작성
+    public void insertData(FreeBoardDTO dto) throws Exception {
+        freeBoardMapper.insertData(dto);
+    }
+
+    // -- 카테고리별 작성 권한 정의 (유니코드 한글 변환 완료)
+    private static final Map<String, Set<String>> WRITE_PERMISSIONS;
+    static {
+        WRITE_PERMISSIONS = new HashMap<>();
+        WRITE_PERMISSIONS.put("user",    new HashSet<>(Arrays.asList("자유", "질문", "정보")));
+        WRITE_PERMISSIONS.put("company", new HashSet<>(Arrays.asList("자유", "정보", "이벤트", "광고")));
+        WRITE_PERMISSIONS.put("admin",   new HashSet<>(Arrays.asList("자유", "질문", "정보", "이벤트", "광고", "공지")));
+    }
+
+    public void validateWritePermission(String category, String userType) {
+        Set<String> allowed = WRITE_PERMISSIONS.get(userType);
+        if (allowed == null || !allowed.contains(category)) {
+            throw new RuntimeException(
+                "해당 카테고리에 대한 작성 권한이 없습니다. (category=" + category + ", type=" + userType + ")");
+        }
+    }
+
+    // -- 게시글 수정
+    @Transactional
+    public void updateData(FreeBoardDTO dto, String loggedInUserId, String userType) throws Exception {
+        FreeBoardDTO existingPost = freeBoardMapper.getReadData(dto.getBoardId());
+        if (existingPost == null) {
+            throw new Exception("존재하지 않는 게시글입니다.");
+        }
+        if (!"admin".equals(userType) && !existingPost.getUserId().equals(loggedInUserId)) {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
+        freeBoardMapper.updateData(dto);
+    }
+
+    // -- 좋아요 on
+    @Transactional
     public void updateLikeCount(Long boardId) throws Exception {
         freeBoardMapper.updateLikeCount(boardId);
     }
 
-    // ─── 좋아요 off ──────────────────────────────────────────────────
+    // -- 좋아요 off
+    @Transactional
     public void unlikeCount(Long boardId) throws Exception {
         freeBoardMapper.unlikeCount(boardId);
     }
-    public void unlikeFreeBoard(Long boardId) throws Exception {
-    	freeBoardMapper.unlikeCount(boardId);
-    }
- 
-    // ─── [추가] 관리자용: 신고 게시글 목록 ──────────────────────────
-    public List<FreeBoardDTO> getReportedPosts() throws Exception {
-        return freeBoardMapper.getReportedPosts();
+
+    // -- 게시글 삭제 (댓글 먼저 삭제 -> orphan 방지)
+    @Transactional
+    public void deleteData(Long boardId, String loggedInUserId, String userType) throws Exception {
+        FreeBoardDTO existingPost = freeBoardMapper.getReadData(boardId);
+        if (existingPost == null) {
+            throw new Exception("존재하지 않는 게시글입니다.");
+        }
+        if (!"admin".equals(userType) && !existingPost.getUserId().equals(loggedInUserId)) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+        freeBoardCommentMapper.deleteByBoardId(boardId);
+        freeBoardMapper.deleteData(boardId);
     }
 }
