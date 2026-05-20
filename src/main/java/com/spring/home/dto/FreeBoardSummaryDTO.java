@@ -5,13 +5,13 @@ import lombok.Data;
 /**
  * 사이드 패널 (StatsPanel) 한 줄용 경량 DTO.
  * - 게시글 미리보기에 필요한 최소 필드 + 관리자용 hidden / reportCount
- * - 기존 FreeBoardDTO 는 그대로 두고 통계 화면 전용으로 분리
+ * - 기존 FreeBoardDTO는 그대로 두고 통계 화면 전용으로 분리
  */
 @Data
 public class FreeBoardSummaryDTO {
     private Long boardId;
-    private Long commentId;   // 신고 댓글 전용 — boardId와 별도로 실제 commentId 보관
-    private Long parentId;    // 대댓글 여부 판단 (null이면 루트 댓글)
+    private Long commentId;    // 신고 댓글 전용 시 boardId와 별도로 실제 commentId 보관
+    private Long parentId;     // 대댓글 여부 판단 (null이면 루트 댓글)
     private String userId;
     private String userName;
     private String category;

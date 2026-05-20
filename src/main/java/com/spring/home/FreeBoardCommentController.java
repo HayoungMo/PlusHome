@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/freeboard/comments")
@@ -29,14 +28,7 @@ public class FreeBoardCommentController {
     private static final String GUEST_ID       = "Guest";
     private static final String GUEST_NAME     = "방문자";
 
-    // ───────────────────────────────────────────────
-    // 헬퍼
-    // ───────────────────────────────────────────────
-
-    /**
-     * Authorization 헤더에서 JWT 파싱 → UserDTO 반환.
-     * 헤더 없음 / 만료 / 파싱 실패 시 null.
-     */
+    // 헬퍼 메서드 영역
     private UserDTO getLoginUser(HttpServletRequest request) {
         String auth = request.getHeader("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) return null;
@@ -52,12 +44,6 @@ public class FreeBoardCommentController {
         }
     }
 
-    /**
-     * users 테이블 type 기반 표시명 결정.
-     *   company → "[c_kind] c_name"
-     *   user / admin → userId 그대로
-  
-     */
     private String resolveDisplayName(String userId) {
         if (userId == null || userId.isEmpty() || GUEST_ID.equals(userId)) return GUEST_NAME;
         try {
@@ -76,10 +62,7 @@ public class FreeBoardCommentController {
         return userId;
     }
 
-    // ───────────────────────────────────────────────
     // 1. 댓글 목록 조회 (인증 불필요)
-    // ───────────────────────────────────────────────
-
     @GetMapping("/{boardId}")
     public ResponseEntity<List<FreeBoardCommentDTO>> getList(
             @PathVariable Long boardId,
@@ -87,10 +70,7 @@ public class FreeBoardCommentController {
         return ResponseEntity.ok(commentService.getComments(boardId, type));
     }
 
-    // ───────────────────────────────────────────────
     // 2. 댓글 등록 (로그인 필수, userId/userName 서버에서 결정)
-    // ───────────────────────────────────────────────
-
     @PostMapping("/write")
     public ResponseEntity<?> write(
             @RequestBody FreeBoardCommentDTO dto,
@@ -111,10 +91,7 @@ public class FreeBoardCommentController {
                 : ResponseEntity.status(500).body("등록 실패");
     }
 
-    // ───────────────────────────────────────────────
     // 3. 댓글 삭제 (로그인 필수, 본인 또는 관리자)
-    // ───────────────────────────────────────────────
-
     @DeleteMapping("/{boardId}/{commentId}")
     public ResponseEntity<String> delete(
             @PathVariable Long boardId,
@@ -133,10 +110,7 @@ public class FreeBoardCommentController {
                 : ResponseEntity.status(403).body("삭제 권한이 없거나 실패했습니다.");
     }
 
-    // ───────────────────────────────────────────────
     // 4. 댓글 수정 (로그인 필수, 본인 또는 관리자)
-    // ───────────────────────────────────────────────
-
     @PutMapping("/update")
     public ResponseEntity<String> update(
             @RequestBody FreeBoardCommentDTO dto,

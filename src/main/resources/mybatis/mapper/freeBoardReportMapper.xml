@@ -6,7 +6,12 @@
 
     <insert id="insertPostReport" parameterType="com.spring.home.dto.FreeBoardReportDTO">
         INSERT INTO freeboard_report (
-            reportId, targetId, reporterId, reason, detail, createdAt
+            reportId, 
+            targetId, 
+            reporterId, 
+            reason, 
+            detail, 
+            createdAt
         ) VALUES (
             seq_freeboard_report_id.nextval,
             #{targetId},
@@ -21,11 +26,14 @@
     </insert>
 
     <select id="countPostReportsByTarget" resultType="int">
-        SELECT COUNT(*) FROM freeboard_report WHERE targetId = #{targetId}
+        SELECT COUNT(*) 
+        FROM freeboard_report 
+        WHERE targetId = #{targetId}
     </select>
 
     <select id="existsPostReport" resultType="int">
-        SELECT COUNT(*) FROM freeboard_report
+        SELECT COUNT(*) 
+        FROM freeboard_report
         WHERE targetId = #{targetId} AND reporterId = #{reporterId}
     </select>
 
@@ -33,20 +41,26 @@
         SELECT 
             f.boardId, 
             f.title, 
-            f.userName, 
+            CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userName END as userName,
+            CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
             f.hidden,
             COUNT(r.reportId) as reportCount
         FROM freeboard f
         LEFT JOIN freeboard_report r ON f.boardId = r.targetId
-        GROUP BY f.boardId, f.title, f.userName, f.hidden
+        LEFT JOIN users u ON f.userId = u.id 
+        GROUP BY f.boardId, f.title, f.userName, f.userId, u.joined, f.hidden
         HAVING COUNT(r.reportId) > 0
         ORDER BY reportCount DESC, f.boardId DESC
     </select>
 
-
     <insert id="insertCommentReport" parameterType="com.spring.home.dto.FreeBoardReportDTO">
         INSERT INTO freeboard_comment_report (
-            reportId, targetId, reporterId, reason, detail, createdAt
+            reportId, 
+            targetId, 
+            reporterId, 
+            reason, 
+            detail, 
+            createdAt
         ) VALUES (
             seq_freeboard_creport_id.nextval,
             #{targetId},
@@ -61,11 +75,14 @@
     </insert>
 
     <select id="countCommentReportsByTarget" resultType="int">
-        SELECT COUNT(*) FROM freeboard_comment_report WHERE targetId = #{targetId}
+        SELECT COUNT(*) 
+        FROM freeboard_comment_report 
+        WHERE targetId = #{targetId}
     </select>
 
     <select id="existsCommentReport" resultType="int">
-        SELECT COUNT(*) FROM freeboard_comment_report
+        SELECT COUNT(*) 
+        FROM freeboard_comment_report
         WHERE targetId = #{targetId} AND reporterId = #{reporterId}
     </select>
 
@@ -73,13 +90,15 @@
         SELECT 
             c.commentId, 
             c.content, 
-            c.userName, 
+            CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE c.userName END as userName,
+            CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE c.userId END as userId,
             c.hidden,
             c.boardId,
             COUNT(r.reportId) as reportCount
         FROM freeboard_comment c
         LEFT JOIN freeboard_comment_report r ON c.commentId = r.targetId
-        GROUP BY c.commentId, c.content, c.userName, c.hidden, c.boardId
+        LEFT JOIN users u ON c.userId = u.id 
+        GROUP BY c.commentId, c.content, c.userName, c.userId, u.joined, c.hidden, c.boardId
         HAVING COUNT(r.reportId) > 0
         ORDER BY reportCount DESC, c.commentId DESC
     </select>

@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * 관리자 사이드 패널의 "신고댓글/대댓글" 리스트용 경량 DTO.
- * 기존 FreeBoardCommentDTO 는 그대로 두고 분리.
+ * 기존 FreeBoardCommentDTO는 그대로 두고 분리.
  */
 @Data
 public class FreeBoardCommentSummaryDTO {
