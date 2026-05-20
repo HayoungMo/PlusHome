@@ -15,30 +15,44 @@ import TableMui from "../components/TableMui";
 
 const UserCouponPage = ({ user }) => {
   const [form, setForm] = useState({ id: user.id });
-  const [coupon, setCoupon] = useState();
+  const [coupon, setCoupon] = useState([]);
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
     title: "",
     text: "",
   });
+
+  const [tab, setTab] = useState(0);
+  const [successMessage, setSuccessMessage] = useState("")
+
   useEffect(() => {
     const fetchCoupon = async () => {
       const result = await CouponService.selectCouponList(user.id);
+      
       if (!result.success) {
+        setTab(0)
         return;
       }
-      setCoupon(result.data || []);
+
+      const couponList = result.data || []
+      const availableCoupons = couponList.filter(
+        (item)=> item.coupon_used === "N")
+
+      setCoupon(couponList);
+      setTab(availableCoupons.length> 0 ? 1 : 0)
     };
     fetchCoupon();
   }, []);
-  const [tab, setTab] = useState(0);
+  
 
   const handleChangeTab = (event, newValue) => {
     setTab(newValue);
   };
 
   const handleChange = (e) => {
+    setSuccessMessage("")
+
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -86,6 +100,8 @@ const UserCouponPage = ({ user }) => {
         id: user.id,
       },
     ]);
+
+    setSuccessMessage("정상적으로 쿠폰이 지급되었습니다. 쿠폰함을 확인해주세요.")
   };
 
   return (
@@ -136,6 +152,23 @@ const UserCouponPage = ({ user }) => {
               onChange={(e) => handleChange(e)}
             />
             <Button onClick={() => handleSubmit()}>등록 </Button>
+
+            {successMessage && (
+              <Box
+                sx={{
+                  mt: 1,
+                  color: "#1976d2",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderBottom: "2px solid #1976d2",
+                  display: "inline-block",
+                  pb: 0.3,
+                }}
+              >
+                {successMessage}
+              </Box>
+            )}
+
           </form>
         )}
 

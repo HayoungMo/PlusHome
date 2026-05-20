@@ -12,7 +12,11 @@ const CouponAdd = () => {
   //쿠폰 발급 페이지
   const id = localStorage.getItem("id");
   const [companyList, setCompanyList] = useState();
-  const [form, setForm] = useState({ id: id }); 
+  const [form, setForm] = useState({ 
+    id: id,
+    coupon_type: "all",
+    coupon_catagory: "" 
+  }); 
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -21,10 +25,21 @@ const CouponAdd = () => {
   });
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const {name, value} = e.target
+
+    if(name === "coupon_type"){
+      setForm((prev) => ({
+        ...prev,
+        coupon_type: value,
+        coupon_catagory: "",
+      }))
+      return
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const makeEvent = (name, value) => ({
@@ -59,7 +74,8 @@ const CouponAdd = () => {
       const result = await CompanyService.getLists();
 
       const optionList = result.map((item) => ({
-        value: item.c_id + "_" + item.c_name + "_" + item.c_kind,
+        value: item.c_id,
+        //value: item.c_id + "_" + item.c_name + "_" + item.c_kind,
         title: item.c_name,
       }));
 
@@ -156,7 +172,13 @@ const CouponAdd = () => {
         />
 
         {form.coupon_type !== "all" && 
-        <SelectMui name="coupon_catagory" option={ form.coupon_type === "company" ? companyList : categoryOptions} />}
+        <SelectMui 
+        name="coupon_catagory" 
+        label={form.coupon_type === "company" ? "회사 선택" : "카테고리 선택"}
+        value={form.coupon_catagory || ""}
+        onChange={handleChange}
+        option={ form.coupon_type === "company" ? companyList : categoryOptions}
+         />}
 
         <Button onClick={(e) => handleSubmit(e)}>발급</Button>
       </form>
