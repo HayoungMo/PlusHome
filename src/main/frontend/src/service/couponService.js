@@ -3,12 +3,14 @@ import http, { fileHttp } from "../http-common";
 const insertCoupon = async (data) => {
   try {
     const res = await http.post("/coupon/insert", {
-      coupon_code : data.coupon_code,
-      discount : data.discount,
-      coupon_end : data.coupon_end,
-      coupon_max : data.coupon_max,
-      coupon_info : data.coupon_info,
-      id : data.id,
+      coupon_code: data.coupon_code,
+      discount: data.discount,
+      coupon_end: data.coupon_end,
+      coupon_max: data.coupon_max,
+      coupon_info: data.coupon_info,
+      id: data.id,
+      coupon_type: data.coupon_type,
+      coupon_catagory: data.coupon_catagory || "",
     });
 
     return {
@@ -29,6 +31,8 @@ const insertCouponDev = async (data) => {
       coupon_end: data.coupon_end,
       coupon_max: data.coupon_max,
       coupon_info: data.coupon_info,
+      coupon_type: data.coupon_type,
+      coupon_catagory: data.coupon_catagory || "",
     });
 
     return {

@@ -41,6 +41,7 @@ import Coupon from "./pages/Coupon";
 import CouponAdd from "./components/CouponAdd";
 import CouponDownload from "./components/CouponDownload";
 import CompanyClaimManage from "./pages/CompanyClaimManage";
+import EventPage from "./pages/EventPage";
 
 function App() {
     const [loginUser, setLoginUser] = useState(null);
@@ -152,7 +153,7 @@ function App() {
             <Route path="/ImageGetTest" element={<ImageGetTest />} />
             <Route path="/exportPDF" element={<ExportPDF />} />
             
-
+            <Route path="/event" element={<EventPage />} />
             <Route path="/coupon" element={<Coupon />} />
             <Route
               path="/coupon/download/:coupon_code"

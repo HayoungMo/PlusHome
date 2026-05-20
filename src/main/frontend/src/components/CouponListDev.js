@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CouponService from '../service/couponService';
+import TableMui from './TableMui';
 
 const CouponListDev = () => {
 
@@ -20,11 +21,7 @@ const CouponListDev = () => {
 
     return (
         <div>
-            {
-                coupon?.map((item)=>(
-                    item.coupon_code
-                ))
-            }
+            <TableMui rowData={coupon} col = {["coupon_code", "discount", "coupon_end", "coupon_max", "coupon_info"]} />
             
         </div>
     );

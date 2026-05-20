@@ -11,7 +11,7 @@ public interface CompanyMapper {
 
 	public void insertData(CompanyDTO dto) throws Exception;
 	
-	public List<CompanyDTO> getLists(int start, int end, String searchKey, String searchValue) throws Exception;
+	public List<CompanyDTO> getLists() throws Exception;
 	
 	public CompanyDTO getReadData(String c_id) throws Exception;
 	
