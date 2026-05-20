@@ -19,23 +19,36 @@ const MainHomePage = ({ loginUser }) => {
 
     //로그인 알고릐즘에 대해서
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
-    const currentUser = loginUser || savedUser;
+
+    //이렇게 하면 loginUser가 문자열과 상관없이 localStorage의 user객체를 사용한다.
+    const currentUser = 
+        loginUser && typeof loginUser === "object"
+            ? loginUser
+            : savedUser; 
 
     const [hideMode, setHideMode] = useState(false);
     const [hiddenFurnitureCodes, setHiddenFurnitureCodes] = useState([]);
     //숨김 직전 관련해서 준비해둠
     const [pendingHiddenFurnitureCodes, setPendingHiddenFurnitureCodes] = useState([]);
 
-    //백엔드 호출 (가구, 인테리어 업체)
+    //백엔드 호출 (가구, 인테리어 업체) , 0519 백엔드 수정한것으로 새롭게 연결
+    const getBestFurniture = () => {
+        axios.get("http://localhost:8080/api/main/best", {
+            params: {
+                id: currentUser?.id || "",
+            },
+        })
+        .then((res) => {
+            setFurniture(Array.isArray(res.data) ? res.data : []);
+        })
+        .catch((err) => {
+            console.error("추천 가구 조회 실패:", err);
+        });
+    };
+    
     useEffect(() => {
-        axios.get("http://localhost:8080/api/main/best")
-             .then((res) =>{
-                setFurniture(Array.isArray(res.data) ? res.data : []);
-             })
-            .catch((err) => {
-                console.error("추천 가구 조회 실패했습니다:",err);
-            });
-        },[]);
+        getBestFurniture();
+    },[currentUser?.id]);
     
     useEffect(() => {
         InteriorService.fetchList()
@@ -51,12 +64,20 @@ const MainHomePage = ({ loginUser }) => {
     useEffect(() => {
         if(!currentUser?.id) return;
         
-        const savedHidden = JSON.parse(
-            localStorage.getItem(`hiddenFurniture_${currentUser.id}`) || "[]"
-        );
+        axios.get("http://localhost:8080/api/main/recommend/hidden", {
+            params: {
+                id: currentUser?.id ,
+            },
+        })
+        .then((res) => {
+            const hiddenList = Array.isArray(res.data) ? res.data : [];
+            setHiddenFurnitureCodes(hiddenList);
+            setPendingHiddenFurnitureCodes(hiddenList);
+        })
+        .catch((err) => {
+            console.error("숨김 목록 조회 실패:",err);
+        });
 
-        setHiddenFurnitureCodes(savedHidden);
-        setPendingHiddenFurnitureCodes(savedHidden);
     },[currentUser?.id]);
     
     //숨김 목록 관련 함수
@@ -102,14 +123,19 @@ const MainHomePage = ({ loginUser }) => {
                 return;
             }
 
-        setHiddenFurnitureCodes(pendingHiddenFurnitureCodes);
-
-        localStorage.setItem(
-            `hiddenFurniture_${currentUser.id}`,
-            JSON.stringify(pendingHiddenFurnitureCodes)
-        );
-
-        setHideMode(false);
+        axios.post("http://localhost:8080/api/main/recommend/hide", {
+            id: currentUser?.id ,
+            f_codes: pendingHiddenFurnitureCodes,
+        })
+        .then(() => {
+            setHiddenFurnitureCodes(pendingHiddenFurnitureCodes);
+            setHideMode(false);
+            getBestFurniture();
+        })
+        .catch((err) => {
+            console.error("추천 숨김 저장에 실패했습니다:",err);
+            alert("숨김 처리에 실패했습니다.");
+        });
     };
 
     //알고리즘에 의한 추천을 사용자가 숨김함 그리고 그걸 제외한 목록을 보여줌
@@ -183,7 +209,7 @@ const MainHomePage = ({ loginUser }) => {
                         {currentUser ? "맞춤 추천 가구" : "오늘의 추천 가구"}
                     </h2>
                     <div style={{display: "flex", gap: "8px", alignItems: "center"}}>
-                        {currentUser && (
+                        {currentUser?.id && (
                             <SwitchMui
                                 checked={hideMode}
                                 onChange={onHideModeChange}
