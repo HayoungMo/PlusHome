@@ -25,8 +25,6 @@ import InteriorReview from "./pages/InteriorReview";
 import InteriorChart from "./components/InteriorChart";
 import InteriorUpdateAll from "./pages/InteriorUpdateAll";
 import InteriorMyPage from "./components/InteriorMyPage";
-import InteriorAllReivew from "./pages/InteriorAllReivew";
-import InteriorAllExample from "./pages/InteriorAllExample";
 import FreeBoardListPage from "./pages/FreeBoardListPage";
 import FreeBoardWritePage from "./pages/FreeBoardWritePage";
 import FreeBoardArticlePage from "./pages/FreeBoardArticlePage";
@@ -42,6 +40,9 @@ import CouponDownload from "./components/CouponDownload";
 import CompanyClaimManage from "./pages/CompanyClaimManage";
 import EventPage from "./pages/EventPage";
 import Loading from "./components/Loading";
+import EventArticle from "./components/EventArticle";
+import EventUpdate from "./components/EventUpdate";
+import EventCreated from "./components/EventCreated";
 
 function App() {
     const [loginUser, setLoginUser] = useState(null);
@@ -153,13 +154,12 @@ function App() {
             <Route path="/component" element={<ComponentEx />} />
             <Route path="/ImageGetTest" element={<ImageGetTest />} />
             <Route path="/exportPDF" element={<ExportPDF />} />
-            
+
             <Route path="/event" element={<EventPage />} />
+            <Route path="/event/created" element={<EventCreated />} />
+            <Route path="/event/article/:e_id" element={<EventArticle />} />
+            <Route path="/event/update/:e_id" element={<EventUpdate />} />
             <Route path="/coupon" element={<Coupon />} />
-            <Route
-              path="/coupon/download/:coupon_code"
-              element={<CouponDownload />}
-            />
           </Route>
 
           {/* 레이아웃 없이 따로 연결되는 페이지 */}
@@ -167,7 +167,7 @@ function App() {
 
           <Route path="/DevDashboard" element={<DevDashboard />} />
 
-          <Route path="/companyclaim" element={<CompanyClaimManage/>}/>
+          <Route path="/companyclaim" element={<CompanyClaimManage />} />
 
           <Route path="/exportPDFViewPage" element={<ExportPDFViewPage />} />
         </Routes>

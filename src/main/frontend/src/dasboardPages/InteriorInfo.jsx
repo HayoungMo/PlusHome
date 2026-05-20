@@ -13,7 +13,7 @@ const InteriorInfo = () => {
 	const userData = JSON.parse(localUserData);
 	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
 
-	const interior = companyList.filter((data) => data.c_kind === "interior");
+	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
 
 	//state
 	const [tabValue, setTabValue] = useState("info");
@@ -31,7 +31,6 @@ const InteriorInfo = () => {
 		const interiorList = await InteriorService.fetchArticle({ c_id: id });
 		const withKey = interiorList.map((record) => ({ ...record, id: makeCheckKey(record) }));
 		const setIndexToCompanyList = interior.map((record, index) => ({ ...record, id: index }));
-		console.log(interiorList);
 
 		setTabValue("info");
 		setSelectedCompany(null);

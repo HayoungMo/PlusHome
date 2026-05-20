@@ -241,4 +241,21 @@
 	    	sysdate
 	    )
 	</insert>
+	<!-- 알고리즘 조금 더 디테일하게 추가 -->
+	<select id="getPopularFurnitureCodesByUserGroup" resultType="String">
+		select f_code
+		  from (
+			   select c.f_code,
+			   		  count(*) as buy_count
+			   	 from cart c
+			   	 join users u
+			   	   on c.id = u.id
+			   	where c.f_status = 'Y'
+			   	  and u.gender = #{gender}
+			   	  and trunc(months_between(sysdate, u.birth) / 12)
+			   	  	  between #{minAge} and #{maxAge}
+			   	group by c.f_code
+			   	order by buy_count desc
+			   )
+	</select>
 </mapper>

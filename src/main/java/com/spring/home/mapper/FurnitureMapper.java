@@ -48,4 +48,9 @@ public interface FurnitureMapper {
 	public void deleteHiddenFurniture(@Param("id") String id);
 	
 	public void insertHiddenFurniture(@Param("id") String id, @Param("f_code") String f_code);
+	
+	public List<String> getPopularFurnitureCodesByUserGroup(
+	        @Param("gender") String gender,
+	        @Param("minAge") int minAge,
+	        @Param("maxAge") int maxAge);
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   AlertTitle,
@@ -9,22 +10,24 @@ import {
   Typography,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import EventService from "../service/eventService";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DatePickerMui from "./DatePickerMui";
 import TextFieldMui from "./TextFieldMui";
-import ImageService from "../service/imageService";
 import SelectMui from "./SelectMui";
-import CouponAdd from "./CouponAdd";
-import CouponService from "../service/couponService";
-import TableCheckBoxMui from "./TableCheckBoxMui";
+import EventService from "../service/eventService";
+import ImageService from "../service/imageService";
+import GetImgDir from "../resources/function/GetImgDir";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
 
-const EventCreated = () => {
-  const randomNum = Math.floor(100000 + Math.random() * 900000);
+const EventUpdate = () => {
+  const navigate = useNavigate();
+  const { e_id } = useParams();
+
+  const [form, setForm] = useState({});
+  const [imageList, setImageList] = useState([]);
   const [sendList, setSendList] = useState([]);
-  const [form, setForm] = useState({ e_id: randomNum });
   const [preview, setPreview] = useState([]);
-  const [couponList, setCouponList] = useState([]);
-  const [selectedCouponCodes, setSelectedCouponCodes] = useState([]);
   const [imageTag, setImageTag] = useState("THUMBNAIL");
   const [alert, setAlert] = useState({
     open: false,
@@ -43,15 +46,6 @@ const EventCreated = () => {
     { value: "OTHER", title: "본문 이미지" },
   ];
 
-  const isAvailableCoupon = (coupon) => {
-    if (!coupon?.coupon_end) return false;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return new Date(coupon.coupon_end) >= today;
-  };
-
   const makeEvent = (name, value) => ({
     target: {
       name,
@@ -68,42 +62,76 @@ const EventCreated = () => {
     });
   };
 
+  useEffect(() => {
+    const fetchEvent = async () => {
+      if (!e_id) {
+        showAlert({
+          severity: "error",
+          title: "조회 실패",
+          text: "수정할 이벤트 정보를 찾을 수 없습니다.",
+        });
+        return;
+      }
+
+      try {
+        const data = await EventService.selectEvent(e_id);
+
+        if (!data || data.success === false) {
+          showAlert({
+            severity: "error",
+            title: "조회 실패",
+            text: "이벤트 정보를 불러오지 못했습니다.",
+          });
+          return;
+        }
+
+        const images = await GetImgDir({
+          kind: "DEV",
+          returnType: "list",
+          a: data.e_id,
+          b: data.e_title,
+          view: false,
+        });
+
+        setForm({
+          ...data,
+          e_long: data.e_long || null,
+          e_type: data.e_type || "notice",
+        });
+        setImageList(images?.result || []);
+      } catch (err) {
+        console.error(err);
+        showAlert({
+          severity: "error",
+          title: "오류",
+          text: "이벤트 정보를 불러오는 중 오류가 발생했습니다.",
+        });
+      }
+    };
+
+    fetchEvent();
+  }, [e_id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [name]: value,
       ...(name === "e_type" &&
         value !== "event" && {
           e_long: null,
         }),
-    });
+    }));
   };
 
-  useEffect(() => {
-    const fetchCoupon = async () => {
-      const result = await CouponService.selectCouponDev();
-      if (!result.success) return;
-
-      setCouponList((result.data || []).filter(isAvailableCoupon));
-    };
-
-    fetchCoupon();
-  }, []);
-
-  const handleCouponCreated = (newCoupon) => {
-    if (!isAvailableCoupon(newCoupon)) return;
-
-    setCouponList((prev) => [newCoupon, ...prev]);
-    setSelectedCouponCodes((prev) => [...prev, newCoupon.coupon_code]);
-  };
-
-  const onClickAdd = (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const hasThumbnail = sendList.some((item) => item.img_tag === "THUMBNAIL");
+    const hasThumbnail =
+      imageList.some((item) => item.img_tag === "THUMBNAIL") ||
+      sendList.some((item) => item.img_tag === "THUMBNAIL");
 
     if (imageTag === "THUMBNAIL" && hasThumbnail) {
       showAlert({
@@ -115,78 +143,94 @@ const EventCreated = () => {
       return;
     }
 
-    setSendList((prev) => [
-      ...prev,
-      {
-        img_kind: "DEV",
-        img_tag: imageTag,
-        dir_a: form.e_id,
-        dir_b: form.e_title,
-        img_idx: prev.length,
-        file,
-      },
-    ]);
+    const nextIndex = imageList.length + sendList.length;
+    const nextImage = {
+      img_kind: "DEV",
+      img_tag: imageTag,
+      dir_a: form.e_id,
+      dir_b: form.e_title,
+      img_idx: nextIndex,
+      file,
+    };
+
+    setSendList((prev) => [...prev, nextImage]);
     setPreview((prev) => [...prev, URL.createObjectURL(file)]);
     e.target.value = "";
   };
 
-  const onClickInsert = async () => {
-    if (!sendList || sendList.length === 0) {
-      return { success: true };
+  const insertNewImages = async () => {
+    if (sendList.length === 0) return { success: true };
+
+    await ImageService.insertImage(sendList);
+    setSendList([]);
+    return { success: true };
+  };
+
+  const imageUpload = async () => {
+    const updateList = document.getElementsByClassName("updateFile");
+    const fileList = [];
+
+    for (const element of updateList) {
+      if (element.files.length !== 0) {
+        fileList.push({ file: element.files[0], name: element.name });
+      }
     }
 
-    try {
-      await ImageService.insertImage(sendList);
-      setSendList([]);
-      return { success: true };
-    } catch (err) {
-      console.error(err);
-      return { success: false };
+    if (fileList.length === 0) {
+      showAlert({
+        severity: "warning",
+        title: "파일 없음",
+        text: "변경할 이미지를 선택해주세요.",
+      });
+      return;
     }
+
+    await ImageService.updateImage(fileList);
+    showAlert({
+      severity: "success",
+      title: "이미지 수정 완료",
+      text: "이미지가 수정되었습니다.",
+    });
+  };
+
+  const imageDelete = async (item) => {
+    await ImageService.deleteImage(item);
+    setImageList((prev) => prev.filter((image) => !item.includes(image.img_originalName)));
+    showAlert({
+      severity: "success",
+      title: "이미지 삭제 완료",
+      text: "이미지가 삭제되었습니다.",
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const result = await EventService.insertEvent(form);
+    const result = await EventService.updateEvent(form);
 
     if (!result.success) {
       showAlert({
         severity: "error",
-        title: `에러${result.status || ""}`,
-        text: result.message || "등록 실패",
+        title: `오류${result.status || ""}`,
+        text: result.message || "수정 실패",
       });
       return;
     }
 
-    const selectedCouponObjects = couponList.filter((coupon) =>
-      selectedCouponCodes.includes(coupon.coupon_code),
-    );
-
-    await Promise.all(
-      selectedCouponObjects.map((coupon) =>
-        EventService.insertEventCoupon({
-          e_id: form.e_id,
-          coupon_code: coupon.coupon_code,
-          id: coupon.id,
-        }),
-      ),
-    );
-
-    const imageResult = await onClickInsert();
+    const imageResult = await insertNewImages();
     if (!imageResult.success) {
       showAlert({
         severity: "warning",
         title: "이미지 업로드 실패",
-        text: "이벤트는 등록되었지만 이미지 업로드에 실패했습니다.",
+        text: "이벤트는 수정되었지만 이미지 업로드에 실패했습니다.",
       });
       return;
     }
 
     showAlert({
       severity: "success",
-      title: "등록 성공",
-      text: "이벤트가 등록되었습니다.",
+      title: "수정 성공",
+      text: "이벤트가 수정되었습니다.",
     });
   };
 
@@ -224,19 +268,19 @@ const EventCreated = () => {
       </Snackbar>
 
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-        이벤트 등록
+        이벤트 수정
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 4 }}>
-        이벤트 정보와 이미지, 쿠폰을 함께 설정합니다.
+        이벤트 정보와 이미지를 수정합니다.
       </Typography>
 
       <Box
         component="form"
-        name="event"
+        name="eventUpdate"
         onSubmit={handleSubmit}
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 360px" },
+          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 320px" },
           gap: 4,
           alignItems: "start",
         }}
@@ -276,7 +320,7 @@ const EventCreated = () => {
                   label="이벤트 기간"
                   value={form.e_long}
                   onChange={(value) =>
-                    handleChange(makeEvent("e_long", value.format("YYYY-MM-DD")))
+                    handleChange(makeEvent("e_long", value?.format("YYYY-MM-DD") || null))
                   }
                 />
               </Box>
@@ -298,7 +342,49 @@ const EventCreated = () => {
 
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              이미지
+              등록된 이미지
+            </Typography>
+            {imageList.length === 0 && (
+              <Typography color="text.secondary">등록된 이미지가 없습니다.</Typography>
+            )}
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" }, gap: 2 }}>
+              {imageList.map((item) => (
+                <Box
+                  key={`${item.img_name}-${item.img_idx}`}
+                  sx={{ border: "1px solid #ddd", borderRadius: 1, overflow: "hidden" }}
+                >
+                  <Box
+                    component="img"
+                    src={item.img_name}
+                    alt={item.img_tag || "event"}
+                    sx={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+                  />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 1.5 }}>
+                    <Typography variant="caption" sx={{ flex: 1 }}>
+                      {item.img_tag === "THUMBNAIL" ? "썸네일" : "본문 이미지"}
+                    </Typography>
+                    <input type="file" name={item.img_originalName} className="updateFile" />
+                    <FloatingActionButtonMui
+                      icon={<FileUploadIcon />}
+                      color="primary"
+                      onClick={imageUpload}
+                    />
+                    <FloatingActionButtonMui
+                      icon={<DeleteIcon />}
+                      color="error"
+                      onClick={() => imageDelete([item.img_originalName])}
+                    />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              새 이미지 추가
             </Typography>
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
               <SelectMui
@@ -312,10 +398,9 @@ const EventCreated = () => {
                 component="label"
                 variant="contained"
                 startIcon={<CloudUploadIcon />}
-                disabled={!form.e_title}
               >
                 이미지 추가
-                <input type="file" hidden name="file" onChange={onClickAdd} />
+                <input type="file" hidden name="file" onChange={handleImageChange} />
               </Button>
             </Box>
             {preview.length > 0 && (
@@ -333,7 +418,7 @@ const EventCreated = () => {
                     <Box
                       component="img"
                       src={item}
-                      alt=""
+                      alt="preview"
                       sx={{ width: "100%", height: 120, objectFit: "cover", display: "block" }}
                     />
                     <Typography variant="caption" sx={{ display: "block", px: 1, py: 0.75 }}>
@@ -343,27 +428,6 @@ const EventCreated = () => {
                 ))}
               </Box>
             )}
-          </Box>
-
-          <Divider />
-
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              쿠폰 선택
-            </Typography>
-            <TableCheckBoxMui
-              rowData={couponList}
-              col={[
-                "coupon_code",
-                "discount",
-                "coupon_end",
-                "coupon_max",
-                "coupon_info",
-              ]}
-              checkedList={selectedCouponCodes}
-              setCheckedList={setSelectedCouponCodes}
-              rowKey="coupon_code"
-            />
           </Box>
         </Box>
 
@@ -377,15 +441,21 @@ const EventCreated = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            쿠폰 생성
+            수정 작업
           </Typography>
-          <CouponAdd onCreated={handleCouponCreated} />
-          <Divider sx={{ my: 2 }} />
           <Typography color="text.secondary" sx={{ mb: 2 }}>
-            선택된 쿠폰 {selectedCouponCodes.length}개
+            변경 내용을 확인한 뒤 저장하세요.
           </Typography>
           <Button type="submit" variant="contained" fullWidth size="large">
-            등록
+            수정
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 1 }}
+            onClick={() => navigate("/event")}
+          >
+            취소
           </Button>
         </Box>
       </Box>
@@ -393,4 +463,4 @@ const EventCreated = () => {
   );
 };
 
-export default EventCreated;
+export default EventUpdate;

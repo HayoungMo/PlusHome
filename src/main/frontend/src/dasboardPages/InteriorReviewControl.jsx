@@ -45,15 +45,6 @@ const InteriorReviewControl = () => {
 		return resultList;
 	}, [intreiorReviewList, emptyList]);
 
-	// useEffect(() => {
-	// 	console.log(intreiorReviewList);
-	// 	intreiorReviewList.forEach((element, index) => {
-	// 		console.log(element);
-	// 		setIntreiorMuiDisplayList([...intreiorMuiDisplayList, { ...element.review, index }]);
-	// 		setOnlyImageList([...onlyImageList, { ...element.image, index }]);
-	// 	});
-	// }, [intreiorReviewList]);
-
 	const reloadData = async () => {
 		const result = await InteriorUserService.getInteriorReviewByCompanyId({ c_id: id });
 
@@ -77,20 +68,7 @@ const InteriorReviewControl = () => {
 			setIntreiorReviewList(reviewData);
 		}
 	};
-	// b_createdDate
-	// c_addr
-	// c_content
-	// c_email
-	// c_id
-	// c_kind
-	// c_name
-	// c_phone
-	// id
-	// invoice_kind
-	// invoice_no
-	// ir_content
-	// ir_createdDate
-	// rowIndex
+
 	useEffect(() => {
 		reloadData();
 	}, [id]);

@@ -66,7 +66,7 @@ const SearchPage = () => {
     //페이징 처리
     //const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 9; //한페이지에 9개씩
-    const previewCount = 3;
+    const previewCount = 6;
 
     const onClickTab = (nextType) => {
         setSearchParams({
@@ -532,7 +532,10 @@ const SearchPage = () => {
         <Card
             key={item.f_code}
             variant="outlined"
-            sx={{ height: "100%" }}
+            sx={{ 
+                width: 180,
+                height: "100%" 
+            }}
         >
             <CardActionArea
                 component={Link}
@@ -541,18 +544,18 @@ const SearchPage = () => {
             >
                 <CardMedia
                     component="img"
-                    height="160"
+                    height="110"
                     image={item.thumbnail || "/no-image.png"}
                     alt={item.f_name}
                     sx={{ objectFit: "cover" }}
                 />
 
-                <CardContent>
+                <CardContent sx={{ p: 1}}>
                     <p style={{ margin: "0 0 6px", color: "#666", fontSize: "13px" }}>
                         {item.c_name}
                     </p>
 
-                    <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                    <h3 style={{ margin: "0 0 6px", fontSize: "14px" }}>
                         {item.f_name}
                     </h3>
 
@@ -621,8 +624,9 @@ const SearchPage = () => {
                 <div
                     style={{
                         display: "grid",
-                        gridTemplateColums: "repeat(3, minmax(0,1fr))",
+                        gridTemplateColumns: "repeat(auto-fill, 180px)",
                         gap: "16px",
+                        justifyContent: "start", 
                     }}
                 >
                     {list.slice(0,previewCount).map(renderItem)}
@@ -798,7 +802,8 @@ const SearchPage = () => {
                             <div
                                 style={{
                                     display: "grid",
-                                    gridTemplateColums:"repeat(3, minmax(0, 1fr))",
+                                    gridTemplateColumns: "repeat(auto-fill, 180px)",
+                                    justifyContent: "start",
                                     gap: "16px",
                                 }}
                             >

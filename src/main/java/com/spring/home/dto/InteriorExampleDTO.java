@@ -16,5 +16,7 @@ public class InteriorExampleDTO {
     private String c_phone;
     private String c_email;
     private String c_content;
+    
+    private int ie_index;
 
 }

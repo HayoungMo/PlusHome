@@ -434,9 +434,7 @@ const FurnitureArticle = () => {
           navigate(`/furniture/review/${f_code}`);
         };
 
-         const onCoupon = () => {
-           navigate(`/coupon/download/CP-88d30796-9982-435d-9ded-baa9db0c0e27`);
-         };
+
 
     const onDelete = async (f_code) => {
         try {
@@ -479,8 +477,7 @@ const FurnitureArticle = () => {
         )}
 
         <button onClick={() => onReview(f_code)}>리뷰등록</button>
-        <button onClick={() => onCoupon()}>쿠폰발급</button>
-        <button onClick={onBack}>list로 돌아가기</button>
+          <button onClick={onBack}>list로 돌아가기</button>
 
         <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
           <div>
