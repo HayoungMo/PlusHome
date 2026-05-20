@@ -25,6 +25,7 @@ const UserCouponPage = ({ user }) => {
 
   const [tab, setTab] = useState(0);
   const [successMessage, setSuccessMessage] = useState("")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCoupon = async () => {

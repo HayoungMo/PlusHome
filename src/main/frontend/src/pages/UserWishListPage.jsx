@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import LikeService from "../service/likeService";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
+import Loading from "../components/Loading";
+
+import {FaHeart} from "react-icons/fa";
 
 const UserWishListPage = ({ user }) => {
   const navigate = useNavigate();
@@ -56,7 +59,7 @@ const UserWishListPage = ({ user }) => {
   };
 
   if (loading) {
-    return <div>찜목록을 불러오는 중...</div>;
+    return <Loading message="찜 목록을 불러오는 중입니다."/>;
   }
 
   if (!user?.id) {
@@ -65,10 +68,9 @@ const UserWishListPage = ({ user }) => {
 
   return (
     <section className="user-wishlist-page">
-      <h2>찜목록</h2>
 
       {likes.length === 0 ? (
-        <p>찜한 상품이 없습니다.</p>
+        <p className="user-wishlist-empty">찜한 상품이 없습니다.</p>
       ) : (
         <div className="user-wishlist-list">
           {likes.map((item) => {
@@ -76,58 +78,71 @@ const UserWishListPage = ({ user }) => {
               item.imageList?.find((img) => img.img_tag === "THUMBNAIL") ||
               item.imageList?.[0];
 
+            const productDeliveryPrice = Number(
+              item.f_deliveryPrice ?? item.f_deliveryprice ?? 0
+            );
+
+            const deliveryPrice =
+              Number(item.f_dprice || 0) >= 50000 ? 0 : productDeliveryPrice;
+
+            const discountRate = Number(item.f_discount || 0);
+
             return (
               <div
                 key={item.f_code}
-                className="user-wishlist-item"
+                className="user-wishlist-product"
                 onClick={() => onClickItem(item.f_code)}
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "12px",
-                  marginBottom: "12px",
-                  cursor: "pointer",
-                }}
               >
-                {thumbnail ? (
+                <div className="user-wishlist-thumb">
                   <img
-                    src={getImgDirSimple({
-                      kind: thumbnail.img_kind,
-                      name: thumbnail.img_name,
-                    })}
+                    src={
+                      thumbnail
+                        ? getImgDirSimple({
+                            kind: thumbnail.img_kind,
+                            name: thumbnail.img_name,
+                          })
+                        : "/no-image.png"
+                    }
                     alt={item.f_name}
-                    style={{
-                      width: "120px",
-                      height: "120px",
-                      objectFit: "cover",
-                    }}
                   />
-                ) : (
-                  <div
-                    style={{
-                      width: "120px",
-                      height: "120px",
-                      border: "1px solid #ddd",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    className="user-wishlist-like"
+                    onClick={(evt) => onToggleLike(evt, item.f_code)}
+                    onKeyDown={(evt) => {
+                      if (evt.key === "Enter" || evt.key === " ") {
+                        onToggleLike(evt, item.f_code);
+                      }
                     }}
                   >
-                    이미지 없음
+                    ♥
+                  </span>
+                </div>
+
+                <div className="user-wishlist-company">
+                  {item.c_name || "업체"}
+                </div>
+
+                <div className="user-wishlist-title">
+                  {item.f_name}
+                </div>
+
+                {Number(item.f_price || 0) > Number(item.f_dprice || 0) && (
+                  <div className="user-wishlist-original">
+                    {Number(item.f_price || 0).toLocaleString()}원
                   </div>
                 )}
 
-                <div>
-                  <p>{item.f_name}</p>
-                  <p>{Number(item.f_price || 0).toLocaleString()}원</p>
-                  <p>{Number(item.f_dprice || 0).toLocaleString()}원</p>
+                <div className="user-wishlist-price">
+                  {discountRate > 0 && <span>{discountRate}%</span>}
+                  <strong>{Number(item.f_dprice || 0).toLocaleString()}원</strong>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={(evt) => onToggleLike(evt, item.f_code)}
-                >
-                  찜 해제
-                </button>
+                <div className="user-wishlist-delivery">
+                  배송비 {deliveryPrice === 0 ? "무료" : `${deliveryPrice.toLocaleString()}원`}
+                </div>
               </div>
             );
           })}

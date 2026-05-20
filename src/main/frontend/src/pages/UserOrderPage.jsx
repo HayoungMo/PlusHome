@@ -8,7 +8,8 @@ import FurnitureReviewService from "../service/furnitureReviewService";
 import OrderClaimService from "../service/orderClaimService";
 import ImageService from "../service/imageService";
 
-import Loading from "./Loading";
+import Loading from "../components/Loading";
+
 import OrderClaimInfo from "./OrderClaimInfo";
 import OrderClaimModal from "./OrderClaimModal";
 
@@ -312,7 +313,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const filteredOrders = getFilteredOrders();
 
     if (loading) {
-        return <Loading/>;
+        return <Loading message="주문 정보를 불러오는 중입니다."/>;
     }
 
     return (

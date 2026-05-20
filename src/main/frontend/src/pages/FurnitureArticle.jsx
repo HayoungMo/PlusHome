@@ -6,6 +6,7 @@ import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
 import FurnitureReview from "../components/FurnitureReview";
 import Question from "./Question";
+import Loading from "../components/Loading";
 
 const FurnitureArticle = () => {
     const called = useRef(false);
@@ -449,7 +450,7 @@ const FurnitureArticle = () => {
     };
 
     if (!furniture) {
-        return <div>로딩 중...</div>;
+        return <Loading message="상품 정보를 불러오는 중입니다."/>;
     }
 
     const productDeliveryPrice = Number(

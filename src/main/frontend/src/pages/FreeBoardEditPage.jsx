@@ -5,7 +5,7 @@ import FreeBoardWriteMui from "../components/FreeBoardWriteMui";
 import FreeBoardService from "../service/freeBoardService";
 import { getLoginUser, isAdminUser } from "../components/freeboard/constants";
 import SnackbarAlert from "../components/SnackbarAlert";
-import Loading from "./Loading";
+import Loading from "../components/Loading";
 
 const FreeBoardEditPage = () => {
     const { boardId } = useParams();
@@ -68,7 +68,7 @@ const FreeBoardEditPage = () => {
     if (!initialData) {
         return (
             <>
-                <Loading type="skeleton" />
+                <Loading type="skeleton" message="데이터를 불러오는 중 입니다."/>
                 <SnackbarAlert
                     open={snack.open}
                     message={snack.message}

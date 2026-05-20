@@ -211,7 +211,7 @@ const UserProfilePage = ({user, setUser, setLoginUser, onDeleteClick}) => {
                 name="pw"
                 value={form.pw}
                 onChange={onChange}
-                placeholder="변경할 때만 입력"
+                placeholder="변경할 비밀번호를 입력해주세요."
               />
             </label>
 
@@ -222,7 +222,7 @@ const UserProfilePage = ({user, setUser, setLoginUser, onDeleteClick}) => {
                 name="pwConfirm"
                 value={form.pwConfirm}
                 onChange={onChange}
-                placeholder="새 비밀번호 확인"
+                placeholder="비밀번호를 다시 입력해주세요."
               />
             </label>
 

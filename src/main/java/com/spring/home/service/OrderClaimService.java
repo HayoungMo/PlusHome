@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.home.dto.OrderClaimDTO;
 import com.spring.home.dto.OrderClaimUpdateDTO;
+import com.spring.home.mapper.CartMapper;
 import com.spring.home.mapper.OrderClaimMapper;
 import com.spring.home.util.furnitureCode;
 
@@ -16,6 +17,9 @@ public class OrderClaimService {
 
     @Autowired
     private OrderClaimMapper orderClaimMapper;
+    
+    @Autowired
+    private CartMapper cartMapper;
 
     public String createClaim(String id, OrderClaimDTO dto) throws Exception {
         OrderClaimDTO exists = orderClaimMapper.getByCartCode(dto.getC_code(), id);
@@ -51,13 +55,25 @@ public class OrderClaimService {
         return orderClaimMapper.getCompanyClaims(companyId);
     }
 
+    @Transactional
     public void updateStatus(String claim_code, int claim_status) throws Exception {
         validateClaimStatus(claim_status);
+
+        OrderClaimDTO claim = orderClaimMapper.getByClaimCode(claim_code);
+
+        if (claim == null) {
+            throw new RuntimeException("교환/반품 신청 정보를 찾을 수 없습니다.");
+        }
 
         int result = orderClaimMapper.updateStatus(claim_code, claim_status);
 
         if (result != 1) {
             throw new RuntimeException("교환/반품 상태 변경에 실패했습니다.");
+        }
+
+        if (claim_status == 3 && claim.getClaim_type() == 2) {
+            cartMapper.restoreUsedPoint(claim.getC_code(), claim.getId());
+            cartMapper.restoreCouponDiscountAsPoint(claim.getC_code(), claim.getId());
         }
     }
 

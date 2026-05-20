@@ -111,6 +111,18 @@
     WHERE claim_code = #{claim_code}
 </update>
 
-
+<select id="getByClaimCode" parameterType="string" resultType="com.spring.home.dto.OrderClaimDTO">
+    SELECT
+        claim_code,
+        c_code,
+        id,
+        f_code,
+        claim_type,
+        claim_status,
+        claim_reason,
+        claim_createddate
+    FROM order_claim
+    WHERE claim_code = #{claim_code}
+</select>
 
 </mapper>
