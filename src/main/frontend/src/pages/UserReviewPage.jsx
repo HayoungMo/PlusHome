@@ -8,13 +8,30 @@ import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import ImageService from "../service/imageService";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import Loading from "../components/Loading";
+
+import { useNavigate } from "react-router-dom";
 
 const UserReviewPage = ({ user }) => {
+  const navigate = useNavigate()
   const [reviews, setReviews] = useState();
   const [refresh, setRefresh] = useState(0);
   const [change, setChange] = useState([]);
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);
+  const [loading, setLoading] = useState(true)
+
+  const goFurniture= (item) => {
+    const fCode = item.f_code || item.furniture?.f_code
+    if (fCode){
+      navigate(`/furniture/article/${fCode}`)
+    }
+  }
+
+  const formatDate = (value) => {
+    if(!value) return "-";
+    return String(value).slice(0,10)
+  }
 
   const changeToUpdate = (idx) => {
     setChange((prv) => {
@@ -23,31 +40,45 @@ const UserReviewPage = ({ user }) => {
       return newChange;
     });
   };
+
   useEffect(() => {
     const fetchReview = async () => {
-      const result = await FurnitureReviewService.selectReview(user);
-      const List = Array.isArray(result.data) ? result.data : [];
-      const listWithImages = await Promise.all(
-        List.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "F_REVIEW",
-            returnType: "list",
-            a: item.c_code,
-            d: item.id,
-            view: false,
-          });
-          if (!logo?.result?.length) {
-            return item;
-          }
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
-      setReviews(listWithImages);
-    };
-    fetchReview();
+      try{
+        setLoading(true)
+        const result = await FurnitureReviewService.selectReview(user);
+        const List = Array.isArray(result.data) ? result.data : [];
+        const listWithImages = await Promise.all(
+          List.map(async (item) => {
+            const logo = await GetImgDir({
+              kind: "F_REVIEW",
+              returnType: "list",
+              a: item.c_code,
+              d: item.id,
+              view: false,
+            });
+
+            if (!logo?.result?.length) {
+              return item;
+            }
+
+            return {
+              ...item,
+              logo,
+            };
+          }),
+        );
+
+        setReviews(listWithImages);
+      }catch(error){
+        console.error("리뷰 내역 조회 실패", error)
+        setReviews([])
+      }finally{
+        setLoading(false)
+      }
+    }
+    if (user?.id) {
+      fetchReview()
+    }
   }, [user, refresh]);
 
   const handleOpen = () => {
@@ -155,21 +186,24 @@ const UserReviewPage = ({ user }) => {
     return maxIdx;
   };
 
-  const onClickAdd = (item) => {
-    const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
+  const onClickAdd = (item, e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
     const nextIdx = getNextIdx(item) + sendList.length;
+
     setSendList([
       ...sendList,
       {
-        img_kind: insertForm2.img_kind.value,
+        img_kind: "F_REVIEW",
         img_tag: nextIdx === 0 ? "THUMBNAIL" : "OTHER",
-        dir_a: insertForm2.dir_a.value,
-        //dir_b: insertForm2.dir_b.value,
-        //dir_c: insertForm2.dir_c.value,
-        dir_d: insertForm2.dir_d.value,
-        // dir_e: insertForm.dir_e.value,
+        dir_a: item.c_code,
+        dir_d: user.id,
         img_idx: nextIdx,
-        file: insertForm2.file.files[0],
+        file,
       },
     ]);
   };
@@ -183,6 +217,15 @@ const UserReviewPage = ({ user }) => {
     console.log(sendList);
     ImageService.insertImage(sendList);
   };
+  
+  if (loading) {
+    return <Loading message="리뷰 내역을 불러오는 중입니다." />;
+  }
+
+  if (!reviews || reviews.length === 0) {
+    return <p>작성한 리뷰가 없습니다.</p>;
+  }
+
   return (
     <div>
       <Snackbar
@@ -217,182 +260,80 @@ const UserReviewPage = ({ user }) => {
       </Snackbar>
 
       {reviews?.map((item, idx) => (
-        <div>
-          {item?.logo?.result.map((record, i) => (
-            <div>
-              <img
-                src={`${record.img_name}?t=${refresh}`}
-                alt={`${item.c_name} 예시`}
-              />
-              {change[idx] && (
-                <form>
-                  <Button
-                    component="label"
-                    variant="contained"
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    추가할 파일
-                    <input
-                      type="file"
-                      hidden
-                      name={record.img_originalName}
-                      className="updateFile"
-                    />
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={(e) => imageUpload(record, e)}
-                  >
-                    수정
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => imageDelete([record.img_originalName])}
-                  >
-                    삭제
-                  </Button>
-                </form>
-              )}
-            </div>
-          ))}
-          {change[idx] ? (
-            <form name="review">
-              <RatingMui
-                name="fr_star"
-                label="별점"
-                value={item.fr_star}
-                onChange={(e) => handleChange(idx, e)}
-                precision={0.5}
-              />
-              <TextFieldMui
-                name="fr_subject"
-                label="subject"
-                value={item.fr_subject}
-                onChange={(e) => handleChange(idx, e)}
-              />
-              <TextFieldMui
-                name="fr_content"
-                label="content"
-                value={item.fr_content}
-                onChange={(e) => handleChange(idx, e)}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={(e) => {handleSubmit(e, item)
-                  changeToUpdate(idx);
-                }}
-              >
-                수정
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => handleOpen()}
-              >
-                삭제
-              </Button>
-              <DialogMui
-                open={open}
-                onClose={handleClose}
-                title="삭제 확인"
-                text="정말 삭제하시겠습니까?"
-                buttons={[
-                  {
-                    title: "취소",
-                    color: "inherit",
-                    onClick: handleClose,
-                  },
-                  {
-                    title: "삭제",
-                    variant: "outlined",
-                    color: "error",
-                    onClick: () => {
-                      console.log("삭제 실행");
-                      reviewDeleteSubmit(idx);
-                      handleClose();
-                    },
-                  },
-                ]}
-              />
-            </form>
-          ) : (
-            <div>
-              <RatingMui
-                name="fr_star"
-                label="별점"
-                value={item.fr_star}
-                readOnly={true}
-                precision={0.5}
-              />
-              <TextFieldMui
-                name="fr_subject"
-                label="subject"
-                value={item.fr_subject}
-                readOnly={true}
-              />
-              <TextFieldMui
-                name="fr_content"
-                label="content"
-                value={item.fr_content}
-                readOnly={true}
-              />
-            </div>
-          )}
-          {change[idx] && (
-            <form name="imageInsertTestForm">
-              <p>가구 리뷰 이미지 추가</p>
-              <input
-                type="hidden"
-                value="F_REVIEW"
-                name="img_kind"
-                placeholder="IMG_KIND"
-              />
-              <input
-                type="hidden"
-                value={
-                  sendList === null || sendList.length === 0
-                    ? "THUMBNAIL"
-                    : "OTHER"
-                }
-                name="img_tag"
-                placeholder="IMG_TAG"
-              />
-              <input
-                type="hidden"
-                value={item.c_code}
-                name="dir_a"
-                placeholder="DIR_A"
-              />
-              {/* <input
-          type="hidden"
-          value={company.c_kind}
-          name="dir_b"
-          placeholder="DIR_B"
-        />
+      <div className="user-review-item" key={item.fr_code || item.id || idx}>
+        {change[idx] ? (
+          <form name="review" className="user-review-edit-form">
+            <div className="user-review-edit-images">
+              {(item?.logo?.result || []).map((record) => (
+                <div
+                  className="user-review-edit-image"
+                  key={record.img_originalName || record.img_name}
+                >
+                  <img
+                    src={`${record.img_name}?t=${refresh}`}
+                    alt={`${item.c_name || "리뷰"} 이미지`}
+                  />
 
-        <input
-          type="hidden"
-          value={company.c_name}
-          name="dir_c"
-          placeholder="DIR_C"
-        /> */}
-              <input
-                type="hidden"
-                value={user.id}
-                name="dir_d"
-                placeholder="DIR_D"
-              />
-              {/*
- <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-              <input
-                type="hidden"
-                name="img_idx"
-                value={sendList.length + 1}
-                placeholder="IMG_IDX"
-              />
+                  <div className="user-review-image-actions">
+                    <Button
+                      component="label"
+                      variant="contained"
+                      startIcon={<CloudUploadIcon />}
+                    >
+                      파일 선택
+                      <input
+                        type="file"
+                        hidden
+                        name={record.img_originalName}
+                        className="updateFile"
+                      />
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={(e) => imageUpload(record, e)}
+                    >
+                      수정
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => imageDelete([record.img_originalName])}
+                    >
+                      삭제
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <RatingMui
+              name="fr_star"
+              label="별점"
+              value={item.fr_star}
+              onChange={(e) => handleChange(idx, e)}
+              precision={0.5}
+            />
+
+            <TextFieldMui
+              name="fr_subject"
+              label="제목"
+              value={item.fr_subject}
+              onChange={(e) => handleChange(idx, e)}
+            />
+
+            <TextFieldMui
+              name="fr_content"
+              label="내용"
+              value={item.fr_content}
+              onChange={(e) => handleChange(idx, e)}
+            />
+
+            <div className="user-review-add-image-form">
+              <p>가구 리뷰 이미지 추가</p>
+
               <Button
                 component="label"
                 variant="contained"
@@ -403,16 +344,112 @@ const UserReviewPage = ({ user }) => {
                   type="file"
                   hidden
                   name="file"
-                  onChange={() => onClickAdd()}
+                  onChange={(e) => onClickAdd(item, e)}
                 />
               </Button>
-            </form>
-          )}
-          <Button onClick={() => changeToUpdate(idx)}>
-            {!change[idx] ? "리뷰 수정" : "수정 취소"}
-          </Button>
-        </div>
-      ))}
+            </div>
+
+            <div className="user-review-edit-actions">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={(e) => {
+                  handleSubmit(e, item);
+                  changeToUpdate(idx);
+                }}
+              >
+                수정 완료
+              </Button>
+
+              <Button variant="outlined" onClick={() => changeToUpdate(idx)}>
+                수정 취소
+              </Button>
+
+              <Button variant="contained" color="error" onClick={handleOpen}>
+                삭제
+              </Button>
+            </div>
+
+            <DialogMui
+              open={open}
+              onClose={handleClose}
+              title="삭제 확인"
+              text="정말 삭제하시겠습니까?"
+              buttons={[
+                {
+                  title: "취소",
+                  color: "inherit",
+                  onClick: handleClose,
+                },
+                {
+                  title: "삭제",
+                  variant: "outlined",
+                  color: "error",
+                  onClick: () => {
+                    reviewDeleteSubmit(idx);
+                    handleClose();
+                  },
+                },
+              ]}
+            />
+          </form>
+        ) : (
+          <article className="user-review-card">
+            <div className="user-review-row user-review-title-row">
+              <h4>{item.fr_subject || "제목 없음"}</h4>
+
+              <RatingMui
+                name="fr_star"
+                label=""
+                value={item.fr_star}
+                readOnly={true}
+                precision={0.5}
+              />
+            </div>
+
+            <div className="user-review-date">
+              {formatDate(item.fr_date || item.createdAt)}
+            </div>
+
+            <p className="user-review-content">
+              {item.fr_content || "내용 없음"}
+            </p>
+
+            <div className="user-review-bottom-row">
+              <div
+                className="user-review-images"
+                onClick={() => goFurniture(item)}
+              >
+                {(item?.logo?.result || []).length > 0 ? (
+                  item.logo.result.slice(0, 4).map((record) => (
+                    <img
+                      key={record.img_originalName || record.img_name}
+                      src={`${record.img_name}?t=${refresh}`}
+                      alt={item.fr_subject || "리뷰 이미지"}
+                    />
+                  ))
+                ) : (
+                  <div className="user-review-no-image">이미지 없음</div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="user-review-edit-btn"
+                onClick={(evt) => {
+                  evt.stopPropagation();
+                  changeToUpdate(idx);
+                }}
+              >
+                수정
+              </button>
+            </div>
+          </article>
+        )}
+      </div>
+    ))}
+
+
     </div>
   );
 };

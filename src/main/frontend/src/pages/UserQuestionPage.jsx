@@ -3,6 +3,7 @@ import questionService from "../service/questionService";
 import { TextField } from "@mui/material";
 import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
+import Loading from "../components/Loading";
 
 const UserQuestionPage = ({ user }) => {
     const [questions, setQuestions] = useState([]);
@@ -24,7 +25,9 @@ const UserQuestionPage = ({ user }) => {
     const [answerEditIdx, setAnswerEditIdx] = useState(null);
     //image 다중처리
     const [addImageFiles, setAddImageFiles] = useState({});
-
+    //Loading 할래욧
+    const [loading, setLoading] = useState(true)
+    
     //회사 확잉
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
     const currentUser = user || savedUser;
@@ -54,47 +57,62 @@ const UserQuestionPage = ({ user }) => {
         );
     };
 
-    
+    // 문의 내역 조회 (loading 을 넣기위해, try-catch-finally 구조 추가)
+    // catch 문에 alert 존재 -> 로딩 실패 페이지 만들 시 alert 수정 예정
     const getMyQuestions = async () => {
-        if (!currentUser?.id) return;
+        if (!currentUser?.id) {
+            setLoading(false);
+        }
         
-        //조회하는 함수 안에서 회사계정일 경우 문의를 불러올수 있게 변경해줌 -> 회사 아이디로 여러번 호출하는걸 방지해줌.
-        const companyList = currentUser?.companyList || [];
-        const uniqueCompanyIds = removeDuplicateCompanyIds(companyList);
+        //try 시작
+        try{
+            setLoading(true) //로딩 호출 (이후 기존 코딩 그대로 이어짐)
 
-        const data = isCompanyUser
-            ?(await Promise.all(
-                uniqueCompanyIds.map((c_id) => 
-                    questionService.getCompanyQuestions(c_id)
-                )
-            )).flat()
-            : await questionService.getMyQuestions(currentUser.id);
+            //조회하는 함수 안에서 회사계정일 경우 문의를 불러올수 있게 변경해줌 -> 회사 아이디로 여러번 호출하는걸 방지해줌.
+            const companyList = currentUser?.companyList || [];
+            const uniqueCompanyIds = removeDuplicateCompanyIds(companyList);
 
-        const questionList = removeDuplicateQuestions 
-            (
-                Array.isArray(data) ? data : []
-            );   
+            const data = isCompanyUser
+                ?(await Promise.all(
+                    uniqueCompanyIds.map((c_id) => 
+                        questionService.getCompanyQuestions(c_id)
+                    )
+                )).flat()
+                : await questionService.getMyQuestions(currentUser.id);
 
-        setQuestions(questionList);
+            const questionList = removeDuplicateQuestions 
+                (
+                    Array.isArray(data) ? data : []
+                );   
 
-        const imageMap = {};
+            setQuestions(questionList);
 
-        const imageEntries = await Promise.all(
-            questionList.map(async (item) => {
-                const imgResult = await GetImgDir({
-                    kind: "QUESTION",
-                    returnType: "list",
-                    a: item.f_code,
-                    d: item.id,
-                    idx: item.q_idx,
-                    view: true,
-                });
+            //const imageMap = {}; // 사용안한 map 주석 처리
 
-                return [item.q_idx, imgResult.result || []];
-            })
-        );
+            const imageEntries = await Promise.all(
+                questionList.map(async (item) => {
+                    const imgResult = await GetImgDir({
+                        kind: "QUESTION",
+                        returnType: "list",
+                        a: item.f_code,
+                        d: item.id,
+                        idx: item.q_idx,
+                        view: true,
+                    });
+
+                    return [item.q_idx, imgResult.result || []];
+                })
+            );
     
-    setQuestionImages(Object.fromEntries(imageEntries));
+            setQuestionImages(Object.fromEntries(imageEntries));
+        
+        } catch (error) {
+            console.error("문의 내역 조회 실패", error)
+            alert("문의 내역을 불러오지 못했습니다.")
+        
+        } finally{
+            setLoading(false)
+        }
     };
 
     useEffect(() => {
@@ -309,6 +327,10 @@ const UserQuestionPage = ({ user }) => {
 
         getMyQuestions();
     };
+
+    if(loading){
+        return <Loading message="문의 내역을 불러오는 중입니다."/>
+    }
 
     return (
         <div>

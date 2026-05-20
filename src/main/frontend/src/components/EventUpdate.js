@@ -1,23 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Alert, AlertTitle, Box, Button, CircularProgress, Snackbar, Typography } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Divider,
+  Snackbar,
+  Typography,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DatePickerMui from "./DatePickerMui";
 import TextFieldMui from "./TextFieldMui";
 import SelectMui from "./SelectMui";
 import EventService from "../service/eventService";
 import ImageService from "../service/imageService";
 import GetImgDir from "../resources/function/GetImgDir";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
 
 const EventUpdate = () => {
   const navigate = useNavigate();
   const { e_id } = useParams();
 
-  const [form, setForm] = useState( {});
+  const [form, setForm] = useState({});
   const [imageList, setImageList] = useState([]);
   const [sendList, setSendList] = useState([]);
   const [preview, setPreview] = useState([]);
-
+  const [imageTag, setImageTag] = useState("THUMBNAIL");
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -30,26 +41,43 @@ const EventUpdate = () => {
     { value: "event", title: "이벤트" },
   ];
 
+  const imageTagOptions = [
+    { value: "THUMBNAIL", title: "썸네일" },
+    { value: "OTHER", title: "본문 이미지" },
+  ];
+
+  const makeEvent = (name, value) => ({
+    target: {
+      name,
+      value,
+    },
+  });
+
+  const showAlert = ({ severity, title, text }) => {
+    setAlert({
+      open: true,
+      severity,
+      title,
+      text,
+    });
+  };
+
   useEffect(() => {
     const fetchEvent = async () => {
       if (!e_id) {
-        setAlert({
-          open: true,
+        showAlert({
           severity: "error",
           title: "조회 실패",
           text: "수정할 이벤트 정보를 찾을 수 없습니다.",
         });
-
         return;
       }
 
       try {
-
         const data = await EventService.selectEvent(e_id);
 
         if (!data || data.success === false) {
-          setAlert({
-            open: true,
+          showAlert({
             severity: "error",
             title: "조회 실패",
             text: "이벤트 정보를 불러오지 못했습니다.",
@@ -73,17 +101,16 @@ const EventUpdate = () => {
         setImageList(images?.result || []);
       } catch (err) {
         console.error(err);
-        setAlert({
-          open: true,
+        showAlert({
           severity: "error",
           title: "오류",
           text: "이벤트 정보를 불러오는 중 오류가 발생했습니다.",
         });
-      } 
+      }
     };
 
     fetchEvent();
-  }, []);
+  }, [e_id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,21 +125,28 @@ const EventUpdate = () => {
     }));
   };
 
-  const makeEvent = (name, value) => ({
-    target: {
-      name,
-      value,
-    },
-  });
-
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const hasThumbnail =
+      imageList.some((item) => item.img_tag === "THUMBNAIL") ||
+      sendList.some((item) => item.img_tag === "THUMBNAIL");
+
+    if (imageTag === "THUMBNAIL" && hasThumbnail) {
+      showAlert({
+        severity: "warning",
+        title: "썸네일 중복",
+        text: "썸네일은 하나만 등록할 수 있습니다.",
+      });
+      e.target.value = "";
+      return;
+    }
+
     const nextIndex = imageList.length + sendList.length;
     const nextImage = {
       img_kind: "DEV",
-      img_tag: nextIndex === 0 ? "THUMBNAIL" : "OTHER",
+      img_tag: imageTag,
       dir_a: form.e_id,
       dir_b: form.e_title,
       img_idx: nextIndex,
@@ -132,31 +166,76 @@ const EventUpdate = () => {
     return { success: true };
   };
 
+  const imageUpload = async () => {
+    const updateList = document.getElementsByClassName("updateFile");
+    const fileList = [];
+
+    for (const element of updateList) {
+      if (element.files.length !== 0) {
+        fileList.push({ file: element.files[0], name: element.name });
+      }
+    }
+
+    if (fileList.length === 0) {
+      showAlert({
+        severity: "warning",
+        title: "파일 없음",
+        text: "변경할 이미지를 선택해주세요.",
+      });
+      return;
+    }
+
+    await ImageService.updateImage(fileList);
+    showAlert({
+      severity: "success",
+      title: "이미지 수정 완료",
+      text: "이미지가 수정되었습니다.",
+    });
+  };
+
+  const imageDelete = async (item) => {
+    await ImageService.deleteImage(item);
+    setImageList((prev) => prev.filter((image) => !item.includes(image.img_originalName)));
+    showAlert({
+      severity: "success",
+      title: "이미지 삭제 완료",
+      text: "이미지가 삭제되었습니다.",
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = await EventService.updateEvent(form);
 
-    if (result.success) {
-      await insertNewImages();
-      setAlert({
-        open: true,
-        severity: "success",
-        title: "수정 성공",
-        text: "이벤트가 수정되었습니다.",
-      });
-    } else {
-      setAlert({
-        open: true,
+    if (!result.success) {
+      showAlert({
         severity: "error",
         title: `오류${result.status || ""}`,
         text: result.message || "수정 실패",
       });
+      return;
     }
+
+    const imageResult = await insertNewImages();
+    if (!imageResult.success) {
+      showAlert({
+        severity: "warning",
+        title: "이미지 업로드 실패",
+        text: "이벤트는 수정되었지만 이미지 업로드에 실패했습니다.",
+      });
+      return;
+    }
+
+    showAlert({
+      severity: "success",
+      title: "수정 성공",
+      text: "이벤트가 수정되었습니다.",
+    });
   };
 
   return (
-    <Box sx={{ maxWidth: 720, mx: "auto", px: 3, py: 5 }}>
+    <Box sx={{ maxWidth: 1080, mx: "auto", px: 3, py: 5, textAlign: "left" }}>
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -188,89 +267,195 @@ const EventUpdate = () => {
         </Alert>
       </Snackbar>
 
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
         이벤트 수정
+      </Typography>
+      <Typography color="text.secondary" sx={{ mb: 4 }}>
+        이벤트 정보와 이미지를 수정합니다.
       </Typography>
 
       <Box
         component="form"
         name="eventUpdate"
         onSubmit={handleSubmit}
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 320px" },
+          gap: 4,
+          alignItems: "start",
+        }}
       >
-        <SelectMui
-          name="e_type"
-          label="이벤트/공지사항"
-          option={option}
-          value={form.e_type || ""}
-          onChange={handleChange}
-          width="100%"
-        />
-        <TextFieldMui
-          name="e_title"
-          label="제목"
-          value={form.e_title || ""}
-          onChange={handleChange}
-          width="100%"
-        />
-        {form.e_type === "event" && (
-          <DatePickerMui
-            name="e_long"
-            label="이벤트 기간"
-            value={form.e_long}
-            onChange={(value) => handleChange(makeEvent("e_long", value?.format("YYYY-MM-DD") || null))}
-          />
-        )}
-        <TextFieldMui
-          name="e_content"
-          label="내용"
-          value={form.e_content || ""}
-          onChange={handleChange}
-          multiline
-          minRows={5}
-          width="100%"
-        />
-
-        <Box>
-          <Typography sx={{ mb: 1 }}>등록된 이미지</Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {imageList.length === 0 && <Typography color="text.secondary">등록된 이미지가 없습니다.</Typography>}
-            {imageList.map((item) => (
-              <Box
-                key={`${item.img_name}-${item.img_idx}`}
-                component="img"
-                src={item.img_name}
-                alt={item.img_tag || "event"}
-                sx={{ width: 120, height: 120, objectFit: "cover", borderRadius: 1 }}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              기본 정보
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "220px 1fr" },
+                gap: 2,
+              }}
+            >
+              <SelectMui
+                name="e_type"
+                label="이벤트/공지사항"
+                option={option}
+                value={form.e_type || ""}
+                onChange={handleChange}
+                width="100%"
               />
-            ))}
+              <TextFieldMui
+                name="e_title"
+                label="제목"
+                value={form.e_title || ""}
+                onChange={handleChange}
+                width="100%"
+              />
+            </Box>
+            {form.e_type === "event" && (
+              <Box sx={{ mt: 2 }}>
+                <DatePickerMui
+                  name="e_long"
+                  label="이벤트 기간"
+                  value={form.e_long}
+                  onChange={(value) =>
+                    handleChange(makeEvent("e_long", value?.format("YYYY-MM-DD") || null))
+                  }
+                />
+              </Box>
+            )}
+            <Box sx={{ mt: 2 }}>
+              <TextFieldMui
+                name="e_content"
+                label="내용"
+                value={form.e_content || ""}
+                onChange={handleChange}
+                multiline
+                minRows={5}
+                width="100%"
+              />
+            </Box>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              등록된 이미지
+            </Typography>
+            {imageList.length === 0 && (
+              <Typography color="text.secondary">등록된 이미지가 없습니다.</Typography>
+            )}
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" }, gap: 2 }}>
+              {imageList.map((item) => (
+                <Box
+                  key={`${item.img_name}-${item.img_idx}`}
+                  sx={{ border: "1px solid #ddd", borderRadius: 1, overflow: "hidden" }}
+                >
+                  <Box
+                    component="img"
+                    src={item.img_name}
+                    alt={item.img_tag || "event"}
+                    sx={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+                  />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 1.5 }}>
+                    <Typography variant="caption" sx={{ flex: 1 }}>
+                      {item.img_tag === "THUMBNAIL" ? "썸네일" : "본문 이미지"}
+                    </Typography>
+                    <input type="file" name={item.img_originalName} className="updateFile" />
+                    <FloatingActionButtonMui
+                      icon={<FileUploadIcon />}
+                      color="primary"
+                      onClick={imageUpload}
+                    />
+                    <FloatingActionButtonMui
+                      icon={<DeleteIcon />}
+                      color="error"
+                      onClick={() => imageDelete([item.img_originalName])}
+                    />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              새 이미지 추가
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+              <SelectMui
+                name="image_tag_select"
+                label="이미지 구분"
+                option={imageTagOptions}
+                value={imageTag}
+                onChange={(e) => setImageTag(e.target.value)}
+              />
+              <Button
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+              >
+                이미지 추가
+                <input type="file" hidden name="file" onChange={handleImageChange} />
+              </Button>
+            </Box>
+            {preview.length > 0 && (
+              <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
+                {preview.map((item, index) => (
+                  <Box
+                    key={item}
+                    sx={{
+                      width: 150,
+                      border: "1px solid #ddd",
+                      borderRadius: 1,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={item}
+                      alt="preview"
+                      sx={{ width: "100%", height: 120, objectFit: "cover", display: "block" }}
+                    />
+                    <Typography variant="caption" sx={{ display: "block", px: 1, py: 0.75 }}>
+                      {sendList[index]?.img_tag === "THUMBNAIL" ? "썸네일" : "본문 이미지"}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         </Box>
 
-        <Box>
-          <Button component="label" variant="outlined" startIcon={<CloudUploadIcon />}>
-            이미지 추가
-            <input type="file" hidden name="file" onChange={handleImageChange} />
-          </Button>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
-            {preview.map((item) => (
-              <Box
-                key={item}
-                component="img"
-                src={item}
-                alt="preview"
-                sx={{ width: 120, height: 120, objectFit: "cover", borderRadius: 1 }}
-              />
-            ))}
-          </Box>
-        </Box>
-
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
-          <Button variant="outlined" onClick={() => navigate("/event")}>
-            취소
-          </Button>
-          <Button type="submit" variant="contained">
+        <Box
+          sx={{
+            position: { md: "sticky" },
+            top: { md: 24 },
+            border: "1px solid #ddd",
+            borderRadius: 1,
+            p: 2,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+            수정 작업
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            변경 내용을 확인한 뒤 저장하세요.
+          </Typography>
+          <Button type="submit" variant="contained" fullWidth size="large">
             수정
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 1 }}
+            onClick={() => navigate("/event")}
+          >
+            취소
           </Button>
         </Box>
       </Box>

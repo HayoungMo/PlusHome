@@ -8,6 +8,7 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
 import SwitchMui from '../components/SwitchMui';
+import EventPopup from './EventPopup';
 
 const MainHomePage = ({ loginUser }) => {
 
@@ -144,7 +145,7 @@ const MainHomePage = ({ loginUser }) => {
 
     return (
         <div>
-            
+            <EventPopup/>
             {/* 메인 영상 */}
             <section>
                 <video 

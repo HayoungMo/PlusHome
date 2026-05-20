@@ -2,7 +2,7 @@ import React,{useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom"
 import OrderClaimService from '../service/orderClaimService';
 import ImageService from "../service/imageService";
-import Loading from './Loading';
+import Loading from '../components/Loading';
 
 const calimTypeText = (type) => {
     return Number(type) === 1 ? "교환" : "반품"
@@ -154,7 +154,7 @@ const CompanyClaimManage = () => {
     }
 
     if (loading) {
-        return <Loading/>
+        return <Loading message="교환/반품 내역을 불러오는 중입니다."/>
     }
 
     return (

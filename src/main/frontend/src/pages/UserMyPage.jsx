@@ -6,7 +6,7 @@ import '../css/UserMypage.css';
 import UserPageService from "../service/userPageService";
 import CartService from '../service/cartService';
 
-import  Loading  from "./Loading"
+import Loading from '../components/Loading';
 
 import UserProfilePage from './UserProfilePage';
 import UserWishListPage from './UserWishListPage';
@@ -33,17 +33,32 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const [profileImage, setProfileImage] = useState(null);
     const [wallet, setWallet] = useState(null)
     const [point, setPoint] = useState(0)
-    const [activeSection, setActiveSection] = useState("info")
+    
+    const getSectionByMenu = (menu) => {
+        if (["orders", "wishlist", "reviews", "inquiries"].includes(menu)) {
+            return "shopping";
+        }
+
+        if (menu === "interior") {
+            return "interior";
+        }
+
+        return "info";
+    };
+
+    const [activeSection, setActiveSection] = useState(
+        getSectionByMenu(queryMenu || "info")
+    );
 
     const sectionMenus= {
         info: [
             {key: "info", label: "회원 정보"},
         ],
         shopping: [
-            {key: "orders", label: "배송 정보"},
+            {key: "orders", label: "주문 내역 조회"},
+            {key: "reviews", label: "리뷰"},
             {key: "wishlist", label: "찜목록"},
-            {key: "reviews", label: "리뷰 확인"},
-            {key: "inquiries", label: "문의 확인"},
+            {key: "inquiries", label: "문의"},
         ],
         interior: [
             {key: "interior", label: ""},
@@ -83,6 +98,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     useEffect(()=>{
         if(queryMenu){
             setActiveMenu(queryMenu)
+            setActiveSection(getSectionByMenu(queryMenu))
         }
     },[queryMenu])
  
@@ -191,7 +207,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     };
 
     if(loading) 
-        return <Loading/>
+        return <Loading message='마이페이지 정보를 불러오는 중입니다.'/>
 
     return (
         <div className={`user-mypage ${activeSection !== "info" ? "wide" : ""}`}>
@@ -216,19 +232,19 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             className={activeSection === "info" ? "active" : ""}
             onClick={() => changeSection("info")}
             >
-            내 정보
+            프로필
             </button>
             <button
             className={activeSection === "shopping" ? "active" : ""}
             onClick={() => changeSection("shopping")}
             >
-            내 쇼핑
+            쇼핑
             </button>
             <button
             className={activeSection === "interior" ? "active" : ""}
             onClick={() => changeSection("interior")}
             >
-            내 인테리어
+            인테리어
             </button>
         </div>
 
@@ -246,7 +262,12 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             </div>
             )}
 
-            <section className="user-mypage-content">
+            <section
+                className={`user-mypage-content ${
+                    activeSection !== "info" ? "wide-content" : ""
+                }`}
+            >
+
                 {activeMenu === "info" && (
                 <UserProfilePage
                     user={user}

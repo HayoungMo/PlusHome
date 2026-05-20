@@ -12,7 +12,6 @@ public interface FreeBoardCommentMapper {
     int insertComment(FreeBoardCommentDTO dto);
 
     // 2. 특정 게시글 댓글 목록 조회 (수정 완료!)
-
     List<FreeBoardCommentDTO> getCommentsByBoardId(
         @Param("boardId") Long boardId, 
         @Param("type") String type

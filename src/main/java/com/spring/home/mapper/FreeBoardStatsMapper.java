@@ -11,7 +11,7 @@ import com.spring.home.dto.FreeBoardSummaryDTO;
 @Mapper
 public interface FreeBoardStatsMapper {
 
-    /* ────────── [일반 유저용] 본인 활동 통계 ────────── */
+    /* ---------- [일반 유저용] 본인 활동 통계 ---------- */
     
     // 내 최신글 조회
     List<FreeBoardSummaryDTO> selectMyLatest(@Param("userId") String userId, @Param("limit") int limit);
@@ -26,7 +26,7 @@ public interface FreeBoardStatsMapper {
     int countMyWithComments(@Param("userId") String userId);
 
 
-    /* ────────── [관리자용] 전체 현황 통계 ────────── */
+    /* ---------- [관리자용] 전체 현황 통계 ---------- */
     
     // 전체 최신글 조회
     List<FreeBoardSummaryDTO> selectAllLatest(@Param("limit") int limit);
@@ -41,7 +41,7 @@ public interface FreeBoardStatsMapper {
     int countAllWithComments();
 
 
-    /* ────────── [관리자용] 신고 내역 조회 ────────── */
+    /* ---------- [관리자용] 신고 내역 조회 ---------- */
     
     // 신고된 게시글 목록 및 총 개수
     List<FreeBoardSummaryDTO> selectReportedPosts(@Param("limit") int limit);
@@ -52,7 +52,7 @@ public interface FreeBoardStatsMapper {
     int countReportedComments();
 
 
-    /* ────────── [관리자용] 숨김 처리(Hidden) 관리 ────────── */
+    /* ---------- [관리자용] 숨김 처리(Hidden) 관리 ---------- */
     
     // 게시글 숨김 처리 토글
     int updatePostHidden(@Param("boardId") Long boardId, @Param("hidden") int hidden);

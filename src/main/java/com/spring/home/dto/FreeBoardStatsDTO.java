@@ -21,8 +21,7 @@ public class FreeBoardStatsDTO {
     private List<FreeBoardSummaryDTO> reportedPosts = new ArrayList<>();
     private int reportedPostsCount;
 
-    /** * 3. 관리자 전용 - 신고 댓글 목록 
-         */
+    /** 3. 관리자 전용 - 신고 댓글 목록 */
     private List<FreeBoardSummaryDTO> reportedComments = new ArrayList<>();
     private int reportedCommentsCount;
 }

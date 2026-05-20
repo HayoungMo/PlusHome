@@ -19,6 +19,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
 import FurnitureService from "../service/furnitureService";
+import Loading from "../components/Loading";
 
 const FREE_DELIVERY_LIMIT = 50000;
 const OPTION_LABEL_WIDTH = 52;
@@ -30,6 +31,7 @@ const CartPage = () => {
   const [cart, setCart] = useState([]);
   const [selectedMap, setSelectedMap] = useState({});
   const [selectedOptionMap, setSelectedOptionMap] = useState({});
+  const [loading, setLoading] = useState(true)
 
   const allSelected =
     cart.length > 0 && cart.every((item) => selectedMap[item.c_code]);
@@ -171,6 +173,8 @@ const CartPage = () => {
 
   const loadCart = async () => {
     try {
+      setLoading(true)
+      
       const res = await CartService.getMyCart();
       const cartList = res.data || [];
 
@@ -242,8 +246,14 @@ const CartPage = () => {
     } catch (error) {
       console.error("장바구니 조회 실패", error);
       alert("장바구니 조회에 실패했습니다.");
+    } finally {
+      setLoading(false)
     }
   };
+
+  if (loading) {
+    return <Loading message="장바구니 정보를 불러오는 중입니다." />;
+  }
 
   const getGroupedCart = () => {
     const groups = {};

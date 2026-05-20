@@ -21,7 +21,7 @@ class PlusHomeApplicationTests {
 	@Test
 	void dbConnectionTest() throws Exception{
 		try(Connection conn = dataSource.getConnection()) {
-			System.out.println("µðºñ¿¬°á test");
+			System.out.println("ë””ë¹„ì—°ê²° test");
 		}
 	}
 }

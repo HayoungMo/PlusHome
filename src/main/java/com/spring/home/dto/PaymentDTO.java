@@ -17,4 +17,14 @@ public class PaymentDTO {
 	
 	private int use_point;
 	private int payTotal;
+	
+	private List<CouponPayDTO> couponList;
+	
+	@Data
+	public static class CouponPayDTO {
+
+		private String c_code;
+		private String coupon_code;
+		private int coupon_discount;
+	}
 }

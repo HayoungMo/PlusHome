@@ -7,26 +7,32 @@
     <sql id="searchWhere">
         <where>
             <if test="type != 'admin'">
-                AND hidden = 0
+                AND f.hidden = 0
             </if>
             <if test="category != null and category != ''">
-                AND category = #{category}
+                AND f.category = #{category}
             </if>
             <if test="searchValue != null and searchValue != ''">
                 <choose>
                     <when test="searchKey == 'title'">
-                        AND title LIKE '%' || #{searchValue} || '%'
+                        AND f.title LIKE '%' || #{searchValue} || '%'
                     </when>
                     <when test="searchKey == 'userName'">
-                        AND userName LIKE '%' || #{searchValue} || '%'
+                        AND f.userName LIKE '%' || #{searchValue} || '%'
                     </when>
                     <when test="searchKey == 'content'">
-                        AND content LIKE '%' || #{searchValue} || '%'
+                        AND f.content LIKE '%' || #{searchValue} || '%'
                     </when>
                     <otherwise>
-                        AND (title LIKE '%' || #{searchValue} || '%' OR content LIKE '%' || #{searchValue} || '%')
+                        AND (f.title LIKE '%' || #{searchValue} || '%' OR f.content LIKE '%' || #{searchValue} || '%')
                     </otherwise>
                 </choose>
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND TO_CHAR(f.createdAt, 'YYYY-MM-DD') &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND TO_CHAR(f.createdAt, 'YYYY-MM-DD') &lt;= #{endDate}
             </if>
         </where>
     </sql>
@@ -35,37 +41,67 @@
         SELECT * FROM (
             SELECT rownum rnum, data.* FROM (
                 SELECT
-                    boardId, userId, userName, category, title,
-                    viewCount, likeCount, commentCount, hidden,
-                    TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt
-                FROM freeboard
+                    f.boardId, 
+                    CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
+                    f.userName, 
+                    f.category, 
+                    f.title,
+                    f.viewCount, 
+                    f.likeCount, 
+                    f.commentCount, 
+                    f.hidden,
+                    TO_CHAR(f.createdAt, 'YYYY-MM-DD HH24:MI:SS') as createdAt
+                FROM freeboard f
+                LEFT JOIN users u ON f.userId = u.id
                 <include refid="searchWhere"/>
                 ORDER BY
-                   CASE WHEN category = '공지' THEN 1 ELSE 2 END ASC,
-                   boardId DESC
+                    CASE WHEN f.category = '공지' THEN 1 ELSE 2 END ASC,
+                    f.boardId DESC
             ) data
         )
         WHERE rnum &gt;= #{start} AND rnum &lt;= #{end}
     </select>
 
     <select id="getDataCount" parameterType="map" resultType="int">
-        SELECT COUNT(*) FROM freeboard
+        SELECT COUNT(*) 
+        FROM freeboard f
+        LEFT JOIN users u ON f.userId = u.id
         <include refid="searchWhere"/>
     </select>
 
     <select id="getReadData" parameterType="long" resultType="com.spring.home.dto.FreeBoardDTO">
         SELECT
-            boardId, userId, userName, category, title, content,
-            viewCount, likeCount, commentCount,
-            hidden, createdAt, updatedAt
-        FROM freeboard
-        WHERE boardId = #{boardId}
+            f.boardId, 
+            CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
+            f.userName, 
+            f.category, 
+            f.title, 
+            f.content,
+            f.viewCount, 
+            f.likeCount, 
+            f.commentCount,
+            f.hidden, 
+            f.createdAt, 
+            f.updatedAt
+        FROM freeboard f
+        LEFT JOIN users u ON f.userId = u.id
+        WHERE f.boardId = #{boardId}
     </select>
 
     <insert id="insertData" parameterType="com.spring.home.dto.FreeBoardDTO">
         INSERT INTO freeboard (
-            BOARDID, USERID, USERNAME, CATEGORY, TITLE, CONTENT,
-            VIEWCOUNT, LIKECOUNT, COMMENTCOUNT, HIDDEN, CREATEDAT, UPDATEDAT
+            BOARDID, 
+            USERID, 
+            USERNAME, 
+            CATEGORY, 
+            TITLE, 
+            CONTENT,
+            VIEWCOUNT, 
+            LIKECOUNT, 
+            COMMENTCOUNT, 
+            HIDDEN, 
+            CREATEDAT, 
+            UPDATEDAT
         ) VALUES (
             freeBoard_seq.nextval,
             #{userId},
@@ -94,23 +130,32 @@
     </delete>
 
     <update id="updateViewCount" parameterType="long">
-        UPDATE freeboard SET viewCount = viewCount + 1 WHERE boardId = #{boardId}
+        UPDATE freeboard 
+        SET viewCount = viewCount + 1 
+        WHERE boardId = #{boardId}
     </update>
 
     <update id="updateLikeCount" parameterType="long">
-        UPDATE freeboard SET likeCount = likeCount + 1 WHERE boardId = #{boardId}
+        UPDATE freeboard 
+        SET likeCount = likeCount + 1 
+        WHERE boardId = #{boardId}
     </update>
 
     <update id="unlikeCount" parameterType="long">
-        UPDATE freeboard SET likeCount = GREATEST(likeCount - 1, 0) WHERE boardId = #{boardId}
+        UPDATE freeboard 
+        SET likeCount = GREATEST(likeCount - 1, 0) 
+        WHERE boardId = #{boardId}
     </update>
 
     <update id="updateHiddenStatus" parameterType="map">
-        UPDATE freeboard SET hidden = #{hidden} WHERE boardId = #{boardId}
+        UPDATE freeboard 
+        SET hidden = #{hidden} 
+        WHERE boardId = #{boardId}
     </update>
 
     <update id="updateBatchHidden" parameterType="map">
-        UPDATE freeboard SET hidden = #{hidden}
+        UPDATE freeboard 
+        SET hidden = #{hidden}
         WHERE boardId IN
         <foreach collection="boardIds" item="id" open="(" separator="," close=")">
             #{id}
@@ -119,7 +164,8 @@
 
     <select id="getPrev" parameterType="map" resultType="com.spring.home.dto.FreeBoardDTO">
         SELECT * FROM (
-            SELECT boardId, title FROM freeboard
+            SELECT boardId, title 
+            FROM freeboard
             WHERE boardId &gt; #{boardId} AND hidden = 0
             ORDER BY boardId ASC
         ) WHERE rownum = 1
@@ -127,26 +173,70 @@
 
     <select id="getNext" parameterType="map" resultType="com.spring.home.dto.FreeBoardDTO">
         SELECT * FROM (
-            SELECT boardId, title FROM freeboard
+            SELECT boardId, title 
+            FROM freeboard
             WHERE boardId &lt; #{boardId} AND hidden = 0
             ORDER BY boardId DESC
         ) WHERE rownum = 1
     </select>
 
     <select id="getLatestPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM (SELECT * FROM freeboard ORDER BY createdAt DESC) WHERE rownum &lt;= 5
+        SELECT * FROM (
+            SELECT 
+                f.boardId, 
+                CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
+                f.userName, 
+                f.category, 
+                f.title, 
+                f.viewCount, 
+                f.likeCount, 
+                f.commentCount, 
+                f.hidden, 
+                f.createdAt 
+            FROM freeboard f
+            LEFT JOIN users u ON f.userId = u.id
+            ORDER BY f.createdAt DESC
+        ) WHERE rownum &lt;= 5
     </select>
 
     <select id="getTopLikedPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM (SELECT * FROM freeboard ORDER BY likeCount DESC) WHERE rownum &lt;= 5
+        SELECT * FROM (
+            SELECT 
+                f.boardId, 
+                CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
+                f.userName, 
+                f.category, 
+                f.title, 
+                f.viewCount, 
+                f.likeCount, 
+                f.commentCount, 
+                f.hidden, 
+                f.createdAt 
+            FROM freeboard f
+            LEFT JOIN users u ON f.userId = u.id
+            ORDER BY f.likeCount DESC
+        ) WHERE rownum &lt;= 5
     </select>
 
     <select id="getTopCommentedPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM (SELECT * FROM freeboard ORDER BY commentCount DESC) WHERE rownum &lt;= 5
+        SELECT * FROM (
+            SELECT 
+                f.boardId, 
+                CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
+                f.userName, 
+                f.category, 
+                f.title, 
+                f.viewCount, 
+                f.likeCount, 
+                f.commentCount, 
+                f.hidden, 
+                f.createdAt 
+            FROM freeboard f
+            LEFT JOIN users u ON f.userId = u.id
+            ORDER BY f.commentCount DESC
+        ) WHERE rownum &lt;= 5
     </select>
 
-    <select id="getReportedPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM freeboard WHERE reportCount &gt; 0 ORDER BY reportCount DESC
-    </select>
+    <!-- ※ 신고 관련 쿼리는 freeBoardReportMapper.xml / freeBoardStatsMapper.xml 에서 관리 -->
 
 </mapper>

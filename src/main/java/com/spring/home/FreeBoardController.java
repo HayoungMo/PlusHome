@@ -19,8 +19,6 @@ import com.spring.home.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
-
-
 @RestController
 @RequestMapping("/freeboard")
 @RequiredArgsConstructor
@@ -31,14 +29,11 @@ public class FreeBoardController {
     private final CompanyMapper    companyMapper;
     private final UserMapper       userMapper;
 
-    private static final int    TITLE_MAX_LENGTH = 200;
-    private static final String GUEST_ID         = "Guest";
-    private static final String GUEST_NAME       = "방문자";
+    private static final int   TITLE_MAX_LENGTH = 200;
+    private static final String GUEST_ID          = "Guest";
+    private static final String GUEST_NAME        = "방문자";
 
-    // ───────────────────────────────────────────────
-    // JWT 헬퍼
-    // ───────────────────────────────────────────────
-
+    // JWT 필터
     private Map<String, String> parseToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
@@ -54,9 +49,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 작성자 표시명 결정
-    // ───────────────────────────────────────────────
     private String resolveDisplayName(String userId) {
         if (userId == null || userId.trim().isEmpty() || GUEST_ID.equals(userId)) {
             return GUEST_NAME;
@@ -81,10 +74,7 @@ public class FreeBoardController {
         return userId;
     }
 
-    // ───────────────────────────────────────────────
     // 입력값 검증
-    // ───────────────────────────────────────────────
-
     private String validate(FreeBoardDTO dto) {
         if (dto == null) return "잘못된 요청입니다.";
         if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) return "제목을 입력해주세요.";
@@ -94,10 +84,7 @@ public class FreeBoardController {
         return null;
     }
 
-    // ───────────────────────────────────────────────
     // 1. 게시글 작성
-    // ───────────────────────────────────────────────
-
     @PostMapping("/write")
     public ResponseEntity<?> write(
             @RequestBody FreeBoardDTO dto,
@@ -126,7 +113,7 @@ public class FreeBoardController {
             return ResponseEntity.status(403).body(e.getMessage());
         }
 
-        // DB 에서 표시명 결정
+        // DB에서 표시명 결정
         displayName = resolveDisplayName(userId);
 
         dto.setUserId(userId);
@@ -144,22 +131,22 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 2. 목록 조회
-    // ───────────────────────────────────────────────
-
     @GetMapping("/list")
     public ResponseEntity<?> getList(
-            @RequestParam(defaultValue = "1")      int    pageNum,
+            @RequestParam(defaultValue = "1")    int   pageNum,
             @RequestParam(defaultValue = "title")  String searchKey,
             @RequestParam(defaultValue = "")       String searchValue,
             @RequestParam(defaultValue = "")       String category,
+            @RequestParam(defaultValue = "")       String startDate,
+            @RequestParam(defaultValue = "")       String endDate,
             HttpServletRequest request) {
         try {
             Map<String, String> auth = parseToken(request);
             String type = (auth != null) ? auth.get("type") : "guest";
 
-            Map<String, Object> result = freeBoardService.getLists(pageNum, searchKey, searchValue, category, type);
+            Map<String, Object> result = freeBoardService.getLists(
+                    pageNum, searchKey, searchValue, category, type, startDate, endDate);
 
             int dataCount = (int) result.get("dataCount");
             int totalPage = (int) Math.ceil((double) dataCount / FreeBoardService.PAGE_SIZE);
@@ -171,10 +158,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
-    // 3. 상세 조회 (조회수 증가 없음 — 순수 데이터만)
-    // ───────────────────────────────────────────────
-
+    // 3. 상세 조회 (조회수 증가 없음, 순수 데이터만)
     @GetMapping("/article/{boardId}")
     public ResponseEntity<?> getArticle(
             @PathVariable Long boardId,
@@ -196,10 +180,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 3-0. 조회수 증가 전용 (프론트에서 최초 1회만 호출)
-    // ───────────────────────────────────────────────
-
     @PutMapping("/article/{boardId}/view")
     public ResponseEntity<?> incrementView(@PathVariable Long boardId) {
         try {
@@ -210,10 +191,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 3-1. 이전글/다음글
-    // ───────────────────────────────────────────────
-
     @GetMapping("/article/{boardId}/nav")
     public ResponseEntity<?> getArticleNav(@PathVariable Long boardId) {
         try {
@@ -223,10 +201,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 4. 수정 (로그인 필수, 작성자 본인 또는 관리자)
-    // ───────────────────────────────────────────────
-
     @PutMapping("/update")
     public ResponseEntity<?> update(
             @RequestBody FreeBoardDTO dto,
@@ -258,10 +233,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 4-1. 좋아요 on (로그인 필수)
-    // ───────────────────────────────────────────────
-
     @PutMapping("/like/{boardId}")
     public ResponseEntity<?> like(
             @PathVariable Long boardId,
@@ -280,10 +252,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 4-2. 좋아요 off / 취소 (로그인 필수)
-    // ───────────────────────────────────────────────
-
     @PutMapping("/unlike/{boardId}")
     public ResponseEntity<?> unlike(
             @PathVariable Long boardId,
@@ -302,10 +271,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 5. 삭제 (로그인 필수, 작성자 본인 또는 관리자)
-    // ───────────────────────────────────────────────
-
     @DeleteMapping("/delete/{boardId}")
     public ResponseEntity<?> delete(
             @PathVariable Long boardId,
@@ -325,10 +291,7 @@ public class FreeBoardController {
         }
     }
 
-    // ───────────────────────────────────────────────
     // 5-1. 다중 삭제 (관리자 전용)
-    // ───────────────────────────────────────────────
-
     @PostMapping("/delete-multi")
     public ResponseEntity<?> deleteMulti(
             @RequestBody Map<String, List<Long>> body,
@@ -348,7 +311,7 @@ public class FreeBoardController {
                 freeBoardService.deleteData(boardId, auth.get("id"), "admin");
                 success++;
             } catch (Exception e) {
-                // 개별 실패 무시, 성공 카운트만 집계
+            
             }
         }
 

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @RestController
 @RequestMapping("/freeboard")
 @RequiredArgsConstructor
@@ -140,20 +141,32 @@ public class FreeBoardStatsController {
 
     /* ───── 4. 신고 접수 및 취소 ───── */
 
+    /** Authorization 헤더에서 userId 추출. 유효하지 않으면 null 반환 */
+    private String extractUserId(HttpServletRequest request) {
+        String auth = request.getHeader("Authorization");
+        if (auth == null || !auth.startsWith("Bearer ")) return null;
+        try {
+            String token = auth.substring(7);
+            if (jwtUtil.isExpired(token)) return null;
+            String type = jwtUtil.getType(token);
+            if ("deleted".equals(type)) return null; // 탈퇴 회원 차단
+            return jwtUtil.getId(token);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @PostMapping("/report/post/{boardId}")
     public ResponseEntity<?> reportPost(@PathVariable Long boardId,
                                         @RequestBody Map<String, Object> body,
                                         HttpServletRequest request) {
-       
-    	// 로그인 필수 — 게스트/탈퇴 회원 신고 불가
-        String type = extractAdminType(request);
-        String auth = request.getHeader("Authorization");
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        // 로그인 필수 — 게스트/탈퇴 회원 신고 불가, JWT에서 ID 추출
+        String reporterId = extractUserId(request);
+        if (reporterId == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
-        // deleted 차단은 reportService 내 또는 여기서 처리 가능; JWT type 활용
-        String reporterId = (body.get("userId") != null) ? body.get("userId").toString() : GUEST_ID;
-        String reason     = (body.get("reason") != null) ? body.get("reason").toString() : DEFAULT_REASON;
+        String reason = (body != null && body.get("reason") != null)
+                ? body.get("reason").toString() : DEFAULT_REASON;
         return ResponseEntity.ok(reportService.reportPost(boardId, reporterId, reason, ""));
     }
 
@@ -161,13 +174,13 @@ public class FreeBoardStatsController {
     public ResponseEntity<?> reportComment(@PathVariable Long commentId,
                                            @RequestBody Map<String, Object> body,
                                            HttpServletRequest request) {
-        // 로그인 필수
-        String auth = request.getHeader("Authorization");
-        if (auth == null || !auth.startsWith("Bearer ")) {
+        // 로그인 필수 — JWT에서 ID 추출
+        String reporterId = extractUserId(request);
+        if (reporterId == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
-        String reporterId = (body.get("userId") != null) ? body.get("userId").toString() : GUEST_ID;
-        String reason     = (body.get("reason") != null) ? body.get("reason").toString() : DEFAULT_REASON;
+        String reason = (body != null && body.get("reason") != null)
+                ? body.get("reason").toString() : DEFAULT_REASON;
         return ResponseEntity.ok(reportService.reportComment(commentId, reporterId, reason, ""));
     }
 }

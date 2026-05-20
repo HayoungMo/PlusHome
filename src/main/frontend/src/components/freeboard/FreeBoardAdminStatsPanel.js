@@ -8,10 +8,13 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ReportIcon from "@mui/icons-material/Report";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import StatsSection from "./StatsSection";
 import FreeBoardStatsService from "../../service/freeBoardStatsService";
 import { exportDangerExcel } from "./dangerExport";
 import SnackbarAlert from "../SnackbarAlert";
+
+const AUTO_HIDE_THRESHOLD = 3; // 신고 3회 이상 자동숨김
 
 const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
     const navigate = useNavigate();
@@ -94,167 +97,176 @@ const FreeBoardAdminStatsPanel = ({ onRefresh }) => {
         }
     };
 
+    /* 신고 항목 렌더러 (게시글 / 댓글 공통) */
+    const ReportedItem = ({ item, isComment, onToggle }) => {
+        const isAutoHidden = !!item.hidden && (item.reportCount ?? 0) >= AUTO_HIDE_THRESHOLD;
+        return (
+            <ListItem
+                disableGutters
+                sx={{
+                    py: 0.5,
+                    px: 0.5,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 0.5,
+                    borderBottom: "1px solid #f0f0f0",
+                }}
+            >
+               
+                <Box
+                    sx={{ flex: 1, minWidth: 0, cursor: "pointer" }}
+                    onClick={() => isComment
+                        ? (item.boardId && goArticle({ boardId: item.boardId }))
+                        : goArticle(item)
+                    }
+                >
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            display: "block",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            textDecoration: item.hidden ? "line-through" : "none",
+                            color: item.hidden ? "text.disabled" : "text.primary",
+                        }}
+                    >
+                        {isComment && item.parentId ? "└ " : ""}
+                        {isComment
+                            ? (item.title || `#${item.commentId || "No ID"}`)
+                            : (item.title || `#${item.boardId}`)
+                        }
+                    </Typography>
+                    <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.2 }}>
+                        <Typography variant="caption" color="text.secondary">
+                            신고 {item.reportCount ?? 0}회
+                        </Typography>
+                        
+                        {isAutoHidden && (
+                            <Chip
+                                icon={<AutoFixHighIcon sx={{ fontSize: "0.65rem !important" }} />}
+                                label="자동숨김"
+                                size="small"
+                                color="warning"
+                                variant="outlined"
+                                sx={{ height: 16, fontSize: "0.6rem", px: 0.3 }}
+                            />
+                        )}
+                    </Stack>
+                </Box>
+
+               
+                <Button
+                    size="small"
+                    color={item.hidden ? "success" : "warning"}
+                    variant="outlined"
+                    onClick={() => onToggle(item)}
+                    sx={{ flexShrink: 0, minWidth: 44, px: 0.8, fontSize: "0.65rem", lineHeight: 1.4 }}
+                >
+                    {item.hidden ? "복원" : "숨김"}
+                </Button>
+            </ListItem>
+        );
+    };
+
     return (
         <>
-        <SnackbarAlert open={snack.open} message={snack.message} severity={snack.severity} onClose={closeSnack} />
-        <Paper variant="outlined" sx={{ p: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                <AdminPanelSettingsIcon fontSize="small" color="error" />
-                <Typography variant="subtitle1" fontWeight="bold">관리자 통계</Typography>
-                <Chip label="관리자 모드" color="error" size="small" />
-            </Box>
-            <Divider sx={{ mb: 2 }} />
+            <SnackbarAlert open={snack.open} message={snack.message} severity={snack.severity} onClose={closeSnack} />
+            <Paper variant="outlined" sx={{ p: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <AdminPanelSettingsIcon fontSize="small" color="error" />
+                    <Typography variant="subtitle1" fontWeight="bold">관리자 통계</Typography>
+                    <Chip label="관리자 모드" color="error" size="small" />
+                </Box>
+                <Divider sx={{ mb: 2 }} />
 
-            <StatsSection
-                title="최신작성게시글"
-                count={stats.latestCount}
-                items={stats.latest}
-                onItemClick={goArticle}
-                emptyText="게시글이 없습니다."
-                rightLabel={(it) => it.createdAt || ""}
-            />
-            <StatsSection
-                title="좋아요많은게시글"
-                count={stats.topLikedCount}
-                items={stats.topLiked}
-                onItemClick={goArticle}
-                emptyText="좋아요 받은 게시글이 없습니다."
-                rightLabel={(it) => (
-                    <><ThumbUpAltIcon sx={{ fontSize: 11 }} />{it.likeCount ?? 0}</>
-                )}
-            />
-            <StatsSection
-                title="댓글많은게시글"
-                count={stats.topCommentedCount}
-                items={stats.topCommented}
-                onItemClick={goArticle}
-                emptyText="댓글 달린 게시글이 없습니다."
-                rightLabel={(it) => (
-                    <><ChatBubbleOutlineIcon sx={{ fontSize: 11 }} />{it.commentCount ?? 0}</>
-                )}
-            />
+                <StatsSection
+                    title="최신작성게시글"
+                    count={stats.latestCount}
+                    items={stats.latest}
+                    onItemClick={goArticle}
+                    emptyText="게시글이 없습니다."
+                    rightLabel={(it) => it.createdAt || ""}
+                />
+                <StatsSection
+                    title="좋아요많은게시글"
+                    count={stats.topLikedCount}
+                    items={stats.topLiked}
+                    onItemClick={goArticle}
+                    emptyText="좋아요 받은 게시글이 없습니다."
+                    rightLabel={(it) => (
+                        <><ThumbUpAltIcon sx={{ fontSize: 11 }} />{it.likeCount ?? 0}</>
+                    )}
+                />
+                <StatsSection
+                    title="댓글많은게시글"
+                    count={stats.topCommentedCount}
+                    items={stats.topCommented}
+                    onItemClick={goArticle}
+                    emptyText="댓글 달린 게시글이 없습니다."
+                    rightLabel={(it) => (
+                        <><ChatBubbleOutlineIcon sx={{ fontSize: 11 }} />{it.commentCount ?? 0}</>
+                    )}
+                />
 
-            {/* 신고 게시글 */}
-            <Box sx={{ mb: 2 }}>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-                    <ReportIcon fontSize="small" color="warning" />
-                    <Typography variant="subtitle2" fontWeight="bold">신고게시글</Typography>
-                    <Chip
-                        label={`${stats.reportedPostsCount}개`}
-                        size="small" color="warning" variant="outlined"
-                        sx={{ height: 20, fontSize: "0.7rem" }}
-                    />
-                </Stack>
-                {stats.reportedPosts.length === 0 ? (
-                    <Typography variant="caption" color="text.secondary">
-                        신고된 게시글이 없습니다.
-                    </Typography>
-                ) : (
-                    <List dense disablePadding>
-                        {stats.reportedPosts.map((p, idx) => (
-                            <ListItem
-                                key={p.boardId ? `reported-post-${p.boardId}` : `post-fallback-${idx}`}
-                                sx={{ py: 0.25, px: 0.5 }}
-                                secondaryAction={
-                                    <Button
-                                        size="small"
-                                        color={p.hidden ? "success" : "warning"}
-                                        variant="outlined"
-                                        onClick={() => handleTogglePostHidden(p)}
-                                        sx={{ minWidth: 0, px: 1, fontSize: "0.65rem" }}
-                                    >
-                                        {p.hidden ? "복원" : "숨김"}
-                                    </Button>
-                                }
-                            >
-                                <ListItemText
-                                    primary={
-                                        <Typography
-                                            variant="caption" noWrap
-                                            onClick={() => goArticle(p)}
-                                            sx={{
-                                                cursor: "pointer",
-                                                textDecoration: p.hidden ? "line-through" : "none",
-                                                color: p.hidden ? "text.disabled" : "text.primary",
-                                                maxWidth: 140, display: "inline-block",
-                                            }}
-                                        >
-                                            {p.title || `#${p.boardId}`}
-                                        </Typography>
-                                    }
-                                    secondary={
-                                        <Typography variant="caption" color="text.secondary">
-                                            신고 {p.reportCount ?? 0}회
-                                        </Typography>
-                                    }
+                {/* 신고 게시글 */}
+                <Box sx={{ mb: 2 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                        <ReportIcon fontSize="small" color="warning" />
+                        <Typography variant="subtitle2" fontWeight="bold">신고게시글</Typography>
+                        <Chip
+                            label={`${stats.reportedPostsCount}개`}
+                            size="small" color="warning" variant="outlined"
+                            sx={{ height: 20, fontSize: "0.7rem" }}
+                        />
+                    </Stack>
+                    {stats.reportedPosts.length === 0 ? (
+                        <Typography variant="caption" color="text.secondary">
+                            신고된 게시글이 없습니다.
+                        </Typography>
+                    ) : (
+                        <List dense disablePadding>
+                            {stats.reportedPosts.map((p, idx) => (
+                                <ReportedItem
+                                    key={p.boardId ? `rp-${p.boardId}` : `rp-${idx}`}
+                                    item={p}
+                                    isComment={false}
+                                    onToggle={handleTogglePostHidden}
                                 />
-                            </ListItem>
-                        ))}
-                    </List>
-                )}
-            </Box>
+                            ))}
+                        </List>
+                    )}
+                </Box>
 
-            {/* 신고 댓글 */}
-            <Box>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-                    <ReportIcon fontSize="small" color="warning" />
-                    <Typography variant="subtitle2" fontWeight="bold">신고댓글·대댓글</Typography>
-                    <Chip
-                        label={`${stats.reportedCommentsCount}개`}
-                        size="small" color="warning" variant="outlined"
-                        sx={{ height: 20, fontSize: "0.7rem" }}
-                    />
-                </Stack>
-                {stats.reportedComments.length === 0 ? (
-                    <Typography variant="caption" color="text.secondary">
-                        신고된 댓글이 없습니다.
-                    </Typography>
-                ) : (
-                    <List dense disablePadding>
-                        {stats.reportedComments.map((c, idx) => (
-                            <ListItem
-                                key={c.commentId ? `reported-cmt-${c.commentId}` : `cmt-fallback-${idx}`}
-                                sx={{ py: 0.25, px: 0.5 }}
-                                secondaryAction={
-                                    <Button
-                                        size="small"
-                                        color={c.hidden ? "success" : "warning"}
-                                        variant="outlined"
-                                        onClick={() => handleToggleCommentHidden(c)}
-                                        sx={{ minWidth: 0, px: 1, fontSize: "0.65rem" }}
-                                    >
-                                        {c.hidden ? "복원" : "숨김"}
-                                    </Button>
-                                }
-                            >
-                                <ListItemText
-                                    primary={
-                                        <Typography
-                                            variant="caption" noWrap
-                                            onClick={() => c.boardId && goArticle({ boardId: c.boardId })}
-                                            sx={{
-                                                cursor: "pointer",
-                                                textDecoration: c.hidden ? "line-through" : "none",
-                                                color: c.hidden ? "text.disabled" : "text.primary",
-                                                maxWidth: 140, display: "inline-block",
-                                            }}
-                                        >
-                                            {c.parentId ? "└ " : ""}
-                                            {c.title || `#${c.commentId || "No ID"}`}
-                                        </Typography>
-                                    }
-                                    secondary={
-                                        <Typography variant="caption" color="text.secondary">
-                                            신고 {c.reportCount ?? 0}회
-                                        </Typography>
-                                    }
+                {/* 신고 댓글 */}
+                <Box>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                        <ReportIcon fontSize="small" color="warning" />
+                        <Typography variant="subtitle2" fontWeight="bold">신고댓글·대댓글</Typography>
+                        <Chip
+                            label={`${stats.reportedCommentsCount}개`}
+                            size="small" color="warning" variant="outlined"
+                            sx={{ height: 20, fontSize: "0.7rem" }}
+                        />
+                    </Stack>
+                    {stats.reportedComments.length === 0 ? (
+                        <Typography variant="caption" color="text.secondary">
+                            신고된 댓글이 없습니다.
+                        </Typography>
+                    ) : (
+                        <List dense disablePadding>
+                            {stats.reportedComments.map((c, idx) => (
+                                <ReportedItem
+                                    key={c.commentId ? `rc-${c.commentId}` : `rc-${idx}`}
+                                    item={c}
+                                    isComment={true}
+                                    onToggle={handleToggleCommentHidden}
                                 />
-                            </ListItem>
-                        ))}
-                    </List>
-                )}
-            </Box>
-        </Paper>
+                            ))}
+                        </List>
+                    )}
+                </Box>
+            </Paper>
         </>
     );
 };

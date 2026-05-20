@@ -3,8 +3,6 @@ import {
     Box, Stack, Typography, TextField, Button, Avatar, Chip,
     ListItem, ListItemAvatar, ListItemText
 } from "@mui/material";
-import ReplyIcon from "@mui/icons-material/Reply";
-import PersonIcon from "@mui/icons-material/Person";
 import FreeBoardReportButton from "./freeboard/FreeBoardReportButton";
 import SnackbarAlert from "./SnackbarAlert";
 import { getPermissions, ADMIN_TYPE } from "./freeboard/constants";
@@ -70,8 +68,11 @@ const FreeBoardCommentItemMui = ({
                 }}
             >
                 <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: isReply ? "secondary.light" : "primary.light" }}>
-                        {isReply ? <ReplyIcon fontSize="small" /> : <PersonIcon fontSize="small" />}
+                    <Avatar sx={{
+                        bgcolor: isReply ? "#4b6bbb" : "#1e3a8a",
+                        width: 36, height: 36, fontSize: "0.85rem", fontWeight: "bold",
+                    }}>
+                        {comment.userName ? comment.userName[0].toUpperCase() : "?"}
                     </Avatar>
                 </ListItemAvatar>
                 <ListItemText
@@ -80,7 +81,7 @@ const FreeBoardCommentItemMui = ({
                         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                             <Typography variant="subtitle2" fontWeight="bold" sx={{ color: "#1e3a8a" }}>
                                 {comment.userName}
-                                {(comment.userType === ADMIN_TYPE || comment.userId === "admin1") && (
+                                {comment.userType === ADMIN_TYPE && (
                                     <Chip
                                         label="관리자"
                                         size="small"
