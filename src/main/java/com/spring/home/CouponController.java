@@ -2,6 +2,7 @@ package com.spring.home;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,10 @@ public class CouponController {
 	@GetMapping("/getListsDev")
 	public List<CouponDTO> getListsDev() throws Exception{
 		return couponService.getListsDev();
+	}
+	@PostMapping("/getArticleList")
+	public List<CouponDTO> getArticleList(@RequestBody HashMap<String, Object> map) throws Exception{
+		return couponService.getArticleList(map);
 	}
 	
 	@PostMapping("/getLists")

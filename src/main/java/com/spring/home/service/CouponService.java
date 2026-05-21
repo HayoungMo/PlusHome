@@ -1,9 +1,12 @@
 package com.spring.home.service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.spring.home.dto.CouponDTO;
 import com.spring.home.mapper.CouponMapper;
@@ -23,6 +26,10 @@ public class CouponService {
 	public int checkData(CouponDTO dto) throws Exception{
 		return couponMapper.checkData(dto);
 	}
+	
+	public List<CouponDTO> getArticleList(HashMap<String, Object> map) throws Exception{
+		return couponMapper.getArticleList(map);
+	}	
 	
 	public List<CouponDTO> getLists(String id) throws Exception{
 		return couponMapper.getLists(id);

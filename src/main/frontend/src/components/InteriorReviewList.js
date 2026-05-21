@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
+import "../css/InteriorReviewList.css";
 
 const InteriorReviewList = ({ company }) => {
   const [review, setReview] = useState([]);
@@ -36,58 +37,38 @@ const InteriorReviewList = ({ company }) => {
   }, [company]);
 
   return (
-    <div>
-      {review.map((item) => (
-        <div>
+    <div className="interior-review-list">
+      {review.map((item, idx) => (
+        <div className="interior-review-item" key={`${item.id}-${idx}`}>
           <p>리뷰 모음</p>
-          {item.ir_content}
-          {item.logo.result
+          <div className="interior-review-content">{item.ir_content}</div>
+
+          <div className="interior-review-image-list">
+            {item.logo.result
             .filter((record) => record.dir_e === item.b_createdDate)
             .map((record, i) => (
-              <div>
+              <div className="interior-review-thumb" key={`${record.img_name}-${i}`}>
                 <img
                   src={record.img_name}
                   alt={`${item.c_name} 예시`}
                   onClick={() => setSelectedImg(record.img_name)}
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    objectFit: "cover",
-                  }}
                 />
-                {selectedImg && (
-                  <div
-                    onClick={() => setSelectedImg(null)}
-                    style={{
-                      position: "fixed",
-                      top: 0,
-                      left: 0,
-                      width: "100vw",
-                      height: "100vh",
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      zIndex: 9999,
-                    }}
-                  >
-                    <img
-                      src={selectedImg}
-                      alt="확대 이미지"
-                      style={{
-                        minWidth: "80%",
-                        minHeight: "80%",
-                        maxWidth: "95%",
-                        maxHeight: "95%",
-                        objectFit: "contain",
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             ))}
+          </div>
         </div>
       ))}
+
+      {selectedImg && (
+        <div
+          className="interior-review-modal"
+          onClick={() => setSelectedImg(null)}
+        >
+          <div className="interior-review-modal-content">
+            <img src={selectedImg} alt="확대 이미지" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

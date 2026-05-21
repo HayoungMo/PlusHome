@@ -1,0 +1,133 @@
+.interior-question-page {
+  width: min(100%, 1120px);
+  min-height: calc(100vh - 120px);
+  margin: 0 auto;
+  padding: 48px 24px;
+  box-sizing: border-box;
+}
+
+.question-card {
+  width: min(100%, 720px);
+  margin: 32px auto 0;
+  padding: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+}
+
+.question-card h2 {
+  margin: 12px 0 28px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.question-step {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.question-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.question-options > .MuiButton-root {
+  min-height: 56px;
+  justify-content: flex-start;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.question-options label {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+}
+
+.question-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.confirm-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 32px;
+}
+
+.confirm-layout .question-card {
+  width: 100%;
+  margin: 0;
+}
+
+.confirm-list {
+  display: grid;
+  gap: 20px;
+}
+
+.confirm-question {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.confirm-question:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.confirm-question p {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.confirm-checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calculator-card {
+  position: sticky;
+  top: 24px;
+}
+
+@media (max-width: 900px) {
+  .confirm-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-card {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .interior-question-page {
+    padding: 32px 16px;
+  }
+
+  .question-card {
+    padding: 24px 18px;
+  }
+
+  .question-card h2 {
+    font-size: 22px;
+  }
+
+  .question-options,
+  .confirm-checkbox-list {
+    grid-template-columns: 1fr;
+  }
+}
