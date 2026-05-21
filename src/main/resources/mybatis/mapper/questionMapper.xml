@@ -144,7 +144,7 @@
 		    on c.c_id = f.c_id
 		   and c.c_kind = f.c_kind
 		   and c.c_name = f.c_name
-		 where c.id = #{id}
+		 where c.c_id = #{id}
 		   and f.f_code = #{f_code}
 	</select>
 	
