@@ -49,7 +49,7 @@
 		cart.F_PRICE as payment,
 		cart.F_POINT as usedPoint,
 		cart.F_COUNT as qty,
-		cart.C_CODE as c_code
+		F_REVIEW.C_CODE as c_code
 	from f_review 
 		join FURNITURE ON F_REVIEW.F_CODE = FURNITURE.F_CODE
         left outer join CART on F_REVIEW.C_CODE = CART.C_CODE

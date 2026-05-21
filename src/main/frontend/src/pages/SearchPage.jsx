@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
 import FreeBoardService from '../service/freeBoardService';
 import SelectMui from '../components/SelectMui';
-import ButtonGroupMui from '../components/ButtonGroupMui';
 import CheckboxMui from '../components/CheckboxMui';
 import { 
     Button,
@@ -15,7 +14,6 @@ import {
     Chip,
     Stack,
         } from '@mui/material';
-import GetImgDir from '../resources/function/GetImgDir';
 
 const SearchPage = () => {
 
@@ -115,23 +113,6 @@ const SearchPage = () => {
         setInputKeyword(keyword);
     },[keyword]);
     
-    //실시간으로 검색한걸 보여주는 업데이트 창
-    useEffect(()=>{
-        
-        if(inputKeyword === keyword) return;
-
-        const timer = setTimeout(() => {
-            const nextKeyword = inputKeyword.trim();
-
-            if(!nextKeyword){
-                setSearchParams({ type: "all", page: 1 });
-                return;
-            }
-            setSearchParams({keyword: inputKeyword});
-        }, 300); //300ms 후에 주소창 한 번 업데이트     
-
-        return () => clearTimeout(timer);
-    },[inputKeyword, setSearchParams, keyword]);
     
     //keyword 또는 검색 탭이 바뀌면 DB 검색 실행함(동기화), 쇼핑 카테고리, 가격, 할인, 무료
     useEffect(()=>{
@@ -380,36 +361,6 @@ const SearchPage = () => {
             );
         });
     };
-    //검색페이지에서 이미지 불러오기
-    const addFurnitureImages = async (list) => {
-        return await Promise.all(
-            list.map(async (item) => {
-                try {
-                    const imgResult = await GetImgDir({
-                        kind:"FURNITURE",
-                        returnType:"list",
-                        a: item.f_code,
-                        view: true,
-                    });
-
-                    const imageList = imgResult.result || [];
-                    const thumbnail =
-                        imageList.find((img) => img.img_tag === "THUMBNAIL") ||
-                        imageList[0];
-                    
-                    return {
-                        ...item,
-                        thumbnail: thumbnail?.img_name || "/no-image.png",
-                    };
-                } catch (error) {
-                    return {
-                        ...item,
-                        thumbnail: "/no-image.png",
-                    };
-                }
-            })
-        )
-    }
 
     //자유게시판은 기존의 서비스를 사용함
     const getFreeBoardList = async () => {
@@ -435,13 +386,25 @@ const SearchPage = () => {
                 return;
             }   
 
+            //타입별로 다시 잘 나눠준다, 이전에는 중복으로 가져왔는데 바꿈
+            const needFurniture = type === "all" || type === "furniture";
+            const needInterior = type === "all" || type === "interior";
+            const needFreeBoard = type === "all" || type === "freeBoard";
 
             const [furnitureData, interiorData, freeBoardData] = await Promise.all([
-                trimmedKeyword ? getSearchFurniture() : getAllFurniture(),
-                InteriorService.fetchList(),
-                type === "interior" && !trimmedKeyword
-                    ? Promise.resolve([])
-                    : getFreeBoardList(),
+                needFurniture 
+                    ? trimmedKeyword 
+                        ? getSearchFurniture() : getAllFurniture() 
+                : Promise.resolve([]),
+
+                needInterior
+                    ? InteriorService.fetchList()
+                    :Promise.resolve([]),
+
+                needFreeBoard
+                    ?getFreeBoardList()
+                    : Promise.resolve([]),
+                
             ]);
 
             const sortedFurnitureList = sortByKorean(
@@ -460,7 +423,7 @@ const SearchPage = () => {
 
             const furnitureList = filterFurnitureByOption(sortedFurnitureList);
             //getSearchResult 안에 이미지 넣기
-            const furnitureListWithImages = await addFurnitureImages(furnitureList);
+           
 
             const interiorList = sortByKorean(
                 filterInteriorByOption(rawInteriorList),
@@ -470,7 +433,7 @@ const SearchPage = () => {
             const freeBoardList = sortByKorean(freeBoardData || [], (item) => item.title);
 
             setResults({
-                furniture: type === "interior" || type === "freeBoard" ? [] : furnitureListWithImages,
+                furniture: type === "interior" || type === "freeBoard" ? [] : furnitureList,
                 interior: type === "furniture" || type === "freeBoard" ? [] : interiorList,
                 freeBoard: type === "furniture" || type === "interior" ? [] : freeBoardList,
             });
@@ -561,18 +524,26 @@ const SearchPage = () => {
 
     //검색시 카드에 적힌 정보와 쇼핑리스트와 같아보이게 
     const renderFurnitureItem = (item) => {
+        const thumbnail =
+            item.imageList?.find((img) => img.img_tag === "THUMBNAIL") ||
+            item.imageList?.[0];
+
+        const thumbnailSrc = thumbnail
+            ? `http://localhost:8080/api/images/FURNITURE/${thumbnail.img_name}`
+            : "/no-image.png";
         const productDeliveryPrice = Number(
-            item.f_deliveryPrice ?? item.f_deliveryPrice ?? 0
+            item.f_deliveryPrice ?? item.f_deliveryprice ?? 0
         );
 
         const deliveryPrice =
             Number(item.f_dprice || 0) >= 50000
                 ? 0
                 : productDeliveryPrice;
-        
+
         const discountRate = Number(item.f_discount || 0);
-        const hasDiscount = Number(item.f_price || 0) > Number(item.f_dprice || 0);
-    
+
+        const hasDiscount =
+            Number(item.f_price || 0) > Number(item.f_dprice || 0);
     return(
         <Card
             key={item.f_code}
@@ -590,7 +561,7 @@ const SearchPage = () => {
                 <CardMedia
                     component="img"
                     height="110"
-                    image={item.thumbnail || "/no-image.png"}
+                    image={thumbnailSrc}
                     alt={item.f_name}
                     sx={{ objectFit: "cover" }}
                 />
@@ -781,7 +752,7 @@ const SearchPage = () => {
                         value={inputKeyword}
                         onChange={(evt) => setInputKeyword(evt.target.value)}
                     />
-                    <Button type="submit" variant="success" color="success">검색</Button>
+                    <Button type="submit" variant="contained" color="success">검색</Button>
                 </form>
 
                 {/* 검색 카테고리 탭 */}

@@ -27,11 +27,11 @@ const InteriorReview = () => {
   const [preview, setPreview] = useState([]);
 
   const [alert, setAlert] = useState({
-      open: false,
-      severity: "info",
-      title: "",
-      text: "",
-    });
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  });
 
   const handleOpen = () => {
     setOpen(true);
@@ -55,7 +55,12 @@ const InteriorReview = () => {
       const data = await InteriorUserService.fetchInteriorReview(form.id);
 
       if (data.length !== 0) {
-        alert("이미 작성한 리뷰가 있습니다.");
+        setAlert({
+          open: true,
+          severity: "error",
+          title: `에러`,
+          text: "이미 작성한 리뷰가 있습니다.",
+        });
         navigate("../interior/mypage");
       }
     };
@@ -75,30 +80,18 @@ const InteriorReview = () => {
         setAlert({
           open: true,
           severity: "error",
-          title: `에러 (${result.status || "이미지 누락"})`,
-          text: result.message || "등록 시 이미지가 최소 1개 있어야 합니다.",
-        });
+          title: `에러`        });
         return;
       }
-      const result = await InteriorUserService.AddInteriorReview(form);
-      const result2 = await ImageService.insertImage(sendList);
+      await InteriorUserService.AddInteriorReview(form);
+      await ImageService.insertImage(sendList);
 
-      if (result2.success && result.success) {
-        setAlert({
-          open: true,
-          severity: "success",
-          title: "등록 성공",
-          text: "등록되었습니다.",
-        });
-
-      } else {
-        setAlert({
-          open: true,
-          severity: "error",
-          title: `에러 (${result.status || "이미지 누락"})`,
-          text: result.message || "이미지를 1개 이상 넣어주세요.",
-        });
-      }
+      setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
 
       handleBack();
     } catch (error) {
@@ -137,144 +130,159 @@ const InteriorReview = () => {
   return (
     <div className="interior-review-page">
       <Snackbar
-              open={alert.open}
-              autoHideDuration={3000}
-              onClose={() =>
-                setAlert((prev) => ({
-                  ...prev,
-                  open: false,
-                }))
-              }
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Alert
-                severity={alert.severity}
-                onClose={() =>
-                  setAlert((prev) => ({
-                    ...prev,
-                    open: false,
-                  }))
-                }
-                sx={{
-                  width: "400px",
-                  fontSize: "1rem",
-                  padding: "16px 20px",
-                  alignItems: "center",
-                }}
-              >
-                <AlertTitle>{alert.title}</AlertTitle>
-                {alert.text}
-              </Alert>
-            </Snackbar>
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={alert.severity}
+          onClose={() =>
+            setAlert((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+          sx={{
+            width: "400px",
+            fontSize: "1rem",
+            padding: "16px 20px",
+            alignItems: "center",
+          }}
+        >
+          <AlertTitle>{alert.title}</AlertTitle>
+          {alert.text}
+        </Alert>
+      </Snackbar>
       <div className="interior-review-card">
         <div className="interior-review-header">
           <h2>인테리어 리뷰 작성</h2>
           <p>시공 후기를 작성하고 사진을 함께 등록해주세요.</p>
         </div>
 
-      <form name="article" className="interior-review-form">
-        <div className="interior-review-field">
-          <TextFieldMui
-            name="ir_content"
-            label="content"
-            onChange={handleChange}
-          />
-          <Button onClick={handleOpen} variant="contained">
-            제출
-          </Button>
-          <DialogMui
-            open={open}
-            onClose={handleClose}
-            title="제출 확인"
-            text="정말 제출하시겠습니까?"
-            buttons={[
-              {
-                title: "취소",
-                color: "inherit",
-                onClick: handleClose,
-              },
-              {
-                title: "제출",
-                variant: "outlined",
-                onClick: (e) => {
-                  console.log("제출");
-                  handleSubmit(e);
-                  handleClose();
+        <form name="article" className="interior-review-form">
+          <div className="interior-review-field">
+            <TextFieldMui
+              name="ir_content"
+              label="content"
+              onChange={handleChange}
+            />
+            <Button onClick={handleOpen} variant="contained">
+              제출
+            </Button>
+            <DialogMui
+              open={open}
+              onClose={handleClose}
+              title="제출 확인"
+              text="정말 제출하시겠습니까?"
+              buttons={[
+                {
+                  title: "취소",
+                  color: "inherit",
+                  onClick: handleClose,
                 },
-              },
-            ]}
-          />
+                {
+                  title: "제출",
+                  variant: "outlined",
+                  onClick: (e) => {
+                    console.log("제출");
+                    handleSubmit(e);
+                    handleClose();
+                  },
+                },
+              ]}
+            />
+          </div>
+        </form>
+        <p>이미지 업로드</p>
+        <div className="interior-review-upload">
+          <form
+            name="imageInsertTestForm"
+            className="interior-review-upload-form"
+          >
+            <input
+              type="hidden"
+              value="I_REVIEW"
+              name="img_kind"
+              placeholder="IMG_KIND"
+            />
+            <input
+              type="hidden"
+              value={
+                sendList === null || sendList.length === 0
+                  ? "THUMBNAIL"
+                  : "OTHER"
+              }
+              name="img_tag"
+              placeholder="IMG_TAG"
+            />
+            <input
+              type="hidden"
+              value={invoice.c_id}
+              name="dir_a"
+              placeholder="DIR_A"
+            />
+            <input
+              type="hidden"
+              value={invoice.c_kind}
+              name="dir_b"
+              placeholder="DIR_B"
+            />
+            <input
+              type="hidden"
+              value={invoice.c_name}
+              name="dir_c"
+              placeholder="DIR_C"
+            />
+            <input
+              type="hidden"
+              value={invoice.id}
+              name="dir_d"
+              placeholder="DIR_D"
+            />
+            <input
+              type="hidden"
+              value={invoice.b_createdDate}
+              name="dir_e"
+              placeholder="DIR_E"
+            />
+            <input
+              type="hidden"
+              name="img_idx"
+              value="1"
+              placeholder="IMG_IDX"
+            />
+            <Button
+              component="label"
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+            >
+              추가할 파일
+              <input
+                type="file"
+                hidden
+                name="file"
+                onChange={() => onClickAdd()}
+              />
+            </Button>
+          </form>
         </div>
-      </form>
-      <p>이미지 업로드</p>
-      <div className="interior-review-upload">
-      <form name="imageInsertTestForm" className="interior-review-upload-form">
-        <input
-          type="hidden"
-          value="I_REVIEW"
-          name="img_kind"
-          placeholder="IMG_KIND"
-        />
-        <input
-          type="hidden"
-          value={
-            sendList === null || sendList.length === 0 ? "THUMBNAIL" : "OTHER"
-          }
-          name="img_tag"
-          placeholder="IMG_TAG"
-        />
-        <input
-          type="hidden"
-          value={invoice.c_id}
-          name="dir_a"
-          placeholder="DIR_A"
-        />
-        <input
-          type="hidden"
-          value={invoice.c_kind}
-          name="dir_b"
-          placeholder="DIR_B"
-        />
-        <input
-          type="hidden"
-          value={invoice.c_name}
-          name="dir_c"
-          placeholder="DIR_C"
-        />
-        <input
-          type="hidden"
-          value={invoice.id}
-          name="dir_d"
-          placeholder="DIR_D"
-        />
-        <input
-          type="hidden"
-          value={invoice.b_createdDate}
-          name="dir_e"
-          placeholder="DIR_E"
-        />
-        <input type="hidden" name="img_idx" value="1" placeholder="IMG_IDX" />
-        <Button
-          component="label"
-          variant="contained"
-          startIcon={<CloudUploadIcon />}
-        >
-          추가할 파일
-          <input type="file" hidden name="file" onChange={() => onClickAdd()} />
-        </Button>
-      </form>
-      </div>
-      <div className="interior-review-preview-grid">
-      {preview &&
-        preview.map((item, idx) => (
-          <img
-            key={idx}
-            className="interior-review-preview-image"
-            src={item}
-            alt=""
-          />
-        ))}
-      </div>
+        <div className="interior-review-preview-grid">
+          {preview &&
+            preview.map((item, idx) => (
+              <img
+                key={idx}
+                className="interior-review-preview-image"
+                src={item}
+                alt=""
+              />
+            ))}
+        </div>
       </div>
     </div>
   );

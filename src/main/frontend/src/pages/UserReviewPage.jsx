@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import GetImgDir from "../resources/function/GetImgDir";
 import RatingMui from "../components/RatingMui";
 import TextFieldMui from "../components/TextFieldMui";
-import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
+import { Alert, AlertTitle, Button, Divider, Snackbar } from "@mui/material";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import ImageService from "../service/imageService";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Loading from "../components/Loading";
+import ImageViewer from "../components/ImageViewer";
+
+import FurnitureService from "../service/furnitureService";
+import CartService from "../service/cartService";
 
 import { useNavigate } from "react-router-dom";
 
@@ -20,6 +24,21 @@ const UserReviewPage = ({ user }) => {
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);
   const [loading, setLoading] = useState(true)
+  
+  const [editOpen, setEditOpen] = useState(false)
+  const [editItem, setEditItem] = useState(null)
+  const [addPreviewMap, setAddPreviewMap] = useState({})
+  const [deleteIdx, setDeleteIdx] = useState(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerImages, setViewerImages] = useState([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerInfo, setViewerInfo] = useState({
+    title: "",
+    content: "",
+    date: "",
+    writer: "",
+    star: 0,
+  });
 
   const goFurniture= (item) => {
     const fCode = item.f_code || item.furniture?.f_code
@@ -32,6 +51,30 @@ const UserReviewPage = ({ user }) => {
     if(!value) return "-";
     return String(value).slice(0,10)
   }
+
+  const openImageViewer = (item, imageIdx) => {
+    const images = (item?.logo?.result || []).map((img) => ({
+      src: `${img.img_name}?t=${refresh}`,
+      alt: item.fr_subject || "리뷰 이미지",
+    }));
+
+    setViewerImages(images);
+    setViewerIndex(imageIdx);
+    setViewerInfo({
+      title: item.fr_subject || "제목 없음",
+      content: item.fr_content || "",
+      date: formatDate(
+        item.fr_createdDate ||
+          item.fr_createddate ||
+          item.fr_date ||
+          item.createdAt ||
+          item.cart_statusdate
+      ),
+      writer: item.id || "",
+      star: item.fr_star || 0,
+    });
+    setViewerOpen(true);
+  };
 
   const changeToUpdate = (idx) => {
     setChange((prv) => {
@@ -57,15 +100,38 @@ const UserReviewPage = ({ user }) => {
               view: false,
             });
 
-            if (!logo?.result?.length) {
-              return item;
+            let furniture = null;
+            let thumbnail = null;
+            let options = [];
+
+            try {
+              furniture = await FurnitureService.getFurnitureItem(item.f_code);
+
+              thumbnail =
+                furniture?.imageList?.find((img) => img.img_tag === "THUMBNAIL") ||
+                furniture?.imageList?.[0] ||
+                null;
+            } catch (error) {
+              console.error("리뷰 상품 정보 조회 실패", error);
             }
+
+            try {
+                  if (item.c_code) {
+                    const optionRes = await CartService.getCartOptions(item.c_code);
+                    options = optionRes.data || [];
+                  }
+                } catch (error) {
+                  console.error("리뷰 상품 옵션 조회 실패", error);
+                }
 
             return {
               ...item,
               logo,
+              furniture,
+              thumbnail: thumbnail?.img_name || null,
+              options,
             };
-          }),
+          })
         );
 
         setReviews(listWithImages);
@@ -81,11 +147,13 @@ const UserReviewPage = ({ user }) => {
     }
   }, [user, refresh]);
 
-  const handleOpen = () => {
+  const handleOpen = (index) => {
+    setDeleteIdx(index);
     setOpen(true);
   };
 
   const handleClose = () => {
+    setDeleteIdx(null);
     setOpen(false);
   };
 
@@ -110,26 +178,83 @@ const UserReviewPage = ({ user }) => {
       ),
     );
   };
-  const handleSubmit = async (e, item) => {
-    e.preventDefault(); // 🔥 페이지 새로고침 막기
-    onClickInsert();
-    const result = await FurnitureReviewService.updateReview(item);
 
-    if (result.success) {
+  const openEditModal = (item) => {
+    setEditItem({ ...item });
+    setSendList([]);
+    setAddPreviewMap({});
+    setEditOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditOpen(false);
+
+    setTimeout(()=>{
+      setEditItem(null);
+      setSendList([]);
+      setAddPreviewMap({});
+    },200)  
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+
+    setEditItem((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e, item) => {
+    e.preventDefault();
+
+    if (!item) return;
+
+    if (!String(item.fr_subject || "").trim()) {
+      setAlert({
+        open: true,
+        severity: "warning",
+        title: "수정 불가",
+        text: "제목을 입력해주세요.",
+      });
+      return;
+    }
+
+    if (!String(item.fr_content || "").trim()) {
+      setAlert({
+        open: true,
+        severity: "warning",
+        title: "수정 불가",
+        text: "내용을 입력해주세요.",
+      });
+      return;
+    }
+
+    try {
+      await onClickInsert();
+      await FurnitureReviewService.updateReview(item);
+
       setAlert({
         open: true,
         severity: "success",
         title: "수정 성공",
         text: "수정되었습니다.",
       });
-    } else {
+
+      closeEditModal();
+      setRefresh((prev) => prev + 1);
+    } catch (error) {
+      console.error("리뷰 수정 실패", error);
+
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
+        title: "수정 실패",
+        text:
+          error.response?.data?.message ||
+          "리뷰 수정 중 오류가 발생했습니다.",
       });
-    }    
+    }
   };
 
   const reviewDeleteSubmit = async (idx) => {
@@ -151,7 +276,7 @@ const UserReviewPage = ({ user }) => {
   const imageUpload = async (e) => {
     const updateList = document.getElementsByClassName("updateFile");
     if (updateList.length === 0) {
-      alert("Idiot");
+      window.alert("Idiot");
       return;
     }
     let fileList = [];
@@ -162,7 +287,7 @@ const UserReviewPage = ({ user }) => {
     }
 
     if (fileList.length === 0) {
-      alert("dumb");
+      window.alert("dumb");
       return;
     }
     // await ImageService.updateImage(fileList, updateTest);
@@ -171,9 +296,50 @@ const UserReviewPage = ({ user }) => {
   };
 
   const imageDelete = async (item) => {
-    await ImageService.deleteImage(item);
-    setRefresh(refresh + 1);
+    try {
+      await ImageService.deleteImage(item);
+
+      const deletedNames = Array.isArray(item) ? item : [item];
+
+      setEditItem((prev) => {
+        if (!prev?.logo?.result) return prev;
+
+        return {
+          ...prev,
+          logo: {
+            ...prev.logo,
+            result: prev.logo.result.filter(
+              (img) => !deletedNames.includes(img.img_originalName)
+            ),
+          },
+        };
+      });
+
+      setReviews((prev) =>
+        (prev || []).map((review) => ({
+          ...review,
+          logo: review.logo
+            ? {
+                ...review.logo,
+                result: (review.logo.result || []).filter(
+                  (img) => !deletedNames.includes(img.img_originalName)
+                ),
+              }
+            : review.logo,
+        }))
+      );
+
+    } catch (error) {
+      console.error("이미지 삭제 실패", error);
+      setAlert({
+        open: true,
+        severity: "error",
+        title: "삭제 실패",
+        text: "이미지 삭제 중 오류가 발생했습니다.",
+      });
+    }
   };
+
   const getNextIdx = (item) => {
     const currentList = item?.logo?.result || [];
 
@@ -194,6 +360,7 @@ const UserReviewPage = ({ user }) => {
     }
 
     const nextIdx = getNextIdx(item) + sendList.length;
+    const previewUrl = URL.createObjectURL(file);
 
     setSendList([
       ...sendList,
@@ -204,14 +371,15 @@ const UserReviewPage = ({ user }) => {
         dir_d: user.id,
         img_idx: nextIdx,
         file,
+        previewUrl,
       },
     ]);
   };
 
-  const onClickInsert = () => {
+  const onClickInsert = async () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
-      return; // 🚫 요청 안 보냄
+      return; // 요청 안 보냄
     }
     console.log("sendlist");
     console.log(sendList);
@@ -259,145 +427,50 @@ const UserReviewPage = ({ user }) => {
         </Alert>
       </Snackbar>
 
+      <div className="user-review-list">
       {reviews?.map((item, idx) => (
-      <div className="user-review-item" key={item.fr_code || item.id || idx}>
-        {change[idx] ? (
-          <form name="review" className="user-review-edit-form">
-            <div className="user-review-edit-images">
-              {(item?.logo?.result || []).map((record) => (
-                <div
-                  className="user-review-edit-image"
-                  key={record.img_originalName || record.img_name}
-                >
-                  <img
-                    src={`${record.img_name}?t=${refresh}`}
-                    alt={`${item.c_name || "리뷰"} 이미지`}
-                  />
-
-                  <div className="user-review-image-actions">
-                    <Button
-                      component="label"
-                      variant="contained"
-                      startIcon={<CloudUploadIcon />}
-                    >
-                      파일 선택
-                      <input
-                        type="file"
-                        hidden
-                        name={record.img_originalName}
-                        className="updateFile"
-                      />
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={(e) => imageUpload(record, e)}
-                    >
-                      수정
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => imageDelete([record.img_originalName])}
-                    >
-                      삭제
-                    </Button>
-                  </div>
-                </div>
-              ))}
+        <article className="user-review-card" key={item.fr_idx || item.c_code || idx}>
+          <div className="user-review-product-area">
+            <div
+              className="user-review-product-thumb"
+              onClick={() => goFurniture(item)}
+            >
+              <img
+                src={
+                  item.thumbnail
+                    ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
+                    : "/no-image.png"
+                }
+                alt={item.furniture?.f_name || item.f_name || "상품 이미지"}
+              />
             </div>
 
-            <RatingMui
-              name="fr_star"
-              label="별점"
-              value={item.fr_star}
-              onChange={(e) => handleChange(idx, e)}
-              precision={0.5}
-            />
+            <div className="user-review-product-info">
+              <p className="user-review-company">
+                {item.furniture?.c_name || item.c_name || "업체명 없음"}
+              </p>
 
-            <TextFieldMui
-              name="fr_subject"
-              label="제목"
-              value={item.fr_subject}
-              onChange={(e) => handleChange(idx, e)}
-            />
+              <h4>{item.furniture?.f_name || item.f_name || "상품명 없음"}</h4>
 
-            <TextFieldMui
-              name="fr_content"
-              label="내용"
-              value={item.fr_content}
-              onChange={(e) => handleChange(idx, e)}
-            />
-
-            <div className="user-review-add-image-form">
-              <p>가구 리뷰 이미지 추가</p>
-
-              <Button
-                component="label"
-                variant="contained"
-                startIcon={<CloudUploadIcon />}
-              >
-                추가할 파일
-                <input
-                  type="file"
-                  hidden
-                  name="file"
-                  onChange={(e) => onClickAdd(item, e)}
-                />
-              </Button>
+              <div className="user-review-options">
+                {(item.options || []).length > 0 ? (
+                  item.options.map((option, optionIdx) => (
+                    <span key={`${option.co_select}-${option.co_text}-${optionIdx}`}>
+                      옵션: {option.co_select} - {option.co_text}
+                      {Number(option.co_price || 0) > 0
+                        ? ` (+${Number(option.co_price).toLocaleString()}원)`
+                        : ""}
+                    </span>
+                  ))
+                ) : (
+                  <span className="user-review-option-empty">옵션: -</span>
+                )}
+              </div>
             </div>
+          </div>
 
-            <div className="user-review-edit-actions">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={(e) => {
-                  handleSubmit(e, item);
-                  changeToUpdate(idx);
-                }}
-              >
-                수정 완료
-              </Button>
-
-              <Button variant="outlined" onClick={() => changeToUpdate(idx)}>
-                수정 취소
-              </Button>
-
-              <Button variant="contained" color="error" onClick={handleOpen}>
-                삭제
-              </Button>
-            </div>
-
-            <DialogMui
-              open={open}
-              onClose={handleClose}
-              title="삭제 확인"
-              text="정말 삭제하시겠습니까?"
-              buttons={[
-                {
-                  title: "취소",
-                  color: "inherit",
-                  onClick: handleClose,
-                },
-                {
-                  title: "삭제",
-                  variant: "outlined",
-                  color: "error",
-                  onClick: () => {
-                    reviewDeleteSubmit(idx);
-                    handleClose();
-                  },
-                },
-              ]}
-            />
-          </form>
-        ) : (
-          <article className="user-review-card">
-            <div className="user-review-row user-review-title-row">
-              <h4>{item.fr_subject || "제목 없음"}</h4>
-
+          <div className="user-review-body">
+            <div className="user-review-rating">
               <RatingMui
                 name="fr_star"
                 label=""
@@ -405,53 +478,292 @@ const UserReviewPage = ({ user }) => {
                 readOnly={true}
                 precision={0.5}
               />
+              <strong>{Number(item.fr_star || 0)}</strong>
             </div>
 
-            <div className="user-review-date">
-              {formatDate(item.fr_date || item.createdAt)}
+            <div className="user-review-title-line">
+              <h4>{item.fr_subject || "제목 없음"}</h4>
+              <span>
+                {formatDate(
+                  item.fr_createdDate ||
+                    item.fr_createddate ||
+                    item.fr_date ||
+                    item.createdAt ||
+                    item.cart_statusdate
+                )}
+              </span>
             </div>
 
             <p className="user-review-content">
               {item.fr_content || "내용 없음"}
             </p>
 
-            <div className="user-review-bottom-row">
-              <div
-                className="user-review-images"
-                onClick={() => goFurniture(item)}
-              >
-                {(item?.logo?.result || []).length > 0 ? (
-                  item.logo.result.slice(0, 4).map((record) => (
-                    <img
-                      key={record.img_originalName || record.img_name}
-                      src={`${record.img_name}?t=${refresh}`}
-                      alt={item.fr_subject || "리뷰 이미지"}
-                    />
+            <div className="user-review-images">
+              {(item?.logo?.result || []).length > 0 ? (
+                item.logo.result.map((record, imageIdx) => (
+                  <img
+                    key={record.img_originalName || record.img_name}
+                    src={`${record.img_name}?t=${refresh}`}
+                    alt={item.fr_subject || "리뷰 이미지"}
+                    onClick={() => openImageViewer(item, imageIdx)}
+                  />
+                ))
+              ) : (
+                <div className="user-review-no-image">리뷰 이미지 없음</div>
+              )}
+            </div>
+          </div>
+
+          <div className="user-review-action-buttons">
+            <Button
+              className="user-review-primary-btn"
+              variant="contained"
+              onClick={() => openEditModal(item)}
+            >
+              수정
+            </Button>
+
+            <Button
+              className="user-review-secondary-btn"
+              variant="outlined"
+              onClick={() => handleOpen(idx)}
+            >
+              삭제
+            </Button>
+          </div>
+
+
+        </article>
+      ))}
+    </div>
+
+  <DialogMui
+    open={editOpen}
+    onClose={closeEditModal}
+    title={
+      <div className="user-review-edit-dialog-title">
+        <strong>가구 리뷰 수정</strong>
+        <button type="button" onClick={closeEditModal}>
+          ×
+        </button>
+      </div>
+    }
+    maxWidth="sm"
+    fullWidth={true}
+    text={
+      editItem && (
+        <div className="user-review-edit-form">
+          <div className="user-review-edit-product-area">
+            <div className="user-review-product-thumb">
+              <img
+                src={
+                  editItem.thumbnail
+                    ? `http://localhost:8080/api/images/FURNITURE/${editItem.thumbnail}`
+                    : "/no-image.png"
+                }
+                alt={editItem.furniture?.f_name || editItem.f_name || "상품 이미지"}
+              />
+            </div>
+
+            <div className="user-review-product-info">
+              <p className="user-review-company">
+                {editItem.furniture?.c_name || editItem.c_name || "업체명 없음"}
+              </p>
+
+              <h4>{editItem.furniture?.f_name || editItem.f_name || "상품명 없음"}</h4>
+
+              <div className="user-review-options">
+                {(editItem.options || []).length > 0 ? (
+                  editItem.options.map((option, optionIdx) => (
+                    <span key={`${option.co_select}-${option.co_text}-${optionIdx}`}>
+                      {option.co_select}: {option.co_text}
+                      {Number(option.co_price || 0) > 0
+                        ? ` (+${Number(option.co_price).toLocaleString()}원)`
+                        : ""}
+                    </span>
                   ))
                 ) : (
-                  <div className="user-review-no-image">이미지 없음</div>
+                  <span className="user-review-option-empty">옵션 -</span>
                 )}
               </div>
-
-              <button
-                type="button"
-                className="user-review-edit-btn"
-                onClick={(evt) => {
-                  evt.stopPropagation();
-                  changeToUpdate(idx);
-                }}
-              >
-                수정
-              </button>
             </div>
-          </article>
-        )}
-      </div>
-    ))}
+          </div>
 
+          <div className="user-review-edit-section">
+            <RatingMui
+              name="fr_star"
+              label="별점"
+              value={editItem.fr_star}
+              onChange={handleEditChange}
+              precision={0.5}
+            />
+          </div>
+
+          <div className="user-review-edit-field">
+            <span>제목</span>
+            <TextFieldMui
+              name="fr_subject"
+              label=""
+              value={editItem.fr_subject || ""}
+              onChange={handleEditChange}
+              width="100%"
+            />
+          </div>
+
+          <div className="user-review-edit-field">
+            <span>내용</span>
+            <TextFieldMui
+              name="fr_content"
+              label=""
+              value={editItem.fr_content || ""}
+              onChange={handleEditChange}
+              width="100%"
+              multiline={true}
+              minRows={5}
+            />
+          </div>
+
+          <div className="user-review-edit-image-tools">
+            <p>기존 이미지</p>
+
+            <div className="user-review-edit-images">
+              {(editItem?.logo?.result || []).map((record) => (
+                <div
+                  className="user-review-edit-image"
+                  key={record.img_originalName || record.img_name}
+                >
+                  <img
+                    src={`${record.img_name}?t=${refresh}`}
+                    alt="리뷰 이미지"
+                  />
+
+                  <button
+                    type="button"
+                    className="user-review-edit-image-delete"
+                    onClick={() => imageDelete([record.img_originalName])}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+
+              {sendList.map((image, imageIdx) => (
+                <div
+                  className="user-review-edit-image user-review-edit-image-new"
+                  key={`${image.file.name}-${imageIdx}`}
+                >
+                  <img src={image.previewUrl} alt="추가 이미지 미리보기" />
+
+                  <button
+                    type="button"
+                    className="user-review-edit-image-delete"
+                    onClick={() => {
+                      setSendList((prev) => prev.filter((_, idx) => idx !== imageIdx));
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+
+              {(editItem?.logo?.result || []).length === 0 && sendList.length === 0 && (
+                <span className="user-review-option-empty">이미지 -</span>
+              )}
+            </div>
+
+          </div>
+
+          <div className="user-review-add-image-form">
+            <p>리뷰 이미지 추가</p>
+
+            <Button
+              component="label"
+              variant="contained"
+              className="user-review-edit-upload-btn"
+              startIcon={<CloudUploadIcon />}
+            >
+              파일 선택
+              <input
+                type="file"
+                hidden
+                name="file"
+                onChange={(e) => onClickAdd(editItem, e)}
+              />
+            </Button>
+
+          </div>
+        </div>
+      )
+    }
+    buttons={[
+      {
+        title: "수정 완료",
+        color: "primary",
+        variant: "contained",
+        onClick: (e) => handleSubmit(e, editItem),
+      },
+      {
+        title: "취소",
+        color: "inherit",
+        variant: "outlined",
+        onClick: closeEditModal,
+      },
+    ]}
+  />
+
+    <DialogMui
+      open={open}
+      onClose={handleClose}
+      title={
+        <div className="user-review-delete-dialog-title">
+          삭제 확인
+        </div>
+      }
+      text={
+        <div className="user-review-delete-dialog-content">
+          <p>정말 리뷰를 삭제하시겠습니까?</p>
+        </div>
+      }
+      buttons={[
+        {
+          title: "취소",
+          color: "inherit",
+          variant: "outlined",
+          onClick: handleClose,
+        },
+        {
+          title: "삭제",
+          variant: "contained",
+          color: "error",
+          onClick: () => {
+            if (deleteIdx !== null) {
+              reviewDeleteSubmit(deleteIdx);
+            }
+            handleClose();
+          },
+        },
+      ]}
+    />
+
+    <ImageViewer
+      open={viewerOpen}
+      images={viewerImages}
+      startIndex={viewerIndex}
+      title={viewerInfo.title}
+      content={viewerInfo.content}
+      date={viewerInfo.date}
+      writer={viewerInfo.writer}
+      star={viewerInfo.star}
+      onClose={() => setViewerOpen(false)}
+    />
 
     </div>
   );
 };
 
 export default UserReviewPage;
+
+
+
+
+

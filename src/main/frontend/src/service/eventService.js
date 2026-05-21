@@ -57,7 +57,8 @@ const updateEvent = async (data) => {
       e_id: data.e_id,
       e_title: data.e_title,
       e_content: data.e_content,
-      e_long: data.e_long,
+      e_startDate: data.e_startDate || null,
+      e_endDate: data.e_endDate || null,
       e_type: data.e_type,
     });
     return {
@@ -73,8 +74,9 @@ const updateEvent = async (data) => {
 
 // 삭제
 const deleteEvent = async (e_id) => {
-  try {
-    await http.post("/event/delete", e_id);
+  try {    
+    await http.post("/eventCoupon/deleteByEvent", {e_id:e_id});
+    await http.post("/event/delete", {e_id:e_id});
     return {
       success: true,
     };

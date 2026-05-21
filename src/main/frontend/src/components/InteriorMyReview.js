@@ -11,6 +11,7 @@ const InteriorMyReview = ({ id }) => {
   const [review, setReview] = useState([]);
   const [change, setChange] = useState([]);
   const [sendList, setSendList] = useState([]);
+  const [deleteTargetIdx, setDeleteTargetIdx] = useState(null);
 
   const handleChange = (idx, e) => {
     const { name, value } = e.target;
@@ -25,8 +26,6 @@ const InteriorMyReview = ({ id }) => {
     setReview(newReview);
   };
 
-  const [open, setOpen] = useState(false);
-
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -34,12 +33,12 @@ const InteriorMyReview = ({ id }) => {
     text: "",
   });
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleOpen = (idx) => {
+    setDeleteTargetIdx(idx);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setDeleteTargetIdx(null);
   };
   const fetchReview = async () => {
     const data = await InteriorUserService.fetchInteriorReview(id);
@@ -77,20 +76,27 @@ const InteriorMyReview = ({ id }) => {
     });
   };
   const reviewDeleteSubmit = async (idx) => {
-    await InteriorUserService.DeleteInteriorReview(review[idx]);
-    await Promise.all(
-      review[idx].logo.result.map((record) =>
-        imageDelete([record.img_originalName]),
-      ),
-    );
-    setAlert({
-      open: true,
-      severity: "error",
-      title: "삭제 성공",
-      text: "삭제되었습니다.",
-    });
+      const targetReview = review[idx];
 
-    await fetchReview();
+      const deleteImageNames =
+        targetReview?.logo?.result
+          ?.map((record) => record.img_originalName)
+          .filter(Boolean) || [];
+
+      if (deleteImageNames.length > 0) {
+        await ImageService.deleteImage(deleteImageNames);
+      }
+
+      await InteriorUserService.DeleteInteriorReview(targetReview);
+
+      setAlert({
+        open: true,
+        severity: "error",
+        title: "삭제 성공",
+        text: "삭제되었습니다.",
+      });
+
+      await fetchReview();
   };
   const reviewUpdateSubmit = async (idx) => {
     const targetReview = review[idx];
@@ -181,7 +187,7 @@ const InteriorMyReview = ({ id }) => {
   };
 
   return (
-    <div>
+    <div className="interior-my-review-panel">
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -214,59 +220,88 @@ const InteriorMyReview = ({ id }) => {
       </Snackbar>
       {Array.isArray(review) && review.length > 0 ? (
         review.map((item, idx) => (
-          <div>
-            <p>내가 작성한 인테리어 리뷰 모음</p>
-            {item.logo.result
-              .filter((record) => record.dir_e === item.b_createdDate)
-              .map((record, i) => (
-                <div>
-                  <img
-                    src={`${record.img_name}?v=${record.img_CreatedDate || record.img_createdDate || ""}`}
-                    alt={`${item.c_name} 예시`}
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  {change[idx] && (
-                    <form>
-                      <Button
-                        component="label"
-                        variant="contained"
-                        startIcon={<CloudUploadIcon />}
-                      >
-                        추가할 파일
-                        <input
-                          type="file"
-                          hidden
-                          name={record.img_originalName}
-                          className="updateFile"
-                        />
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) => imageUpload(record, e)}
-                      >
-                        적용
-                      </Button>
+          <div className="interior-my-review-card" key={`${item.id}-${idx}`}>
+            <div className="interior-my-review-head">
+              <div>
+                <span>내가 작성한 인테리어 리뷰</span>
+                <h3>{item.c_name}</h3>
+              </div>
 
-                      <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() =>
-                          imageDelete(idx, record.img_originalName)
-                        }
-                      >
-                        삭제{" "}
-                      </Button>
-                    </form>
-                  )}
-                </div>
-              ))}
+              <div className="interior-my-review-actions">
+                <Button
+                  variant="contained"
+                  color={!change[idx] ? "primary" : "inherit"}
+                  onClick={() => changeToUpdate(idx)}
+                >
+                  {!change[idx] ? "리뷰 수정" : "수정 취소"}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleOpen(idx)}
+                >
+                  리뷰 삭제
+                </Button>
+              </div>
+            </div>
+
+            <div className="interior-my-review-images">
+              {item.logo.result
+                .filter((record) => record.dir_e === item.b_createdDate)
+                .map((record, i) => (
+                  <div
+                    className="interior-my-review-image-item"
+                    key={`${record.img_name}-${i}`}
+                  >
+                    <img
+                      src={`${record.img_name}?v=${
+                        record.img_CreatedDate || record.img_createdDate || ""
+                      }`}
+                      alt={`${item.c_name} 예시`}
+                    />
+                    {change[idx] && (
+                      <form className="interior-my-review-image-actions">
+                        <Button
+                          component="label"
+                          variant="contained"
+                          startIcon={<CloudUploadIcon />}
+                        >
+                          추가할 파일
+                          <input
+                            type="file"
+                            hidden
+                            name={record.img_originalName}
+                            className="updateFile"
+                          />
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={imageUpload}
+                        >
+                          적용
+                        </Button>
+
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() =>
+                            imageDelete(idx, record.img_originalName)
+                          }
+                        >
+                          삭제
+                        </Button>
+                      </form>
+                    )}
+                  </div>
+                ))}
+            </div>
+
             {change[idx] && (
-              <form name="imageInteriorReviewInsertTestForm">
+              <form
+                name="imageInteriorReviewInsertTestForm"
+                className="interior-my-review-add-form"
+              >
                 <p>리뷰 이미지 추가 업로드</p>
                 <input
                   type="hidden"
@@ -343,7 +378,7 @@ const InteriorMyReview = ({ id }) => {
               </form>
             )}
             {change[idx] ? (
-              <form>
+              <form className="interior-my-review-edit-form">
                 <TextFieldMui
                   name="ir_content"
                   label="content"
@@ -359,24 +394,10 @@ const InteriorMyReview = ({ id }) => {
                 </Button>
               </form>
             ) : (
-              item.ir_content
+              <p className="interior-my-review-content">{item.ir_content}</p>
             )}
-            <Button
-              variant="contained"
-              color={!change[idx] ? "primary" : "inherit"}
-              onClick={() => changeToUpdate(idx)}
-            >
-              {!change[idx] ? "리뷰 수정" : "수정 취소"}
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => handleOpen()}
-            >
-              리뷰 삭제
-            </Button>
             <DialogMui
-              open={open}
+              open={deleteTargetIdx === idx}
               onClose={handleClose}
               title="삭제 확인"
               text="정말 삭제하시겠습니까?"
@@ -393,7 +414,7 @@ const InteriorMyReview = ({ id }) => {
                   onClick: () => {
                     console.log("삭제 실행");
 
-                    reviewDeleteSubmit(idx);
+                    reviewDeleteSubmit(deleteTargetIdx);
                     handleClose();
                   },
                 },

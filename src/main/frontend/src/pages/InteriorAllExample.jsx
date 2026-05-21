@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button, Chip, Stack } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
 import SelectMui from "../components/SelectMui";
-import { Button } from "@mui/material";
+import DialogInside from "../components/DialogInside";
+import "../css/InteriorAllExample.css";
 
 const InteriorAllExample = () => {
   const navigate = useNavigate();
@@ -12,12 +14,14 @@ const InteriorAllExample = () => {
   const [filterType, setFilterType] = useState("");
   const [filterValue, setFilterValue] = useState("");
   const [tags, setTags] = useState([]);
+  const [selectedExample, setSelectedExample] = useState(null);
+
   const handleNext = (data) => {
     navigate("/interior/article", {
       state: { company: data },
     });
   };
-  const [selectedImg, setSelectedImg] = useState(null);
+
   useEffect(() => {
     const fetchExample = async () => {
       const data = await InteriorService.fetchAllInteriorExample();
@@ -34,9 +38,11 @@ const InteriorAllExample = () => {
             d: item.ie_tag + "_" + item.ie_tag2,
             view: false,
           });
+
           if (!logo?.result?.length) {
             return item;
           }
+
           return {
             ...item,
             logo,
@@ -47,6 +53,7 @@ const InteriorAllExample = () => {
       setExample(listWithImages);
       setOriginList(listWithImages);
     };
+
     fetchExample();
   }, []);
 
@@ -56,6 +63,7 @@ const InteriorAllExample = () => {
     { value: "house", title: "단독주택" },
     { value: "officetel", title: "오피스텔" },
   ];
+
   const tagOptions2 = [
     { value: "kitchen", title: "키친" },
     { value: "bath", title: "바스" },
@@ -67,33 +75,43 @@ const InteriorAllExample = () => {
     { value: "tile", title: "타일" },
     { value: "floor", title: "마루" },
   ];
+
   useEffect(() => {
-    const handleFilter = () => {
-      let result = [...originList];
+    let result = [...originList];
 
-      // 필터
-      if (filterType && filterValue) {
-        result = result.filter((company) => {
-          return tags.some(
-            (tag) =>
-              tag.c_id === company.c_id &&
-              tag.c_kind === company.c_kind &&
-              tag.c_name === company.c_name &&
-              tag.ie_tag === filterType &&
-              tag.ie_tag2 === filterValue,
-          );
-        });
-      }
+    if (filterType && filterValue) {
+      result = result.filter((company) => {
+        return tags.some(
+          (tag) =>
+            tag.c_id === company.c_id &&
+            tag.c_kind === company.c_kind &&
+            tag.c_name === company.c_name &&
+            tag.ie_tag === filterType &&
+            tag.ie_tag2 === filterValue,
+        );
+      });
+    }
 
-      setExample(result);
-    };
-    handleFilter();
-  }, [filterValue]);
+    setExample(result);
+  }, [filterType, filterValue, originList, tags]);
 
   const handleReset = () => {
     setFilterType("");
     setFilterValue("");
     setExample(originList);
+  };
+
+  const getExampleImages = (item) => {
+    return (
+      item?.logo?.result?.filter(
+        (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
+      ) || []
+    );
+  };
+
+  const getThumbnailImage = (item) => {
+    const images = getExampleImages(item);
+    return images.find((record) => record.img_tag === "THUMBNAIL") || images[0];
   };
 
   const groupedExamples = example.reduce((acc, item) => {
@@ -114,125 +132,112 @@ const InteriorAllExample = () => {
 
     return acc;
   }, {});
+
+  const selectedImages = selectedExample ? getExampleImages(selectedExample) : [];
+
   return (
-    <div>
-      <SelectMui
-        label="tag1"
-        name="filterType"
-        value={filterType}
-        onChange={(e) => {
-          setFilterType(e.target.value);
-          setFilterValue("");
-        }}
-        option={tagOptions1}
-      />
-      {filterType && (
+    <div className="interior-all-example-page">
+      <div className="interior-all-example-toolbar">
         <SelectMui
-          label="tag2"
-          name="filterValue"
-          value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
-          option={tagOptions2}
-        />
-      )}
-      <Button onClick={handleReset}>초기화</Button>
-      예시 조회 결과
-      {Object.values(groupedExamples).map((group, idx) => (
-        <div
-          key={idx}
-          style={{
-            marginBottom: "50px",
-            borderBottom: "1px solid #ddd",
-            paddingBottom: "30px",
+          label="tag1"
+          name="filterType"
+          value={filterType}
+          onChange={(e) => {
+            setFilterType(e.target.value);
+            setFilterValue("");
           }}
-        >
-          {/* 업체 정보 */}
-          <div
-            style={{
-              marginBottom: "20px",
-              cursor: "pointer",
-            }}
+          option={tagOptions1}
+        />
+
+        {filterType && (
+          <SelectMui
+            label="tag2"
+            name="filterValue"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            option={tagOptions2}
+          />
+        )}
+
+        <Button onClick={handleReset}>초기화</Button>
+      </div>
+
+      <h2 className="interior-all-example-title">예시 조회 결과</h2>
+
+      {Object.values(groupedExamples).map((group, idx) => (
+        <div className="interior-example-group" key={idx}>
+          <button
+            className="interior-example-company"
+            type="button"
             onClick={() => handleNext(group.company)}
           >
-            <h2>{group.company.c_name}</h2>
-          </div>
+            {group.company.c_name}
+          </button>
 
-          {/* 같은 업체의 시공 예시 */}
-          <div
-            style={{
-              display: "flex",
-            }}
-          >
-            {group.examples.map((item, exampleIdx) => (
-              <div
-                key={exampleIdx}
-                style={{
-                  width: "250px",
-                  border: "1px solid #ccc",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  padding: "10px",
-                }}
-              >
-                {/* 이미지 */}
-                {item?.logo?.result
-                  ?.filter(
-                    (record) =>
-                      record.dir_d === item.ie_tag + "_" + item.ie_tag2,
-                  )
-                  ?.map((record, i) => (
-                    <img
-                      key={i}
-                      src={record.img_name}
-                      alt={`${item.c_name} 예시`}
-                      onClick={() => setSelectedImg(record.img_name)}
-                    />
-                  ))}
+          <div className="interior-example-grid">
+            {group.examples.map((item, exampleIdx) => {
+              const thumbnail = getThumbnailImage(item);
 
-                {/* 설명 */}
-                <div>
-                  <p>{item.ie_tag}</p>
-                  <p>{item.ie_tag2}</p>
-                  <p>{item.ie_content}</p>
-                </div>
-              </div>
-            ))}
+              return (
+                <button
+                  className="interior-example-card"
+                  key={exampleIdx}
+                  type="button"
+                  onClick={() => setSelectedExample(item)}
+                >
+                  <div className="interior-example-thumb">
+                    {thumbnail ? (
+                      <img
+                        src={thumbnail.img_name}
+                        alt={`${item.c_name} 예시`}
+                      />
+                    ) : (
+                      <span>이미지 없음</span>
+                    )}
+                  </div>
+
+                  <div className="interior-example-info">
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      <Chip label={item.ie_tag} size="small" />
+                      <Chip label={item.ie_tag2} size="small" />
+                    </Stack>
+                    <p>{item.ie_content}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-          
         </div>
       ))}
-      {/* 확대 이미지 */}
-      {selectedImg && (
-        <div
-          onClick={() => setSelectedImg(null)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-        >
-          <img
-            src={selectedImg}
-            alt="확대 이미지"
-            style={{
-              minWidth: "80%",
-              minHeight: "80%",
-              maxWidth: "95%",
-              maxHeight: "95%",
-              objectFit: "contain",
-            }}
-          />
-        </div>    
-)}  
-      </div>
-      
+
+      <DialogInside
+        open={Boolean(selectedExample)}
+        onClose={() => setSelectedExample(null)}
+        maxWidth="md"
+        fullWidth
+        contentClassName="all-example-dialog-content"
+      >
+        <div className="all-example-dialog">
+          <div className="all-example-dialog-images">
+            {selectedImages.map((record, i) => (
+              <img
+                key={`${record.img_name}-${i}`}
+                src={record.img_name}
+                alt={`${selectedExample?.c_name} 예시`}
+              />
+            ))}
+          </div>
+
+          <div className="all-example-dialog-info">
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              <Chip label={selectedExample?.ie_tag} />
+              <Chip label={selectedExample?.ie_tag2} />
+            </Stack>
+            <p>{selectedExample?.ie_content}</p>
+          </div>
+        </div>
+      </DialogInside>
+    </div>
   );
 };
 

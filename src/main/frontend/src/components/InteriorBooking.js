@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextFieldMui from "../components/TextFieldMui";
 import DatePickerMui from "../components/DatePickerMui";
-import { Button, Snackbar } from "@mui/material";
+import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
+import { useNavigate } from "react-router-dom";
 
 const InteriorBooking = ({ company, answers, setBookingPossible }) => {
   const [alert, setAlert] = useState({
@@ -15,6 +16,21 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
     text: "",
   });
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const id = localStorage.getItem("id");
+    const token = localStorage.getItem("token");
+
+    if (!id || !token) {
+      setAlert({
+        open: true,
+        severity: "error",
+        title: `에러`,
+        text: "로그인이 필요한 서비스입니다.",
+      });
+      setBookingPossible?.(false);
+    }
+  }, []);
 
   const handleOpen = () => {
     setOpen(true);
@@ -77,7 +93,7 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
         open: true,
         severity: "success",
         title: "등록 성공",
-        text: "시공 사례가 등록되었습니다.",
+        text: "상담이 등록되었습니다.",
       });
       setTimeout(() => {
         setBookingPossible(false);
@@ -86,71 +102,86 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status})`,
+        title: `에러`,
         text: result.message || "오류가 발생했습니다.",
       });
     }
   };
   return (
     <div style={{ display: "flex" }}>
-      {alert.open ? (
-        <AlertMui
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
           severity={alert.severity}
-          title={alert.title}
-          text={alert.text}
-          autoHideDuration={3000}
           onClose={() =>
             setAlert((prev) => ({
               ...prev,
               open: false,
             }))
           }
-        />
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <SelectMui
-              name="kind"
-              value={data.kind}
-              onChange={handleChange}
-              option={option}
-              required
-            />
-            <TextFieldMui name="long" label="long" onChange={handleChange} />
-            <DatePickerMui value={data.date} onChange={handleDateChange} />
-            <TextFieldMui
-              name="content"
-              label="content"
-              onChange={handleChange}
-            />
-            <Button variant="contained" color="primary" onClick={handleOpen}>
-              제출
-            </Button>
-            <DialogMui
-              open={open}
-              onClose={handleClose}
-              title="제출 확인"
-              text="정말 제출하시겠습니까?"
-              buttons={[
-                {
-                  title: "취소",
-                  color: "inherit",
-                  onClick: handleClose,
+          sx={{
+            width: "400px",
+            fontSize: "1rem",
+            padding: "16px 20px",
+            alignItems: "center",
+          }}
+        >
+          <AlertTitle>{alert.title}</AlertTitle>
+          {alert.text}
+        </Alert>
+      </Snackbar>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <SelectMui
+            name="kind"
+            value={data.kind}
+            onChange={handleChange}
+            option={option}
+            required
+          />
+          <TextFieldMui name="long" label="long" onChange={handleChange} />
+          <DatePickerMui value={data.date} onChange={handleDateChange} />
+          <TextFieldMui
+            name="content"
+            label="content"
+            onChange={handleChange}
+          />
+          <Button variant="contained" color="primary" onClick={handleOpen}>
+            제출
+          </Button>
+          <DialogMui
+            open={open}
+            onClose={handleClose}
+            title="제출 확인"
+            text="정말 제출하시겠습니까?"
+            buttons={[
+              {
+                title: "취소",
+                color: "inherit",
+                onClick: handleClose,
+              },
+              {
+                title: "제출",
+                variant: "outlined",
+                onClick: (e) => {
+                  console.log("제출 실행");
+                  handleSubmit(e);
+                  handleClose();
                 },
-                {
-                  title: "제출",
-                  variant: "outlined",
-                  onClick: (e) => {
-                    console.log("제출 실행");
-                    handleSubmit(e);
-                    handleClose();
-                  },
-                },
-              ]}
-            />
-          </div>
-        </form>
-      )}
+              },
+            ]}
+          />
+        </div>
+      </form>
     </div>
   );
 };

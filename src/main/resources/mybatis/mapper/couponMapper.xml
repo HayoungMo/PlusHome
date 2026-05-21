@@ -46,6 +46,52 @@
     AND coupon_end >= SYSDATE
 </select>
 
+<select id="getArticleList"
+        parameterType="hashMap"
+        resultType="com.spring.home.dto.CouponDTO">
+
+    SELECT
+        coupon_code,
+        discount,
+        coupon_end,
+        coupon_max,
+        coupon_info,
+        coupon_used,
+        coupon_type,
+        coupon_catagory,
+        id
+    FROM coupon
+
+    <where>
+
+        (
+            (
+                coupon_type = 'company'
+                AND coupon_catagory = #{c_id}
+            )
+
+            OR
+
+            (
+                coupon_type = 'catagory'
+                AND coupon_catagory = #{catagory}
+            )
+            
+            OR
+            
+            (
+                coupon_type = 'all'
+            )
+        )
+        
+        
+		AND id = coupon_code
+        AND coupon_end >= SYSDATE
+		AND NVL(coupon_used, 'N') = 'N'
+    </where>
+
+</select>
+
 <!-- SELECT ONE -->
 <select id="getReadData" parameterType="hashmap"
         resultType="com.spring.home.dto.CouponDTO">

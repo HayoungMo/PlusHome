@@ -1,0 +1,97 @@
+.interior-review-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.interior-review-item {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  padding: 18px;
+  border: 1px solid #edf0f3;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.interior-review-item p {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.interior-review-content {
+  min-height: 72px;
+  color: #374151;
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+.interior-review-image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.interior-review-thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f6f7f9;
+}
+
+.interior-review-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+
+.interior-review-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+  box-sizing: border-box;
+}
+
+.interior-review-modal-content {
+  width: min(960px, 88vw);
+  height: min(680px, 82vh);
+  padding: 18px;
+  border-radius: 8px;
+  background: #111827;
+  box-sizing: border-box;
+}
+
+.interior-review-modal-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .interior-review-list {
+    grid-template-columns: 1fr;
+  }
+
+  .interior-review-modal {
+    padding: 14px;
+  }
+
+  .interior-review-modal-content {
+    width: 100%;
+    height: 72vh;
+    padding: 12px;
+  }
+}

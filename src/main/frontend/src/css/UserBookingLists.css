@@ -1,0 +1,84 @@
+.user-booking-layout {
+  display: grid;
+  gap: 22px;
+  width: 100%;
+  min-width: 0;
+}
+
+.user-booking-card {
+  min-width: 0;
+  border: 1px solid #dfe8f5;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+  overflow: hidden;
+}
+
+.user-booking-head {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #edf0f3;
+  text-align: center;
+}
+
+.user-booking-head h3 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.user-booking-head p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #7b818a;
+}
+
+.user-booking-table {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.user-booking-table .MuiPaper-root {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.user-booking-table .MuiTable-root {
+  min-width: 720px;
+}
+
+.user-booking-invoice {
+  padding: 22px;
+}
+
+.user-booking-invoice > div > p:first-child {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.user-booking-invoice .MuiPaper-root {
+  box-shadow: none;
+  border: 1px solid #edf0f3;
+}
+
+@media (max-width: 640px) {
+  .user-booking-head {
+    padding: 18px;
+  }
+
+  .user-booking-head h3,
+  .user-booking-invoice > div > p:first-child {
+    font-size: 18px;
+  }
+
+  .user-booking-invoice {
+    padding: 18px;
+  }
+}
