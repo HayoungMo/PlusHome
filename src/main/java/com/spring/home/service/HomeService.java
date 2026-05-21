@@ -246,49 +246,49 @@ public class HomeService {
 		return filtered;
 	}
 
-	private List<FreeBoardDTO> getFreeBoardSearchResult(String keyword) throws Exception {
-		Map<Long, FreeBoardDTO> map = new HashMap<>();
-
-		if (keyword.isEmpty()) {
-
-			Map<String, Object> first = freeBoardService.getLists(1, "title", "", "", "");
-
-			int dataCount = (int) first.get("dataCount");
-			int totalPage = (int) Math.ceil((double) dataCount / 8);
-
-			for (int page = 1; page <= totalPage; page++) {
-
-				Map<String, Object> result = freeBoardService.getLists(page, "title", "", "", "");
-
-				List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
-
-				for (FreeBoardDTO item : lists) {
-					map.put(item.getBoardId(), item);
-				}
-			}
-		} else {
-			String[] keys = { "title", "content", "userName" };
-
-			for (String key : keys) {
-
-				Map<String, Object> result = freeBoardService.getLists(1, key, keyword, "", "");
-
-				List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
-
-				for (FreeBoardDTO item : lists) {
-					map.put(item.getBoardId(), item);
-				}
-			}
-		}
-
-		List<FreeBoardDTO> lists = new ArrayList<>(map.values());
-
-		Collections.sort(lists, Comparator.comparing(
-				FreeBoardDTO::getTitle,
-				Comparator.nullsLast(String::compareTo)));
-
-		return lists;
-	}
+//	private List<FreeBoardDTO> getFreeBoardSearchResult(String keyword) throws Exception {
+//		Map<Long, FreeBoardDTO> map = new HashMap<>();
+//
+//		if (keyword.isEmpty()) {
+//
+//			Map<String, Object> first = freeBoardService.getLists(1, "title", "", "", "");
+//
+//			int dataCount = (int) first.get("dataCount");
+//			int totalPage = (int) Math.ceil((double) dataCount / 8);
+//
+//			for (int page = 1; page <= totalPage; page++) {
+//
+//				Map<String, Object> result = freeBoardService.getLists(page, "title", "", "", "");
+//
+//				List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
+//
+//				for (FreeBoardDTO item : lists) {
+//					map.put(item.getBoardId(), item);
+//				}
+//			}
+//		} else {
+//			String[] keys = { "title", "content", "userName" };
+//
+//			for (String key : keys) {
+//
+//				Map<String, Object> result = freeBoardService.getLists(1, key, keyword, "", "");
+//
+//				List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
+//
+//				for (FreeBoardDTO item : lists) {
+//					map.put(item.getBoardId(), item);
+//				}
+//			}
+//		}
+//
+//		List<FreeBoardDTO> lists = new ArrayList<>(map.values());
+//
+//		Collections.sort(lists, Comparator.comparing(
+//				FreeBoardDTO::getTitle,
+//				Comparator.nullsLast(String::compareTo)));
+//
+//		return lists;
+//	}
 
 	// 검색
 	private static final int PREVIEWSIZE = 4;
@@ -301,15 +301,15 @@ public class HomeService {
 
 		List<FurnitureDTO> furniture = getFurnitureSearchResult(word);
 		List<CompanyDTO> interior = getInteriorSearchResult(word);
-		List<FreeBoardDTO> freeBoard = getFreeBoardSearchResult(word);
+//		List<FreeBoardDTO> freeBoard = getFreeBoardSearchResult(word);
 
 		result.put("furniture", preview(furniture));
 		result.put("interior", preview(interior));
-		result.put("freeBoard", preview(freeBoard));
+//		result.put("freeBoard", preview(freeBoard));
 
 		result.put("furniture", furniture.size());
 		result.put("interior", interior.size());
-		result.put("freeBoard", freeBoard.size());
+//		result.put("freeBoard", freeBoard.size());
 
 		return result;
 	}
@@ -339,7 +339,8 @@ public class HomeService {
 		} else if ("interior".equals(type)) {
 			list = getInteriorSearchResult(word);
 		} else if ("freeboard".equals(type)) {
-			list = getFreeBoardSearchResult(word);
+//			list = getFreeBoardSearchResult(word);
+			list = new ArrayList<>();
 		} else {
 			list = new ArrayList<>();
 		}
