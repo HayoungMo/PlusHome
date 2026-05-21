@@ -95,7 +95,8 @@ const EventUpdate = () => {
 
         setForm({
           ...data,
-          e_long: data.e_long || null,
+          e_startDate: data.e_startDate || null,
+          e_endDate: data.e_endDate || null,
           e_type: data.e_type || "notice",
         });
         setImageList(images?.result || []);
@@ -120,7 +121,8 @@ const EventUpdate = () => {
       [name]: value,
       ...(name === "e_type" &&
         value !== "event" && {
-          e_long: null,
+          e_startDate: null,
+          e_endDate: null,
         }),
     }));
   };
@@ -314,13 +316,28 @@ const EventUpdate = () => {
               />
             </Box>
             {form.e_type === "event" && (
-              <Box sx={{ mt: 2 }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  gap: 2,
+                }}
+              >
                 <DatePickerMui
-                  name="e_long"
-                  label="이벤트 기간"
-                  value={form.e_long}
+                  name="e_startDate"
+                  label="시작일"
+                  value={form.e_startDate}
                   onChange={(value) =>
-                    handleChange(makeEvent("e_long", value?.format("YYYY-MM-DD") || null))
+                    handleChange(makeEvent("e_startDate", value?.format("YYYY-MM-DD") || null))
+                  }
+                />
+                <DatePickerMui
+                  name="e_endDate"
+                  label="종료일"
+                  value={form.e_endDate}
+                  onChange={(value) =>
+                    handleChange(makeEvent("e_endDate", value?.format("YYYY-MM-DD") || null))
                   }
                 />
               </Box>

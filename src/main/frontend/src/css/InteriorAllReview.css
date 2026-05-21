@@ -1,0 +1,148 @@
+.interior-all-review-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  color: #1f2937;
+}
+
+.interior-all-review-title {
+  margin: 0 0 24px;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.interior-review-group {
+  padding: 24px 0 32px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.interior-review-company {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0 0 18px;
+  color: #111827;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 800;
+  text-align: left;
+}
+
+.interior-review-company:hover {
+  color: #2563eb;
+}
+
+.interior-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.interior-review-card {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.interior-review-card:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.interior-review-card-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a8f98;
+  font-size: 14px;
+}
+
+.interior-review-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.interior-review-card-info {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.interior-review-card-info p {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.all-review-dialog-content {
+  padding: 0 !important;
+}
+
+.all-review-dialog {
+  height: min(760px, 82vh);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  background: #ffffff;
+}
+
+.all-review-dialog-images {
+  min-height: 0;
+  display: grid;
+  gap: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  background: #f6f7f9;
+  box-sizing: border-box;
+}
+
+.all-review-dialog-images img {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  display: block;
+  background: #ffffff;
+}
+
+.all-review-dialog-info {
+  display: grid;
+  gap: 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 16px;
+  border-top: 1px solid #edf0f3;
+}
+
+.all-review-dialog-info p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .interior-all-review-page {
+    padding: 28px 16px 48px;
+  }
+
+  .interior-review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .all-review-dialog {
+    height: 74vh;
+  }
+}

@@ -7,6 +7,8 @@ import CartService from "../service/cartService";
 import FurnitureReview from "../components/FurnitureReview";
 import Question from "./Question";
 import Loading from "../components/Loading";
+import CouponArticleDownload from "../components/CouponArticleDownload";
+import DialogInside from "../components/DialogInside";
 
 const FurnitureArticle = () => {
     const called = useRef(false);
@@ -16,6 +18,7 @@ const FurnitureArticle = () => {
     const [mainImage, setMainImage] = useState(null);
     const [tab, setTab] = useState("detail");
     const [liked, setLiked] = useState(false);
+    const [couponDialog, setCouponDialog] = useState(false);
     const [options, setOptions] = useState([]);
     const [selectedOptionSets, setSelectedOptionSets] = useState([
         {
@@ -430,12 +433,6 @@ const FurnitureArticle = () => {
         navigate(`/furniture/update/${f_code}?page=${page}`);
     };
 
-        const onReview = () => {
-          navigate(`/furniture/review/${f_code}`);
-        };
-
-
-
     const onDelete = async (f_code) => {
         try {
             await FurnitureService.deleteFurniture(f_code);
@@ -476,8 +473,21 @@ const FurnitureArticle = () => {
           </>
         )}
 
-        <button onClick={() => onReview(f_code)}>리뷰등록</button>
-          <button onClick={onBack}>list로 돌아가기</button>
+        <button onClick={() => setCouponDialog(!couponDialog)}>
+          쿠폰 모두 받기
+        </button>
+
+        <DialogInside
+          open={couponDialog}
+          onClose={() => setCouponDialog(false)}
+        >
+          <CouponArticleDownload
+            c_id={furniture.c_id}
+            catagory={furniture.f_catagory1}
+          />
+        </DialogInside>
+
+        <button onClick={onBack}>list로 돌아가기</button>
 
         <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
           <div>
@@ -799,7 +809,7 @@ const FurnitureArticle = () => {
                 }}
               >
                 {/* 0518 모하영 자회사 문의작성 금지중 */}
-                <Question f_code={f_code} furniture={furniture}/>
+                <Question f_code={f_code} furniture={furniture} />
               </div>
             </div>
           )}
