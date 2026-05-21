@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import UserPageService from '../service/userPageService';
 import Address from "../maps/Address";
+import { useNavigate } from 'react-router-dom';
 
-const UserProfilePage = ({user, setUser, setLoginUser, onDeleteClick}) => {
+const UserProfilePage = ({
+  user, 
+  setUser, 
+  setLoginUser, 
+  onDeleteClick,
+}) => {
     const [mode, setMode] = useState("view")
     const [password, setPassword] = useState("")
     const [passwordError, setPasswordError] = useState("")
@@ -140,6 +146,8 @@ const UserProfilePage = ({user, setUser, setLoginUser, onDeleteClick}) => {
           </div>
 
           <div className="user-profile-panel-actions">
+
+
             <button
               type="button"
               onClick={() => {

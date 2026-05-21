@@ -46,6 +46,13 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         return "info";
     };
 
+    const isCompanyUser =
+        user?.type === "company" || (user?.companyList || []).length > 0
+    
+    const goCompanyDashboard = () => {
+        navigate("/CompanyDashboard")
+    }
+
     const [activeSection, setActiveSection] = useState(
         getSectionByMenu(queryMenu || "info")
     );
@@ -223,6 +230,13 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             onChangeProfileImage={onChangeProfileImage}
             changeMenu={changeMenu}
             />
+            {isCompanyUser && (
+                <div className="user-company-dashboard-menu">
+                    <button type="button" onClick={goCompanyDashboard}>
+                    대시보드
+                    </button>
+                </div>
+                )}
             </aside>
         )}
 
@@ -274,6 +288,8 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     setUser={setUser}
                     setLoginUser={setLoginUser}
                     onDeleteClick={() => changeMenu("delete")}
+                    isCompanyUser={isCompanyUser}
+                    goCompanyDashboard={goCompanyDashboard}
                 />
                 )}
 
