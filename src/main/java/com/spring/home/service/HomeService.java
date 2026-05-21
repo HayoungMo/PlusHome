@@ -307,9 +307,9 @@ public class HomeService {
 		result.put("interior", preview(interior));
 //		result.put("freeBoard", preview(freeBoard));
 
-		result.put("furniture", furniture.size());
-		result.put("interior", interior.size());
-//		result.put("freeBoard", freeBoard.size());
+		result.put("furnitureCount", furniture.size());
+		result.put("interiorCount", interior.size());
+//		result.put("freeBoardCount", freeBoard.size());
 
 		return result;
 	}
