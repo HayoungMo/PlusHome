@@ -8,6 +8,59 @@ import { getImgDirSimple } from "../resources/function/GetImgDir";
 import InteriorModelViewer from "../components/InteriorModelViewer";
 import { Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import InteriorExUpdate from "../components/InteriorExUpdate";
+import SelectMui from "./../components/SelectMui";
+import InteriorExModelAdd from "./../components/InteriorExModelAdd";
+import InteriorExModelUpdate from "../components/InteriorExModelUpdate";
+
+const ExampleIsEmpty = (props) => {
+	const {
+		tabValue,
+		setTabValue,
+		interior,
+		tabCompany,
+		onReload,
+		viewType,
+		setAlertInfo,
+		setAlertOpen,
+	} = props;
+
+	let interiorList = [];
+
+	if (tabValue === "all") {
+		interior.forEach((data) => {
+			interiorList.push({ title: data.c_name, value: data.c_name });
+		});
+	}
+
+	return (
+		<div>
+			<div>등록된 시공 사례가 없습니다</div>
+			{interiorList.length !== 0 && (
+				<div>
+					<div>사례를 등록할 회사를 선택해 주세요</div>
+					<SelectMui
+						option={interiorList}
+						onChange={(e) => {
+							setTabValue(e.target.value);
+						}}
+					/>
+				</div>
+			)}
+			{interiorList.length === 0 && viewType === "example" && (
+				<InteriorExAdd company={tabCompany} onReload={onReload} />
+			)}
+
+			{interiorList.length === 0 && viewType === "model" && (
+				<InteriorExModelAdd
+					company={tabCompany}
+					setAlertInfo={setAlertInfo}
+					setAlertOpen={setAlertOpen}
+					onReload={onReload}
+				/>
+			)}
+		</div>
+	);
+};
 
 const InteriorExampleControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -27,7 +80,8 @@ const InteriorExampleControl = () => {
 	const [selectedInteriorExampleImage, setSelectedInteriorExampleImage] = useState({});
 
 	const [model3DImageList, setModel3DImageList] = useState([]);
-	const [selectedModel3DImage, setSelectedModel3DImageList] = useState({});
+	const [selectedModel3DImage, setSelectedModel3DImage] = useState({});
+	const [modelReloadKey, setModelReloadKey] = useState(Date.now());
 
 	const [isUpdateAvailable, setUpdateAvailable] = useState(false);
 	const [isAddAvailable, setAddAvailable] = useState(false);
@@ -75,18 +129,35 @@ const InteriorExampleControl = () => {
 		if (!model3DImageList || model3DImageList.length === 0) return emptyList;
 
 		let resultList = [];
+		const getModelDir = (model) => {
+			const modelDir = getImgDirSimple({ kind: model.img_kind, name: model.img_name });
+			return `${modelDir}?v=${modelReloadKey}`;
+		};
 
-		model3DImageList?.forEach((element, index) => {
-			const image3d = {
-				...element,
-				img_dir: getImgDirSimple({ kind: element.img_kind, name: element.img_name }),
-				index,
-			};
-			resultList.push(image3d);
-		});
+		if (tabValue !== "all") {
+			const filterdList = model3DImageList?.filter((data) => data.dir_c === tabValue) || [];
+
+			filterdList?.forEach((element, index) => {
+				const image3d = {
+					...element,
+					img_dir: getModelDir(element),
+					index,
+				};
+				resultList.push(image3d);
+			});
+		} else {
+			model3DImageList?.forEach((element, index) => {
+				const image3d = {
+					...element,
+					img_dir: getModelDir(element),
+					index,
+				};
+				resultList.push(image3d);
+			});
+		}
 
 		return resultList;
-	}, [model3DImageList, emptyList]);
+	}, [model3DImageList, emptyList, tabValue, modelReloadKey]);
 
 	const handleTabChange = (event, newValue) => {
 		setTabValue(newValue);
@@ -100,6 +171,14 @@ const InteriorExampleControl = () => {
 
 	const handleViewType = (event, newAlignment) => {
 		setViewType(newAlignment);
+		// Example
+		setSelectedInteriorExample({});
+		setSelectedInteriorExampleImage([]);
+		setUpdateAvailable(false);
+		setAddAvailable(false);
+
+		//Model
+		setSelectedModel3DImage({});
 	};
 
 	const reLoadData = async () => {
@@ -123,41 +202,37 @@ const InteriorExampleControl = () => {
 			setSelectedInteriorExampleImage([]);
 			setInteriorExampleList(exampleData);
 			setModel3DImageList(result.ModelDataList);
+			setModelReloadKey(Date.now());
+			setUpdateAvailable(false);
+			setAddAvailable(false);
 		}
 	};
 
 	const onClickNewPost = () => {
 		setUpdateAvailable(false);
 		setAddAvailable(true);
+		setSelectedModel3DImage({});
 	};
 
 	const onClickPostUpdate = () => {
-		if (!selectedInteriorExample.c_id) {
-			setAlertInfo({ severity: "error", text: "수정할 데이터를 선택하세요." });
-			setAlertOpen(true);
-			return;
+		if (viewType === "example") {
+			if (!selectedInteriorExample.c_id) {
+				setAlertInfo({ severity: "error", text: "수정할 데이터를 선택하세요." });
+				setAlertOpen(true);
+				return;
+			}
+			setUpdateAvailable(true);
+			setAddAvailable(false);
+		} else if (viewType === "model") {
+			if (!selectedModel3DImage?.dir_d) {
+				setAlertInfo({ severity: "error", text: "수정할 데이터를 선택하세요." });
+				setAlertOpen(true);
+				return;
+			}
+			setUpdateAvailable(true);
+			setAddAvailable(false);
 		}
-		setUpdateAvailable(true);
-		setAddAvailable(false);
 	};
-
-	const tagOptions1 = [
-		{ value: "apt", title: "아파트" },
-		{ value: "villa", title: "빌라" },
-		{ value: "house", title: "단독주택" },
-		{ value: "officetel", title: "오피스텔" },
-	];
-	const tagOptions2 = [
-		{ value: "kitchen", title: "키친" },
-		{ value: "bath", title: "바스" },
-		{ value: "storage", title: "수납" },
-		{ value: "door", title: "중문/문" },
-		{ value: "window", title: "창문" },
-		{ value: "wallpaper", title: "벽지" },
-		{ value: "lighting", title: "조명" },
-		{ value: "tile", title: "타일" },
-		{ value: "floor", title: "마루" },
-	];
 
 	useEffect(() => {
 		reLoadData();
@@ -171,10 +246,23 @@ const InteriorExampleControl = () => {
 		const imageList = onlyImageList?.filter(
 			(data) => data.index === selectedInteriorExample.index,
 		);
-		console.log(imageList);
-		console.log(selectedInteriorExample);
 		setSelectedInteriorExampleImage(imageList || []);
 	}, [selectedInteriorExample]);
+
+	useEffect(() => {
+		// Example
+		setSelectedInteriorExample({});
+		setSelectedInteriorExampleImage([]);
+		setUpdateAvailable(false);
+		setAddAvailable(false);
+
+		//Model
+		setSelectedModel3DImage({});
+	}, [tabValue]);
+
+	useEffect(() => {
+		console.log(selectedModel3DImage);
+	}, [selectedModel3DImage]);
 
 	return (
 		<div>
@@ -199,38 +287,38 @@ const InteriorExampleControl = () => {
 				label="c_name"
 				value="c_name"
 			/>
+			<div
+				style={{
+					margin: "15px 15px 15px 0px",
+					display: "flex",
+					width: "200px",
+					justifyContent: "space-between",
+				}}>
+				{tabValue !== "all" && (
+					<Button variant="contained" color="success" onClick={onClickNewPost}>
+						새로쓰기
+					</Button>
+				)}
+				{(selectedInteriorExample?.c_id || selectedModel3DImage?.dir_d) && (
+					<Button variant="contained" color="primary" onClick={onClickPostUpdate}>
+						수정하기
+					</Button>
+				)}
+			</div>
 			{viewType === "example" &&
 				(exampleMuiDisplayList.length === 0 ? (
 					<div>
-						등록된 시공 사례가 없습니다.
-						<div>시공 사례를 등록할 회사를 선택 해 주세요</div>
+						<ExampleIsEmpty
+							tabValue={tabValue}
+							setTabValue={setTabValue}
+							interior={interior}
+							tabCompany={tabCompany}
+							onReload={reLoadData}
+							viewType={viewType}
+						/>
 					</div>
 				) : (
 					<div>
-						<div
-							style={{
-								margin: "15px 15px 15px 0px",
-								display: "flex",
-								width: "200px",
-								justifyContent: "space-between",
-							}}>
-							{tabValue !== "all" && (
-								<Button
-									variant="contained"
-									color="success"
-									onClick={onClickNewPost}>
-									새로쓰기
-								</Button>
-							)}
-							{selectedInteriorExample?.c_id && (
-								<Button
-									variant="contained"
-									color="primary"
-									onClick={onClickPostUpdate}>
-									수정하기
-								</Button>
-							)}
-						</div>
 						<TableMui
 							col={["ie_tag", "ie_tag2", "ie_content"]}
 							rowData={exampleMuiDisplayList}
@@ -248,23 +336,60 @@ const InteriorExampleControl = () => {
 							<img src={record.img_dir} alt={record.img_dir} />
 						))}
 						{tabValue !== "all" && isAddAvailable && (
-							<InteriorExAdd company={tabCompany} />
+							<InteriorExAdd company={tabCompany} onReload={reLoadData} />
 						)}
 					</div>
 				))}
-			{viewType === "model" && (
-				<div>
-					<TableMui
-						rowData={model3DViewImageList}
-						col={["index", "img_CreatedDate"]}
-						selectedRow={selectedModel3DImage}
-						setSelectedRow={setSelectedModel3DImageList}
-					/>
-					{selectedModel3DImage && (
-						<InteriorModelViewer src={selectedModel3DImage.img_dir} />
-					)}
-				</div>
-			)}
+			{viewType === "model" &&
+				(model3DViewImageList.length === 0 ? (
+					<div>
+						<ExampleIsEmpty
+							tabValue={tabValue}
+							setTabValue={setTabValue}
+							interior={interior}
+							tabCompany={tabCompany}
+							onReload={reLoadData}
+							viewType={viewType}
+							setAlertInfo={setAlertInfo}
+							setAlertOpen={setAlertOpen}
+						/>
+					</div>
+				) : (
+					<div>
+						<div
+							style={{
+								margin: "15px 15px 15px 0px",
+								display: "flex",
+								width: "200px",
+								justifyContent: "space-between",
+							}}></div>
+						<TableMui
+							rowData={model3DViewImageList}
+							col={["index", "img_CreatedDate"]}
+							selectedRow={selectedModel3DImage}
+							setSelectedRow={setSelectedModel3DImage}
+						/>
+						{selectedModel3DImage?.img_dir && (
+							<InteriorModelViewer src={selectedModel3DImage.img_dir} />
+						)}
+						{isUpdateAvailable && (
+							<InteriorExModelUpdate
+								model={selectedModel3DImage}
+								setAlertInfo={setAlertInfo}
+								setAlertOpen={setAlertOpen}
+								onReload={reLoadData}
+							/>
+						)}
+						{tabValue !== "all" && isAddAvailable && (
+							<InteriorExModelAdd
+								company={tabCompany}
+								setAlertInfo={setAlertInfo}
+								setAlertOpen={setAlertOpen}
+								onReload={reLoadData}
+							/>
+						)}
+					</div>
+				))}
 
 			{alertOpen && (
 				<AlertMui

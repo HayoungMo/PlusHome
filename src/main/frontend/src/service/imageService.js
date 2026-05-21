@@ -55,9 +55,11 @@ const insertImage = async (dataList) => {
       "dtoList",
       new Blob([JSON.stringify(dtoList)], { type: "application/json" }),
     );
-    await fileHttp.post("/image/insertImage", formData).then((res) => {
+    const res = await fileHttp.post("/image/insertImage", formData).then((res) => {
       console.log(res);
+      return res;
     });
+    return res;
   } catch (error) {
     console.error("API Error:", error);
     throw error;

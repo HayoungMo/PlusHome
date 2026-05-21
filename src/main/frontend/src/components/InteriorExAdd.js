@@ -8,7 +8,7 @@ import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-const InteriorExAdd = ({ company }) => {
+const InteriorExAdd = ({ company, onReload }) => {
 	const { c_id, c_kind, c_name } = company;
 
 	const [exampleImageList, setExampleImageList] = useState([]);
@@ -112,20 +112,25 @@ const InteriorExAdd = ({ company }) => {
 		const result = await InteriorService.AddInteriorExample(formData);
 		const isSuccess = result.success && result.data?.success !== false;
 
-		setAlert({
-			open: true,
-			severity: isSuccess ? "success" : "error",
-			title: isSuccess ? "등록 성공" : "등록 실패",
-			text:
-				result.data?.message ||
-				(isSuccess
-					? "시공 사례가 등록되었습니다."
-					: "시공 사례 등록 중 오류가 발생했습니다."),
-		});
-
-		setExampleImageList([]);
-		setImageFileList([]);
-		setExample(initExample);
+		if (isSuccess) {
+			onReload?.();
+			setAlert({
+				open: true,
+				severity: "success",
+				title: "등록 성공",
+				text: result.data?.message || "시공 사례가 등록되었습니다.",
+			});
+			setExampleImageList([]);
+			setImageFileList([]);
+			setExample(initExample);
+		} else {
+			setAlert({
+				open: true,
+				severity: "error",
+				title: "등록 실패",
+				text: result.data?.message || "시공 사례 등록 중 오류가 발생했습니다.",
+			});
+		}
 	};
 
 	const onClickAddImage = () => {
@@ -195,7 +200,7 @@ const InteriorExAdd = ({ company }) => {
 							multiline={true}
 							minRows={5}
 							maxRows={5}
-              width="500px"
+							width="500px"
 						/>
 					)}
 					{example.ie_tag && example.ie_tag2 && (
