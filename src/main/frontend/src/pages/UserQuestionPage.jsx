@@ -341,7 +341,7 @@ const UserQuestionPage = ({ user }) => {
             ) : (
                 questions.map((item) => (
                     <div key={item.q_idx}>
-                        <p>상품 코드: {item.f_code}</p>
+                    
 
                         {editIdx === item.q_idx ? (
                             <div>
@@ -440,7 +440,7 @@ const UserQuestionPage = ({ user }) => {
                         ) : (
                             <div>
                                 <h4>제목:{item.q_title}</h4>
-                                <p>작성자: {item.c_id}</p>
+                                {/* <p>작성자: {item.id}</p> */}
                                 <p>문의 내용: {item.q_content}</p>
                                 {questionImages[item.q_idx]?.map((img) => (
                                     <img
