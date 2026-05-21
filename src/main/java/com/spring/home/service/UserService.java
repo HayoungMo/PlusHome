@@ -135,6 +135,8 @@ public class UserService {
 			return result;
 		}
 		
+		
+		
 		result.setSuccess(true);
 		result.setId(findId);
 		result.setMessage("아이디 찾기 성공");

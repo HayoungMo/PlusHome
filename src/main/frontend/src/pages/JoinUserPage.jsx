@@ -2,12 +2,13 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Await, useNavigate } from 'react-router-dom';
 import JoinService from "../service/joinService";
-import { Select, TextField } from '@mui/material';
+import { Button, Select, TextField } from '@mui/material';
 import RadioMui from '../components/RadioMui';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import DatePickerMui from '../components/DatePickerMui';
 import SelectMui from '../components/SelectMui';
 import Address from '../maps/Address';
+import "../css/JoinPage.css";
 
 
 
@@ -21,6 +22,10 @@ const email_Option =[
 ]
 
 const JoinUserPage = () => {
+
+    const [pwError,setPwError] = useState('')
+    const [nameError,setNameError] = useState('')
+    const [codeError,setCodeError] = useState('')
 
     const navigate = useNavigate();
     const [form,setForm]=useState({
@@ -37,7 +42,9 @@ const JoinUserPage = () => {
     const [pwCheck,setPwCheck] = useState('');
     const [isDirectInput, setIsDirectInput] = useState(false);
     const [errorMsg,setErrorMsg] =useState('');
-    
+    const [idError,setIdError] = useState('');
+   
+        
     const [email,setEmail] = useState({
         id:'',
         domain:'none',
@@ -57,7 +64,15 @@ const JoinUserPage = () => {
 
     const onTel = (evt) => {
         const {name,value}=evt.target
-        const newTel = {...tel,[name]:value}
+
+        const onlyNumber = value
+        .replace(/[^0-9]/g,'')
+        .slice(0,4)
+
+        const newTel = {...tel,
+          [name]:value ==='head'
+                  ? value
+                  :onlyNumber} 
         setTel(newTel);
 
         setForm(prev =>({
@@ -94,6 +109,7 @@ const JoinUserPage = () => {
             if (/[^a-zA-Z0-9_]/.test(value)) {
                 return '영문, 숫자, _ 만 사용 가능합니다';
             }
+
             return '';
 
         case 'telMid':
@@ -107,10 +123,13 @@ const JoinUserPage = () => {
             // 나머지는 제한 없음 (한글 허용)
             return '';
     }
+       
+
+    
 };
 
     const validateAll = () =>{
-        if(!form.id) return '아이디를 입력하세요.'
+        if(!form.id) return '아이디는 필수 정보입니다.';
         if(!form.pw) return '비밀번호를 입력하세요.'
         if(form.pw !==pwCheck) return '비밀번호가 일치하지 않습니다.'
         if(!birth) return '생년월일 선택.'
@@ -121,28 +140,92 @@ const JoinUserPage = () => {
     
 
     const onText= (evt) =>{
-        const{value,name} = evt.target;
 
-        const error = validate(name,value)
+    const {value,name} = evt.target;
 
-        if(error){
-            if(name==='id'){
-                setIdFormatMsg(error)
-            }else{
-                setErrorMsg(error)
-            }
-            return
+    // 아이디 입력 시 에러 제거
+    if(name === 'id'){
+
+        if(value.trim()){
+            setIdError('')
         }
 
-        setErrorMsg('')
-        if (name==='id') setIdFormatMsg('')
+    }
 
-            setForm(prev=> ({
-                ...prev,
-                [name]: value
-            }))
+    // 비밀번호 입력 시 아이디 체크
+    if(name === 'pw'){
 
-        }      
+        if(!form.id.trim()){
+            setIdError('아이디는 필수 정보입니다.')
+        }else{
+            setIdError('')
+        }
+
+    }
+
+    // 이름
+    if(name === 'name'){
+
+        if(!value.trim()){
+            setNameError('이름을 입력하세요.')
+        }else{
+            setNameError('')
+        }
+
+    }
+
+    // 주민번호
+    if(name === 'code'){
+
+        if(!value.trim()){
+            setCodeError('주민번호를 입력하세요.')
+        }else{
+            setCodeError('')
+        }
+
+    }
+
+    const error = validate(name,value)
+
+    if(error){
+
+        if(name === 'id'){
+            setIdFormatMsg(error)
+        }else{
+            setErrorMsg(error)
+        }
+
+        return;
+    }
+
+    // 에러 없으면 제거
+    if(name === 'id'){
+        setIdFormatMsg('')
+    }
+
+    setErrorMsg('')
+
+    // 주민번호 숫자만
+    if(name === 'code'){
+
+        const onlyNumber = value
+            .replace(/[^0-9]/g,'')
+            .slice(0,13)
+
+        setForm(prev => ({
+            ...prev,
+            code: onlyNumber
+        }));
+
+        return;
+    }
+
+    setForm(prev => ({
+        ...prev,
+        [name]: value
+    }))
+
+}      
 
         
 
@@ -171,8 +254,6 @@ const JoinUserPage = () => {
 
     };
 
-
-    const [idError,setIdError] = useState('')
 
     const onNext = async () => {
         console.log("클릭이 되긴 하나?")
@@ -230,214 +311,448 @@ const JoinUserPage = () => {
     };
 
 
-    return (
-      <div>
-        
-        <h2>
-          회원가입
-          <span>SIGN UP</span>
-        </h2>
-        <div className="">
-          <TextField
-            label="아이디"
-            name="id"
-            value={form.id}
-            onChange={onText}
-          />
-          <button type="button" className="" onClick={onCheckId}>
-            중복확인
-          </button>
+     return (
+
+        <div className="join-wrap">
+
+            <div className="join-box">
+
+                <h2 className="join-title">
+                    회원가입
+                    <span>SIGN UP</span>
+                </h2>
+
+                {/* 아이디 */}
+
+                <div className="join-input">
+
+                    <div className="id-row">
+
+                        <TextField
+                            fullWidth
+                            label="아이디"
+                            name="id"
+                            value={form.id}
+                            onChange={onText}
+                        />
+
+                        <Button
+                            type="button"
+                            color='inherit'
+                            className="id-check-btn"
+                            variant='contained'
+                            onClick={onCheckId}
+                        >
+                            중복확인
+                        </Button>
+
+                    </div>
+
+                   {idError && (
+                      <div className="error-msg">
+                          {idError}
+                      </div>
+                  )}
+
+                  {idFormatMsg && (
+                      <div className="error-msg">
+                          {idFormatMsg}
+                      </div>
+                  )}
+
+{/* 형식 오류가 없을 때만 중복확인 메시지 표시 */}
+{!idFormatMsg && idCheck.msg && (
+    <div className={idCheck.ok ? "success-msg" : "error-msg"}>
+        {idCheck.msg}
+    </div>
+)}
+
+                </div>
+
+                {/* 비밀번호 */}
+
+                <div className="join-input">
+
+    <TextField
+        fullWidth
+        label="비밀번호"
+        type="password"
+        name="pw"
+        value={form.pw}
+        onChange={onText}
+
+        onFocus={() => {
+
+            if(!form.id.trim()){
+                setIdError('아이디는 필수 정보입니다.')
+            }
+
+        }}
+
+        onBlur={() => {
+
+            if(!form.pw.trim()){
+                setPwError('비밀번호를 입력하세요.')
+            }else{
+                setPwError('')
+            }
+
+        }}
+    />
+
+    {pwError && (
+        <div className="error-msg">
+            {pwError}
         </div>
-        {idFormatMsg && <div style={{ color: "red" }}>{idFormatMsg}</div>}
-        {idCheck.msg && (
-          <div style={{ color: idCheck.ok ? "green" : "red" }}>
-            {idCheck.msg}
+    )}
+
+</div>
+
+                {/* 비밀번호 확인 */}
+
+                <div className="join-input">
+
+                    <TextField
+                        fullWidth
+                        label="비밀번호 확인"
+                        type="password"
+                        value={pwCheck}
+                        onChange={(e) => setPwCheck(e.target.value)}
+                    />
+
+                    {form.pw !== pwCheck && pwCheck && (
+
+                        <div className="error-msg">
+                            비밀번호가 일치하지 않습니다.
+                        </div>
+
+                    )}
+
+                </div>
+
+                {/* 회원 타입 */}
+
+                <div className="radio-wrap">
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="type"
+                            value="user"
+                            checked={form.type === "user"}
+                            onChange={onText}
+                        />
+                        일반
+                    </label>
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="type"
+                            value="company"
+                            checked={form.type === "company"}
+                            onChange={onText}
+                        />
+                        기업
+                    </label>
+
+                </div>
+
+                {/* 기업 */}
+
+                {form.type === "company" && (
+
+                    <>
+
+                        <div className="join-input">
+
+                            <TextField
+                                fullWidth
+                                label="업체명"
+                                type="text"
+                                name="c_name"
+                                value={form.c_name}
+                                onChange={onText}
+                            />
+
+                        </div>
+
+                        <div className="address-wrap">
+
+                            <Address
+                                isC={true}
+                                form={form}
+                                setForm={setForm}
+                            />
+
+                            <TextField
+                                fullWidth
+                                label="업체 상세주소"
+                                type="text"
+                                name="c_addr2"
+                                value={form.c_addr2}
+                                onChange={onText}
+                            />
+
+                        </div>
+
+                        <div className="radio-wrap">
+
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="c_kind"
+                                    value="interior"
+                                    onChange={onText}
+                                />
+                                인테리어
+                            </label>
+
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="c_kind"
+                                    value="shop"
+                                    onChange={onText}
+                                />
+                                가구
+                            </label>
+
+                        </div>
+
+                    </>
+
+                )}
+
+                {/* 이름 */}
+
+                <div className="join-input">
+
+                    <TextField
+                        fullWidth
+                        label="이름(사업주명)"
+                        type="text"
+                        name="name"
+                        value={form.name}
+                        onChange={onText}
+
+                         onBlur={() => {
+
+                          if(!form.name.trim()){
+                              setNameError('이름은 필수 정보입니다.')
+                          }else{
+                              setNameError('')
+                          }
+
+                      }}
+                  />
+    
+
+                    {nameError && (
+                        <div className="error-msg">
+                            {nameError}
+                        </div>
+                    )}
+
+                </div>
+
+                {/* 주민번호 */}
+
+                <div className="join-input">
+
+                    <TextField
+                        fullWidth
+                        label="주민번호(사업자 등록번호)"
+                        type="text"
+                        name="code"
+                        value={form.code}
+                        onChange={onText}
+                        
+                        onBlur={() => {
+
+                          if(!form.code.trim()){
+                              setCodeError('주민번호(사업자 등록번호)는 필수입니다.')
+                          }else{
+                              setCodeError('')
+                          }
+
+                      }}
+                  />
+                    {codeError && (
+                        <div className="error-msg">
+                            {codeError}
+                        </div>
+                    )}
+
+                </div>
+
+                {/* 주소 */}
+
+                <div className="address-wrap">
+
+                    <Address
+                        isC={false}
+                        form={form}
+                        setForm={setForm}
+                    />
+
+                    <TextField
+                        fullWidth
+                        label="상세주소"
+                        type="text"
+                        name="addr2"
+                        value={form.addr2}
+                        onChange={onText}
+                    />
+
+                </div>
+
+                {/* 이메일 */}
+
+                <div className="email-wrap">
+
+                    <TextField
+                        fullWidth
+                        label="이메일"
+                        placeholder={
+                            email.domain === "direct"
+                            ? "example@domain.com"
+                            : "아이디 입력"
+                        }
+                        value={email.id}
+                        onChange={(e) =>
+                            setEmail((prev) => ({
+                                ...prev,
+                                id:e.target.value,
+                            }))
+                        }
+                    />
+
+                    <SelectMui
+                        label="도메인"
+                        value={email.domain}
+                        option={email_Option}
+                        onChange={(e) =>
+                            setEmail((prev) => ({
+                                ...prev,
+                                domain:e.target.value,
+                            }))
+                        }
+                    />
+
+                </div>
+
+                {/* 생년월일 */}
+
+                <div className="join-input">
+
+                    <DatePickerMui
+                        label="생년월일"
+                        value={birth}
+                        onChange={onBirth}
+                    />
+
+                </div>
+
+                {/* 전화번호 */}
+
+                <div className="tel-wrap">
+
+              <Select
+                  native
+                  name="head"
+                  value={tel.head}
+                  onChange={onTel}
+                  className="tel-select"
+              >
+                  <option value="010">010</option>
+                  <option value="011">011</option>
+                  <option value="011">016</option>
+                  <option value="011">019</option>
+              </Select>
+
+              <TextField
+                  type="text"
+                  label='전화번호'
+                  name="mid"
+                  value={tel.mid}
+                  onChange={onTel}
+                  className="tel-input"
+              />
+
+              <TextField
+                  type="text"
+                  label='전화번호'
+                  name="tail"
+                  value={tel.tail}
+                  onChange={onTel}
+                  className="tel-input"
+              />
+
           </div>
-        )}
-        <div className="">
-          <TextField
-            label="비밀번호"
-            type="password"
-            name="pw"
-            value={form.pw}
-            onChange={onText}
-          />
-        </div>
-        <div>
-          <TextField
-            label="비밀번호 확인"
-            type="password"
-            value={pwCheck}
-            onChange={(e) => setPwCheck(e.target.value)}
-          />
 
-          {form.pw !== pwCheck && pwCheck && (
-              <div style={{ color: "red" }}>
-                 비밀번호가 일치하지 않습니다.
-              </div>
-          )}
+                {/* 성별 */}
 
-        </div>
+                <div className="join-input">
 
-           <div>
-          <li>
-            <input type="radio" name="type" value="user" onChange={onText} />
-            <label>일반</label>
-          </li>
-          <li>
-            <input type="radio" name="type" value="company" onChange={onText} />
-            <label>기업</label>
-          </li>
-        </div>
+                    <RadioMui
+                        
+                        name="gender"
+                        value={form.gender}
+                        onChange={onText}
+                        labelList={[
+                            { value:"male", title:"남자" },
+                            { value:"female", title:"여자" },
+                            { value:"none", title:"선택안함" },
+                        ]}
+                    />
 
-        {form.type === "company" && (
-          <>
-            <div className="">
-              <TextField
-                label="업체명"
-                type="text"
-                name="c_name"
-                value={form.c_name}
-                onChange={onText}
-              />
+                </div>
+
+                {/* 에러 */}
+
+                {errorMsg && (
+                    <div className="error-msg">
+                        {errorMsg}
+                    </div>
+                )}
+
+                {/* 버튼 */}
+
+                <Button
+                    color='primary'
+                    variant='contained'
+                    className="join-btn"
+                    onClick={onNext}
+                >
+                    가입하기
+                </Button>
+
+                <button className="back-btn">
+
+                    <a href="/">
+                        뒤로가기
+                    </a>
+
+                </button>
+
+                {/* 하단 */}
+
+                <div className="join-footer">
+
+                    이미 아이디가 있으신가요?
+
+                    <a href="/login">
+                        로그인
+                    </a>
+
+                </div>
+
             </div>
 
-            <div>
-              <Address isC={true} form={form} setForm={setForm} />
-              <TextField
-                label="업체주소"
-                type="text"
-                name="c_addr2"
-                value={form.c_addr2}
-                onChange={onText}
-              />
-            </div>
-
-            <div>
-              <li>
-                <input
-                  type="radio"
-                  name="c_kind"
-                  value="interior"
-                  onChange={onText}
-                />
-                <label>인테리어</label>
-              </li>
-              <li>
-                <input
-                  type="radio"
-                  name="c_kind"
-                  value="shop"
-                  onChange={onText}
-                />
-                <label>가구</label>
-              </li>
-            </div>
-          </>
-        )}
-       
-        <div>
-          <TextField
-            label="이름(사업주명)"
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={onText}
-          />
         </div>
-        <div>
-          <TextField
-            label="주민번호(사업자 등록번호)"
-            type="text"
-            name="code"
-            value={form.code}
-            onChange={onText}
-          />
-        </div>
-        <div>
-          <Address isC={false}  form={form} setForm={setForm} />
-          <TextField
-            label="상세주소"
-            type="text"
-            name="addr2"
-            value={form.addr2}
-            onChange={onText}
-          />
-        </div>
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <TextField
-            label="이메일"
-            placeholder={
-              email.domain === "direct" ? "example@domain.com" : "아이디 입력"
-            }
-            value={email.id}
-            onChange={(e) =>
-              setEmail((prev) => ({
-                ...prev,
-                id: e.target.value,
-              }))
-            }
-          />
-
-          <SelectMui
-            label="도메인"
-            value={email.domain}
-            option={email_Option}
-            onChange={(e) =>
-              setEmail((prev) => ({
-                ...prev,
-                domain: e.target.value,
-              }))
-            }
-          />
-        </div>
-        <DatePickerMui label="생년월일" value={birth} onChange={onBirth} />
-        <label>전화번호</label>
-        <div className="">
-          <Select name="head" value={tel.head} onChange={onTel} className="">
-            <option value="010">010</option>
-            <option value="011">011</option>
-          </Select>
-          <TextField
-            type="text"
-            name="mid"
-            value={tel.mid}
-            onChange={onTel}
-            maxLength={4}
-            className=""
-          />
-          <TextField
-            type="text"
-            name="tail"
-            value={tel.tail}
-            onChange={onTel}
-            maxLength={4}
-            className=""
-          />
-        </div>
-        <div>
-          <RadioMui
-            label="성별"
-            name="gender"
-            value={form.gender}
-            onChange={onText}
-            labelList={[
-              { value: "male", title: "남자" },
-              { value: "female", title: "여자" },
-              { value: "none", title: "선택안함" },
-            ]}
-          />
-        </div>
-        <button type="button" className="" onClick={onNext}>
-          가입하기
-        </button>
-        <button className="">
-          <a href="/">뒤로가기</a>
-        </button>
-        이미 아이디가 있으신가요?
-        <a href="/login">로그인</a>
-      </div>
     );
 };
+
 
 export default JoinUserPage;

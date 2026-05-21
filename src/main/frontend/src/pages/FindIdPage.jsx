@@ -30,9 +30,20 @@ const FindIdPage = () => {
     const [result,setResult] = useState('')
 
     const sendCode = async () =>{
+
+         if(!form.email.trim()){
+                setMsg("이메일을 입력하세요.")
+                return
+            }
+
+            if(!form.name.trim()){
+                setMsg("이름을 입력하세요.")
+                return
+            }
+
+            setMsg('')
         
        try {
-
             const res = await userService.sendCode({
                 email: form.email
             });
@@ -171,9 +182,14 @@ const FindIdPage = () => {
 
     return (
 
-        <div>
+        <div className='login-wrap'>
 
-            <h2>아이디 찾기</h2>
+            <div className='login-box'>
+
+            <h2 className='login-title'>
+                아이디 찾기
+                <span>Find ID</span>    
+            </h2>
 
 
 
@@ -182,23 +198,36 @@ const FindIdPage = () => {
 
                 <div>
 
+                    <div className="input-group">
+
                     <TextField
+                        fullWidth
                         name='email'
                         label='이메일'
                         value={form.email}
                         onChange={onChange}
                     />
 
-                    <br /><br />
+                </div>
+
+            
+                <div className="input-group">  
 
                     <TextField
+                        fullWidth   
                         name='name'
                         label='이름'
                         value={form.name}
                         onChange={onChange}
                     />
 
-                    <br /><br />
+                </div>
+
+                {msg && (
+                    <div className="error-msg">
+                        {msg}
+                    </div>
+                )}
 
                     <Button
                         type='button'
@@ -211,6 +240,8 @@ const FindIdPage = () => {
                 </div>
             )}
 
+            
+
 
 
             {/* STEP 2 */}
@@ -218,11 +249,14 @@ const FindIdPage = () => {
 
                 <div>
 
-                    <p>
+                    <p className="find-text">
                         입력한 이메일로 인증번호를 발송했습니다.
                     </p>
 
+                    <div className="input-group">
+
                     <TextField
+                        fullWidth
                         label='인증번호'
                         value={code}
                         onChange={(e) => {
@@ -231,7 +265,7 @@ const FindIdPage = () => {
                         }}
                     />
 
-                    <br /><br />
+                    </div>
 
                     <Button
                         color='inherit'
@@ -272,7 +306,7 @@ const FindIdPage = () => {
             {/* STEP 3 */}
             {step === 3 && (
 
-                <div>
+                <div className="result-box">
 
                     <p>회원님의 아이디는</p>
 
@@ -289,19 +323,21 @@ const FindIdPage = () => {
 
 
 
-            <br /><br />
-
-
+            <div className="login-links">
 
             <a href='/findPw'>
                 비밀번호 찾기
             </a>
 
-            {"/"}
+            <span>|</span>
 
             <a href='/login'>
                 로그인
             </a>
+
+            </div>
+
+        </div>
 
         </div>
     );

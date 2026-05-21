@@ -90,16 +90,27 @@ const FindPwPage = () => {
     return (
 
         
-        <div>
+        <div className='login-wrap'>
+
+            <div className='login-box'>
      
-            <h3>비밀번호 찾기</h3>
+            <h3 className='login-title'>
+                비밀번호 찾기
+                <span>Find Password</span>
+                </h3>
 
             {step===1 && (
                 <div>
-                    <TextField name='id' label="아이디" onChange={onChange}/>
-                    <br/><br/>
-                    <TextField name='email' label="이메일"  onChange={onChange}/>
-                    <br/><br/>
+                    <div className='input-group'>
+                    <TextField fullWidth name='id' label="아이디" onChange={onChange}/>
+                    </div>
+
+                    <div className='input-group'>
+                    <TextField fullWidth name='email' label="이메일"  onChange={onChange}/>
+                    </div>
+                    {msg && <div style={{color:'red'}}>{msg}</div>}
+
+                    <br/>
 
                     <Button variant='outlined' color='inherit' onClick={checkUser}>본인 확인</Button>
 
@@ -108,18 +119,21 @@ const FindPwPage = () => {
 
             {step === 2 && (
                 <div>
-                     <TextField type='password' name='pw' label='새 비밀번호' onChange={onChange}/>
-                     <br/><br/>
-                     <TextField type='password' name='pwCheck' label='비밀번호 확인' onChange={onChange}/>
+                    <div className='input-group'>
+                     <TextField fullWidth type='password' name='pw' label='새 비밀번호' onChange={onChange}/>
+                     </div>
+
+                     <div className='input-group'>
+                     <TextField fullWidth type='password' name='pwCheck' label='비밀번호 확인' onChange={onChange}/>
                      
-                     <br/><br/>
+                    </div>
 
                      <Button color='primary' variant='contained' onClick={onSubmit}>비밀번호 변경</Button>
                 </div>
             )}
             
             {step===3 && (
-                <div>
+                <div className='result-box'>
                     <h3>
                         비밀번호가 변경되었습니다.
                     </h3>
@@ -129,20 +143,20 @@ const FindPwPage = () => {
                     </a>
 
                 </div>
-            )}
-
+            )} 
             
-            
-           
-            
-
-            
+            <div className='login-links'>
 
              <a href='/'><h5>취소하기</h5></a>
 
-            {msg && <div style={{color:'red'}}>{msg}</div>}
+             </div>
+
+            
 
         </div>
+
+        </div>
+        
     );
 };
 

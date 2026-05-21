@@ -1,0 +1,214 @@
+.login-wrap{
+    width:100%;
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#f5f7fb;
+}
+
+.login-box{
+    width:420px;
+
+    background:white;
+
+    padding:50px 40px;
+
+    border-radius:20px;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.08);
+
+    box-sizing:border-box;
+}
+
+.login-title{
+    text-align:center;
+
+    font-size:38px;
+    font-weight:800;
+
+    color:rgba(0, 140, 255, 0.92);
+
+    margin-bottom:40px;
+}
+
+.login-title span{
+    display:block;
+
+    font-size:16px;
+    font-weight:400;
+
+    color:#888;
+
+    margin-top:8px;
+}
+
+.input-group{
+    margin-bottom:22px;
+}
+
+.error-msg{
+    color:red;
+
+    font-size:14px;
+
+    margin-top:8px;
+}
+
+.login-btn{
+    height:52px !important;
+
+    margin-top:10px !important;
+
+    background:rgba(0, 140, 255, 0.92);
+
+    font-size:16px !important;
+    font-weight:700 !important;
+
+    border-radius:10px !important;
+
+    box-shadow:none !important;
+}
+
+.login-btn:hover{
+    background:rgba(0, 140, 255, 0.92);
+}
+
+.logout-btn{
+    width:100%;
+
+    height:50px;
+
+    border:none;
+
+    background:rgba(0, 140, 255, 0.92);
+
+    color:white;
+
+    font-size:16px;
+    font-weight:bold;
+
+    border-radius:10px;
+
+    cursor:pointer;
+}
+
+.login-links{
+    margin-top:35px;
+
+    text-align:center;
+}
+
+.login-links p{
+    color:#666;
+
+    margin-bottom:18px;
+}
+
+.login-links a{
+    color:rgba(0, 140, 255, 0.92);
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    margin-left:5px;
+}
+
+.find-links{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+
+    font-size:14px;
+}
+
+.find-links span{
+    color:#ccc;
+}
+
+.login-btn{
+    height:52px !important;
+
+    margin-top:10px !important;
+
+    background:rgba(0, 140, 255, 0.92);
+
+    font-size:16px !important;
+    font-weight:700 !important;
+
+    border-radius:10px !important;
+
+    box-shadow:none !important;
+
+    transition:0.2s;
+}
+
+/* hover */
+.login-btn:hover{
+    background:rgba(0, 140, 255, 0.92);
+}
+
+/* 비활성화 상태 */
+.login-btn.Mui-disabled{
+    background:#cfd3da !important;
+
+    color:#ffffff !important;
+}
+
+.find-text{
+    text-align:center;
+
+    color:#666;
+
+    margin-bottom:20px;
+
+    font-size:14px;
+}
+
+.find-btn{
+    height:52px !important;
+
+    border-radius:10px !important;
+
+    font-weight:700 !important;
+}
+
+.timer-text{
+    text-align:center;
+
+    margin-top:18px;
+
+    font-size:14px;
+
+    color:#666;
+}
+
+.result-box{
+    text-align:center;
+
+    padding:20px 0;
+}
+
+.result-box h3{
+    color:#2563eb;
+
+    font-size:28px;
+
+    margin:20px 0;
+}
+
+.result-link{
+    display:inline-block;
+
+    margin-top:15px;
+
+    color:#2563eb;
+
+    font-weight:700;
+
+    text-decoration:none;
+}

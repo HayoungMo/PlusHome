@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginService from '../service/loginService';
 import { Button, TextField } from '@mui/material';
-//
+import "../css/LoginPage.css"
+
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
     console.log("props:",loginUser,setLoginUser)
@@ -105,78 +106,122 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
     }
 
     return (
-        <div>
-            <h2>로그인
+    <div className='login-wrap'>
+
+        <div className='login-box'>
+
+            <h2 className='login-title'>
+                로그인
                 <span>Login</span>
             </h2>
-        <form
-            onSubmit={(e) => {e.preventDefault(); //새로고침 방지
-                onLogin();
-        }}
-        >
-            
-            <TextField
-                label="아이디"
-                type="text"
-                name="id"
-                value={form.id}
-                onChange={onText}
-            />
-            <br/><br/>
-            {idFormatMsg && <div style={{ color: 'red' }}>{idFormatMsg}</div>}
 
-           
-            <TextField
-                label="비밀번호"
-                type="password"
-                name="pw"
-                value={form.pw}
-                onChange={onText}
-            />
-            <br/>
-            <br/>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    onLogin();
+                }}
+            >
 
-            {errorMsg && <div style={{ color: 'red' }}>{errorMsg}</div>}
+                <div className='input-group'>
 
-            {loginUser ? (
-                <>
-                    <span>{loginUser}님</span>
-                    <button onClick={logout}>
-                        로그아웃
-                    </button>
-                </>
-            ):(
-                 <Button color='primary' variant='contained' type='submit' disabled={!form.id || !form.pw}>
-                    로그인
-                </Button>
-            )}
+                    <TextField
+                        fullWidth
+                        label="아이디"
+                        type="text"
+                        name="id"
+                        value={form.id}
+                        onChange={onText}
+                    />
 
-           
+                    {idFormatMsg && (
+                        <div className='error-msg'>
+                            {idFormatMsg}
+                        </div>
+                    )}
 
-            
-        </form>
-            <p>
-                계정이 없으신가요?
-                <a href="/join"
-                   onClick={() => {                     
-                       setErrorMsg(''); 
-                       navigate('/join')
-                   }}>
-                    회원가입
-                </a>
-                <br/><br/>
+                </div>
 
-                <a href='/findId'>
-                    아이디 찾기
-                </a>  / 
-                
-                <a href='/findPw'>
-                    비밀번호 찾기
-                </a>              
+                <div className='input-group'>
 
-            </p>
+                    <TextField
+                        fullWidth
+                        label="비밀번호"
+                        type="password"
+                        name="pw"
+                        value={form.pw}
+                        onChange={onText}
+                    />
+
+                </div>
+
+                {errorMsg && (
+                    <div className='error-msg'>
+                        {errorMsg}
+                    </div>
+                )}
+
+                {loginUser ? (
+                    <>
+                        <span>{loginUser}님</span>
+
+                        <button
+                            className='logout-btn'
+                            onClick={logout}
+                        >
+                            로그아웃
+                        </button>
+                    </>
+                ) : (
+
+                    <Button
+                        fullWidth
+                        className='login-btn'
+                        variant='contained'
+                        type='submit'
+                        disabled={!form.id || !form.pw}
+                    >
+                        로그인
+                    </Button>
+
+                )}
+
+            </form>
+
+            <div className='login-links'>
+
+                <p>
+                    계정이 없으신가요?
+                    <a
+                        href="/join"
+                        onClick={() => {
+                            setErrorMsg('');
+                            navigate('/join');
+                        }}
+                    >
+                        회원가입
+                    </a>
+                </p>
+
+                <div className='find-links'>
+
+                    <a href='/findId'>
+                        아이디 찾기
+                    </a>
+
+                    <span>|</span>
+
+                    <a href='/findPw'>
+                        비밀번호 찾기
+                    </a>
+
+                </div>
+
+            </div>
+
         </div>
-    );
+
+    </div>
+);
 };
 
 export default LoginPage;
