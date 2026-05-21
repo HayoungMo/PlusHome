@@ -1,5 +1,6 @@
 package com.spring.home.mapper;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -14,6 +15,8 @@ public interface CouponMapper {
 	public List<CouponDTO> getListsDev() throws Exception;
 	
 	public List<CouponDTO> getLists(String id) throws Exception;
+	
+	public List<CouponDTO> getArticleList(HashMap<String, Object> map) throws Exception;
 	
 	public CouponDTO getReadData(CouponDTO dto) throws Exception;
 	

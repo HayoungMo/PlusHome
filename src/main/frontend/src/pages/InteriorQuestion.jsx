@@ -5,6 +5,7 @@ import InteriorCalculator from "../components/InteriorCalculator";
 import CheckboxMui from "../components/CheckboxMui";
 import DialogMui from "../components/DialogMui";
 import SelectMui from "../components/SelectMui";
+import "../css/InteriorQuestion.css";
 
 const InteriorQuestion = () => {
   const navigate = useNavigate();
@@ -12,15 +13,6 @@ const InteriorQuestion = () => {
   const company = location.state?.company || null;
 
   const [open, setOpen] = useState(false);
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const [step, setStep] = useState(0);
 
   const [data, setData] = useState({
@@ -124,6 +116,14 @@ const InteriorQuestion = () => {
   const isConfirmStep = step === questions.length;
   const progress = (step / questions.length) * 100;
 
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   const handleSelect = (value) => {
     const current = questions[step];
 
@@ -164,53 +164,63 @@ const InteriorQuestion = () => {
 
   if (isConfirmStep) {
     return (
-      <div>
+      <div className="interior-question-page">
         <LinearProgress variant="determinate" value={100} />
 
-        <h2>선택 내용을 확인해주세요</h2>
+        <div className="confirm-layout">
+          <div className="question-card confirm-card">
+            <h2>선택 내용을 확인해주세요</h2>
 
-        {questions.map((question) => (
-          <div key={question.key} style={{ marginBottom: "20px" }}>
-            <p>{question.title}</p>
+            <div className="confirm-list">
+              {questions.map((question) => (
+                <div key={question.key} className="confirm-question">
+                  <p>{question.title}</p>
 
-            {question.multi ? (
-              <div>
-                {question.options.map((option) => (
-                  <label key={option.value}>
-                    <CheckboxMui
-                      key={option.value}
-                      name="spaces"
-                      value={option.value}
-                      label={option.title}
-                      checked={data.spaces.includes(option.value)}
+                  {question.multi ? (
+                    <div className="confirm-checkbox-list">
+                      {question.options.map((option) => (
+                        <label key={option.value}>
+                          <CheckboxMui
+                            name="spaces"
+                            value={option.value}
+                            label={option.title}
+                            checked={data.spaces.includes(option.value)}
+                            onChange={(e) =>
+                              handleCheckChange(option.value, e.target.checked)
+                            }
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <SelectMui
+                      label={question.title}
+                      name={question.key}
+                      value={data[question.key] || ""}
                       onChange={(e) =>
-                        handleCheckChange(option.value, e.target.checked)
+                        setData((prev) => ({
+                          ...prev,
+                          [question.key]: e.target.value,
+                        }))
                       }
+                      option={question.options}
                     />
-                  </label>
-                ))}
-              </div>
-            ) : (
-              <SelectMui
-                label={question.title}
-                name={question.key}
-                value={data[question.key] || ""}
-                onChange={(e) =>
-                  setData((prev) => ({
-                    ...prev,
-                    [question.key]: e.target.value,
-                  }))
-                }
-                option={question.options}
-              />
-            )}
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="question-actions">
+              <Button onClick={handleBack}>이전</Button>
+              <Button onClick={handleOpen}>최종 제출</Button>
+            </div>
           </div>
-        ))}
 
-        <InteriorCalculator answer={data} />
+          <aside className="question-card calculator-card">
+            <InteriorCalculator answer={data} />
+          </aside>
+        </div>
 
-        <Button onClick={handleBack}>이전</Button>
-        <Button onClick={handleOpen}>최종 제출</Button>
         <DialogMui
           open={open}
           onClose={handleClose}
@@ -239,52 +249,71 @@ const InteriorQuestion = () => {
   const current = questions[step];
 
   return (
-    <div>
+    <div className="interior-question-page">
       <LinearProgress variant="determinate" value={progress} />
-      {step + 1} / {questions.length}
-      <h2>{current.title}</h2>
-      {current.multi ? (
-        <div>
-          {current.options.map((option) => (
-            <label key={option.value}>
-              <CheckboxMui
-                key={option.value}
-                name="spaces"
-                value={option.value}
-                label={option.title}
-                checked={data.spaces.includes(option.value)}
-                onChange={(e) =>
-                  handleCheckChange(option.value, e.target.checked)
-                }
-              />
-            </label>
-          ))}
 
-          <Button
-            disabled={data.spaces.length === 0}
-            onClick={() => setStep(step + 1)}
-          >
-            다음
-          </Button>
+      <div className="question-card">
+        <div className="question-step">
+          {step + 1} / {questions.length}
         </div>
-      ) : (
-        <div>
-          {current.options.map((option) => (
-            <Button
-              key={option.value}
-              variant={
-                data[current.key] === option.value ? "contained" : "outlined"
-              }
-              onClick={() => handleSelect(option.value)}
-            >
-              {option.title}
-            </Button>
-          ))}
-        </div>
-      )}
-      <Button disabled={step === 0} onClick={handleBack}>
-        이전
-      </Button>
+        <h2>{current.title}</h2>
+
+        {current.multi ? (
+          <>
+            <div className="question-options">
+              {current.options.map((option) => (
+                <label key={option.value}>
+                  <CheckboxMui
+                    name="spaces"
+                    value={option.value}
+                    label={option.title}
+                    checked={data.spaces.includes(option.value)}
+                    onChange={(e) =>
+                      handleCheckChange(option.value, e.target.checked)
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+
+            <div className="question-actions">
+              <Button disabled={step === 0} onClick={handleBack}>
+                이전
+              </Button>
+              <Button
+                disabled={data.spaces.length === 0}
+                onClick={() => setStep(step + 1)}
+              >
+                다음
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="question-options">
+              {current.options.map((option) => (
+                <Button
+                  key={option.value}
+                  variant={
+                    data[current.key] === option.value
+                      ? "contained"
+                      : "outlined"
+                  }
+                  onClick={() => handleSelect(option.value)}
+                >
+                  {option.title}
+                </Button>
+              ))}
+            </div>
+
+            <div className="question-actions">
+              <Button disabled={step === 0} onClick={handleBack}>
+                이전
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

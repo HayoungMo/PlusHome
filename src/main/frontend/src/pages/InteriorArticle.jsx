@@ -29,9 +29,10 @@ function InteriorArticle() {
   const [article, setArticle] = useState([]);
   const [example, setExample] = useState([]);
 
-  const [selectedImg, setSelectedImg] = useState(null);
+  const [selectedExample, setSelectedExample] = useState(null);
 
-  const [bookingPossible, setBookingPossible] = useState(answers !== null);
+  const [bookingPossible, setBookingPossible] = useState(false);
+  const [examplePossible, setExamplePossible] = useState(false);
 
   const wishKey = `wishList_${id}`;
 
@@ -121,11 +122,27 @@ function InteriorArticle() {
   };
 
   const handleNext = () => {
+    if (!localStorage.getItem("id") || !localStorage.getItem("token")) {
+      alert("로그인이 필요한 서비스입니다.");
+      navigate("/login");
+      return;
+    }
+
     navigate("/interior/question", {
       state: {
         company: company,
       },
     });
+  };
+
+  const handleBookingToggle = () => {
+    if (!localStorage.getItem("id") || !localStorage.getItem("token")) {
+      alert("로그인이 필요한 서비스입니다.");
+      navigate("/login");
+      return;
+    }
+
+    setBookingPossible(!bookingPossible);
   };
 
   useEffect(() => {
@@ -227,9 +244,7 @@ function InteriorArticle() {
               <Button
                 variant="contained"
                 color="warning"
-                onClick={() => {
-                  setBookingPossible(!bookingPossible);
-                }}
+                onClick={handleBookingToggle}
               >
                 {bookingPossible ? "상담 닫기" : "상담 신청"}
               </Button>
@@ -286,18 +301,25 @@ function InteriorArticle() {
 
         <div className="example-grid">
           {example.map((item, idx) => (
-            <div key={idx} className="example-item">
+            <div
+              key={idx}
+              className="example-item"
+              onClick={() => {
+                setSelectedExample(item)
+                setExamplePossible(true)}
+              }
+            >
               {item?.logo?.result
                 ?.filter(
                   (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
                 )
+                ?.filter((record) => record.img_tag==="THUMBNAIL")
                 ?.map((record, i) => (
                   <img
                     key={i}
                     className="example-img"
                     src={record.img_name}
                     alt={`${item.c_name} 예시`}
-                    onClick={() => setSelectedImg(record.img_name)}
                   />
                 ))}
 
@@ -313,7 +335,41 @@ function InteriorArticle() {
           ))}
         </div>
       </div>
+        <DialogInside
+          open={examplePossible}
+          onClose={() => setExamplePossible(false)}
+          maxWidth="md"
+          fullWidth
+          contentClassName="example-dialog-content"
+        >
+          <div className="example-item example-dialog-item">
+            <div className="example-dialog-media">
+              {selectedExample?.logo?.result
+                ?.filter(
+                  (record) =>
+                    record.dir_d ===
+                    selectedExample.ie_tag + "_" + selectedExample.ie_tag2,
+                )
+                ?.map((record, i) => (
+                  <img
+                    key={i}
+                    className="example-img"
+                    src={record.img_name}
+                    alt={`${selectedExample.c_name} 예시`}
+                  />
+                ))}
+            </div>
 
+            <div className="example-content">
+              <Stack direction="row" spacing={1} mb={1}>
+                <Chip label={selectedExample?.ie_tag} />
+                <Chip label={selectedExample?.ie_tag2} />
+              </Stack>
+
+              <div>{selectedExample?.ie_content}</div>
+            </div>
+          </div>
+        </DialogInside>
       <div className="example-card">
         <div className="section-title">시공 3D 모델</div>
         <div style={{ display: "flex" }}>
@@ -321,7 +377,7 @@ function InteriorArticle() {
             (item) =>
               item.img_tag === "MODEL" && (
                 <InteriorModelViewer src={item.img_name} />
-              )
+              ),
           )}
         </div>
       </div>
@@ -339,16 +395,6 @@ function InteriorArticle() {
           groupedReviewTags={groupedReviewTags}
         /> */}
       </div>
-
-      {selectedImg && (
-        <div className="image-modal" onClick={() => setSelectedImg(null)}>
-          <img
-            src={selectedImg}
-            alt="확대 이미지"
-            className="image-modal-img"
-          />
-        </div>
-      )}
     </div>
   );
 }

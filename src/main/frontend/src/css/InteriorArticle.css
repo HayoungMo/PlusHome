@@ -98,6 +98,51 @@
   padding: 16px;
 }
 
+.example-dialog-content {
+  padding: 0 !important;
+}
+
+.example-dialog-item {
+  width: 100%;
+  height: min(760px, 82vh);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  border: 0;
+  border-radius: 0;
+  cursor: default;
+  transition: none;
+}
+
+.example-dialog-item:hover {
+  transform: none;
+}
+
+.example-dialog-media {
+  min-height: 0;
+  display: grid;
+  gap: 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #f6f7f9;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.example-dialog-media .example-img {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.example-dialog-item .example-content {
+  max-height: 180px;
+  overflow-y: auto;
+  border-top: 1px solid #edf0f3;
+  background: #fff;
+}
+
 .review-customer-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -141,5 +186,9 @@
 
   .article-container {
     padding: 20px;
+  }
+
+  .example-dialog-item {
+    height: 74vh;
   }
 }

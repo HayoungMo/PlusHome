@@ -1,5 +1,4 @@
 import React, { useContext, useRef, useState } from "react";
-import { SggCodeMap } from "../components/SggCodeMap";
 import DefaultMaps from "./DefaultMaps";
 
 const Address = ({ isC, form, setForm }) => { //company의 경우 isC에 True, 아니면 false (boolean)

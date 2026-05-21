@@ -87,6 +87,26 @@ const selectCouponDev = async () => {
    }
 };
 
+// 조회
+const selectArticleCoupon = async (data) => {
+   try {
+     const res = await http.post("/coupon/getArticleList", {
+       c_id: data.c_id,
+       catagory: data.catagory,
+     });
+
+     return {
+       success: true,
+       data: res.data,
+     };
+   } catch (err) {
+     console.error(err);
+     return {
+       success: false,
+     };
+   }
+};
+
 const selectCouponList = async (id) => {
   try {
     const res = await http.post("/coupon/getLists", {
@@ -165,6 +185,7 @@ const CouponService = {
   insertCouponDev,
   selectCouponList,
   selectCouponDev,
+  selectArticleCoupon,
   selectCoupon,
   checkCouponDuplicate,
   updateCoupon,

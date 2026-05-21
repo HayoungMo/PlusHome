@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventService from "../service/eventService";
 import GetImgDlr from "../resources/function/GetImgDir";
-import { Button, Checkbox, Dialog } from "@mui/material";
-import CheckboxMui from "../components/CheckboxMui";
+import { Button, Dialog } from "@mui/material";
 
 const EventPopup = () => {
   const navigate = useNavigate();
@@ -12,14 +11,7 @@ const EventPopup = () => {
   const handleNext = (data) => {
     navigate(`/event/article/${data}`);
   };
-  useEffect(() => {
-    const hidden = localStorage.getItem("hideEventPopup");
-    const today = new Date().toDateString();
 
-    if (hidden !== today) {
-      setOpen(true);
-    }
-  }, []);
   useEffect(() => {
     const fetchData = async () => {
       const data = await EventService.selectEventList();
@@ -52,9 +44,21 @@ const EventPopup = () => {
             };
           }),
       );
+      if (listWithImages.length === 0) {
+        setOpen(false);
+        return;
+      }
+
       const randomEvent =
         listWithImages[Math.floor(Math.random() * listWithImages.length)];
       setRandom(randomEvent);
+
+      const hidden = localStorage.getItem("hideEventPopup");
+      const today = new Date().toDateString();
+
+      if (hidden !== today) {
+        setOpen(true);
+      }
     };
 
     fetchData();
@@ -69,20 +73,18 @@ const EventPopup = () => {
   };
 
   return (
-    <div>
-      <Dialog open={open}>
-        <img
-          src={
-            random?.logo?.result?.find((item) => item.img_tag === "THUMBNAIL")
-              .img_name
-          }
-          alt=""
-          onClick={() => handleNext(random.e_id)}
-        />
-        <Button onClick={() => setOpen(false)}>닫기</Button>
-        <Button onClick={() => handleClose(true)}>오늘 하루 보지 않기</Button>
-      </Dialog>
-    </div>
+    <Dialog open={open}>
+      <img
+        src={
+          random?.logo?.result?.find((item) => item.img_tag === "THUMBNAIL")
+            ?.img_name
+        }
+        alt=""
+        onClick={() => handleNext(random.e_id)}
+      />
+      <Button onClick={() => setOpen(false)}>닫기</Button>
+      <Button onClick={() => handleClose(true)}>오늘 하루 보지 않기</Button>
+    </Dialog>
   );
 };
 

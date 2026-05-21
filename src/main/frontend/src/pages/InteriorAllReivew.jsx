@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { Chip, Stack } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
-import { useNavigate } from "react-router-dom";
+import DialogInside from "../components/DialogInside";
+import "../css/InteriorAllReview.css";
 
 const InteriorAllReivew = () => {
   const navigate = useNavigate();
 
   const [review, setReview] = useState([]);
-  const [selectedImg, setSelectedImg] = useState(null);
+  const [selectedReview, setSelectedReview] = useState(null);
 
   const handleNext = (company) => {
     navigate("/interior/article", {
@@ -18,7 +21,6 @@ const InteriorAllReivew = () => {
   useEffect(() => {
     const fetchReview = async () => {
       const data = await InteriorService.fetchAllInteriorReview();
-
       const companyList = Array.isArray(data) ? data : [];
 
       const listWithImages = await Promise.all(
@@ -47,7 +49,19 @@ const InteriorAllReivew = () => {
     fetchReview();
   }, []);
 
-  // 업체별 그룹화
+  const getReviewImages = (item) => {
+    return (
+      item?.logo?.result?.filter(
+        (record) => String(record.dir_e) === String(item.b_createdDate),
+      ) || []
+    );
+  };
+
+  const getThumbnailImage = (item) => {
+    const images = getReviewImages(item);
+    return images.find((record) => record.img_tag === "THUMBNAIL") || images[0];
+  };
+
   const groupedReviews = review.reduce((acc, item) => {
     const key = `${item.c_id}_${item.c_kind}_${item.c_name}`;
 
@@ -67,116 +81,83 @@ const InteriorAllReivew = () => {
     return acc;
   }, {});
 
+  const selectedImages = selectedReview ? getReviewImages(selectedReview) : [];
+
   return (
-    <div>
+    <div className="interior-all-review-page">
+      <h2 className="interior-all-review-title">리뷰 조회 결과</h2>
+
       {Object.values(groupedReviews).map((group, idx) => (
-        <div
-          key={idx}
-          style={{
-            marginBottom: "60px",
-            paddingBottom: "30px",
-            borderBottom: "1px solid #ddd",
-          }}
-        >
-          {/* 업체명 */}
-          <div
+        <div className="interior-review-group" key={idx}>
+          <button
+            className="interior-review-company"
+            type="button"
             onClick={() => handleNext(group.company)}
-            style={{
-              cursor: "pointer",
-              marginBottom: "20px",
-            }}
           >
-            <h2>{group.company.c_name}</h2>
-          </div>
+            {group.company.c_name}
+          </button>
 
-          {/* 리뷰 카드들 */}
-          <div
-            style={{
-              display: "flex",
-              gap: "20px",
-              overflowX: "auto",
-              paddingBottom: "10px",
-            }}
-          >
-            {group.reviews.map((item, reviewIdx) => (
-              <div
-                key={reviewIdx}
-                style={{
-                  minWidth: "300px",
-                  border: "1px solid #ccc",
-                  borderRadius: "12px",
-                  padding: "16px",
-                  flexShrink: 0,
-                }}
-              >
-                <p>{item.ir_content}</p>
+          <div className="interior-review-grid">
+            {group.reviews.map((item, reviewIdx) => {
+              const thumbnail = getThumbnailImage(item);
 
-                {/* 리뷰 이미지 */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    marginTop: "10px",
-                    flexWrap: "wrap",
-                  }}
+              return (
+                <button
+                  className="interior-review-card"
+                  key={reviewIdx}
+                  type="button"
+                  onClick={() => setSelectedReview(item)}
                 >
-                  {item?.logo?.result
-                    ?.filter(
-                      (record) =>
-                        String(record.dir_e) === String(item.b_createdDate),
-                    )
-                    ?.map((record, i) => (
+                  <div className="interior-review-card-thumb">
+                    {thumbnail ? (
                       <img
-                        key={i}
-                        src={record.img_name}
+                        src={thumbnail.img_name}
                         alt={`${item.c_name} 리뷰`}
-                        onClick={() => setSelectedImg(record.img_name)}
-                        style={{
-                          width: "120px",
-                          height: "120px",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                        }}
                       />
-                    ))}
-                </div>
-              </div>
-            ))}
+                    ) : (
+                      <span>이미지 없음</span>
+                    )}
+                  </div>
+
+                  <div className="interior-review-card-info">
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      <Chip label="리뷰" size="small" />
+                    </Stack>
+                    <p>{item.ir_content}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       ))}
 
-      {/* 확대 이미지 */}
-      {selectedImg && (
-        <div
-          onClick={() => setSelectedImg(null)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-        >
-          <img
-            src={selectedImg}
-            alt="확대 이미지"
-            style={{
-              minWidth: "80%",
-              minHeight: "80%",
-              maxWidth: "95%",
-              maxHeight: "95%",
-              objectFit: "contain",
-            }}
-          />
+      <DialogInside
+        open={Boolean(selectedReview)}
+        onClose={() => setSelectedReview(null)}
+        maxWidth="md"
+        fullWidth
+        contentClassName="all-review-dialog-content"
+      >
+        <div className="all-review-dialog">
+          <div className="all-review-dialog-images">
+            {selectedImages.map((record, i) => (
+              <img
+                key={`${record.img_name}-${i}`}
+                src={record.img_name}
+                alt={`${selectedReview?.c_name} 리뷰`}
+              />
+            ))}
+          </div>
+
+          <div className="all-review-dialog-info">
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              <Chip label={selectedReview?.c_name} />
+            </Stack>
+            <p>{selectedReview?.ir_content}</p>
+          </div>
         </div>
-      )}
+      </DialogInside>
     </div>
   );
 };

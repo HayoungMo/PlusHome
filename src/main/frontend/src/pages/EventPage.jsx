@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from "react";
 import GetImgDlr from "../resources/function/GetImgDir";
 import EventService from "../service/eventService";
-import { Button, Tab, Tabs } from "@mui/material";
+import { Tab, Tabs } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const EventPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
-  const [canUpdate, setCanUpdate] = useState(true);
-
   const [tab, setTab] = useState(0);
 
   const handleNext = (data) => {
     navigate(`/event/article/${data}`);
   };
 
-  const handleUpdate = (data) => {
-    navigate(`/event/update/${data}`);
-  };
-
   const handleChange = (event, newValue) => {
     setTab(newValue);
   };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,9 +77,6 @@ const EventPage = () => {
                 alt=""
                 onClick={() => handleNext(record.e_id)}
               />
-              {canUpdate && (
-                <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
-              )}
             </div>
           ))}
 
@@ -102,9 +94,6 @@ const EventPage = () => {
                 }
                 alt=""
               />
-              {canUpdate && (
-                <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
-              )}
             </div>
           ))}
 
@@ -122,9 +111,7 @@ const EventPage = () => {
                 alt=""
                 onClick={() => handleNext(record.e_id)}
               />
-              {canUpdate && (
-                <Button onClick={() => handleUpdate(record.e_id)}>수정</Button>
-              )}
+
             </div>
           ))}
     </div>

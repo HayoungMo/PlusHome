@@ -39,18 +39,43 @@ const InteriorMyPage = ({ user }) => {
         {tab === 1 && <InteriorMyReview id={id} />}
 
         {tab === 2 && (
-          <>
+          <div className="interior-wishlist-panel">
             {Array.isArray(like) && like.length > 0 ? (
-              like.map((item, idx) => (
-                <div key={idx} onClick={() => handleNext(item)}>
-                  <img src={item?.logo?.result?.find((item)=>item.img_tag === "PROFILE")?.img_name} alt="" />
-                  {item.c_name}
-                </div>
-              ))
+              <div className="interior-wishlist-grid">
+                {like.map((item, idx) => {
+                  const profileImage = item?.logo?.result?.find(
+                    (image) => image.img_tag === "PROFILE",
+                  )?.img_name;
+
+                  return (
+                    <button
+                      className="interior-wishlist-card"
+                      key={`${item.c_id}-${item.c_kind}-${item.c_name}-${idx}`}
+                      type="button"
+                      onClick={() => handleNext(item)}
+                    >
+                      <div className="interior-wishlist-thumb">
+                        {profileImage ? (
+                          <img src={profileImage} alt={`${item.c_name} 로고`} />
+                        ) : (
+                          <span>이미지 없음</span>
+                        )}
+                      </div>
+
+                      <div className="interior-wishlist-info">
+                        <strong>{item.c_name}</strong>
+                        <span>{item.c_kind}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             ) : (
-              <p>찜 목록에 업체가 없습니다</p>
+              <p className="interior-wishlist-empty">
+                찜 목록에 업체가 없습니다
+              </p>
             )}
-          </>
+          </div>
         )}
       </Box>
     </Box>
