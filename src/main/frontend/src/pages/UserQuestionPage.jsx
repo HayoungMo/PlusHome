@@ -4,6 +4,7 @@ import { TextField } from "@mui/material";
 import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
 import Loading from "../components/Loading";
+import { Link } from "react-router-dom";
 
 const UserQuestionPage = ({ user }) => {
     const [questions, setQuestions] = useState([]);
@@ -439,10 +440,20 @@ const UserQuestionPage = ({ user }) => {
                             </div>
                         ) : (
                             <div>
-                                <h4>제목:{item.q_title}</h4>
+                                <h4>
+                                    제목:{" "}
+                                    {item.f_code ? (
+                                        <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
+                                            {item.q_title}
+                                        </Link>
+                                    ) : (
+                                        item.q_title
+                                    )}
+                                </h4>
                                 {/* <p>작성자: {item.id}</p> */}
                                 <p>문의 내용: {item.q_content}</p>
                                 {questionImages[item.q_idx]?.map((img) => (
+                                <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
                                     <img
                                         key={img.img_name}
                                         src={`${img.img_name}?t=${imageRefresh}`}
@@ -454,6 +465,7 @@ const UserQuestionPage = ({ user }) => {
                                             marginRight: "8px"
                                         }}
                                     />
+                                </Link>
                                 ))}
 
                                 {item.q_answer ? (

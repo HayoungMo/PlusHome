@@ -33,6 +33,14 @@ const FurnitureArticle = () => {
     const query = new URLSearchParams(location.search);
     const page = query.get("page");
 
+    //마이페이지 문의에서 바로 이동하게 할 수 있는 - 0522 모하영
+    useEffect(() => {
+        const tabParam = query.get("tab");
+
+        if (["detail", "review", "qna"].includes(tabParam)) {
+            setTab(tabParam);
+        }
+    }, [location.search]);
     const getLoginUser = () => {
         const user = localStorage.getItem("user");
         return user ? JSON.parse(user) : null;
