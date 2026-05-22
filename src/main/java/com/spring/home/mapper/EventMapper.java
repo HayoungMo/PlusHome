@@ -14,6 +14,8 @@ public interface EventMapper {
 	
 	public EventDTO getReadData(EventDTO dto) throws Exception;
 	
+	public List<EventDTO> getPopupData() throws Exception;
+	
 	public void updateData(EventDTO dto) throws Exception;
 
 	public void deleteData(EventDTO dto) throws Exception;

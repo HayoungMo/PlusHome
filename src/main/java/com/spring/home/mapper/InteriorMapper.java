@@ -2,6 +2,7 @@ package com.spring.home.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -32,12 +33,40 @@ public interface InteriorMapper {
 	public void insertInteriorReview(InteriorReviewDTO dto) throws Exception;
 	
 	public List<CompanyDTO> getLists();
+
+	public List<CompanyDTO> getPagedLists(
+			@Param("start") int start,
+			@Param("end") int end,
+			@Param("search") String search,
+			@Param("filterType") String filterType,
+			@Param("filterValue") String filterValue);
+
+	public int getPagedListCount(
+			@Param("search") String search,
+			@Param("filterType") String filterType,
+			@Param("filterValue") String filterValue);
 	
 	public List<InteriorDTO> getArticleLists();
 	
 	public List<InteriorReviewDTO> getAllReviewlists();	
+
+	public List<InteriorReviewDTO> getPagedReviewLists(
+			@Param("start") int start,
+			@Param("end") int end);
+
+	public int getPagedReviewListCount();
 	
-	public List<InteriorReviewDTO> getAllExamples();
+	public List<InteriorExampleDTO> getAllExamples();
+
+	public List<InteriorExampleDTO> getPagedExampleLists(
+			@Param("start") int start,
+			@Param("end") int end,
+			@Param("filterType") String filterType,
+			@Param("filterValue") String filterValue);
+
+	public int getPagedExampleListCount(
+			@Param("filterType") String filterType,
+			@Param("filterValue") String filterValue);
 	
 	public List<BookingDTO> getAllBookings();
 	

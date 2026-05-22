@@ -15,9 +15,9 @@ import Maps from "../maps/Maps";
 import { Button, Chip, Stack } from "@mui/material";
 import InteriorArticleAI from "../components/InteriorArticleAI";
 import DialogInside from "../components/DialogInside";
+import LikeService from "../service/likeService";
 
 function InteriorArticle() {
-  const id = localStorage.getItem("id");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,11 +30,10 @@ function InteriorArticle() {
   const [example, setExample] = useState([]);
 
   const [selectedExample, setSelectedExample] = useState(null);
+  const [exampleImageIndex, setExampleImageIndex] = useState(0);
 
   const [bookingPossible, setBookingPossible] = useState(false);
   const [examplePossible, setExamplePossible] = useState(false);
-
-  const wishKey = `wishList_${id}`;
 
   const tagNameMap = {
     housingType: "주거 유형",
@@ -78,47 +77,27 @@ function InteriorArticle() {
   const groupedTags = groupInteriorTags(article);
   const groupedReviewTags = groupInteriorReviewTags(example);
 
-  const getWishList = () => {
-    return JSON.parse(localStorage.getItem(wishKey)) || [];
-  };
+  const [like, setLike] = useState();
 
-  const isWished = (company) => {
-    const wishList = getWishList();
+  const onToggleLike = () => {
+    const token = localStorage.getItem("token");
 
-    return wishList.some(
-      (item) =>
-        item.c_id === company.c_id &&
-        item.c_kind === company.c_kind &&
-        item.c_name === company.c_name,
-    );
-  };
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
 
-  const [like, setLike] = useState(isWished(company));
-
-  const toggleWish = () => {
-    const wishList = getWishList();
-
-    const exists = wishList.some(
-      (item) =>
-        item.c_id === company.c_id &&
-        item.c_kind === company.c_kind &&
-        item.c_name === company.c_name,
-    );
-
-    const newWishList = exists
-      ? wishList.filter(
-          (item) =>
-            !(
-              item.c_id === company.c_id &&
-              item.c_kind === company.c_kind &&
-              item.c_name === company.c_name
-            ),
-        )
-      : [...wishList, company];
-
-    localStorage.setItem(wishKey, JSON.stringify(newWishList));
-
-    setLike(!exists);
+    LikeService.toggleInteriorLike(
+      company.c_id + "_" + company.c_name + "_" + company.c_kind,
+    )
+      .then((res) => {
+        setLike(res.data?.liked || false);
+      })
+      .catch((error) => {
+        console.error("찜 처리 실패", error);
+        alert("찜 처리에 실패했습니다.");
+      });
   };
 
   const handleNext = () => {
@@ -184,7 +163,7 @@ function InteriorArticle() {
             a: item.c_id,
             b: item.c_kind,
             c: item.c_name,
-            d: item.ie_tag + "_" + item.ie_tag2,
+            d: item.ie_index,
             view: false,
           });
 
@@ -207,10 +186,57 @@ function InteriorArticle() {
     fetchExample();
   }, []);
 
+  useEffect(() => {
+
+    LikeService.checkInteriorLike(
+      company.c_id + "_" + company.c_name + "_" + company.c_kind,
+    )
+      .then((res) => {
+        setLike(res.data?.liked || false);
+      })
+      .catch((error) => {
+        console.error("찜 여부 확인 실패", error);
+        setLike(false);
+      });
+  }, [company]);
+
   const handleFilter = (tag, value) => {
     navigate("/interior/list", {
       state: { tag: tag, value: value },
     });
+  };
+
+  const getExampleImages = (item) => {
+    const images = item?.logo?.result || [];
+    const exampleIndex = item?.ie_index ?? item?.ie_idx;
+
+    return images.filter(
+      (record) =>
+        String(record.dir_d) === String(exampleIndex) &&
+        record.img_tag !== "MODEL",
+    );
+  };
+
+  const getThumbnailImage = (item) => {
+    const images = getExampleImages(item);
+    return images.find((record) => record.img_tag === "THUMBNAIL") || images[0];
+  };
+
+  const selectedExampleImages = getExampleImages(selectedExample);
+
+  const handleExampleClose = () => {
+    setExamplePossible(false);
+    setExampleImageIndex(0);
+  };
+
+  const handlePrevExampleImage = () => {
+    setExampleImageIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleNextExampleImage = () => {
+    setExampleImageIndex((prev) =>
+      Math.min(prev + 1, selectedExampleImages.length - 1),
+    );
   };
 
   return (
@@ -236,7 +262,7 @@ function InteriorArticle() {
           ))}
 
           <div className="action-buttons">
-            <Button variant="outlined" onClick={toggleWish}>
+            <Button variant="outlined" onClick={onToggleLike}>
               {like ? "찜 취소" : "찜하기"}
             </Button>
 
@@ -300,76 +326,98 @@ function InteriorArticle() {
         <div className="section-title">시공 사례</div>
 
         <div className="example-grid">
-          {example.map((item, idx) => (
-            <div
-              key={idx}
-              className="example-item"
-              onClick={() => {
-                setSelectedExample(item)
-                setExamplePossible(true)}
-              }
-            >
-              {item?.logo?.result
-                ?.filter(
-                  (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
-                )
-                ?.filter((record) => record.img_tag==="THUMBNAIL")
-                ?.map((record, i) => (
+          {example.map((item, idx) => {
+            const thumbnail = getThumbnailImage(item);
+
+            return (
+              <div
+                key={`${item?.ie_index}`}
+                className="example-item"
+                onClick={() => {
+                  setSelectedExample(item);
+                  setExampleImageIndex(0);
+                  setExamplePossible(true);
+                }}
+              >
+                {thumbnail ? (
                   <img
-                    key={i}
                     className="example-img"
-                    src={record.img_name}
+                    src={thumbnail.img_name}
                     alt={`${item.c_name} 예시`}
                   />
-                ))}
+                ) : (
+                  <div className="example-img example-img-empty">
+                    이미지 없음
+                  </div>
+                )}
 
-              <div className="example-content">
-                <Stack direction="row" spacing={1} mb={1}>
-                  <Chip label={item?.ie_tag} />
-                  <Chip label={item?.ie_tag2} />
-                </Stack>
+                <div className="example-content">
+                  <Stack direction="row" spacing={1} mb={1}>
+                    <Chip label={item?.ie_tag} />
+                    <Chip label={item?.ie_tag2} />
+                  </Stack>
 
-                <div>{item?.ie_content}</div>
+                  <div>{item?.ie_content}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
-        <DialogInside
-          open={examplePossible}
-          onClose={() => setExamplePossible(false)}
-          maxWidth="md"
-          fullWidth
-          contentClassName="example-dialog-content"
-        >
-          <div className="example-item example-dialog-item">
-            <div className="example-dialog-media">
-              {selectedExample?.logo?.result
-                ?.filter(
-                  (record) =>
-                    record.dir_d ===
-                    selectedExample.ie_tag + "_" + selectedExample.ie_tag2,
-                )
-                ?.map((record, i) => (
-                  <img
-                    key={i}
-                    className="example-img"
-                    src={record.img_name}
-                    alt={`${selectedExample.c_name} 예시`}
-                  />
-                ))}
-            </div>
-
-            <div className="example-content">
-              <Stack direction="row" spacing={1} mb={1}>
-                <Chip label={selectedExample?.ie_tag} />
-                <Chip label={selectedExample?.ie_tag2} />
-              </Stack>
-
-              <div>{selectedExample?.ie_content}</div>
-            </div>
+      <DialogInside
+        open={examplePossible}
+        onClose={handleExampleClose}
+        maxWidth="md"
+        fullWidth
+        contentClassName="example-dialog-content"
+      >
+        <div className="example-item example-dialog-item">
+          <div className="example-dialog-media">
+            {selectedExampleImages
+              .filter((_, i) => i === exampleImageIndex)
+              .map((record, i) => (
+                <img
+                  key={i}
+                  className="example-img"
+                  src={record.img_name}
+                  alt={`${selectedExample.c_name} 예시`}
+                />
+              ))}
+            {selectedExampleImages.length > 1 && (
+              <div className="example-slide-controls">
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handlePrevExampleImage}
+                  disabled={exampleImageIndex === 0}
+                >
+                  이전
+                </Button>
+                <span>
+                  {exampleImageIndex + 1} / {selectedExampleImages.length}
+                </span>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleNextExampleImage}
+                  disabled={exampleImageIndex === selectedExampleImages.length - 1}
+                >
+                  다음
+                </Button>
+              </div>
+            )}
           </div>
-        </DialogInside>
+
+          <div className="example-content">
+            <Stack direction="row" spacing={1} mb={1}>
+              <Chip label={selectedExample?.ie_tag} />
+              <Chip label={selectedExample?.ie_tag2} />
+            </Stack>
+
+            <div>{selectedExample?.ie_content}</div>
+          </div>
+        </div>
+      </DialogInside>
       <div className="example-card">
         <div className="section-title">시공 3D 모델</div>
         <div style={{ display: "flex" }}>

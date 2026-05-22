@@ -43,16 +43,27 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class InteriorController {
-	@Resource
+	@Autowired
 	private InteriorService interiorService;
 
-	@Resource
+	@Autowired
 	private ImageService imageService;
 
 	@GetMapping("/lists")
 	public List<CompanyDTO> getLists() {
 
 		return interiorService.getLists();
+	}
+
+	@GetMapping("/lists/page")
+	public Map<String, Object> getPagedLists(
+			@RequestParam(defaultValue = "1") int pageNum,
+			@RequestParam(defaultValue = "12") int pageSize,
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "") String filterType,
+			@RequestParam(defaultValue = "") String filterValue) {
+
+		return interiorService.getPagedLists(pageNum, pageSize, search, filterType, filterValue);
 	}
 
 	@GetMapping("/articlelists")
@@ -65,9 +76,27 @@ public class InteriorController {
 		return interiorService.getAllReviewlists();
 	}
 
+	@GetMapping("/reviewlists/page")
+	public Map<String, Object> getPagedReviewLists(
+			@RequestParam(defaultValue = "1") int pageNum,
+			@RequestParam(defaultValue = "6") int pageSize) {
+
+		return interiorService.getPagedReviewLists(pageNum, pageSize);
+	}
+
 	@GetMapping("/examplelists")
-	public List<InteriorReviewDTO> getAllExamples() throws Exception {
+	public List<InteriorExampleDTO> getAllExamples() throws Exception {
 		return interiorService.getAllExamples();
+	}
+
+	@GetMapping("/examplelists/page")
+	public Map<String, Object> getPagedExampleLists(
+			@RequestParam(defaultValue = "1") int pageNum,
+			@RequestParam(defaultValue = "6") int pageSize,
+			@RequestParam(defaultValue = "") String filterType,
+			@RequestParam(defaultValue = "") String filterValue) {
+
+		return interiorService.getPagedExampleLists(pageNum, pageSize, filterType, filterValue);
 	}
 
 	@GetMapping("/bookinglists")

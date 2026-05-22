@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
@@ -43,8 +44,17 @@ public class LikeService {
     public boolean isFurnitureLiked(String id, String f_code) throws Exception {
         LikeDTO dto = new LikeDTO();
         dto.setId(id);
-        dto.setF_code(f_code);
+        dto.setLike_code(f_code);
         dto.setLike_tag("furniture");
+
+        return likeMapper.countFurnitureLike(dto) > 0;
+    }
+    
+    public boolean isInteriorLiked(String id, String f_code) throws Exception {
+        LikeDTO dto = new LikeDTO();
+        dto.setId(id);
+        dto.setLike_code(f_code);
+        dto.setLike_tag("interior");
 
         return likeMapper.countFurnitureLike(dto) > 0;
     }
@@ -52,8 +62,23 @@ public class LikeService {
     public boolean toggleFurnitureLike(String id, String f_code) throws Exception {
         LikeDTO dto = new LikeDTO();
         dto.setId(id);
-        dto.setF_code(f_code);
+        dto.setLike_code(f_code);
         dto.setLike_tag("furniture");
+
+        if (likeMapper.countFurnitureLike(dto) > 0) {
+            likeMapper.deleteFurnitureLike(dto);
+            return false;
+        }
+
+        likeMapper.insertData(dto);
+        return true;
+    }
+    
+    public boolean toggleInteriorLike(String id, String like_code) throws Exception {
+        LikeDTO dto = new LikeDTO();
+        dto.setId(id);
+        dto.setLike_code(like_code);
+        dto.setLike_tag("interior");
 
         if (likeMapper.countFurnitureLike(dto) > 0) {
             likeMapper.deleteFurnitureLike(dto);
@@ -80,5 +105,9 @@ public class LikeService {
     		dto.setImageList(imageList);
     	}
         return list;
+    }
+    
+    public List<CompanyDTO> getInteriorLikes(String id) throws Exception {
+        return likeMapper.getInteriorLikes(id);
     }
 }

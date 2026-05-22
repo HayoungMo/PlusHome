@@ -3,10 +3,12 @@ import UserBookingLists from "./UserBookingLists";
 import InteriorMyReview from "./InteriorMyReview";
 import { useNavigate } from "react-router-dom";
 import { Tabs, Tab, Box } from "@mui/material";
+import LikeService from "../service/likeService";
 
 const InteriorMyPage = ({ user }) => {
   const navigate = useNavigate();
-  const id = user?.id || localStorage.getItem("id")
+  const [likes, setLikes] = useState([]);
+  const id = user?.id || localStorage.getItem("id");
 
   const handleNext = (data) => {
     navigate("/interior/article", {
@@ -14,11 +16,26 @@ const InteriorMyPage = ({ user }) => {
     });
   };
 
-  const getWishList = () => {
-    return JSON.parse(localStorage.getItem(`wishList_${id}`)) || [];
-  };
+  useEffect(() => {
 
-  const [like, setLike] = useState(getWishList());
+    const fetchLikes = async () => {
+      await LikeService.getMyInteriorLikes()
+        .then((res) => {
+          setLikes(res.data || []);
+        })
+        .catch((error) => {
+          console.error(error);
+
+          if (error.response?.status === 401) {
+            alert("권한 없음");
+            return;
+          }
+
+          alert("찜목록을 불러오지 못했습니다.");
+        })
+    };
+    fetchLikes();
+  }, [user, navigate]);
 
   const [tab, setTab] = useState(0);
 
@@ -40,9 +57,9 @@ const InteriorMyPage = ({ user }) => {
 
         {tab === 2 && (
           <div className="interior-wishlist-panel">
-            {Array.isArray(like) && like.length > 0 ? (
+            {Array.isArray(likes) && likes.length > 0 ? (
               <div className="interior-wishlist-grid">
-                {like.map((item, idx) => {
+                {likes.map((item, idx) => {
                   const profileImage = item?.logo?.result?.find(
                     (image) => image.img_tag === "PROFILE",
                   )?.img_name;

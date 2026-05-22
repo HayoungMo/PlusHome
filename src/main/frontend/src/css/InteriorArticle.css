@@ -94,6 +94,15 @@
   object-fit: cover;
 }
 
+.example-img-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef0f3;
+  color: #777;
+  font-weight: 600;
+}
+
 .example-content {
   padding: 16px;
 }
@@ -120,9 +129,9 @@
 .example-dialog-media {
   min-height: 0;
   display: grid;
-  gap: 12px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  overflow: hidden;
   background: #f6f7f9;
   padding: 12px;
   box-sizing: border-box;
@@ -130,10 +139,26 @@
 
 .example-dialog-media .example-img {
   width: 100%;
-  height: auto;
-  max-height: 520px;
+  height: 100%;
+  min-height: 0;
   object-fit: contain;
   background: #fff;
+}
+
+.example-slide-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 36px;
+}
+
+.example-slide-controls span {
+  min-width: 56px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
 }
 
 .example-dialog-item .example-content {

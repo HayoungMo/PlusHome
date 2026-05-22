@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.LikeDTO;
 
@@ -26,4 +27,6 @@ public interface LikeMapper {
     public void deleteFurnitureLike(LikeDTO dto) throws Exception;
 
     public List<FurnitureDTO> getMyFurnitureLikes(@Param("id") String id) throws Exception;
+    
+    public List<CompanyDTO> getInteriorLikes(@Param("id") String id) throws Exception;
 }
