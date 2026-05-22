@@ -112,4 +112,11 @@
       AND o_text = #{o_text}
 </update>
 
+<select id="getOptionStock" resultType="int">
+		SELECT o_count
+		FROM options
+		WHERE f_code = #{f_code}
+		AND o_select = #{o_select}
+		AND o_text = #{o_text}
+	</select>
 </mapper>

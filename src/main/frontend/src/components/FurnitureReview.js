@@ -5,8 +5,8 @@ import RatingMui from './RatingMui';
 import Loading from '../components/Loading'
 
 const FurnitureReview = ({f_code,fr_idx = 0}) => {
-      const [reviews, setReviews] = useState();
-      const [selectedItem, setSelectedItem] = useState();
+    const [reviews, setReviews] = useState();
+    const [selectedItem, setSelectedItem] = useState();
     const [selectedImage, setSelectedImage] = useState(null);
     const [loading, setLoading] = useState(true)
 
