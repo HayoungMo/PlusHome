@@ -66,6 +66,9 @@ const PaymentPage = () => {
   const [paySuccess, setPaySuccess] = useState(false);
   const [walletChargeOpen, setWalletChargeOpen] = useState(false);
 
+  const [couponDialogOpen, setCouponDialogOpen] = useState(false)
+  const [couponTargetItem, setCouponTargetItem] = useState(null)
+
   const selectedReceiver = addressMode === "default" ? receiver : newReceiver;
 
   const getItemTotal = (item) => {
@@ -181,6 +184,13 @@ const PaymentPage = () => {
       });
   }, [user.id]);
 
+  useEffect(()=>{
+    if (!location.state || !items.length) {
+      alert("결제할 상품 정보가 없습니다.")
+      navigate("/cart")
+    }
+  },[])
+  
   useEffect(() => {
     CartService.getAvailablePoint()
       .then((res) => {
@@ -234,6 +244,27 @@ const PaymentPage = () => {
       return next;
     });
   };
+
+  const openCouponDialog = (item) => {
+    setCouponTargetItem(item)
+    setCouponDialogOpen(true)
+  }
+
+  const closeCouponDialog = () => {
+    setCouponTargetItem(null)
+    setCouponDialogOpen(false)
+  }
+
+  const selectCouponForTargetItem = (coupon_code) => {
+    if (!couponTargetItem) return
+
+    changeItemCoupon(couponTargetItem.c_code, coupon_code)
+    closeCouponDialog()
+  }
+
+  const clearCouponForItem = (c_code) => {
+    changeItemCoupon(c_code,"")
+  }
 
   const onPayClick = () => {
     if (items.length === 0) {
@@ -311,7 +342,27 @@ const PaymentPage = () => {
     }
   };
 
+  const getCouponTargetText = (couponItem) => {
+    const couponType = couponItem.coupon_type || "all"
+    const couponCatagory = couponItem.coupon_catagory || ""
+  
+    if (couponType == "all"){
+      return "전체 상품 적용 가능"
+    }
+
+    if (couponType === "company"){
+      return `업체 적용: ${couponCatagory}`
+    }
+
+    if (couponType === "catagory"){
+      return `카테고리 적용: ${couponCatagory}`
+    }
+
+    return "적용 범위 확인 필요"
+  }
+
   return (
+    
     <Box
       sx={{
         p: 3,
@@ -445,6 +496,11 @@ const PaymentPage = () => {
               {items.map((item) => {
                 const itemCouponDiscount = getItemCouponDiscount(item);
 
+                const selectedCoupon = coupon.find(
+                  (couponItem) => couponItem.coupon_code ===
+                  itemCouponMap[item.c_code]
+                )
+
                 return (
                   <Box
                     key={item.c_code}
@@ -502,54 +558,40 @@ const PaymentPage = () => {
                         </Typography>
                       ))}
 
-                      <FormControl size="small" sx={{ mt: 1, minWidth: 240 }}>
-                        <Select
-                          displayEmpty
-                          value={itemCouponMap[item.c_code] || ""}
-                          onChange={(evt) =>
-                            changeItemCoupon(item.c_code, evt.target.value)
-                          }
-                          sx={{ height: 32, fontSize: 13 }}
-                        >
-                          <MenuItem value="">쿠폰 선택 안 함</MenuItem>
-
-                          {coupon.map((couponItem) => {
-                            const usedByOtherItem = Object.entries(
-                              itemCouponMap
-                            ).some(
-                              ([c_code, coupon_code]) =>
-                                c_code !== item.c_code &&
-                                coupon_code === couponItem.coupon_code
-                            );
-
-                            const cannotApplyToThisItem =
-                              !canApplyCouponToItem(couponItem, item);
-
-                            return (
-                              <MenuItem
-                                key={couponItem.coupon_code}
-                                value={couponItem.coupon_code}
-                                disabled={usedByOtherItem || cannotApplyToThisItem}
-                              >
-                                {couponItem.coupon_info} / {couponItem.discount}% 할인
-                                {usedByOtherItem ? " (다른 상품에 적용됨)" : ""}
-                                {cannotApplyToThisItem ? " (적용 불가)" : ""}
-                              </MenuItem>
-                            );
-                          })}
-                        </Select>
-                      </FormControl>
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary" fontSize={13}>
+                        쿠폰: {selectedCoupon ? selectedCoupon.coupon_info : "선택 안 함"}
+                      </Typography>
 
                       {itemCouponDiscount > 0 && (
-                        <Typography
-                          variant="body2"
-                          color="error"
-                          fontSize={13}
-                          mt={0.5}
-                        >
+                        <Typography variant="body2" color="error" fontSize={13} mt={0.5}>
                           쿠폰 할인: -{itemCouponDiscount.toLocaleString()}원
                         </Typography>
                       )}
+
+                      <Stack direction="row" spacing={1} mt={0.8}>
+                        <Button
+                          variant="outlined"
+                          color="inherit"
+                          size="small"
+                          onClick={() => openCouponDialog(item)}
+                        >
+                          {selectedCoupon ? "쿠폰 변경" : "쿠폰 선택"}
+                        </Button>
+
+                        {selectedCoupon && (
+                          <Button
+                            variant="text"
+                            color="inherit"
+                            size="small"
+                            onClick={() => clearCouponForItem(item.c_code)}
+                          >
+                            해제
+                          </Button>
+                        )}
+                      </Stack>
+                    </Box>
+
                     </Box>
 
                     <Typography
@@ -858,6 +900,84 @@ const PaymentPage = () => {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={couponDialogOpen}
+        onClose={closeCouponDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle fontWeight={700}>쿠폰 선택</DialogTitle>
+
+        <DialogContent>
+          {couponTargetItem && (
+            <Stack spacing={1}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => selectCouponForTargetItem("")}
+              >
+                쿠폰 선택 안 함
+              </Button>
+
+              {coupon.map((couponItem) => {
+                const usedByOtherItem = Object.entries(itemCouponMap).some(
+                  ([c_code, coupon_code]) =>
+                    c_code !== couponTargetItem.c_code &&
+                    coupon_code === couponItem.coupon_code
+                );
+
+                const cannotApplyToThisItem =
+                  !canApplyCouponToItem(couponItem, couponTargetItem);
+
+                const disabled = usedByOtherItem || cannotApplyToThisItem;
+
+                return (
+                  <Button
+                    key={couponItem.coupon_code}
+                    variant={
+                      itemCouponMap[couponTargetItem.c_code] === couponItem.coupon_code
+                        ? "contained"
+                        : "outlined"
+                    }
+                    color="inherit"
+                    disabled={disabled}
+                    onClick={() => selectCouponForTargetItem(couponItem.coupon_code)}
+                    sx={{ justifyContent: "flex-start", py: 1.2 }}
+                  >
+                    <Box>
+                      <Typography fontWeight={700}>
+                        {couponItem.coupon_info}
+                      </Typography>
+
+                      <Typography variant="body2" color="text.secondary">
+                        {couponItem.discount}% 할인 / 최대{" "}
+                        {Number(couponItem.coupon_max || 0).toLocaleString()}원
+                      </Typography>
+
+                      <Typography variant="body2" color="text.secondary">
+                        {getCouponTargetText(couponItem)}
+                      </Typography>
+
+                      {usedByOtherItem && (
+                        <Typography variant="body2" color="error">
+                          다른 상품에 이미 적용됨
+                        </Typography>
+                      )}
+
+                      {cannotApplyToThisItem && (
+                        <Typography variant="body2" color="error">
+                          이 상품에는 적용할 수 없음
+                        </Typography>
+                      )}
+                    </Box>
+                  </Button>
+                );
+              })}
+            </Stack>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <WalletChargeMui
         user={user}
         open={walletChargeOpen}
@@ -867,6 +987,7 @@ const PaymentPage = () => {
           setWalletChargeOpen(false);
         }}
       />
+
     </Box>
   );
 };

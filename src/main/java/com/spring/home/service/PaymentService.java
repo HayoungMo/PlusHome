@@ -385,7 +385,7 @@ public class PaymentService {
 	            );
 
 	            int optionStock = optionStockValue == null ? 0 : optionStockValue;
-	            int optionRequestedCount = option.getCo_count();
+	            int optionRequestedCount = cart.getF_count();
 
 	            if (optionStock < optionRequestedCount) {
 	                StockCheckDTO item = new StockCheckDTO();
