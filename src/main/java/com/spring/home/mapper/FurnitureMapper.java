@@ -53,4 +53,6 @@ public interface FurnitureMapper {
 	        @Param("gender") String gender,
 	        @Param("minAge") int minAge,
 	        @Param("maxAge") int maxAge);
+	
+	public int getFurnitureStock(String f_code);
 }

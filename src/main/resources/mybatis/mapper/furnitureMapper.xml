@@ -258,4 +258,11 @@
 			   	order by buy_count desc
 			   )
 	</select>
+	
+	<select id="getFurnitureStock" parameterType="string" resultType="int">
+		SELECT f_count
+		FROM furniture
+		WHERE f_code = #{f_code}
+	</select>
+	
 </mapper>
