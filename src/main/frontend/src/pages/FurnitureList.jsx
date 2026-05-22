@@ -8,15 +8,20 @@ const FurnitureList = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const pageNum = Number(
-        new URLSearchParams(location.search).get("page")
-    ) || 1;
+    //총합검색어 연결을 위한 작업 - 0522 모하영
+    const searchParams = new URLSearchParams(location.search);
+
+    const pageNum = Number(searchParams.get("page")) || 1;
+    const urlSearchKey = searchParams.get("searchKey") || "f_name";
+    const urlSearchValue = searchParams.get("searchValue") || "";
+    const urlSort = searchParams.get("sort") || "latest";
 
     const [list, setList] = useState([]);
     const [totalPage, setTotalPage] = useState(1);
 
-    const [searchKey, setSearchKey] = useState("f_name");
-    const [searchValue, setSearchValue] = useState("");
+    //state 초기값을 수정 - 0522 모하영(sort까지)
+    const [searchKey, setSearchKey] = useState(urlSearchKey);
+    const [searchValue, setSearchValue] = useState(urlSearchValue);
 
     const [startPage, setStartPage] = useState(1);
     const [endPage, setEndPage] = useState(1);
@@ -26,7 +31,7 @@ const FurnitureList = () => {
     
     const [loading , setLoading] = useState(true)
 
-    const [sort, setSort] = useState("latest");
+    const [sort, setSort] = useState(urlSort);
     const pageCount = Math.max(0, endPage - startPage + 1);
 
     const sortOptions = [
@@ -61,6 +66,13 @@ const FurnitureList = () => {
 
         return furnitureItem.c_id === furnitureCompany.c_id;
     };
+
+    //URL이 바뀌면 state 동기화 해줌 - 0522 모하영
+    useEffect(() => {
+        setSearchKey(urlSearchKey);
+        setSearchValue(urlSearchValue);
+        setSort(urlSort);
+    },[urlSearchKey,urlSearchValue,urlSort]);
 
     useEffect(() => {
         getList(pageNum);
@@ -118,8 +130,18 @@ const FurnitureList = () => {
         navigate(`/furniture/article/${f_code}?page=${pageNum}`);
     };
 
+    //쇼핑 검색 버튼에도 URL검색값을 실어줌 - 0522 모하영
     const onSearch = () => {
-        navigate(`/furniture/list?page=1`);
+        navigate(makeListUrl(1));
+    };
+
+    //근데 그 URL 문자열이 길어서 축약함수 - ㅡ0522 모하영
+    const makeListUrl = (page) => {
+        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(sort)}`;
+    };
+    //makeListUrl이 현재 sort를 쓰기 때문에 정렬버튼에 따로 함수를 두면 좋다 - 0522모하영
+    const makeListUrlWithSort = (page, nextSort) => {
+        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(nextSort)}`;
     };
 
     const onAddPage = () => {
@@ -277,11 +299,12 @@ const FurnitureList = () => {
                         <React.Fragment key={option.value}>
                             {index > 0 && <span style={{ color: "#ddd" }}>·</span>}
 
+                            {/* 정렬 버튼도 검색값을 유지해야해서 수정 - 0522 모하영 */}
                             <button
                                 type="button"
                                 onClick={() => {
                                     setSort(option.value);
-                                    navigate("/furniture/list?page=1");
+                                    navigate(makeListUrlWithSort(1, option.value));
                                 }}
                                 style={{
                                     border: "none",
@@ -528,7 +551,7 @@ const FurnitureList = () => {
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
-                                navigate(`/furniture/list?page=${prevPage}`);
+                                navigate(makeListUrl(prevPage));
                             }}
                         >
                             ◀ 이전
@@ -544,7 +567,7 @@ const FurnitureList = () => {
                                     href="#"
                                     onClick={(evt) => {
                                         evt.preventDefault();
-                                        navigate(`/furniture/list?page=${p}`);
+                                        navigate(makeListUrl(p));
                                     }}
                                     style={{
                                         margin: "0 8px",
@@ -561,7 +584,7 @@ const FurnitureList = () => {
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
-                                navigate(`/furniture/list?page=${nextPage}`);
+                                navigate(makeListUrl(nextPage));
                             }}
                         >
                             다음 ▶
