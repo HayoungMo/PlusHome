@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FurnitureService from "../service/furnitureService";
 import { useNavigate } from "react-router-dom";
+import SelectMui from "../components/SelectMui";
 
 const FurnitureAddPage = ({ onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
@@ -31,6 +32,13 @@ const FurnitureAddPage = ({ onSuccess }) => {
 		f_catagory5: "대상/상황",
 	};
 
+	const makeCategorySelectOptions = (field) => [
+		{value: "", title: `${categoryLabels[field]} 선택`},
+		...categoryOptions[field].map((item) => ({
+			value: item,
+			title: item,
+		})),
+	];
 
 	const [data, setData] = useState({
 		c_id: company?.c_id || id || "",
@@ -399,20 +407,14 @@ const FurnitureAddPage = ({ onSuccess }) => {
 
 			{["f_catagory1", "f_catagory2", "f_catagory3", "f_catagory4", "f_catagory5"].map((field) => (
 				<div key={field}>
-					<label>{categoryLabels[field]}:</label>
-
-					<select
+					<SelectMui
+						label={categoryLabels[field]}
 						name={field}
 						value={data[field]}
+						option={makeCategorySelectOptions(field)}
+						width="220px"
 						onChange={changeInput}
-					>
-						<option value="">{categoryLabels[field]} 선택</option>
-						{categoryOptions[field].map((item) => (
-							<option key={item} value={item}>
-								{item}
-							</option>
-						))}
-					</select>
+					/>
 
 					{data[field] === "직접 입력" && (
 						<input

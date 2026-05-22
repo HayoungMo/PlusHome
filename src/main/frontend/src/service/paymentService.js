@@ -35,10 +35,19 @@ const confirmOrder = (c_code) => {
     });
 };
 
+const checkStock = async (c_codes) => {
+    const res = await http.post("/payment/check-stock",{
+        c_codes,
+    })
+
+    return res.data
+}
+
 export default {
     pay,
     getMyOrders,
     getOrderDetail,
     cancelOrder,
-    confirmOrder
+    confirmOrder,
+    checkStock
 };

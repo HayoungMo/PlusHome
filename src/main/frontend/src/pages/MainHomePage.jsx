@@ -363,7 +363,7 @@ const MainHomePage = ({ loginUser }) => {
                     {["침대", "소파", "책상", "의자", "수납", "조명"].map((category) => (
                         <Link
                             key={category}
-                            to={`/search?keyword=${encodeURIComponent(category)}&type=furniture&page=1`}
+                            to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category)}&sort=latest`}
                             style={{
                                 padding: "10px 18px",
                                 border: "1px solid #ddd",

@@ -19,6 +19,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
 import FurnitureService from "../service/furnitureService";
+import PaymentService from "../service/paymentService";
 import Loading from "../components/Loading";
 
 const FREE_DELIVERY_LIMIT = 50000;
@@ -519,21 +520,48 @@ const CartPage = () => {
     navigate(`/furniture/article/${f_code}`);
   };
 
-  const onPayment = () => {
+  const onPayment = async () => {
     if (selectedItems.length === 0) {
       alert("결제할 상품을 선택해주세요.");
       return;
     }
 
-    navigate("/payment", {
-      state: {
-        items: selectedItems,
-        itemCount: selectedItemCount,
-        productTotal: selectedProductTotal,
-        deliveryTotal: selectedDeliveryTotal,
-        payTotal: selectedPayTotal,
-      },
-    });
+    const c_codes = selectedItems.flatMap((item)=>
+      item.c_codeList || [item.c_code])
+
+    try{
+        const result = await PaymentService.checkStock(c_codes)
+    
+        if (!result.ok) {
+          const message = result.items
+            .map((item) => {
+              if (item.type === "OPTION") {
+                return `${item.productName} - ${item.optionName}: ${item.optionValue}
+    구매 수량: ${item.requestedCount}개 / 현재 재고: ${item.stock}개`;
+              }
+
+              return `${item.productName}
+    구매 수량: ${item.requestedCount}개 / 현재 재고: ${item.stock}개`;
+            })
+            .join("\n\n");
+
+          alert(`재고가 부족한 상품이 있습니다.\n\n${message}`);
+          return;
+    }
+
+      navigate("/payment", {
+        state: {
+          items: selectedItems,
+          itemCount: selectedItemCount,
+          productTotal: selectedProductTotal,
+          deliveryTotal: selectedDeliveryTotal,
+          payTotal: selectedPayTotal,
+        },
+      });
+    } catch (error){
+      console.error("재고 확인 실패", error)
+      alert("재고 확인 중 오류가 발생했습니다.")
+    }
   };
 
   const groupedCart = getGroupedCart();
