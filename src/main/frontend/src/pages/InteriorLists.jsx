@@ -5,7 +5,7 @@ import { Box, Tab, Tabs } from "@mui/material";
 import InteriorAllExample from "./InteriorAllExample";
 import InteriorAllReivew from "./InteriorAllReivew";
 import InteriorQuestion from "./InteriorQuestion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../css/InteriorLists.css";
 
 //테스트용 파일
@@ -20,6 +20,12 @@ function InteriorLists() {
     console.log("answer 데이터 있음:", answers);
   }
   const [tab, setTab] = useState(0);
+
+  useEffect(() => {
+    if (answers) {
+      setTab(3);
+    }
+  }, [answers]);
 
   const handleChange = (event, newValue) => {
     setTab(newValue);
@@ -47,17 +53,18 @@ function InteriorLists() {
       </Tabs>
 
       <Box className="interior-lists-content">
-        {tab === 0 && (answers ? (
-          <InteriorRecommend answers={answers} tag={tag} value={value}/>
-        ) : (
-          <InteriorList tag={tag} value={value}/>
-        ))}
+        {tab === 0 && <InteriorList tag={tag} value={value} />}
 
         {tab === 1 && <InteriorAllExample />}
 
         {tab === 2 && <InteriorAllReivew />}
 
-        {tab === 3 && <InteriorQuestion />}
+        {tab === 3 &&
+          (answers ? (
+            <InteriorRecommend answers={answers} tag={tag} value={value} />
+          ) : (
+            <InteriorQuestion />
+          ))}
       </Box>
     </Box>
   );

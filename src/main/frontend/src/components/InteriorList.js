@@ -5,6 +5,7 @@ import InteriorService from "../service/interiorService";
 import GetImgDlr from "../resources/function/GetImgDir";
 import TextFieldMui from "./TextFieldMui";
 import SelectMui from "./SelectMui";
+import FilterBar from "./FilterBar";
 
 const PAGE_SIZE = 9;
 
@@ -59,6 +60,39 @@ const InteriorList = ({ tag, value }) => {
     ],
     location: [],
   };
+
+  const filterList = [
+    {
+      key: "housingType",
+      title: "주거 형태",
+      type: "multi",
+      options: valueOptionMap.housingType || [],
+    },
+    {
+      key: "areaSize",
+      title: "면적",
+      type: "single",
+      options: valueOptionMap.areaSize || [],
+    },
+    {
+      key: "purpose",
+      title: "목적",
+      type: "single",
+      options: valueOptionMap.purpose || [],
+    },
+    {
+      key: "spaces",
+      title: "공간",
+      type: "multi",
+      options: valueOptionMap.spaces || [],
+    },
+    {
+      key: "budget",
+      title: "예산",
+      type: "single",
+      options: valueOptionMap.budget || [],
+    },
+  ];
 
   const handleNext = (data) => {
     navigate("/interior/article", {
@@ -119,46 +153,14 @@ const InteriorList = ({ tag, value }) => {
       <div className="interior-list-toolbar">
         <h3>결과</h3>
 
-        <SelectMui
-          label="필터 종류"
-          name="filterType"
-          value={filterType}
-          onChange={(e) => {
-            setFilterType(e.target.value);
-            setFilterValue("");
+        <FilterBar
+          filterList={filterList}
+          value={filterValue}
+          onChange={(newFilter) => {
+            setFilterValue(newFilter);
             setPageNum(1);
           }}
-          option={[
-            { value: "housingType", title: "주거 형태" },
-            { value: "areaSize", title: "면적" },
-            { value: "purpose", title: "목적" },
-            { value: "spaces", title: "공간" },
-            { value: "budget", title: "예산" },
-          ]}
         />
-
-        {filterType !== "location" ? (
-          <SelectMui
-            label="값"
-            name="filterValue"
-            value={filterValue}
-            onChange={(e) => {
-              setFilterValue(e.target.value);
-              setPageNum(1);
-            }}
-            option={valueOptionMap[filterType] || []}
-          />
-        ) : (
-          <TextFieldMui
-            label="값"
-            name="filterValue"
-            value={filterValue}
-            onChange={(e) => {
-              setFilterValue(e.target.value);
-              setPageNum(1);
-            }}
-          />
-        )}
 
         <TextFieldMui
           name="search"
