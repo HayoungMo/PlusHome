@@ -266,3 +266,13 @@ select{
 
     margin-bottom:6px;
 }
+
+.code-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.code-wrap .MuiTextField-root{
+    flex:1;
+}
