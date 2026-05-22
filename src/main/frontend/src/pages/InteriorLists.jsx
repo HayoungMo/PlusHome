@@ -4,6 +4,7 @@ import InteriorRecommend from "../components/InteriorRecommend";
 import { Box, Tab, Tabs } from "@mui/material";
 import InteriorAllExample from "./InteriorAllExample";
 import InteriorAllReivew from "./InteriorAllReivew";
+import InteriorQuestion from "./InteriorQuestion";
 import { useState } from "react";
 import "../css/InteriorLists.css";
 
@@ -42,6 +43,7 @@ function InteriorLists() {
         <Tab label="업체 목록" />
         <Tab label="시공 사례 목록" />
         <Tab label="시공 후기 목록" />
+        <Tab label="상담 신청" />
       </Tabs>
 
       <Box className="interior-lists-content">
@@ -54,6 +56,8 @@ function InteriorLists() {
         {tab === 1 && <InteriorAllExample />}
 
         {tab === 2 && <InteriorAllReivew />}
+
+        {tab === 3 && <InteriorQuestion />}
       </Box>
     </Box>
   );
