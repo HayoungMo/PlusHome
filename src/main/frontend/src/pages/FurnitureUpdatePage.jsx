@@ -3,6 +3,7 @@ import FurnitureService from "../service/furnitureService";
 import OptionsService from "../service/optionService";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
+import SelectMui from "../components/SelectMui";
 
 const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
     const navigate = useNavigate();
@@ -13,6 +14,39 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
 
     const [searchParams] = useSearchParams();
     const page = searchParams.get("page") || "1";
+    
+    //수정할때도 카테고리1~5를 select 할 수 있게. - 0522 모하영
+    const categoryOptions = {
+        f_catagory1: ["침대", "소파", "책상", "의자", "식탁", "수납장", "조명", "매트리스", "화장대", "옷장", "직접 입력"],
+        f_catagory2: ["침실", "거실", "주방", "서재", "현관", "아이방", "방", "화장실", "직접 입력"],
+        f_catagory3: ["모던", "내추럴", "심플", "빈티지", "앤틱", "북유럽", "직접 입력"],
+        f_catagory4: ["원목", "패브릭", "가죽", "철제", "접이식", "수납형", "저상형", "직접 입력"],
+        f_catagory5: ["1인가구", "신혼", "가족", "반려동물", "아이", "소형공간", "직접 입력"],
+    };
+
+    const categoryLabels = {
+        f_catagory1: "상품종류",
+        f_catagory2: "공간",
+        f_catagory3: "스타일",
+        f_catagory4: "소재/특징",
+        f_catagory5: "대상/상황",
+    };
+
+    const categoryFields = [
+        "f_catagory1",
+        "f_catagory2",
+        "f_catagory3",
+        "f_catagory4",
+        "f_catagory5",
+    ];
+
+    const makeCategorySelectOptions = (field) => [
+        { value: "", title: `${categoryLabels[field]} 선택` },
+        ...categoryOptions[field].map((item) => ({
+            value: item,
+            title: item,
+        })),
+    ];
 
     const routeCName = params.c_name;
     const c_name = routeCName || furniture?.c_name;
@@ -39,6 +73,44 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
         f_deliveryprice: "0"
     });
 
+    //카테고리 - 0522 모하영
+    const [customCategory, setCustomCategory] = useState({
+        f_catagory1: "",
+        f_catagory2: "",
+        f_catagory3: "",
+        f_catagory4: "",
+        f_catagory5: "",
+    });
+    //helper 추가 - 0522 모하영
+    const getCategoryValue = (field) => {
+        return data[field] === "직접 입력"
+            ? customCategory[field].trim()
+            : data[field];
+    };
+
+    const setCategoryData = (furnitureData) => {
+        const nextData = { ...furnitureData };
+        const nextCustomCategory = {
+            f_catagory1: "",
+            f_catagory2: "",
+            f_catagory3: "",
+            f_catagory4: "",
+            f_catagory5: "",
+        };
+
+        categoryFields.forEach((field) => {
+            const value = furnitureData[field] || "";
+
+            if (value && !categoryOptions[field].includes(value)) {
+                nextData[field] = "직접 입력";
+                nextCustomCategory[field] = value;
+            }
+        });
+
+        setData(nextData);
+        setCustomCategory(nextCustomCategory);
+    };
+
     const [options, setOptions] = useState([]);
     const [deletedOptions, setDeletedOptions] = useState([]);
 
@@ -58,7 +130,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                 if (!f_code) return;
 
                 const res = await FurnitureService.getFurnitureItem(f_code);
-                setData(res);
+                setCategoryData(res);
 
                 const optionRes = await OptionsService.getFurnitureOptions(f_code);
                 setOptions(
@@ -281,7 +353,13 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                 alert("가구 이름을 입력해주세요.");
                 return;
             }
-
+            //업데이트 저장전에 검증하고 dto에 실제 값을 넣는다 -0522 모하영
+            for (const field of categoryFields) {
+                if (!getCategoryValue(field)) {
+                    alert(`${categoryLabels[field]}을(를) 선택하거나 입력해주세요.`);
+                    return;
+                }
+            }
             const optionList = options
                 .filter(
                     (option) =>
@@ -305,12 +383,17 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
             const dto = {
                 ...data,
                 f_code,
+                f_catagory1: getCategoryValue("f_catagory1"),
+                f_catagory2: getCategoryValue("f_catagory2"),
+                f_catagory3: getCategoryValue("f_catagory3"),
+                f_catagory4: getCategoryValue("f_catagory4"),
+                f_catagory5: getCategoryValue("f_catagory5"),
                 f_price: Number(data.f_price),
                 f_dprice: Number(data.f_dprice),
                 f_discount: Number(data.f_discount),
                 f_point: Number(data.f_point),
                 f_count: totalOptionCount,
-                f_deliveryprice : Number(data.f_deliveryprice || 0)
+                f_deliveryprice: Number(data.f_deliveryprice || 0),
             };
 
             const sendData = {
@@ -440,12 +523,12 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
             <p>새 이미지</p>
             <input type="file" multiple onChange={onChangeOthers} />
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+            <div style={{ display: "flex", gap: "15px", flexWrap: "wrap", marginTop: "10px" }}>
                 {othersFiles.map((item, index) => (
                     <img
                         key={index}
                         src={item.preview}
-                        style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                        style={{ width: "220px", height: "120px", objectFit: "cover" }}
                         alt=""
                     />
                 ))}
@@ -454,25 +537,39 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
             <br />
             <br />
 
-            <label>카테고리1:</label>
-            <input name="f_catagory1" value={data.f_catagory1 || ""} onChange={changeInput} />
-            <br />
+            <div style={{ gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+            {categoryFields.map((field) => (
+                <div key={field}>
+                    <SelectMui
+                        label={categoryLabels[field]}
+                        name={field}
+                        value={data[field] || ""}
+                        option={makeCategorySelectOptions(field)}
+                        width="180px"
+                        onChange={changeInput}
+                    />
 
-            <label>카테고리2:</label>
-            <input name="f_catagory2" value={data.f_catagory2 || ""} onChange={changeInput} />
-            <br />
-
-            <label>카테고리3:</label>
-            <input name="f_catagory3" value={data.f_catagory3 || ""} onChange={changeInput} />
-            <br />
-
-            <label>카테고리4:</label>
-            <input name="f_catagory4" value={data.f_catagory4 || ""} onChange={changeInput} />
-            <br />
-
-            <label>카테고리5:</label>
-            <input name="f_catagory5" value={data.f_catagory5 || ""} onChange={changeInput} />
-            <br />
+                    {data[field] === "직접 입력" && (
+                        <input
+                            placeholder={`${categoryLabels[field]} 직접 입력`}
+                            value={customCategory[field]}
+                            onChange={(evt) =>
+                                setCustomCategory((prev) => ({
+                                    ...prev,
+                                    [field]: evt.target.value,
+                                }))
+                            }
+                            style={{
+                                marginTop: "8px",
+                                width: "180px",
+                                height: "36px",
+                                padding: "0 8px",
+                            }}
+                        />
+                    )}
+                </div>
+            ))}
+        </div>
 
             <label>포인트:</label>
             <input name="f_point" value={data.f_point} onChange={changeInput} />

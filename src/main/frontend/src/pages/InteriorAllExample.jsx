@@ -1,61 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Chip, Stack } from "@mui/material";
+import { Button, Chip, Pagination, Stack, Typography } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
 import SelectMui from "../components/SelectMui";
 import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllExample.css";
 
+const PAGE_SIZE = 6;
+
 const InteriorAllExample = () => {
   const navigate = useNavigate();
   const [example, setExample] = useState([]);
-  const [originList, setOriginList] = useState([]);
   const [filterType, setFilterType] = useState("");
   const [filterValue, setFilterValue] = useState("");
-  const [tags, setTags] = useState([]);
+  const [pageNum, setPageNum] = useState(1);
+  const [pageInfo, setPageInfo] = useState({
+    totalCount: 0,
+    totalPage: 0,
+    pageSize: PAGE_SIZE,
+  });
   const [selectedExample, setSelectedExample] = useState(null);
-
-  const handleNext = (data) => {
-    navigate("/interior/article", {
-      state: { company: data },
-    });
-  };
-
-  useEffect(() => {
-    const fetchExample = async () => {
-      const data = await InteriorService.fetchAllInteriorExample();
-      setTags(Array.isArray(data) ? data : []);
-      const companyList = Array.isArray(data) ? data : [];
-      const listWithImages = await Promise.all(
-        companyList.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "I_EXAMPLE",
-            returnType: "list",
-            a: item.c_id,
-            b: item.c_kind,
-            c: item.c_name,
-            d: item.ie_tag + "_" + item.ie_tag2,
-            view: false,
-          });
-
-          if (!logo?.result?.length) {
-            return item;
-          }
-
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
-
-      setExample(listWithImages);
-      setOriginList(listWithImages);
-    };
-
-    fetchExample();
-  }, []);
+  const [exampleImageIndex, setExampleImageIndex] = useState(0);
 
   const tagOptions1 = [
     { value: "apt", title: "아파트" },
@@ -66,7 +32,7 @@ const InteriorAllExample = () => {
 
   const tagOptions2 = [
     { value: "kitchen", title: "키친" },
-    { value: "bath", title: "바스" },
+    { value: "bath", title: "욕실" },
     { value: "storage", title: "수납" },
     { value: "door", title: "중문/문" },
     { value: "window", title: "창문" },
@@ -76,35 +42,62 @@ const InteriorAllExample = () => {
     { value: "floor", title: "마루" },
   ];
 
+  const handleNext = (data) => {
+    navigate("/interior/article", {
+      state: { company: data },
+    });
+  };
+
   useEffect(() => {
-    let result = [...originList];
-
-    if (filterType && filterValue) {
-      result = result.filter((company) => {
-        return tags.some(
-          (tag) =>
-            tag.c_id === company.c_id &&
-            tag.c_kind === company.c_kind &&
-            tag.c_name === company.c_name &&
-            tag.ie_tag === filterType &&
-            tag.ie_tag2 === filterValue,
-        );
+    const fetchExample = async () => {
+      const data = await InteriorService.fetchPagedInteriorExample({
+        pageNum,
+        pageSize: PAGE_SIZE,
+        filterType,
+        filterValue,
       });
-    }
+      const companyList = Array.isArray(data?.list) ? data.list : [];
 
-    setExample(result);
-  }, [filterType, filterValue, originList, tags]);
+      const listWithImages = await Promise.all(
+        companyList.map(async (item) => {
+          const logo = await GetImgDir({
+            kind: "I_EXAMPLE",
+            returnType: "list",
+            a: item.c_id,
+            b: item.c_kind,
+            c: item.c_name,
+            d: item.ie_index,
+            view: false,
+          });
+
+          return {
+            ...item,
+            logo,
+          };
+        }),
+      );
+
+      setExample(listWithImages);
+      setPageInfo({
+        totalCount: data?.totalCount || 0,
+        totalPage: data?.totalPage || 0,
+        pageSize: data?.pageSize || PAGE_SIZE,
+      });
+    };
+
+    fetchExample();
+  }, [pageNum, filterType, filterValue]);
 
   const handleReset = () => {
     setFilterType("");
     setFilterValue("");
-    setExample(originList);
+    setPageNum(1);
   };
 
   const getExampleImages = (item) => {
     return (
       item?.logo?.result?.filter(
-        (record) => record.dir_d === item.ie_tag + "_" + item.ie_tag2,
+        (record) => record.dir_d === String(item.ie_index),
       ) || []
     );
   };
@@ -135,6 +128,24 @@ const InteriorAllExample = () => {
 
   const selectedImages = selectedExample ? getExampleImages(selectedExample) : [];
 
+  const handleExampleOpen = (item) => {
+    setSelectedExample(item);
+    setExampleImageIndex(0);
+  };
+
+  const handleExampleClose = () => {
+    setSelectedExample(null);
+    setExampleImageIndex(0);
+  };
+
+  const handlePrevImage = () => {
+    setExampleImageIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleNextImage = () => {
+    setExampleImageIndex((prev) => Math.min(prev + 1, selectedImages.length - 1));
+  };
+
   return (
     <div className="interior-all-example-page">
       <div className="interior-all-example-toolbar">
@@ -145,6 +156,7 @@ const InteriorAllExample = () => {
           onChange={(e) => {
             setFilterType(e.target.value);
             setFilterValue("");
+            setPageNum(1);
           }}
           option={tagOptions1}
         />
@@ -154,7 +166,10 @@ const InteriorAllExample = () => {
             label="tag2"
             name="filterValue"
             value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
+            onChange={(e) => {
+              setFilterValue(e.target.value);
+              setPageNum(1);
+            }}
             option={tagOptions2}
           />
         )}
@@ -163,9 +178,15 @@ const InteriorAllExample = () => {
       </div>
 
       <h2 className="interior-all-example-title">예시 조회 결과</h2>
+      <Typography color="text.secondary" sx={{ mb: 2 }}>
+        총 {pageInfo.totalCount}개 예시
+      </Typography>
 
-      {Object.values(groupedExamples).map((group, idx) => (
-        <div className="interior-example-group" key={idx}>
+      {Object.values(groupedExamples).map((group) => (
+        <div
+          className="interior-example-group"
+          key={`${group.company.c_id}-${group.company.c_kind}-${group.company.c_name}`}
+        >
           <button
             className="interior-example-company"
             type="button"
@@ -175,22 +196,19 @@ const InteriorAllExample = () => {
           </button>
 
           <div className="interior-example-grid">
-            {group.examples.map((item, exampleIdx) => {
+            {group.examples.map((item) => {
               const thumbnail = getThumbnailImage(item);
 
               return (
                 <button
                   className="interior-example-card"
-                  key={exampleIdx}
+                  key={`${item.c_id}-${item.ie_index}`}
                   type="button"
-                  onClick={() => setSelectedExample(item)}
+                  onClick={() => handleExampleOpen(item)}
                 >
                   <div className="interior-example-thumb">
                     {thumbnail ? (
-                      <img
-                        src={thumbnail.img_name}
-                        alt={`${item.c_name} 예시`}
-                      />
+                      <img src={thumbnail.img_name} alt={`${item.c_name} 예시`} />
                     ) : (
                       <span>이미지 없음</span>
                     )}
@@ -210,22 +228,63 @@ const InteriorAllExample = () => {
         </div>
       ))}
 
+      {example.length === 0 && (
+        <Typography color="text.secondary" sx={{ mt: 3 }}>
+          등록된 예시가 없습니다.
+        </Typography>
+      )}
+
+      {pageInfo.totalPage > 1 && (
+        <Pagination
+          count={pageInfo.totalPage}
+          page={pageNum}
+          onChange={(e, page) => setPageNum(page)}
+          color="primary"
+          sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+        />
+      )}
+
       <DialogInside
         open={Boolean(selectedExample)}
-        onClose={() => setSelectedExample(null)}
+        onClose={handleExampleClose}
         maxWidth="md"
         fullWidth
         contentClassName="all-example-dialog-content"
       >
         <div className="all-example-dialog">
           <div className="all-example-dialog-images">
-            {selectedImages.map((record, i) => (
-              <img
-                key={`${record.img_name}-${i}`}
-                src={record.img_name}
-                alt={`${selectedExample?.c_name} 예시`}
-              />
-            ))}
+            {selectedImages
+              .filter((_, i) => i === exampleImageIndex)
+              .map((record, i) => (
+                <img
+                  key={`${record.img_name}-${i}`}
+                  src={record.img_name}
+                  alt={`${selectedExample?.c_name} 예시`}
+                />
+              ))}
+            {selectedImages.length > 1 && (
+              <div className="all-example-slide-controls">
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handlePrevImage}
+                  disabled={exampleImageIndex === 0}
+                >
+                  이전
+                </Button>
+                <span>
+                  {exampleImageIndex + 1} / {selectedImages.length}
+                </span>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleNextImage}
+                  disabled={exampleImageIndex === selectedImages.length - 1}
+                >
+                  다음
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="all-example-dialog-info">

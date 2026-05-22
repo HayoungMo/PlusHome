@@ -51,6 +51,17 @@ const fetchList = async () => {
 	}
 };
 
+const fetchPagedList = async (params = {}) => {
+	try {
+		const res = await http.get("interior/lists/page", { params });
+
+		console.log("응답 데이터", res.data);
+		return res.data;
+	} catch (err) {
+		console.error("?에러:", err);
+	}
+};
+
 const fetchArticleList = async (data) => {
 	try {
 		const res = await http.get("interior/articlelists");
@@ -174,9 +185,29 @@ const fetchAllInteriorReview = async () => {
 	}
 };
 
+const fetchPagedInteriorReview = async (params = {}) => {
+	try {
+		const res = await http.get("interior/reviewlists/page", { params });
+		console.log("응답 데이터:", res.data);
+		return res.data;
+	} catch (err) {
+		console.error("에러:", err);
+	}
+};
+
 const fetchAllInteriorExample = async () => {
 	try {
 		const res = await http.get("interior/examplelists");
+		console.log("응답 데이터:", res.data);
+		return res.data;
+	} catch (err) {
+		console.error("에러:", err);
+	}
+};
+
+const fetchPagedInteriorExample = async (params = {}) => {
+	try {
+		const res = await http.get("interior/examplelists/page", { params });
 		console.log("응답 데이터:", res.data);
 		return res.data;
 	} catch (err) {
@@ -475,12 +506,15 @@ const InteriorService = {
 	fetchArticle,
 	fetchArticleList,
 	fetchList,
+	fetchPagedList,
 	fetchBookingList,
 	fetchInvoice,
 	fetchInvoiceDetails,
 	fetchInteriorReview,
 	fetchAllInteriorReview,
+	fetchPagedInteriorReview,
 	fetchAllInteriorExample,
+	fetchPagedInteriorExample,
 	fetchAllBookingList,
 	AddInterior,
 	AddInteriorExample,

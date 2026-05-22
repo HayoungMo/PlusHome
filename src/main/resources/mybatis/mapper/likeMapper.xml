@@ -7,11 +7,11 @@
 <insert id="insertData" parameterType="com.spring.home.dto.LikeDTO">
     INSERT INTO "LIKE" (
         id,
-        f_code,
+        like_code,
         like_tag
     ) VALUES (
         #{id},
-        #{f_code},
+        #{like_code},
         #{like_tag}
     )
 </insert>
@@ -21,7 +21,7 @@
     FROM (
         SELECT rownum rnum, data.*
         FROM (
-            SELECT id, f_code, like_tag
+            SELECT id, like_code, like_tag
             FROM "LIKE"
             WHERE ${searchKey} LIKE '%' || #{searchValue} || '%'
             ORDER BY id DESC
@@ -33,14 +33,14 @@
 </select>
 
 <select id="getReadData" parameterType="string" resultType="com.spring.home.dto.LikeDTO">
-    SELECT id, f_code, like_tag
+    SELECT id, like_code, like_tag
     FROM "LIKE"
     WHERE id = #{id}
 </select>
 
 <update id="updateData" parameterType="com.spring.home.dto.LikeDTO">
     UPDATE "LIKE"
-    SET f_code = #{f_code},
+    SET like_code = #{like_code},
         like_tag = #{like_tag}
     WHERE id = #{id}
 </update>
@@ -54,14 +54,14 @@
     SELECT COUNT(*)
     FROM "LIKE"
     WHERE id = #{id}
-      AND f_code = #{f_code}
+      AND like_code = #{like_code}
       AND like_tag = #{like_tag}
 </select>
 
 <delete id="deleteFurnitureLike" parameterType="com.spring.home.dto.LikeDTO">
     DELETE FROM "LIKE"
     WHERE id = #{id}
-      AND f_code = #{f_code}
+      AND like_code = #{like_code}
       AND like_tag = #{like_tag}
 </delete>
 
@@ -86,10 +86,27 @@
         f.f_viewcount
     FROM "LIKE" l
     JOIN furniture f
-      ON l.f_code = f.f_code
+      ON l.like_code = f.f_code
     WHERE l.id = #{id}
       AND l.like_tag = 'furniture'
     ORDER BY f.f_createddate DESC
+</select>
+
+<select id="getInteriorLikes" parameterType="string" resultType="com.spring.home.dto.CompanyDTO">
+    SELECT
+        c.c_id,
+        c.c_kind,
+        c.c_name,
+        c.c_addr,
+        c.c_tel,
+        c.c_info,
+        c.c_boss
+    FROM "LIKE" l
+    JOIN company c
+      ON l.like_code = c.c_id || '_' || c.c_name || '_' || c.c_kind
+    WHERE l.id = #{id}
+      AND l.like_tag = 'interior'
+    ORDER BY c.c_name
 </select>
     
 </mapper>

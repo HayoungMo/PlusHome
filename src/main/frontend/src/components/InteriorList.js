@@ -1,82 +1,118 @@
 import React, { useEffect, useState } from "react";
-import InteriorService from "../service/interiorService";
 import { useNavigate } from "react-router-dom";
+import { Button, Pagination, Typography } from "@mui/material";
+import InteriorService from "../service/interiorService";
 import GetImgDlr from "../resources/function/GetImgDir";
 import TextFieldMui from "./TextFieldMui";
 import SelectMui from "./SelectMui";
-import { Button } from "@mui/material";
+import FilterBar from "./FilterBar";
 
-const InteriorList = ({tag,value}) => {
+const PAGE_SIZE = 9;
+
+const InteriorList = ({ tag, value }) => {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [originList, setOriginList] = useState([]);
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState(tag);
-  const [filterValue, setFilterValue] = useState(value);
+  const [filterType, setFilterType] = useState(tag || "");
+  const [filterValue, setFilterValue] = useState(value || "");
+  const [pageNum, setPageNum] = useState(1);
+  const [pageInfo, setPageInfo] = useState({
+    totalCount: 0,
+    totalPage: 0,
+    pageSize: PAGE_SIZE,
+  });
+
+  const valueOptionMap = {
+    housingType: [
+      { value: "apt", title: "아파트" },
+      { value: "villa", title: "빌라" },
+      { value: "house", title: "주택" },
+      { value: "officetel", title: "오피스텔" },
+    ],
+    purpose: [
+      { value: "purchase", title: "집 구매 전" },
+      { value: "existing", title: "기존 집 리모델링" },
+      { value: "new_house", title: "새 집 입주" },
+    ],
+    spaces: [
+      { value: "livingroom", title: "거실" },
+      { value: "kitchen", title: "주방" },
+      { value: "storage", title: "수납" },
+      { value: "door", title: "중문/문" },
+      { value: "window", title: "창문" },
+      { value: "wallpaper", title: "벽지" },
+      { value: "lighting", title: "조명" },
+      { value: "tile", title: "타일" },
+      { value: "floor", title: "마루" },
+    ],
+    budget: [
+      { value: "1000", title: "1000만원 이하" },
+      { value: "2000", title: "1000~2000만원" },
+      { value: "3000", title: "2000~3000만원" },
+      { value: "5000", title: "3000~5000만원" },
+      { value: "10000", title: "5000만원 이상" },
+    ],
+    areaSize: [
+      { value: "10_20", title: "10~20평" },
+      { value: "30", title: "30평대" },
+      { value: "40", title: "40평대" },
+      { value: "50", title: "50평 이상" },
+    ],
+    location: [],
+  };
+
+  const filterList = [
+    {
+      key: "housingType",
+      title: "주거 형태",
+      type: "multi",
+      options: valueOptionMap.housingType || [],
+    },
+    {
+      key: "areaSize",
+      title: "면적",
+      type: "single",
+      options: valueOptionMap.areaSize || [],
+    },
+    {
+      key: "purpose",
+      title: "목적",
+      type: "single",
+      options: valueOptionMap.purpose || [],
+    },
+    {
+      key: "spaces",
+      title: "공간",
+      type: "multi",
+      options: valueOptionMap.spaces || [],
+    },
+    {
+      key: "budget",
+      title: "예산",
+      type: "single",
+      options: valueOptionMap.budget || [],
+    },
+  ];
 
   const handleNext = (data) => {
     navigate("/interior/article", {
       state: { company: data },
     });
   };
-   const valueOptionMap = {
-     housingType: [
-       { value: "apt", title: "아파트" },
-       { value: "villa", title: "빌라" },
-       { value: "house", title: "주택" },
-       { value: "officetel", title: "오피스텔" },
-     ],
-
-     purpose: [
-       { value: "purchase", title: "집 구매 후" },
-       { value: "existing", title: "기존 집 리모델링" },
-       { value: "new_house", title: "새 집 입주" },
-     ],
-
-     spaces: [
-       { value: "livingroom", title: "거실" },
-       { value: "kitchen", title: "주방" },
-       { value: "storage", title: "수납" },
-       { value: "door", title: "중문/문" },
-       { value: "window", title: "창문" },
-       { value: "wallpaper", title: "벽지" },
-       { value: "lighting", title: "조명" },
-       { value: "tile", title: "타일" },
-       { value: "floor", title: "마루" },
-     ],
-
-     budget: [
-       { value: "1000", title: "1000만원 이하" },
-       { value: "2000", title: "1000~2000만원" },
-       { value: "3000", title: "2000~3000만원" },
-       { value: "5000", title: "3000~5000만원" },
-       { value: "10000", title: "5000만원 이상" },
-     ],
-
-     areaSize: [
-       { value: "10_20", title: "10~20평" },
-       { value: "30", title: "30평대" },
-       { value: "40", title: "40평대" },
-       { value: "50", title: "50평 이상" },
-     ],
-
-     location : [
-      
-     ]
-   };
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await InteriorService.fetchList();
-      const tagData = await InteriorService.fetchArticleList();
+      const data = await InteriorService.fetchPagedList({
+        pageNum,
+        pageSize: PAGE_SIZE,
+        search,
+        filterType,
+        filterValue,
+      });
 
-      setTags(Array.isArray(tagData) ? tagData : []);
-
-      const companyList = Array.isArray(data) ? data : [];
+      const companyList = Array.isArray(data?.list) ? data.list : [];
       const listWithImages = await Promise.all(
         companyList.map(async (item) => {
-          console.log("아이템" + item);
           const logo = await GetImgDlr({
             kind: "LOGO",
             returnType: "list",
@@ -86,112 +122,75 @@ const InteriorList = ({tag,value}) => {
             d: "LOGO",
             view: false,
           });
+
           return {
             ...item,
             logo,
           };
         }),
       );
-      console.log(listWithImages);
+
       setList(listWithImages);
-      setOriginList(listWithImages);
+      setPageInfo({
+        totalCount: data?.totalCount || 0,
+        totalPage: data?.totalPage || 0,
+        pageSize: data?.pageSize || PAGE_SIZE,
+      });
     };
 
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const handleSearchFilter = () => {
-      let result = [...originList];
-
-      // 검색
-      if (search && search.trim() !== "") {
-        result = result.filter(
-          (item) =>
-            item.c_name?.includes(search) ||
-            item.c_addr?.includes(search) ||
-            item.c_tel?.includes(search),
-        );
-      }
-
-      // 필터
-      if (filterType && filterValue) {
-        result = result.filter((company) => {
-          return tags.some(
-            (tag) =>
-              tag.c_id === company.c_id &&
-              tag.c_kind === company.c_kind &&
-              tag.c_name === company.c_name &&
-              tag.i_tag === filterType &&
-              tag.i_text === filterValue,
-          );
-        });
-      }
-
-      setList(result);
-    };
-    handleSearchFilter();
-  },[search, filterValue]);
+  }, [pageNum, search, filterType, filterValue]);
 
   const handleReset = () => {
     setSearch("");
     setFilterType("");
     setFilterValue("");
-    setList(originList);
+    setPageNum(1);
   };
+
   return (
     <div className="interior-list-section">
       <div className="interior-list-toolbar">
         <h3>결과</h3>
 
-        <SelectMui
-          label="필터 종류"
-          name="filterType"
-          value={filterType}
-          onChange={(e) => {
-            setFilterType(e.target.value);
-            setFilterValue("");
+        <FilterBar
+          filterList={filterList}
+          value={filterValue}
+          onChange={(newFilter) => {
+            setFilterValue(newFilter);
+            setPageNum(1);
           }}
-          option={[
-            { value: "housingType", title: "주거 형태" },
-            { value: "areaSize", title: "면적" },
-            { value: "purpose", title: "목적" },
-            { value: "spaces", title: "공간" },
-            { value: "budget", title: "예산" },
-          ]}
         />
-        {filterType !== "location" ? (
-          <SelectMui
-            label="값"
-            name="filterValue"
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            option={valueOptionMap[filterType] || []}
-          />
-        ) : (
-          <TextFieldMui
-            label="값"
-            name="filterValue"
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-          />
-        )}
+
+        <TextFieldMui
+          name="search"
+          label="검색"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPageNum(1);
+          }}
+        />
 
         <Button onClick={handleReset}>초기화</Button>
       </div>
 
+      <Typography color="text.secondary" sx={{ mb: 2 }}>
+        총 {pageInfo.totalCount}개 업체
+      </Typography>
+
       <div className="interior-company-grid">
-        {list.map((item, idx) => (
+        {list.map((item) => (
           <div
             className="interior-company-card"
-            key={idx}
+            key={`${item.c_id}-${item.c_kind}-${item.c_name}`}
             onClick={() => handleNext(item)}
           >
             {item?.logo?.result?.[0] && (
               <img
                 className="interior-company-image"
                 src={
-                  item?.logo?.result.find((item) => item.img_tag === "PROFILE")
+                  item.logo.result.find((image) => image.img_tag === "PROFILE")
                     ?.img_name
                 }
                 alt={`${item.c_name} 로고`}
@@ -207,12 +206,22 @@ const InteriorList = ({tag,value}) => {
           </div>
         ))}
       </div>
-      <TextFieldMui
-        name="search"
-        label="검색"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+
+      {list.length === 0 && (
+        <Typography color="text.secondary" sx={{ mt: 3 }}>
+          검색 결과가 없습니다.
+        </Typography>
+      )}
+
+      {pageInfo.totalPage > 1 && (
+        <Pagination
+          count={pageInfo.totalPage}
+          page={pageNum}
+          onChange={(e, page) => setPageNum(page)}
+          color="primary"
+          sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+        />
+      )}
     </div>
   );
 };

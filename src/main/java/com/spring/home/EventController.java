@@ -43,6 +43,11 @@ public class EventController {
 		return eventService.getReadData(dto);
 	}
 	
+	@GetMapping("/getPopupData")
+	public List<EventDTO> getPopupData() throws Exception{
+		return eventService.getPopupData();
+	}
+	
 	@PostMapping("/update")
 	public void updateData(@RequestBody EventDTO dto) throws Exception{
 		eventService.updateData(dto);

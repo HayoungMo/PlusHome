@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.service.LikeService;
 import com.spring.home.util.JwtUtil;
@@ -57,6 +58,21 @@ public class LikeController {
 
         return ResponseEntity.ok(list);
     }
+	@GetMapping("/interior")
+	public ResponseEntity<?> getInteriorLikes(
+            @RequestHeader(value = "Authorization", required = false) String authorization)
+            throws Exception {
+
+        String id = getTokenUserId(authorization);
+
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        List<CompanyDTO> list = likeService.getInteriorLikes(id);
+
+        return ResponseEntity.ok(list);
+    }
 
     @GetMapping("/furniture/{f_code}")
     public ResponseEntity<?> checkFurnitureLike(
@@ -77,6 +93,26 @@ public class LikeController {
 
         return ResponseEntity.ok(result);
     }
+    
+    @GetMapping("/interior/{like_code}")
+    public ResponseEntity<?> checkInteriorLike(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable String like_code)
+            throws Exception {
+
+        String id = getTokenUserId(authorization);
+
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        boolean liked = likeService.isInteriorLiked(id, like_code);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("liked", liked);
+
+        return ResponseEntity.ok(result);
+    }
 
     @PostMapping("/furniture/{f_code}")
     public ResponseEntity<?> toggleFurnitureLike(
@@ -91,6 +127,26 @@ public class LikeController {
         }
 
         boolean liked = likeService.toggleFurnitureLike(id, f_code);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("liked", liked);
+
+        return ResponseEntity.ok(result);
+    }
+    
+    @PostMapping("/interior/{like_code}")
+    public ResponseEntity<?> toggleInteriorLike(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable String like_code)
+            throws Exception {
+
+        String id = getTokenUserId(authorization);
+
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        boolean liked = likeService.toggleInteriorLike(id, like_code);
 
         Map<String, Object> result = new HashMap<>();
         result.put("liked", liked);

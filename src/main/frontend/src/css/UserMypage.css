@@ -1509,3 +1509,206 @@
   line-height: 1.6;
   white-space: pre-wrap;
 }
+
+.interior-my-review-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.interior-my-review-card {
+  width: 100%;
+  min-height: 320px;
+  padding: 18px 20px 14px;
+  border: 1px solid #dfe8f5;
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+.interior-my-review-company-area {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.interior-my-review-company-thumb {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f3f4f6;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.interior-my-review-company-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.interior-my-review-company-info {
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.interior-my-review-company-info p {
+  margin: 0 0 3px;
+  color: #8a8f98;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.interior-my-review-company-info h4 {
+  margin: 0 0 5px;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.interior-my-review-company-info span {
+  color: #8a8f98;
+  font-size: 13px;
+}
+
+.interior-my-review-body {
+  padding-top: 14px;
+}
+
+.interior-my-review-title-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.interior-my-review-title-line h4 {
+  margin: 0;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.interior-my-review-title-line span {
+  color: #8a8f98;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.interior-my-review-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 96px;
+  margin: 0 0 10px;
+  padding: 0;
+  color: #374151;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.interior-my-review-images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 88px;
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.interior-my-review-images img {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f3f4f6;
+}
+
+.interior-my-review-no-image {
+  min-height: 88px;
+  color: #9ca3af;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+}
+
+.interior-my-review-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.interior-my-review-action-buttons .MuiButton-root {
+  min-width: 56px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.interior-my-review-edit-form {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  text-align: left;
+}
+
+.interior-my-review-edit-form .user-review-add-image-form .MuiButton-root {
+  justify-self: start;
+}
+
+.interior-my-review-edit-company-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #edf0f3;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.interior-my-review-empty {
+  margin: 32px 0;
+  padding: 34px 24px;
+  border: 1px solid #dfe8f5;
+  border-radius: 10px;
+  background: #fff;
+  color: #7b818a;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+}
+
+@media (max-width: 860px) {
+  .interior-my-review-list,
+  .user-review-list {
+    grid-template-columns: 1fr;
+  }
+}
