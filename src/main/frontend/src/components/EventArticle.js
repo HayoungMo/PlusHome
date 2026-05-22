@@ -154,7 +154,7 @@ const EventArticle = () => {
       </Typography>
 
       {imageList
-        .filter((record) => record.img_tag !== "THUMBNAIL")
+        .filter((record) => record.img_tag === "OTHER")
         .map((item) => (
           <Box
             key={`${item.img_name}-${item.img_idx}`}
@@ -195,6 +195,8 @@ const EventArticle = () => {
               }}
             >
               <Box>
+                <img src="" alt=""/>
+                
                 <Typography sx={{ fontWeight: 700 }}>
                   {coupon.coupon_info}
                 </Typography>

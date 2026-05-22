@@ -30,6 +30,10 @@ public class EventService {
 		return eventmapper.getReadData(dto);
 	}
 	
+	public List<EventDTO> getPopupData() throws Exception{
+		return eventmapper.getPopupData();
+	}
+	
 	public void updateData(EventDTO dto) throws Exception{
 		eventmapper.updateData(dto);
 	}

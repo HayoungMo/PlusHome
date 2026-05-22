@@ -1,6 +1,8 @@
 package com.spring.home.service;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,32 @@ public class InteriorService {
 	public List<CompanyDTO> getLists() {
 		return interiorMapper.getLists();
 	}
+
+	public Map<String, Object> getPagedLists(int pageNum, int pageSize, String search, String filterType,
+			String filterValue) {
+		if (pageNum < 1) {
+			pageNum = 1;
+		}
+		if (pageSize < 1) {
+			pageSize = 12;
+		}
+
+		int start = (pageNum - 1) * pageSize + 1;
+		int end = pageNum * pageSize;
+
+		List<CompanyDTO> list = interiorMapper.getPagedLists(start, end, search, filterType, filterValue);
+		int totalCount = interiorMapper.getPagedListCount(search, filterType, filterValue);
+		int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("list", list);
+		result.put("totalCount", totalCount);
+		result.put("totalPage", totalPage);
+		result.put("pageNum", pageNum);
+		result.put("pageSize", pageSize);
+		return result;
+	}
+
 	public List<InteriorDTO> getArticleLists() {
 		return interiorMapper.getArticleLists();
 	}
@@ -57,9 +85,57 @@ public class InteriorService {
 	public List<InteriorReviewDTO> getAllReviewlists() throws Exception{
 		return interiorMapper.getAllReviewlists(); 
 	}
+
+	public Map<String, Object> getPagedReviewLists(int pageNum, int pageSize) {
+		if (pageNum < 1) {
+			pageNum = 1;
+		}
+		if (pageSize < 1) {
+			pageSize = 6;
+		}
+
+		int start = (pageNum - 1) * pageSize + 1;
+		int end = pageNum * pageSize;
+
+		List<InteriorReviewDTO> list = interiorMapper.getPagedReviewLists(start, end);
+		int totalCount = interiorMapper.getPagedReviewListCount();
+		int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("list", list);
+		result.put("totalCount", totalCount);
+		result.put("totalPage", totalPage);
+		result.put("pageNum", pageNum);
+		result.put("pageSize", pageSize);
+		return result;
+	}
 	
-	public List<InteriorReviewDTO> getAllExamples() {
+	public List<InteriorExampleDTO> getAllExamples() {
 		return interiorMapper.getAllExamples();
+	}
+
+	public Map<String, Object> getPagedExampleLists(int pageNum, int pageSize, String filterType, String filterValue) {
+		if (pageNum < 1) {
+			pageNum = 1;
+		}
+		if (pageSize < 1) {
+			pageSize = 6;
+		}
+
+		int start = (pageNum - 1) * pageSize + 1;
+		int end = pageNum * pageSize;
+
+		List<InteriorExampleDTO> list = interiorMapper.getPagedExampleLists(start, end, filterType, filterValue);
+		int totalCount = interiorMapper.getPagedExampleListCount(filterType, filterValue);
+		int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("list", list);
+		result.put("totalCount", totalCount);
+		result.put("totalPage", totalPage);
+		result.put("pageNum", pageNum);
+		result.put("pageSize", pageSize);
+		return result;
 	}
 	
 	public List<BookingDTO> getAllBookings() throws Exception {

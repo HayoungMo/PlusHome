@@ -14,7 +14,7 @@ const EventPopup = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await EventService.selectEventList();
+      const data = await EventService.selectPopupList();
 
       const dataList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
