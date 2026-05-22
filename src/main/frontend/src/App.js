@@ -154,7 +154,8 @@ function App() {
             <Route path="/component" element={<ComponentEx />} />
             <Route path="/ImageGetTest" element={<ImageGetTest />} />
             <Route path="/exportPDF" element={<ExportPDF />} />
-
+            
+            {/* 이벤트페이지 */}
             <Route path="/event" element={<EventPage />} />
             <Route path="/event/created" element={<EventCreated />} />
             <Route path="/event/article/:e_id" element={<EventArticle />} />
