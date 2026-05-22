@@ -30,12 +30,12 @@ const UserWishListPage = ({ user }) => {
           return;
         }
 
-        alert("찜목록을 불러오지 못했습니다.");
+        alert("찜 목록을 불러오지 못했습니다.");
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [user, navigate]);
+  }, [user?.id , navigate]);
 
   const onClickItem = (f_code) => {
     navigate(`/furniture/article/${f_code}`);

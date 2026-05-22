@@ -43,30 +43,6 @@ const FurnitureList = () => {
         { value: "priceHigh", label: "높은 가격순" },
     ];
 
-    const getLoginUser = () => {
-        const user = localStorage.getItem("user");
-        return user ? JSON.parse(user) : null;
-    };
-
-    const getLoginFurnitureCompany = () => {
-        const loginUser = getLoginUser();
-
-        if (!loginUser || loginUser.type !== "company") return null;
-
-        return (
-            loginUser.companyList?.find((company) => company.c_kind === "shop") ||
-            null
-        );
-    };
-
-    const canManageFurniture = (furnitureItem) => {
-        const furnitureCompany = getLoginFurnitureCompany();
-
-        if (!furnitureCompany || !furnitureItem) return false;
-
-        return furnitureItem.c_id === furnitureCompany.c_id;
-    };
-
     //URL이 바뀌면 state 동기화 해줌 - 0522 모하영
     useEffect(() => {
         setSearchKey(urlSearchKey);
@@ -144,25 +120,6 @@ const FurnitureList = () => {
         return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(nextSort)}`;
     };
 
-    const onAddPage = () => {
-        navigate("/furniture/add");
-    };
-
-    const onUpdate = (f_code) => {
-        navigate(`/furniture/update/${f_code}?page=${pageNum}`);
-    };
-
-    const onDelete = async (f_code) => {
-        try {
-            await FurnitureService.deleteFurniture(f_code);
-            alert("삭제 완료");
-            getList(pageNum);
-        } catch (error) {
-            console.error(error);
-            alert("삭제 실패");
-        }
-    };
-
     const onToggleLike = (evt, f_code) => {
         evt.preventDefault();
         evt.stopPropagation();
@@ -213,20 +170,6 @@ const FurnitureList = () => {
                     </a>
                 </h3>
 
-                {getLoginFurnitureCompany() && (
-                    <button
-                        onClick={onAddPage}
-                        style={{
-                            border: "1px solid #ddd",
-                            background: "white",
-                            borderRadius: "4px",
-                            padding: "8px 12px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        가구 추가
-                    </button>
-                )}
             </div>
 
             <div
@@ -521,26 +464,6 @@ const FurnitureList = () => {
                                         : `${deliveryPrice.toLocaleString()}원`}
                                 </div>
 
-                                {canManageFurniture(item) && (
-                                    <div style={{ marginTop: "8px", display: "flex", gap: "6px" }}>
-                                        <button
-                                            onClick={(evt) => {
-                                                evt.stopPropagation();
-                                                onUpdate(item.f_code);
-                                            }}
-                                        >
-                                            수정
-                                        </button>
-                                        <button
-                                            onClick={(evt) => {
-                                                evt.stopPropagation();
-                                                onDelete(item.f_code);
-                                            }}
-                                        >
-                                            삭제
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         );
                         })}

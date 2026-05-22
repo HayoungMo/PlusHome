@@ -19,6 +19,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState("all");
     const [openedClaimImages, setOpenedClaimImages] = useState({})
+    const [actionLoading, setActionLoading] = useState(false);
 
     const [claimModal, setClaimModal] = useState({
         open: false, 
@@ -72,12 +73,14 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     };
 
     useEffect(() => {
+        if (!user?.id) return
+
         loadOrders();
 
         const timer = setInterval(loadOrders, 30000);
 
         return () => clearInterval(timer);
-    }, []);
+    }, [user?.id]);
 
     const loadOrders = async () => {
         try {
@@ -86,35 +89,58 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
 
             const ordersWithDetail = await Promise.all(
                 orderList.map(async (item) => {
-                    const optionRes = await CartService.getCartOptions(item.c_code);
-                    const furniture = await FurnitureService.getFurnitureItem(item.f_code);
+                    try {
+                        const optionRes = await CartService.getCartOptions(item.c_code);
 
-                    const thumbnail = furniture.imageList?.find(
-                        img => img.img_tag === "THUMBNAIL"
-                    );
+                        let furniture = null;
+                        try {
+                            furniture = await FurnitureService.getFurnitureItem(item.f_code);
+                        } catch (error) {
+                            console.error("주문 상품 정보 조회 실패", item.f_code, error);
+                        }
 
-                    const reviewResult =
-                        Number(item.f_dstatus) === 5
-                            ? await FurnitureReviewService.checkReviewByCart(item.c_code)
-                            : { reviewed: false };
-                    
-                    const claimResult =
-                        Number(item.f_dstatus) === 4
-                            ? await OrderClaimService.checkClaim(item.c_code)
-                            : { claimed: false };
-                    
-                            return {
-                        ...item,
-                        options: optionRes.data || [],
-                        furniture,
-                        thumbnail: thumbnail?.img_name || null,
-                        reviewed: reviewResult.reviewed || false,
-                        claimed: claimResult.claimed || false,
-                        claim_type: claimResult.claim_type || null,
-                        claim_status: claimResult.claim_status ?? null,
-                        claim_code: claimResult.claim_code || null,
-                        claim_reason: claimResult.claim_reason || ""
-                    };
+                        const thumbnail = furniture?.imageList?.find(
+                            img => img.img_tag === "THUMBNAIL"
+                        );
+
+                        const reviewResult =
+                            Number(item.f_dstatus) === 5
+                                ? await FurnitureReviewService.checkReviewByCart(item.c_code)
+                                : { reviewed: false };
+
+                        const claimResult =
+                            Number(item.f_dstatus) === 4
+                                ? await OrderClaimService.checkClaim(item.c_code)
+                                : { claimed: false };
+
+                        return {
+                            ...item,
+                            options: optionRes.data || [],
+                            furniture,
+                            thumbnail: thumbnail?.img_name || null,
+                            reviewed: reviewResult.reviewed || false,
+                            claimed: claimResult.claimed || false,
+                            claim_type: claimResult.claim_type || null,
+                            claim_status: claimResult.claim_status ?? null,
+                            claim_code: claimResult.claim_code || null,
+                            claim_reason: claimResult.claim_reason || "",
+                        };
+                    } catch (error) {
+                        console.error("주문 상세 구성 실패", item.c_code, error);
+
+                        return {
+                            ...item,
+                            options: [],
+                            furniture: null,
+                            thumbnail: null,
+                            reviewed: false,
+                            claimed: false,
+                            claim_type: null,
+                            claim_status: null,
+                            claim_code: null,
+                            claim_reason: "",
+                        };
+                    }
                 })
             );
 
@@ -122,7 +148,17 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             setOrders(ordersWithDetail);
         } catch (error) {
             console.error("주문내역 조회 실패", error);
+            
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+                navigate("/login");
+                return;
+            }
+
             alert("주문내역 조회에 실패했습니다.");
+
         } finally {
             setLoading(false);
         }
@@ -166,9 +202,13 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     };
 
     const onCancelOrder = async (c_code) => {
+        if (actionLoading) return
+
         if (!window.confirm("주문을 취소하시겠습니까? 결제금액은 지갑으로 환불됩니다.")) return;
 
         try {
+            setActionLoading(true)
+
             await PaymentService.cancelOrder(c_code);
             setStatusFilter(-1)
             await loadOrders()
@@ -183,9 +223,13 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     };
 
     const onAddCanceledOrderToCart = async (item) => {
+        if (actionLoading) return;
+
         if (!window.confirm("취소된 상품을 다시 장바구니에 담으시겠습니까?")) return;
 
         try {
+            setActionLoading(true)
+
             await CartService.addCart({
                 cart: {
                     f_code: item.f_code,
@@ -262,11 +306,13 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     };
 
     const onConfirmOrder = async (c_code) => {
-        console.log("구매확정 클릭", c_code);
+        if (actionLoading) return
 
         if (!window.confirm("구매확정 하시겠습니까?")) return;
 
         try {
+            setActionLoading(true)
+
             console.log("구매확정 요청 시작");
             await PaymentService.confirmOrder(c_code);
             console.log("구매확정 요청 성공");
@@ -521,6 +567,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             {Number(item.f_dstatus) === -1 && (
                                 <button
                                     type="button"
+                                    disabled={actionLoading}
                                     onClick={() => onAddCanceledOrderToCart(item)}
                                 >
                                     다시 장바구니 담기
@@ -530,6 +577,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             {[0, 1].includes(Number(item.f_dstatus)) && (
                                 <button
                                     type="button"
+                                    disabled={actionLoading}
                                     onClick={() => onCancelOrder(item.c_code)}
                                 >
                                     주문취소
@@ -577,6 +625,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             && (
                                 <button
                                     type="button"
+                                    disabled={actionLoading}
                                     onClick={() => onConfirmOrder(item.c_code)}
                                     style={{
                                         background: "black",
