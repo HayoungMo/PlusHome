@@ -8,7 +8,7 @@ const insertReview = async (data) => {
 			fr_subject: data.subject,
 			fr_star: data.star,
 			fr_content: data.content,
-			c_code : data.c_code
+			c_code: data.c_code,
 		});
 
 		return {
@@ -64,7 +64,7 @@ const deleteReview = async (data) => {
 	};
 };
 
-const insertReplyOnDashboard = async ( reply, review ) => {
+const insertReplyOnDashboard = async (reply, review) => {
 	try {
 		const res = await http.post("/freview/insertReplyOnDashboard", {
 			id: review.id,
@@ -73,6 +73,7 @@ const insertReplyOnDashboard = async ( reply, review ) => {
 			fr_star: review.fr_star,
 			fr_content: reply.fr_content,
 			fr_idx: review.fr_idx * -1,
+			c_code: review.c_code,
 		});
 		return res.data;
 	} catch (err) {
@@ -91,6 +92,7 @@ const updateReplyOnDashboard = async (data) => {
 			fr_star: data.fr_star,
 			fr_content: data.fr_content,
 			fr_idx: data.fr_idx,
+			c_code: data.c_code,
 		});
 		return res.data;
 	} catch (error) {
@@ -103,11 +105,11 @@ const updateReplyOnDashboard = async (data) => {
 };
 
 const checkReviewByCart = async (c_code) => {
-  const res = await http.get("/freview/check", {
-    params: { c_code },
-  });
+	const res = await http.get("/freview/check", {
+		params: { c_code },
+	});
 
-  return res.data;
+	return res.data;
 };
 
 const FurnitureReviewService = {

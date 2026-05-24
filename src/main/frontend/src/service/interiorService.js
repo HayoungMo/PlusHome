@@ -312,12 +312,14 @@ const AddInvoiceDetail = async (data) => {
 
 const UpdateInterior = async (data) => {
 	try {
+		console.log(data);
 		const res = await http.post("/interior/update/interior", {
 			c_id: data.c_id,
 			c_kind: data.c_kind,
 			c_name: data.c_name,
 			i_tag: data.tag,
 			i_text: data.text,
+			i_text_before: data.i_text_before,
 		});
 
 		console.log("수정 결과:", res.data);
@@ -467,6 +469,32 @@ const getInteriorExampleByCompanyId = async (params) => {
 	}
 };
 
+const insertInteriorSchedule = async (params) => {
+	try {
+		const res = await http.post("/interior/add/insertInteriorSchedule", {
+			id: params.id,
+			c_id: params.c_id,
+			c_kind: params.c_kind,
+			c_name: params.c_name,
+			b_createdDate: params.b_createdDate,
+			is_enddate: params.is_enddate,
+			is_startdate: params.is_startdate,
+		});
+		return res.data;
+	} catch (error) {
+		console.error("insertInteriorSchedule : ", error);
+	}
+};
+
+const getInteriorSchedule = async (c_dto) => {
+	try {
+		const res = await http.post("/interior/select/getInteriorSchedule", c_dto);
+		return res.data;
+	} catch (error) {
+		console.error("insertInteriorSchedule : ", error);
+	}
+};
+
 const InteriorService = {
 	aiResponse,
 	aiResponselist,
@@ -496,6 +524,8 @@ const InteriorService = {
 	workingToDoneOrCancel,
 	getPDFData,
 	getInteriorExampleByCompanyId,
+	insertInteriorSchedule,
+	getInteriorSchedule
 };
 
 export default InteriorService;

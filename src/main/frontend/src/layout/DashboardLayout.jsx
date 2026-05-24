@@ -16,6 +16,7 @@ import InteriorScheduleControl from "../dasboardPages/InteriorScheduleControl";
 import EmptyCompanyGuide from "../dasboardPages/EmptyCompanyGuide";
 
 import "../css/Dashboard.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNavigate } from "react-router-dom";
 import ShoppingMallCouponControl from "../dasboardPages/ShoppingMallCouponControl";
 import InteriorExampleControl from "../dasboardPages/InteriorExampleControl";
@@ -100,9 +101,9 @@ const DashboardLayout = () => {
 			? [
 					{ key: "interiorInfo", label: "정보 관리", component: <InteriorInfo /> },
 					{ key: "consult", label: "상담 관리", component: <InteriorBookingControl /> },
-					{ key: "example", label: "게시물 관리", component: <InteriorExampleControl /> },
-					{ key: "construction", label: "시공 관리", component: <InteriorConstructionControl /> },
 					{ key: "schedule", label: "일정 관리", component: <InteriorScheduleControl /> },
+					{ key: "construction", label: "시공 관리", component: <InteriorConstructionControl /> },
+					{ key: "example", label: "게시물 관리", component: <InteriorExampleControl /> },
 					{ key: "review", label: "리뷰 관리", component: <InteriorReviewControl /> },
 					{
 						key: "mallDashboard",

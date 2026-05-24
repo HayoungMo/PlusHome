@@ -13,6 +13,7 @@ import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
 import com.spring.home.dto.InteriorReviewDTO;
+import com.spring.home.dto.InteriorScheduleDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.mapper.InteriorMapper;
@@ -142,6 +143,12 @@ public class InteriorService {
 	}
 	public InvoiceDTO getInvoiceCancel(BookingDTO b_dto) throws Exception {
 		return interiorMapper.getInvoiceCancel(b_dto);
+	}
+	public int insertInteriorSchedule(InteriorScheduleDTO dto) throws Exception {
+		return interiorMapper.insertInteriorSchedule(dto);
+	}
+	public List<InteriorScheduleDTO> getInteriorSchedule(InteriorScheduleDTO c_dto) throws Exception {
+		return interiorMapper.getInteriorSchedule(c_dto);
 	}
 
 

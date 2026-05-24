@@ -236,6 +236,8 @@ const ShoppingMallReviewControl = () => {
 		const findReply =
 			replyList.find((element) => element.fr_idx === replyIndex) || initReviewAndReply;
 
+		console.log(selectedReview)
+
 		setSelectedReply(findReply);
 	}, [selectedReview]);
 
@@ -291,6 +293,7 @@ const ShoppingMallReviewControl = () => {
 					<FurnitureReview
 						key={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
 						fr_idx={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
+						f_code={selectedReview.f_code}
 					/>
 				</div>
 			)}

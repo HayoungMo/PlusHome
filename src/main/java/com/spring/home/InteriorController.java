@@ -30,6 +30,7 @@ import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
 import com.spring.home.dto.InteriorReviewDTO;
+import com.spring.home.dto.InteriorScheduleDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.service.ImageService;
@@ -196,11 +197,11 @@ public class InteriorController {
 	public Map<String, Object> updateInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
 		Map<String, Object> result = new HashMap<>();
 		int updateResult = interiorService.updateInteriorExample(dto);
-		
+
 		result.put("success", updateResult > 0);
 		result.put("message", updateResult > 0 ? "시공 사례가 수정되었습니다." : "수정할 시공 사례를 찾지 못했습니다.");
 		result.put("ie_index", dto.getIe_index());
-		
+
 		return result;
 	}
 
@@ -224,11 +225,11 @@ public class InteriorController {
 	public Map<String, Object> deleteInteriorExample(@RequestBody InteriorExampleDTO dto) throws Exception {
 		Map<String, Object> result = new HashMap<>();
 		int deleteResult = interiorService.deleteInteriorExample(dto);
-		
+
 		result.put("success", deleteResult > 0);
 		result.put("message", deleteResult > 0 ? "시공 사례가 삭제되었습니다." : "삭제할 시공 사례를 찾지 못했습니다.");
 		result.put("ie_index", dto.getIe_index());
-		
+
 		return result;
 	}
 
@@ -455,10 +456,54 @@ public class InteriorController {
 		return result;
 	}
 
-//	@PostMapping("")
-//	public Map<String, Object> getInteriorExampleByCompanyId(@RequestBody CompanyDTO c_dto) throws Exception {
-//		Map<String, Object> result = new HashMap<>();
-//
-//		return result;
-//	}
+	@PostMapping("/add/insertInteriorSchedule")
+	public Map<String, Object> insertInteriorSchedule(@RequestBody InteriorScheduleDTO dto) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+		System.out.println(dto);
+		try {
+			int addResult = interiorService.insertInteriorSchedule(dto);
+
+			if (addResult > 0) {
+				result.put("success", true);
+				result.put("message", "시공 일정이 저장되었습니다.");
+			} else {
+				result.put("success", false);
+				result.put("message", "시공 일정 저장중 오류가 발생했습니다.");
+				result.put("error", "Controller가 Query를 실행했으나 저장되지 않았습니다.");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+			result.put("message", "시공 일정 저장중 오류가 발생했습니다.");
+			result.put("error", e.toString());
+		}
+		result.put("dto", dto);
+		return result;
+	}
+
+	@PostMapping("/select/getInteriorSchedule")
+	public Map<String, Object> getInteriorSchedule(@RequestBody InteriorScheduleDTO c_dto) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+		try {
+			List<InteriorScheduleDTO> scheduleList = interiorService.getInteriorSchedule(c_dto);
+
+			if (scheduleList.size() <= 0) {
+				result.put("success", true);
+				result.put("listSize", 0);
+				result.put("message", "저장된 시공 일정이 없습니다.");
+				return result;
+			}
+			result.put("success", true);
+			result.put("message", "조회에 성공하였습니다.");
+			result.put("listSize", scheduleList.size());
+			result.put("scheduleList", scheduleList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+			result.put("message", "시공 일정 데이터 조회중 오류가 발생했습니다.");
+			result.put("error", e.toString());
+		}
+		return result;
+	}
 }

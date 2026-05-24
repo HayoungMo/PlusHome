@@ -21,7 +21,8 @@ const InteriorInvoiceAdd = ({
 	setLeft = null,
 	right = [],
 	setRight = null,
-	buttonData = []
+	buttonData = [],
+	onInvoiceSaved = null,
 }) => {
 	const [detail, setDetail] = useState({ invoice_text: "", invoice_qty: "", invoice_price: "" });
 	const [detailsList, setDetailsList] = useState([]);
@@ -37,33 +38,71 @@ const InteriorInvoiceAdd = ({
 	const [selectedItem, setSelectedItem] = useState({});
 	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
-	const addDetail = () => {
-		if (detail.rowIndex !== undefined || detail.rowIndex >= 0) {
-			setDetailsList((prev) => {
-				const newArr = [...prev];
-				newArr[detail.rowIndex] = {
-					...newArr[detail.rowIndex],
-					invoice_text: detail.invoice_text,
-					invoice_qty: detail.invoice_qty,
-					invoice_price: detail.invoice_price,
-				};
-				return newArr;
-			});
-			setLeft((prev) => {
-				const newArr = [...prev];
-				newArr[detail.rowIndex] = {
-					...newArr[detail.rowIndex],
-					invoice_text: detail.invoice_text,
-					invoice_qty: detail.invoice_qty,
-					invoice_price: detail.invoice_price,
-				};
-				return newArr;
-			});
-		} else {
-			setDetailsList([...detailsList, { ...detail, rowIndex: detailsList.length }]);
-			setLeft([...left, detail]);
+	const emptyDetail = { invoice_text: "", invoice_qty: "", invoice_price: "" };
+	const isEditingDetail = detail.rowIndex !== undefined && detail.rowIndex >= 0;
+
+	const resetDetailForm = () => {
+		setDetail(emptyDetail);
+		setSelectedItem({});
+	};
+
+	const replaceDetailByRowIndex = (list, nextDetail) =>
+		list.map((item) =>
+			item.rowIndex === nextDetail.rowIndex ? { ...item, ...nextDetail } : item,
+		);
+
+	const validateDetail = () => {
+		const invoiceText = detail.invoice_text?.trim();
+		const invoiceQty = Number(detail.invoice_qty);
+		const invoicePrice = Number(detail.invoice_price);
+
+		if (!invoiceText) {
+			return "품목명을 입력해주세요.";
 		}
-		setDetail({ invoice_text: "", invoice_qty: "", invoice_price: "" });
+
+		if (!Number.isFinite(invoiceQty) || invoiceQty <= 0) {
+			return "수량은 1 이상 숫자로 입력해주세요.";
+		}
+
+		if (!Number.isFinite(invoicePrice) || invoicePrice < 0) {
+			return "가격은 0 이상 숫자로 입력해주세요.";
+		}
+
+		return "";
+	};
+
+	const addDetail = () => {
+		const validationMessage = validateDetail();
+
+		if (validationMessage) {
+			setAlert({
+				open: true,
+				severity: "warning",
+				title: "입력 확인",
+				text: validationMessage,
+			});
+			return;
+		}
+
+		const nextDetail = {
+			...detail,
+			invoice_text: detail.invoice_text.trim(),
+			invoice_qty: Number(detail.invoice_qty),
+			invoice_price: Number(detail.invoice_price),
+		};
+
+		if (isEditingDetail) {
+			setDetailsList((prev) => replaceDetailByRowIndex(prev, nextDetail));
+			setLeft((prev) => replaceDetailByRowIndex(prev, nextDetail));
+			setRight((prev) => replaceDetailByRowIndex(prev, nextDetail));
+		} else {
+			const createdDetail = { ...nextDetail, rowIndex: detailsList.length };
+
+			setDetailsList([...detailsList, createdDetail]);
+			setLeft([...left, createdDetail]);
+		}
+
+		resetDetailForm();
 	};
 
 	const handleDetailChange = (e) => {
@@ -82,7 +121,6 @@ const InteriorInvoiceAdd = ({
 
 	const handleSaveInvoiceAndInvoiceDetail = async () => {
 		const nextInvoiceNo = getNextInvoiceNo();
-		debugger;
 		const invoiceData = {
 			id: booking.id,
 			invoice_no: nextInvoiceNo,
@@ -109,6 +147,7 @@ const InteriorInvoiceAdd = ({
 			});
 			setSaveDialogOpen(!saveDialogOpen);
 			await fetchInvoices();
+			await onInvoiceSaved?.();
 		} else {
 			setAlert({
 				open: true,
@@ -278,7 +317,12 @@ const InteriorInvoiceAdd = ({
 						onChange={(e) => handleDetailChange(e)}
 					/>
 				</div>
-				<Button onClick={addDetail}>ADD</Button>
+				<Button onClick={addDetail}>{isEditingDetail ? "수정" : "ADD"}</Button>
+				{isEditingDetail && (
+					<Button color="inherit" onClick={resetDetailForm}>
+						수정 취소
+					</Button>
+				)}
 
 				<TransferListMui
 					key="transferListMui_invoiceDetailTransferListData"
