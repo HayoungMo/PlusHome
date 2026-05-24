@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Chip, Stack } from "@mui/material";
+import { Button, Chip, Pagination, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
 import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllReview.css";
 
+const PAGE_SIZE = 6;
+
 const InteriorAllReivew = () => {
   const navigate = useNavigate();
 
   const [review, setReview] = useState([]);
+  const [pageNum, setPageNum] = useState(1);
+  const [pageInfo, setPageInfo] = useState({
+    totalCount: 0,
+    totalPage: 0,
+    pageSize: PAGE_SIZE,
+  });
   const [selectedReview, setSelectedReview] = useState(null);
+  const [reviewImageIndex, setReviewImageIndex] = useState(0);
 
   const handleNext = (company) => {
     navigate("/interior/article", {
@@ -20,8 +29,11 @@ const InteriorAllReivew = () => {
 
   useEffect(() => {
     const fetchReview = async () => {
-      const data = await InteriorService.fetchAllInteriorReview();
-      const companyList = Array.isArray(data) ? data : [];
+      const data = await InteriorService.fetchPagedInteriorReview({
+        pageNum,
+        pageSize: PAGE_SIZE,
+      });
+      const companyList = Array.isArray(data?.list) ? data.list : [];
 
       const listWithImages = await Promise.all(
         companyList.map(async (item) => {
@@ -44,10 +56,15 @@ const InteriorAllReivew = () => {
       );
 
       setReview(listWithImages);
+      setPageInfo({
+        totalCount: data?.totalCount || 0,
+        totalPage: data?.totalPage || 0,
+        pageSize: data?.pageSize || PAGE_SIZE,
+      });
     };
 
     fetchReview();
-  }, []);
+  }, [pageNum]);
 
   const getReviewImages = (item) => {
     return (
@@ -83,12 +100,36 @@ const InteriorAllReivew = () => {
 
   const selectedImages = selectedReview ? getReviewImages(selectedReview) : [];
 
+  const handleReviewOpen = (item) => {
+    setSelectedReview(item);
+    setReviewImageIndex(0);
+  };
+
+  const handleReviewClose = () => {
+    setSelectedReview(null);
+    setReviewImageIndex(0);
+  };
+
+  const handlePrevImage = () => {
+    setReviewImageIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleNextImage = () => {
+    setReviewImageIndex((prev) => Math.min(prev + 1, selectedImages.length - 1));
+  };
+
   return (
     <div className="interior-all-review-page">
       <h2 className="interior-all-review-title">리뷰 조회 결과</h2>
+      <Typography color="text.secondary" sx={{ mb: 2 }}>
+        총 {pageInfo.totalCount}개 리뷰
+      </Typography>
 
-      {Object.values(groupedReviews).map((group, idx) => (
-        <div className="interior-review-group" key={idx}>
+      {Object.values(groupedReviews).map((group) => (
+        <div
+          className="interior-review-group"
+          key={`${group.company.c_id}-${group.company.c_kind}-${group.company.c_name}`}
+        >
           <button
             className="interior-review-company"
             type="button"
@@ -98,22 +139,19 @@ const InteriorAllReivew = () => {
           </button>
 
           <div className="interior-review-grid">
-            {group.reviews.map((item, reviewIdx) => {
+            {group.reviews.map((item) => {
               const thumbnail = getThumbnailImage(item);
 
               return (
                 <button
                   className="interior-review-card"
-                  key={reviewIdx}
+                  key={`${item.id}-${item.c_id}-${item.b_createdDate}`}
                   type="button"
-                  onClick={() => setSelectedReview(item)}
+                  onClick={() => handleReviewOpen(item)}
                 >
                   <div className="interior-review-card-thumb">
                     {thumbnail ? (
-                      <img
-                        src={thumbnail.img_name}
-                        alt={`${item.c_name} 리뷰`}
-                      />
+                      <img src={thumbnail.img_name} alt={`${item.c_name} 리뷰`} />
                     ) : (
                       <span>이미지 없음</span>
                     )}
@@ -132,22 +170,63 @@ const InteriorAllReivew = () => {
         </div>
       ))}
 
+      {review.length === 0 && (
+        <Typography color="text.secondary" sx={{ mt: 3 }}>
+          등록된 리뷰가 없습니다.
+        </Typography>
+      )}
+
+      {pageInfo.totalPage > 1 && (
+        <Pagination
+          count={pageInfo.totalPage}
+          page={pageNum}
+          onChange={(e, page) => setPageNum(page)}
+          color="primary"
+          sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+        />
+      )}
+
       <DialogInside
         open={Boolean(selectedReview)}
-        onClose={() => setSelectedReview(null)}
+        onClose={handleReviewClose}
         maxWidth="md"
         fullWidth
         contentClassName="all-review-dialog-content"
       >
         <div className="all-review-dialog">
           <div className="all-review-dialog-images">
-            {selectedImages.map((record, i) => (
-              <img
-                key={`${record.img_name}-${i}`}
-                src={record.img_name}
-                alt={`${selectedReview?.c_name} 리뷰`}
-              />
-            ))}
+            {selectedImages
+              .filter((_, i) => i === reviewImageIndex)
+              .map((record, i) => (
+                <img
+                  key={`${record.img_name}-${i}`}
+                  src={record.img_name}
+                  alt={`${selectedReview?.c_name} 리뷰`}
+                />
+              ))}
+            {selectedImages.length > 1 && (
+              <div className="all-review-slide-controls">
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handlePrevImage}
+                  disabled={reviewImageIndex === 0}
+                >
+                  이전
+                </Button>
+                <span>
+                  {reviewImageIndex + 1} / {selectedImages.length}
+                </span>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleNextImage}
+                  disabled={reviewImageIndex === selectedImages.length - 1}
+                >
+                  다음
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="all-review-dialog-info">

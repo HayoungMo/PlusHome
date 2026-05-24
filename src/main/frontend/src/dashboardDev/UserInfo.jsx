@@ -5,6 +5,8 @@ import { Button } from '@mui/material';
 import TableChkMui from '../components/TableChkMui';
 import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
+import SelectMui from '../components/SelectMui';
+import TextFieldMui from '../components/TextFieldMui';
 
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
@@ -51,6 +53,8 @@ const UserInfo = (props) => {
 
     const [userType,setUserType] = useState("user");
 
+    const [searchInfo,setSearchInfo] = useState({})
+
     const onChangeNewUserInfo = (e) =>{
         const {name,value} = e.target;
 
@@ -70,6 +74,7 @@ const UserInfo = (props) => {
     "tel",
     "gender",
     "addr",
+    "joined",
 ];
 
 const companyColumns = [
@@ -83,6 +88,8 @@ const companyColumns = [
     "c_kind",
     "c_info",
     "c_boss",
+
+    "joined",
 ];
 
     
@@ -118,10 +125,14 @@ const companyColumns = [
     
     const isAdmin = type ==='admin'
 
+    let oneTimeCheck = 0;
+
     useEffect(() =>{
         if(!isAdmin){
+            if(oneTimeCheck <= 0)
             alert("관리자만 접근 가능합니다.")
             
+            oneTimeCheck++;
             window.location.href = "/";
         }
     },[])
@@ -441,6 +452,37 @@ const companyColumns = [
             },
         ];
 
+        const onChangeSearchState = (e) => {
+            const {name,value} = e.target;
+            setSearchInfo({
+                ...searchInfo,
+                [name]:value
+            })
+        }
+
+        const userSearchFunction = () => {
+            if(!searchInfo || !searchInfo.searchKey){
+                return;
+            }
+
+            const { searchKey,searchText } = searchInfo
+
+            if(searchText === '' || searchText === null) {
+                getUserList();
+                return
+            }
+            const searchUserList = editedUserList.filter((data) => {
+            // 데이터가 없거나 속성이 없는 경우를 대비해 안전하게 문자열로 변환
+            const targetValue = data[searchKey]?.toString().toLowerCase() || "";
+            const searchValue = searchText.trim().toLowerCase();
+
+            // 검색어가 포함되어 있으면 true 반환
+            return targetValue.includes(searchValue);
+            });
+
+            setEditedUserList(searchUserList)
+        }
+
         useEffect(()=>{
             if(userAddInfo.open) {
                 setNewUserInfo({
@@ -480,6 +522,27 @@ const companyColumns = [
                 company
             </Button>
 
+        </div>
+
+        <div>
+            <SelectMui
+            label='검색 조건'
+            name='searchKey'
+            option={[
+                {title:'아이디',value:'id'},
+                {title:'이름',value:'name'},
+            ]}
+            onChange={onChangeSearchState}
+            value={searchInfo.searchKey}
+            />
+            <TextFieldMui
+            name='searchText'
+            onChange={onChangeSearchState}
+            value={searchInfo.searchText}
+            />
+            <Button variant='contained' color='primary' onClick={userSearchFunction}>
+                검색
+            </Button>
         </div>
 
         <div

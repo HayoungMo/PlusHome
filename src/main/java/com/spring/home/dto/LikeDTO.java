@@ -6,7 +6,7 @@ import lombok.Data;
 public class LikeDTO {
 
 	private String id;
-	private String f_code;
+	private String like_code;
 	private String like_tag;
 
 }

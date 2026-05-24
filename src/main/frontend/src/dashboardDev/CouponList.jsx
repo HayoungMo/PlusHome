@@ -4,13 +4,16 @@ import userService from '../service/userService';
 import TableChkMui from '../components/TableChkMui';
 import { Button } from '@mui/material';
 import CouponDev from '../dashboardDev/CouponDev'
+import TextFieldMui from '../components/TextFieldMui';
+import SelectMui from '../components/SelectMui';
 
 const CouponList = () => {
 
     const [userList,setUserList] = useState([])
     const [userType,setUserType] = useState("user");
     const [selectedUserKeys,setSelectedUserKeys] = useState([]);
-    
+    const [searchInfo,setSearchInfo] = useState({})
+
     const userColumns = [
     "id",
     "type",
@@ -55,6 +58,37 @@ const CouponList = () => {
         
     } 
 
+     const onChangeSearchState = (e) => {
+            const {name,value} = e.target;
+            setSearchInfo({
+                ...searchInfo,
+                [name]:value
+            })
+        }
+
+        const userSearchFunction = () => {
+            if(!searchInfo || !searchInfo.searchKey){
+                return;
+            }
+
+            const { searchKey,searchText } = searchInfo
+
+            if(searchText === '' || searchText === null) {
+                getUserList();
+                return
+            }
+            const searchUserList = userList.filter((data) => {
+            // 데이터가 없거나 속성이 없는 경우를 대비해 안전하게 문자열로 변환
+            const targetValue = data[searchKey]?.toString().toLowerCase() || "";
+            const searchValue = searchText.trim().toLowerCase();
+
+            // 검색어가 포함되어 있으면 true 반환
+            return targetValue.includes(searchValue);
+            });
+
+            setUserList(searchUserList)
+        }
+
     useEffect(()=>{
         getUserList();
     },[userType])
@@ -81,13 +115,37 @@ const CouponList = () => {
 
     return (
         <div>
-            자 이제부터 쿠폰 발급을 시작하지.
+            
             <CouponDev 
                 selectedKeys={selectedUserKeys}
                 couponData={couponData}
                 setCouponData={setCouponData}/>
 
-
+         <div style={{
+                display: 'flex',
+                width: '550px',
+                justifyContent: 'space-around',
+                margin: '15px',
+            }}>
+            <SelectMui
+            label='검색 조건'
+            name='searchKey'
+            option={[
+                {title:'아이디',value:'id'},
+                {title:'이름',value:'name'},
+            ]}
+            onChange={onChangeSearchState}
+            value={searchInfo.searchKey}
+            />
+            <TextFieldMui
+            name='searchText'
+            onChange={onChangeSearchState}
+            value={searchInfo.searchText}
+            />
+            <Button variant='contained' color='primary' onClick={userSearchFunction}>
+                검색
+            </Button>
+        </div>
             <TableChkMui
 
                     rowData={userList}

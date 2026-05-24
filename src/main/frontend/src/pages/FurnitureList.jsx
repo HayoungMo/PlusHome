@@ -8,15 +8,20 @@ const FurnitureList = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const pageNum = Number(
-        new URLSearchParams(location.search).get("page")
-    ) || 1;
+    //총합검색어 연결을 위한 작업 - 0522 모하영
+    const searchParams = new URLSearchParams(location.search);
+
+    const pageNum = Number(searchParams.get("page")) || 1;
+    const urlSearchKey = searchParams.get("searchKey") || "f_name";
+    const urlSearchValue = searchParams.get("searchValue") || "";
+    const urlSort = searchParams.get("sort") || "latest";
 
     const [list, setList] = useState([]);
     const [totalPage, setTotalPage] = useState(1);
 
-    const [searchKey, setSearchKey] = useState("f_name");
-    const [searchValue, setSearchValue] = useState("");
+    //state 초기값을 수정 - 0522 모하영(sort까지)
+    const [searchKey, setSearchKey] = useState(urlSearchKey);
+    const [searchValue, setSearchValue] = useState(urlSearchValue);
 
     const [startPage, setStartPage] = useState(1);
     const [endPage, setEndPage] = useState(1);
@@ -26,7 +31,7 @@ const FurnitureList = () => {
     
     const [loading , setLoading] = useState(true)
 
-    const [sort, setSort] = useState("latest");
+    const [sort, setSort] = useState(urlSort);
     const pageCount = Math.max(0, endPage - startPage + 1);
 
     const sortOptions = [
@@ -38,29 +43,12 @@ const FurnitureList = () => {
         { value: "priceHigh", label: "높은 가격순" },
     ];
 
-    const getLoginUser = () => {
-        const user = localStorage.getItem("user");
-        return user ? JSON.parse(user) : null;
-    };
-
-    const getLoginFurnitureCompany = () => {
-        const loginUser = getLoginUser();
-
-        if (!loginUser || loginUser.type !== "company") return null;
-
-        return (
-            loginUser.companyList?.find((company) => company.c_kind === "shop") ||
-            null
-        );
-    };
-
-    const canManageFurniture = (furnitureItem) => {
-        const furnitureCompany = getLoginFurnitureCompany();
-
-        if (!furnitureCompany || !furnitureItem) return false;
-
-        return furnitureItem.c_id === furnitureCompany.c_id;
-    };
+    //URL이 바뀌면 state 동기화 해줌 - 0522 모하영
+    useEffect(() => {
+        setSearchKey(urlSearchKey);
+        setSearchValue(urlSearchValue);
+        setSort(urlSort);
+    },[urlSearchKey,urlSearchValue,urlSort]);
 
     useEffect(() => {
         getList(pageNum);
@@ -118,27 +106,18 @@ const FurnitureList = () => {
         navigate(`/furniture/article/${f_code}?page=${pageNum}`);
     };
 
+    //쇼핑 검색 버튼에도 URL검색값을 실어줌 - 0522 모하영
     const onSearch = () => {
-        navigate(`/furniture/list?page=1`);
+        navigate(makeListUrl(1));
     };
 
-    const onAddPage = () => {
-        navigate("/furniture/add");
+    //근데 그 URL 문자열이 길어서 축약함수 - ㅡ0522 모하영
+    const makeListUrl = (page) => {
+        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(sort)}`;
     };
-
-    const onUpdate = (f_code) => {
-        navigate(`/furniture/update/${f_code}?page=${pageNum}`);
-    };
-
-    const onDelete = async (f_code) => {
-        try {
-            await FurnitureService.deleteFurniture(f_code);
-            alert("삭제 완료");
-            getList(pageNum);
-        } catch (error) {
-            console.error(error);
-            alert("삭제 실패");
-        }
+    //makeListUrl이 현재 sort를 쓰기 때문에 정렬버튼에 따로 함수를 두면 좋다 - 0522모하영
+    const makeListUrlWithSort = (page, nextSort) => {
+        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(nextSort)}`;
     };
 
     const onToggleLike = (evt, f_code) => {
@@ -191,20 +170,6 @@ const FurnitureList = () => {
                     </a>
                 </h3>
 
-                {getLoginFurnitureCompany() && (
-                    <button
-                        onClick={onAddPage}
-                        style={{
-                            border: "1px solid #ddd",
-                            background: "white",
-                            borderRadius: "4px",
-                            padding: "8px 12px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        가구 추가
-                    </button>
-                )}
             </div>
 
             <div
@@ -277,11 +242,12 @@ const FurnitureList = () => {
                         <React.Fragment key={option.value}>
                             {index > 0 && <span style={{ color: "#ddd" }}>·</span>}
 
+                            {/* 정렬 버튼도 검색값을 유지해야해서 수정 - 0522 모하영 */}
                             <button
                                 type="button"
                                 onClick={() => {
                                     setSort(option.value);
-                                    navigate("/furniture/list?page=1");
+                                    navigate(makeListUrlWithSort(1, option.value));
                                 }}
                                 style={{
                                     border: "none",
@@ -498,26 +464,6 @@ const FurnitureList = () => {
                                         : `${deliveryPrice.toLocaleString()}원`}
                                 </div>
 
-                                {canManageFurniture(item) && (
-                                    <div style={{ marginTop: "8px", display: "flex", gap: "6px" }}>
-                                        <button
-                                            onClick={(evt) => {
-                                                evt.stopPropagation();
-                                                onUpdate(item.f_code);
-                                            }}
-                                        >
-                                            수정
-                                        </button>
-                                        <button
-                                            onClick={(evt) => {
-                                                evt.stopPropagation();
-                                                onDelete(item.f_code);
-                                            }}
-                                        >
-                                            삭제
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         );
                         })}
@@ -528,7 +474,7 @@ const FurnitureList = () => {
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
-                                navigate(`/furniture/list?page=${prevPage}`);
+                                navigate(makeListUrl(prevPage));
                             }}
                         >
                             ◀ 이전
@@ -544,7 +490,7 @@ const FurnitureList = () => {
                                     href="#"
                                     onClick={(evt) => {
                                         evt.preventDefault();
-                                        navigate(`/furniture/list?page=${p}`);
+                                        navigate(makeListUrl(p));
                                     }}
                                     style={{
                                         margin: "0 8px",
@@ -561,7 +507,7 @@ const FurnitureList = () => {
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
-                                navigate(`/furniture/list?page=${nextPage}`);
+                                navigate(makeListUrl(nextPage));
                             }}
                         >
                             다음 ▶

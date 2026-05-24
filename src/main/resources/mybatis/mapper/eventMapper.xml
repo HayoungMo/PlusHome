@@ -21,6 +21,13 @@
 	WHERE E_ID = #{e_id}
 	 </select>
 	 
+	 <select id="getPopupData" parameterType="hashMap" resultType="com.spring.home.dto.EventDTO"> 
+	SELECT *
+	FROM EVENT 
+	WHERE E_POPUP = 'Y'
+	ORDER BY E_INDEX ASC 
+	 </select>
+	 
 	<!-- UPDATE -->
 	<update id="updateData" parameterType="com.spring.home.dto.EventDTO"> 
 	UPDATE EVENT SET E_TITLE = #{e_title}, E_INDEX = #{e_index}, E_CONTENT = #{e_content}, E_STARTDATE = #{e_startDate}, E_ENDDATE = #{e_endDate}, E_TYPE=#{e_type} 

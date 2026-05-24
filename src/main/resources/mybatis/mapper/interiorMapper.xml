@@ -161,6 +161,71 @@
 		WHERE c_kind LIKE 'interior'
 	</select>
 
+	<select id="getPagedLists" parameterType="map"
+		resultType="com.spring.home.dto.CompanyDTO">
+		SELECT *
+		FROM (
+			SELECT ROWNUM rnum, data.*
+			FROM (
+				SELECT DISTINCT c.c_id,
+					c.c_kind,
+					c.c_name,
+					c.c_tel,
+					c.c_addr,
+					c.c_info,
+					c.c_boss
+				FROM company c
+				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
+					INNER JOIN interior i
+						ON i.c_id = c.c_id
+						AND i.c_kind = c.c_kind
+						AND i.c_name = c.c_name
+				</if>
+				WHERE c.c_kind = 'interior'
+				<if test="search != null and search != ''">
+					AND (
+						c.c_name LIKE '%' || #{search} || '%'
+						OR c.c_addr LIKE '%' || #{search} || '%'
+						OR c.c_tel LIKE '%' || #{search} || '%'
+					)
+				</if>
+				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
+					AND i.i_tag = #{filterType}
+					AND i.i_text = #{filterValue}
+				</if>
+				ORDER BY c.c_name ASC
+			) data
+			WHERE ROWNUM &lt;= #{end}
+		)
+		WHERE rnum &gt;= #{start}
+	</select>
+
+	<select id="getPagedListCount" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM (
+			SELECT DISTINCT c.c_id, c.c_kind, c.c_name
+			FROM company c
+			<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
+				INNER JOIN interior i
+					ON i.c_id = c.c_id
+					AND i.c_kind = c.c_kind
+					AND i.c_name = c.c_name
+			</if>
+			WHERE c.c_kind = 'interior'
+			<if test="search != null and search != ''">
+				AND (
+					c.c_name LIKE '%' || #{search} || '%'
+					OR c.c_addr LIKE '%' || #{search} || '%'
+					OR c.c_tel LIKE '%' || #{search} || '%'
+				)
+			</if>
+			<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
+				AND i.i_tag = #{filterType}
+				AND i.i_text = #{filterValue}
+			</if>
+		)
+	</select>
+
 	<select id="getArticleLists"
 		resultType="com.spring.home.dto.InteriorDTO">
 		SELECT c_id,
@@ -505,6 +570,46 @@
 		AND ir.c_name = c.c_name
 	</select>
 
+	<select id="getPagedReviewLists" parameterType="map"
+		resultType="com.spring.home.dto.InteriorReviewDTO">
+		SELECT *
+		FROM (
+			SELECT ROWNUM rnum, data.*
+			FROM (
+				SELECT ir.id,
+					ir.b_createddate,
+					ir.c_id,
+					ir.c_kind,
+					ir.c_name,
+					ir.invoice_no,
+					ir.invoice_kind,
+					ir.ir_content,
+					ir.ir_createddate,
+					c.c_addr,
+					c.c_tel,
+					c.c_boss,
+					c.c_info
+				FROM i_review ir
+				JOIN company c
+					ON ir.c_id = c.c_id
+					AND ir.c_kind = c.c_kind
+					AND ir.c_name = c.c_name
+				ORDER BY ir.ir_createddate DESC
+			) data
+			WHERE ROWNUM &lt;= #{end}
+		)
+		WHERE rnum &gt;= #{start}
+	</select>
+
+	<select id="getPagedReviewListCount" resultType="int">
+		SELECT COUNT(*)
+		FROM i_review ir
+		JOIN company c
+			ON ir.c_id = c.c_id
+			AND ir.c_kind = c.c_kind
+			AND ir.c_name = c.c_name
+	</select>
+
 	<select id="getAllExamples"
 		resultType="com.spring.home.dto.InteriorExampleDTO">
 		SELECT ie.c_id,
@@ -513,6 +618,7 @@
 		ie.ie_content,
 		ie.ie_tag,
 		ie.ie_tag2,
+		ie_index,
 
 		c.c_addr,
 		c.c_tel,
@@ -525,6 +631,54 @@
 		AND ie.c_kind = c.c_kind
 		AND
 		ie.c_name = c.c_name
+	</select>
+
+	<select id="getPagedExampleLists" parameterType="map"
+		resultType="com.spring.home.dto.InteriorExampleDTO">
+		SELECT *
+		FROM (
+			SELECT ROWNUM rnum, data.*
+			FROM (
+				SELECT ie.c_id,
+					ie.c_kind,
+					ie.c_name,
+					ie.ie_content,
+					ie.ie_tag,
+					ie.ie_tag2,
+					ie.ie_index,
+					c.c_addr,
+					c.c_tel,
+					c.c_boss,
+					c.c_info
+				FROM i_example ie
+				JOIN company c
+					ON ie.c_id = c.c_id
+					AND ie.c_kind = c.c_kind
+					AND ie.c_name = c.c_name
+				WHERE 1 = 1
+				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
+					AND ie.ie_tag = #{filterType}
+					AND ie.ie_tag2 = #{filterValue}
+				</if>
+				ORDER BY ie.ie_index DESC
+			) data
+			WHERE ROWNUM &lt;= #{end}
+		)
+		WHERE rnum &gt;= #{start}
+	</select>
+
+	<select id="getPagedExampleListCount" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM i_example ie
+		JOIN company c
+			ON ie.c_id = c.c_id
+			AND ie.c_kind = c.c_kind
+			AND ie.c_name = c.c_name
+		WHERE 1 = 1
+		<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
+			AND ie.ie_tag = #{filterType}
+			AND ie.ie_tag2 = #{filterValue}
+		</if>
 	</select>
 
 	<select id="getAllBookings"

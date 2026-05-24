@@ -40,7 +40,6 @@ const InteriorReviewList = ({ company }) => {
     <div className="interior-review-list">
       {review.map((item, idx) => (
         <div className="interior-review-item" key={`${item.id}-${idx}`}>
-          <p>리뷰 모음</p>
           <div className="interior-review-content">{item.ir_content}</div>
 
           <div className="interior-review-image-list">

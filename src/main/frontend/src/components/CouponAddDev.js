@@ -175,6 +175,7 @@ const CouponAddDev= (data) => {
         <SelectMui
           name="coupon_type"
           label="쿠폰 타입"
+          value={form.coupon_type}
           onChange={handleChange}
           option={tagOptions1}
         />

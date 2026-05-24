@@ -35,6 +35,19 @@ const selectEventList = async () => {
   }
 };
 
+const selectPopupList = async () => {
+  try {
+    const res = await http.get("/event/getPopupData");
+
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+    };
+  }
+};
+
 const selectEvent = async (e_id) => {
   try {
     const res = await http.post("/event/getdata", {
@@ -120,6 +133,7 @@ const selectCouponsByEvent = async (e_id) => {
 
 const EventService = {
   insertEvent,
+  selectPopupList,
   selectEventList,
   selectEvent,
   updateEvent,

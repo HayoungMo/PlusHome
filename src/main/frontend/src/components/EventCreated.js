@@ -40,7 +40,7 @@ const EventCreated = () => {
 
   const imageTagOptions = [
     { value: "THUMBNAIL", title: "썸네일" },
-    { value: "OTHER", title: "본문 이미지" },
+    { value: "BANNER", title: "배너용 이미지" },
   ];
 
   const isAvailableCoupon = (coupon) => {
@@ -272,11 +272,29 @@ const EventCreated = () => {
             {form.e_type === "event" && (
               <Box sx={{ mt: 2 }}>
                 <DatePickerMui
-                  name="e_long"
-                  label="이벤트 기간"
-                  value={form.e_long}
+                  name="e_startDate"
+                  label="시작일"
+                  value={form.e_startDate}
                   onChange={(value) =>
-                    handleChange(makeEvent("e_long", value.format("YYYY-MM-DD")))
+                    handleChange(
+                      makeEvent(
+                        "e_startDate",
+                        value?.format("YYYY-MM-DD") || null,
+                      ),
+                    )
+                  }
+                />
+                <DatePickerMui
+                  name="e_endDate"
+                  label="종료일"
+                  value={form.e_endDate}
+                  onChange={(value) =>
+                    handleChange(
+                      makeEvent(
+                        "e_endDate",
+                        value?.format("YYYY-MM-DD") || null,
+                      ),
+                    )
                   }
                 />
               </Box>
@@ -300,7 +318,14 @@ const EventCreated = () => {
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               이미지
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
               <SelectMui
                 name="image_tag_select"
                 label="이미지 구분"
@@ -334,10 +359,20 @@ const EventCreated = () => {
                       component="img"
                       src={item}
                       alt=""
-                      sx={{ width: "100%", height: 120, objectFit: "cover", display: "block" }}
+                      sx={{
+                        width: "100%",
+                        height: 120,
+                        objectFit: "cover",
+                        display: "block",
+                      }}
                     />
-                    <Typography variant="caption" sx={{ display: "block", px: 1, py: 0.75 }}>
-                      {sendList[index]?.img_tag === "THUMBNAIL" ? "썸네일" : "본문 이미지"}
+                    <Typography
+                      variant="caption"
+                      sx={{ display: "block", px: 1, py: 0.75 }}
+                    >
+                      {sendList[index]?.img_tag === "THUMBNAIL"
+                        ? "썸네일"
+                        : "본문 이미지"}
                     </Typography>
                   </Box>
                 ))}

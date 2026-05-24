@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DatePickerMui from "./DatePickerMui";
 import TextFieldMui from "./TextFieldMui";
 import SelectMui from "./SelectMui";
@@ -28,6 +27,7 @@ const EventUpdate = () => {
   const [imageList, setImageList] = useState([]);
   const [sendList, setSendList] = useState([]);
   const [preview, setPreview] = useState([]);
+  const [updatePreviewMap, setUpdatePreviewMap] = useState({});
   const [imageTag, setImageTag] = useState("THUMBNAIL");
   const [alert, setAlert] = useState({
     open: false,
@@ -168,36 +168,48 @@ const EventUpdate = () => {
     return { success: true };
   };
 
-  const imageUpload = async () => {
-    const updateList = document.getElementsByClassName("updateFile");
-    const fileList = [];
+  const handleExistingImageChange = async (item, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    for (const element of updateList) {
-      if (element.files.length !== 0) {
-        fileList.push({ file: element.files[0], name: element.name });
-      }
-    }
+    const previewKey = item.img_originalName;
+    const previewUrl = URL.createObjectURL(file);
 
-    if (fileList.length === 0) {
-      showAlert({
-        severity: "warning",
-        title: "파일 없음",
-        text: "변경할 이미지를 선택해주세요.",
-      });
-      return;
-    }
-
-    await ImageService.updateImage(fileList);
-    showAlert({
-      severity: "success",
-      title: "이미지 수정 완료",
-      text: "이미지가 수정되었습니다.",
+    setUpdatePreviewMap((prev) => {
+      if (prev[previewKey]) URL.revokeObjectURL(prev[previewKey]);
+      return { ...prev, [previewKey]: previewUrl };
     });
+
+    try {
+      await ImageService.updateImage([{ file, name: item.img_originalName }]);
+      showAlert({
+        severity: "success",
+        title: "이미지 수정 완료",
+        text: "이미지가 수정되었습니다.",
+      });
+    } catch (err) {
+      console.error(err);
+      setUpdatePreviewMap((prev) => {
+        const next = { ...prev };
+        delete next[previewKey];
+        return next;
+      });
+      URL.revokeObjectURL(previewUrl);
+      showAlert({
+        severity: "error",
+        title: "이미지 수정 실패",
+        text: "이미지를 수정하는 중 오류가 발생했습니다.",
+      });
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const imageDelete = async (item) => {
     await ImageService.deleteImage(item);
-    setImageList((prev) => prev.filter((image) => !item.includes(image.img_originalName)));
+    setImageList((prev) =>
+      prev.filter((image) => !item.includes(image.img_originalName)),
+    );
     showAlert({
       severity: "success",
       title: "이미지 삭제 완료",
@@ -329,7 +341,12 @@ const EventUpdate = () => {
                   label="시작일"
                   value={form.e_startDate}
                   onChange={(value) =>
-                    handleChange(makeEvent("e_startDate", value?.format("YYYY-MM-DD") || null))
+                    handleChange(
+                      makeEvent(
+                        "e_startDate",
+                        value?.format("YYYY-MM-DD") || null,
+                      ),
+                    )
                   }
                 />
                 <DatePickerMui
@@ -337,7 +354,12 @@ const EventUpdate = () => {
                   label="종료일"
                   value={form.e_endDate}
                   onChange={(value) =>
-                    handleChange(makeEvent("e_endDate", value?.format("YYYY-MM-DD") || null))
+                    handleChange(
+                      makeEvent(
+                        "e_endDate",
+                        value?.format("YYYY-MM-DD") || null,
+                      ),
+                    )
                   }
                 />
               </Box>
@@ -362,30 +384,65 @@ const EventUpdate = () => {
               등록된 이미지
             </Typography>
             {imageList.length === 0 && (
-              <Typography color="text.secondary">등록된 이미지가 없습니다.</Typography>
+              <Typography color="text.secondary">
+                등록된 이미지가 없습니다.
+              </Typography>
             )}
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" }, gap: 2 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+                gap: 2,
+              }}
+            >
               {imageList.map((item) => (
                 <Box
                   key={`${item.img_name}-${item.img_idx}`}
-                  sx={{ border: "1px solid #ddd", borderRadius: 1, overflow: "hidden" }}
+                  sx={{
+                    border: "1px solid #ddd",
+                    borderRadius: 1,
+                    overflow: "hidden",
+                  }}
                 >
                   <Box
                     component="img"
-                    src={item.img_name}
+                    src={updatePreviewMap[item.img_originalName] || item.img_name}
                     alt={item.img_tag || "event"}
-                    sx={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+                    sx={{
+                      width: "100%",
+                      height: 180,
+                      objectFit: "cover",
+                      display: "block",
+                    }}
                   />
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, p: 1.5 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      p: 1.5,
+                    }}
+                  >
                     <Typography variant="caption" sx={{ flex: 1 }}>
-                      {item.img_tag === "THUMBNAIL" ? "썸네일" : "본문 이미지"}
+                      {item.img_tag === "THUMBNAIL"
+                        ? "썸네일"
+                        : item.img_tag === "BANNER"
+                          ? "배너 이미지"
+                          : "본문 이미지"}
                     </Typography>
-                    <input type="file" name={item.img_originalName} className="updateFile" />
+
                     <FloatingActionButtonMui
-                      icon={<FileUploadIcon />}
-                      color="primary"
-                      onClick={imageUpload}
-                    />
+                      component="label"
+                      icon={<CloudUploadIcon />}
+                    >
+                      <input
+                        type="file"
+                        hidden
+                        name={item.img_originalName}
+                        className="updateFile"
+                        onChange={(e) => handleExistingImageChange(item, e)}
+                      />
+                    </FloatingActionButtonMui>
                     <FloatingActionButtonMui
                       icon={<DeleteIcon />}
                       color="error"
@@ -403,7 +460,14 @@ const EventUpdate = () => {
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               새 이미지 추가
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
               <SelectMui
                 name="image_tag_select"
                 label="이미지 구분"
@@ -417,7 +481,12 @@ const EventUpdate = () => {
                 startIcon={<CloudUploadIcon />}
               >
                 이미지 추가
-                <input type="file" hidden name="file" onChange={handleImageChange} />
+                <input
+                  type="file"
+                  hidden
+                  name="file"
+                  onChange={handleImageChange}
+                />
               </Button>
             </Box>
             {preview.length > 0 && (
@@ -436,10 +505,20 @@ const EventUpdate = () => {
                       component="img"
                       src={item}
                       alt="preview"
-                      sx={{ width: "100%", height: 120, objectFit: "cover", display: "block" }}
+                      sx={{
+                        width: "100%",
+                        height: 120,
+                        objectFit: "cover",
+                        display: "block",
+                      }}
                     />
-                    <Typography variant="caption" sx={{ display: "block", px: 1, py: 0.75 }}>
-                      {sendList[index]?.img_tag === "THUMBNAIL" ? "썸네일" : "본문 이미지"}
+                    <Typography
+                      variant="caption"
+                      sx={{ display: "block", px: 1, py: 0.75 }}
+                    >
+                      {sendList[index]?.img_tag === "THUMBNAIL"
+                        ? "썸네일"
+                        : "본문 이미지"}
                     </Typography>
                   </Box>
                 ))}

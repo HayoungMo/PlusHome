@@ -37,4 +37,8 @@ public interface OptionsMapper {
 		    @Param("count") int count
 		);
 	
+	Integer getOptionStock(
+			@Param("f_code") String f_code,
+			@Param("o_select") String o_select,
+			@Param("o_text") String o_text);
 }

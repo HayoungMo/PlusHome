@@ -26,13 +26,21 @@ const FurnitureArticle = () => {
             quantity: 1
         }
     ]);
-
+ 
     const location = useLocation();
     const navigate = useNavigate();
 
     const query = new URLSearchParams(location.search);
     const page = query.get("page");
 
+    //마이페이지 문의에서 바로 이동하게 할 수 있는 - 0522 모하영
+    useEffect(() => {
+        const tabParam = query.get("tab");
+
+        if (["detail", "review", "qna"].includes(tabParam)) {
+            setTab(tabParam);
+        }
+    }, [location.search]);
     const getLoginUser = () => {
         const user = localStorage.getItem("user");
         return user ? JSON.parse(user) : null;
@@ -42,7 +50,7 @@ const FurnitureArticle = () => {
         const selectedOptionList = getSelectedOptionListBySet(optionSet);
 
         if (selectedOptionList.length === 0) {
-            return furniture?.f_count || 1;
+            return Number(furniture?.f_count ?? 0);
         }
 
         return Math.min(
@@ -91,6 +99,9 @@ const FurnitureArticle = () => {
         return groups;
     }, {});
 
+    const hasOptions = Object.keys(optionGroups).length > 0
+    const isSoldOut = !hasOptions && Number(furniture?.f_count ?? 0) <=0
+  
     const addOptionSet = () => {
         setSelectedOptionSets(prev => [
             ...prev,
@@ -248,11 +259,26 @@ const FurnitureArticle = () => {
             return;
         }
 
+        if (isSoldOut) {
+          alert("품절된 상품입니다.");
+          return;
+        }
+        
         const invalidSet = selectedOptionSets.some(set => !isOptionSetComplete(set));
 
         if (invalidSet) {
             alert("옵션을 모두 선택해주세요.");
             return;
+        }
+
+        const soldOutSet = selectedOptionSets.some((optionSet)=>{
+          const limit = getOptionSetStockLimit(optionSet);
+          return limit <=0;
+        })
+
+        if (soldOutSet){
+          alert("품절된 상품 또는 옵션은 구매할 수 없습니다.")
+          return
         }
 
         const overStockSet = selectedOptionSets.some(optionSet => {
@@ -305,11 +331,26 @@ const FurnitureArticle = () => {
           return;
       }
 
+      if (isSoldOut) {
+        alert("품절된 상품입니다.");
+        return;
+      }
+
       const invalidSet = selectedOptionSets.some(set => !isOptionSetComplete(set));
 
       if (invalidSet) {
           alert("옵션을 모두 선택해주세요.");
           return;
+      }
+
+      const soldOutSet = selectedOptionSets.some((optionSet) => {
+        const limit = getOptionSetStockLimit(optionSet);
+        return limit <= 0;
+      });
+
+      if (soldOutSet) {
+        alert("품절된 상품 또는 옵션은 구매할 수 없습니다.");
+        return;
       }
 
       const overStockSet = selectedOptionSets.some(optionSet => {
@@ -579,6 +620,22 @@ const FurnitureArticle = () => {
             </p>
             <p>배송기간: 2~3일</p>
 
+            {isSoldOut && (
+              <div
+                style={{
+                  margin: "16px 0",
+                  padding: "14px 16px",
+                  border: "1px solid #f1c0c0",
+                  borderRadius: "6px",
+                  background: "#fff5f5",
+                  color: "#c62828",
+                  fontWeight: 700,
+                }}
+              >
+                현재 품절된 상품입니다.
+              </div>
+            )}
+
             <h3>옵션 선택</h3>
 
             {selectedOptionSets.map((optionSet, setIndex) => (
@@ -679,33 +736,35 @@ const FurnitureArticle = () => {
 
             <button
               onClick={onAddCart}
+              disabled={isSoldOut}
               style={{
                 width: "100%",
                 padding: "15px",
-                background: "white",
-                color: "black",
+                background: isSoldOut ? "#f3f4f6" : "white",
+                color: isSoldOut ? "#9ca3af" : "black",
                 border: "1px solid #ddd",
                 fontSize: "16px",
-                cursor: "pointer",
+                cursor: isSoldOut ? "not-allowed" : "pointer",
                 marginTop: "10px",
                 marginBottom: "10px",
               }}
             >
-              장바구니
+              {isSoldOut ? "품절" : "장바구니"}
             </button>
 
             <button
               onClick={onPayment}
+              disabled={isSoldOut}
               style={{
                 width: "100%",
                 padding: "15px",
-                background: "black",
+                background: isSoldOut ? "#9ca3af" : "black",
                 color: "white",
                 fontSize: "16px",
-                cursor: "pointer",
+                cursor: isSoldOut ? "not-allowed" : "pointer",
               }}
             >
-              구매하기
+              {isSoldOut ? "품절" : "구매하기"}
             </button>
           </div>
         </div>

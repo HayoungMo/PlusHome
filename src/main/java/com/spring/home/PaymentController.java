@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.home.dto.PaymentDTO;
+import com.spring.home.dto.StockCheckDTO;
 import com.spring.home.dto.WalletDTO;
 import com.spring.home.service.PaymentService;
 import com.spring.home.util.JwtUtil;
@@ -83,4 +84,9 @@ public class PaymentController {
 	    return ResponseEntity.ok(result);
 	}
 
+	@PostMapping("/check-stock")
+	public Map<String, Object> checkStock(
+			@RequestBody StockCheckDTO dto)throws Exception{
+		return paymentService.checkStock(dto.getC_codes());
+	}
 }

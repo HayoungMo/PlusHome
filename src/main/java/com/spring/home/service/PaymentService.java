@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CartOptionDTO;
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.PaymentDTO;
+import com.spring.home.dto.StockCheckDTO;
 import com.spring.home.dto.WalletDTO;
 import com.spring.home.mapper.CartMapper;
 import com.spring.home.mapper.CartOptionMapper;
@@ -345,5 +347,69 @@ public class PaymentService {
 		}
 	}
 	
-	
-}
+	public Map<String, Object> checkStock(List<String> c_codes) throws Exception{
+		List<StockCheckDTO> shortageItems = new ArrayList<>();
+		
+		for(String c_code : c_codes) {
+			CartDTO cart = cartMapper.getReadData(c_code);
+			
+			if(cart == null) {
+				continue;
+			}
+			
+			FurnitureDTO furniture = furnitureMapper.getReadData(cart.getF_code());
+			String productName = furniture != null ? furniture.getF_name() : cart.getF_code();
+			int furnitureStock = furnitureMapper.getFurnitureStock(cart.getF_code());
+			int requestedCount = cart.getF_count();
+			
+			if(furnitureStock < requestedCount) {
+				StockCheckDTO item = new StockCheckDTO();
+				item.setC_code(cart.getC_code());
+	            item.setF_code(cart.getF_code());
+	            item.setProductName(productName);
+	            item.setType("FURNITURE");
+	            item.setRequestedCount(requestedCount);
+	            item.setStock(furnitureStock);
+	            item.setMessage("상품 재고가 부족합니다.");
+
+	            shortageItems.add(item);
+			}
+			
+			List<CartOptionDTO> options = cartOptionMapper.getByCartCode(c_code);
+
+	        for (CartOptionDTO option : options) {
+	            Integer optionStockValue = optionsMapper.getOptionStock(
+	                option.getF_code(),
+	                option.getCo_select(),
+	                option.getCo_text()
+	            );
+
+	            int optionStock = optionStockValue == null ? 0 : optionStockValue;
+	            int optionRequestedCount = cart.getF_count();
+
+	            if (optionStock < optionRequestedCount) {
+	                StockCheckDTO item = new StockCheckDTO();
+	                item.setC_code(option.getC_code());
+	                item.setF_code(option.getF_code());
+	                item.setProductName(productName);
+	                item.setType("OPTION");
+	                item.setOptionName(option.getCo_select());
+	                item.setOptionValue(option.getCo_text());
+	                item.setRequestedCount(optionRequestedCount);
+	                item.setStock(optionStock);
+	                item.setMessage("선택한 옵션 재고가 부족합니다.");
+
+	                shortageItems.add(item);
+	            }
+	        }
+	    }
+
+	    Map<String, Object> result = new HashMap<>();
+	    result.put("ok", shortageItems.isEmpty());
+	    result.put("items", shortageItems);
+
+	    return result;
+	    
+		}
+	}
+

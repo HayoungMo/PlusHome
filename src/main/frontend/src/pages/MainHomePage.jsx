@@ -8,6 +8,7 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
 import SwitchMui from '../components/SwitchMui';
+import SnackbarAlert from '../components/SnackbarAlert';
 import EventPopup from './EventPopup';
 
 const MainHomePage = ({ loginUser }) => {
@@ -69,6 +70,28 @@ const MainHomePage = ({ loginUser }) => {
     const [hiddenFurnitureCodes, setHiddenFurnitureCodes] = useState([]);
     //숨김 직전 관련해서 준비해둠
     const [pendingHiddenFurnitureCodes, setPendingHiddenFurnitureCodes] = useState([]);
+
+    //snackbar 사용
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "info",
+    });
+
+    const showSnackbar = (message, severity = "info") => {
+        setSnackbar({
+            open: true,
+            message,
+            severity,
+        });
+    };
+
+    const closeSnackbar = () => {
+        setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+        }));
+    };
 
     //백엔드 호출 (가구, 인테리어 업체) , 0519 백엔드 수정한것으로 새롭게 연결
     const getBestFurniture = () => {
@@ -140,53 +163,82 @@ const MainHomePage = ({ loginUser }) => {
         return listA.every((code) => listB.includes(code));
     };
 
+    const hasPendingHiddenChange = () => {
+        return !isSameHiddenList(pendingHiddenFurnitureCodes, hiddenFurnitureCodes);
+    };
+
     const onHideModeChange = (evt) => {
         const checked = evt.target.checked;
 
-        //토글 ON
+        // 토글 ON: 현재 저장된 숨김 목록을 기준으로 관리 시작
         if (checked) {
             setPendingHiddenFurnitureCodes(hiddenFurnitureCodes);
             setHideMode(true);
             return;
         }
 
-        //토글 OFF인데 아무것도 선택하지 않았을 때
-        if (isSameHiddenList(pendingHiddenFurnitureCodes, hiddenFurnitureCodes)) {
-            setHideMode(false);
+        // 토글 OFF: 선택 변경이 있으면 닫지 않고 완료 버튼을 누르게 안내
+        if (hasPendingHiddenChange()) {
+            showSnackbar("변경한 숨김 설정은 완료 버튼을 눌러 저장해주세요.", "warning");
             return;
         }
-        //토글 OFF
+
+        // 변경이 없으면 그냥 닫기
+        setPendingHiddenFurnitureCodes(hiddenFurnitureCodes);
+        setHideMode(false);
+    };
+
+    //로그인할때 이용하게 가능하게
+    const onHideComplete = () => {
+        if(!currentUser?.id) {
+            alert("로그인 후 이용하실수 있습니다.");
+            return;
+        }
+
+        //변경되지 않으면 그냥 닫을수 있음
+        if(isSameHiddenList(pendingHiddenFurnitureCodes,hiddenFurnitureCodes)){
+            showSnackbar("숨김 처리할 가구를 선택해주세요.", "info");
+            return;
+        }
+
         const isConfirm = window.confirm("선택한 가구를 추천 목록에서 숨김 처리하시겠습니까?");
 
-            if (!isConfirm) {
-                return;
-            }
+        if(!isConfirm) {
+            return;
+        }
 
         axios.post("http://localhost:8080/api/main/recommend/hide", {
-            id: currentUser?.id ,
+            id: currentUser?.id,
             f_codes: pendingHiddenFurnitureCodes,
         })
         .then(() => {
             setHiddenFurnitureCodes(pendingHiddenFurnitureCodes);
             setHideMode(false);
+            showSnackbar("추천 숨김 설정이 저장되었습니다.", "success");
             getBestFurniture();
         })
         .catch((err) => {
-            console.error("추천 숨김 저장에 실패했습니다:",err);
-            alert("숨김 처리에 실패했습니다.");
+            console.error("추천 숨김 저장에 실패했습니다:", err);
+            showSnackbar("숨김 처리에 실패했습니다.", "error");
         });
     };
 
     //알고리즘에 의한 추천을 사용자가 숨김함 그리고 그걸 제외한 목록을 보여줌
-    const visibleFurniture = hideMode
-        ? furniture
-        : furniture.filter((item) => !hiddenFurnitureCodes.includes(item.f_code));
+    const visibleFurniture = furniture.filter(
+        (item) => !hiddenFurnitureCodes.includes(item.f_code)
+    );
 
     const currentSideSlide = sideSlides[sideSlideIndex];
 
     return (
         <div>
             <EventPopup/>
+            <SnackbarAlert
+                open={snackbar.open}
+                message={snackbar.message}
+                severity={snackbar.severity}
+                onClose={closeSnackbar}
+            />
             {/* 메인 상단 영역 */}
                 <section
                     style={{
@@ -363,7 +415,7 @@ const MainHomePage = ({ loginUser }) => {
                     {["침대", "소파", "책상", "의자", "수납", "조명"].map((category) => (
                         <Link
                             key={category}
-                            to={`/search?keyword=${encodeURIComponent(category)}&type=furniture&page=1`}
+                            to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category)}&sort=latest`}
                             style={{
                                 padding: "10px 18px",
                                 border: "1px solid #ddd",
@@ -402,6 +454,16 @@ const MainHomePage = ({ loginUser }) => {
                                 name="hideMode"
                                 width="180px"
                             />
+                        )}
+                        {currentUser?.id && hideMode && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={onHideComplete}
+                            >
+                                완료
+                            </Button>
                         )}
                         <Link to ="/furniture/list">전체보기</Link>
                     </div>
