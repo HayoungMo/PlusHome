@@ -196,6 +196,34 @@
   overflow-y: auto;
 }
 
+.image-viewer-reply {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #edf0f3;
+}
+
+.image-viewer-reply strong {
+  display: block;
+  color: #1976d2;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.image-viewer-reply-title {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.image-viewer-reply p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .image-viewer-count {
   margin-top: auto;
   padding-top: 18px;
@@ -237,5 +265,22 @@
   }
 }
 
+.image-viewer-right {
+  overflow-y: auto;
+}
+
+.image-viewer-reply {
+  flex: 0 0 auto;
+  max-height: 190px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.image-viewer-reply p {
+  max-height: 120px;
+  overflow-y: auto;
+  margin: 0;
+  white-space: pre-wrap;
+}
 
 
