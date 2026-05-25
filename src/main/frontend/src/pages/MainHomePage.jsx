@@ -1,10 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ChatbotModal from '../components/ChatbotModal';
 import { Button } from '@mui/material';
-import FloatingActionButtonMui from "../components/FloatingActionButtonMui";
-import SmartToyIcon from "@mui/icons-material/SmartToy";
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
 import SwitchMui from '../components/SwitchMui';
@@ -15,7 +12,6 @@ const MainHomePage = ({ loginUser }) => {
 
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
-    const [chatOpen, setChatOpen] = useState(false);
     const [interiorCompanies, setInteriorCompanies] = useState([]);
 
     //메인영상 옆에 이벤트 슬라이드 항목
@@ -145,7 +141,7 @@ const MainHomePage = ({ loginUser }) => {
     //숨김 목록 관련 함수
     const togglePendingHiddenFurniture = (f_code) => {
         if (!currentUser?.id) {
-            alert("로그인 후 이용할 수 있습니다.");
+            showSnackbar("로그인 후 이용할 수 있습니다.");
             return;
         }
 
@@ -191,7 +187,7 @@ const MainHomePage = ({ loginUser }) => {
     //로그인할때 이용하게 가능하게
     const onHideComplete = () => {
         if(!currentUser?.id) {
-            alert("로그인 후 이용하실수 있습니다.");
+            showSnackbar("로그인 후 이용하실수 있습니다.");
             return;
         }
 
@@ -628,14 +624,7 @@ const MainHomePage = ({ loginUser }) => {
                 
             </section>
 
-            <FloatingActionButtonMui
-                color="primary"
-                size="large"
-                icon={<SmartToyIcon />}
-                onClick={() => setChatOpen(true)}
-            />
-
-            {chatOpen && <ChatbotModal onClose={() => setChatOpen(false)} />}
+            
 
             {/* 기존 footer 제거: 공통 Footer가 담당 */}
         </div>
