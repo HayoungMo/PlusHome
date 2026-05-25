@@ -23,7 +23,7 @@ const UserCouponPage = ({ user }) => {
     text: "",
   });
 
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(1);
   const [successMessage, setSuccessMessage] = useState("")
 
   useEffect(() => {
@@ -31,16 +31,13 @@ const UserCouponPage = ({ user }) => {
       const result = await CouponService.selectCouponList(user.id);
       
       if (!result.success) {
-        setTab(0)
+        setTab([])
         return;
       }
 
       const couponList = result.data || []
-      const availableCoupons = couponList.filter(
-        (item)=> item.coupon_used === "N")
 
-      setCoupon(couponList);
-      setTab(availableCoupons.length> 0 ? 1 : 0)
+      setCoupon(couponList)
     };
     fetchCoupon();
   }, []);
@@ -104,6 +101,9 @@ const UserCouponPage = ({ user }) => {
     setSuccessMessage("정상적으로 쿠폰이 지급되었습니다. 쿠폰함을 확인해주세요.")
   };
 
+  const availableCoupons = coupon.filter((item) => item.coupon_used === "N")
+  const usedCoupons = coupon.filter((item) => item.coupon_used === "Y")
+  
   return (
     <Box>
       <Tabs value={tab} onChange={handleChangeTab}>
@@ -173,15 +173,53 @@ const UserCouponPage = ({ user }) => {
         )}
 
         {tab === 1 && (
-          <TableMui
-            rowData={coupon.filter((item) => item.coupon_used === "N")}
-          />
+          <>
+            {availableCoupons.length === 0 ? (
+              <Box
+                sx={{
+                    py: 6,
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    borderRadius: 1,
+                    color: "text.secondary",
+                  }}
+              >
+                <Box sx={{mb: 2, fontWeight: 700}}>
+                    사용 가능한 쿠폰이 없습니다.
+                </Box>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={()=> setTab(0)}
+                >
+                  쿠폰 등록하기
+                </Button>
+              </Box>
+            ):(
+              <TableMui rowData={availableCoupons}/>
+            )}
+          </>
         )}
 
         {tab === 2 && (
-          <TableMui
-            rowData={coupon.filter((item) => item.coupon_used === "Y")}
-          />
+          <>
+            {usedCoupons.length === 0 ? (
+              <Box
+                sx={{
+                    py: 6,
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    borderRadius: 1,
+                    color: "text.secondary",
+                  }}
+              >
+                사용한 쿠폰이 없습니다.
+              </Box>
+            ):(
+              <TableMui rowData={usedCoupons}/>
+            )}
+          </>
         )}
       </Box>
     </Box>

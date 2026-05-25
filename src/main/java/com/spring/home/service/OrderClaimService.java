@@ -6,10 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.spring.home.dto.CartDTO;
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.OrderClaimDTO;
 import com.spring.home.dto.OrderClaimUpdateDTO;
+import com.spring.home.dto.WalletDTO;
 import com.spring.home.mapper.CartMapper;
+import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.OrderClaimMapper;
+import com.spring.home.mapper.WalletMapper;
 import com.spring.home.util.furnitureCode;
 
 @Service
@@ -19,8 +24,14 @@ public class OrderClaimService {
     private OrderClaimMapper orderClaimMapper;
     
     @Autowired
-    private CartMapper cartMapper;
-
+    private CartMapper cartMapper; 
+    
+    @Autowired
+    private WalletMapper walletMapper;
+    
+    @Autowired
+    private FurnitureMapper furnitureMapper;
+    
     public String createClaim(String id, OrderClaimDTO dto) throws Exception {
         OrderClaimDTO exists = orderClaimMapper.getByCartCode(dto.getC_code(), id);
 
@@ -55,6 +66,41 @@ public class OrderClaimService {
         return orderClaimMapper.getCompanyClaims(companyId);
     }
 
+    private void refundReturnClaim(OrderClaimDTO claim) throws Exception{
+    	CartDTO cart = cartMapper.getReadData(claim.getC_code());
+    	
+    	if (cart == null || !claim.getId().equals(cart.getId())) {
+    		throw new RuntimeException("주문 정보를 찾을 수 없습니다.");
+    	}
+    	
+    	int refundMoney = cart.getPay_total();
+    	
+    	if (refundMoney <= 0) {
+    		throw new RuntimeException("환불 금액이 올바르지 않습니다.");
+    	}
+    	
+    	FurnitureDTO furniture = furnitureMapper.getReadData(cart.getF_code());
+    	
+    	if (furniture == null || furniture.getC_id() == null || furniture.getC_id().trim().isEmpty()) {
+    		throw new RuntimeException("상품 업체 정보를 찾을 수 없습니다.");
+    	}
+    	
+    	updateWallet(furniture.getC_id(), -refundMoney);
+    	updateWallet(claim.getId(), refundMoney);
+    }
+    
+    private void updateWallet(String id, int money) throws Exception {
+    	WalletDTO wallet = new WalletDTO();
+    	wallet.setId(id);
+    	wallet.setMoney(money);
+    	
+    	int result = walletMapper.updateData(wallet);
+    	
+    	if (result != 1) {
+    		throw new RuntimeException("지갑 정보를 찾을 수 없습니다.");
+    	}
+    }
+    
     @Transactional
     public void updateStatus(String claim_code, int claim_status) throws Exception {
         validateClaimStatus(claim_status);
@@ -64,6 +110,10 @@ public class OrderClaimService {
         if (claim == null) {
             throw new RuntimeException("교환/반품 신청 정보를 찾을 수 없습니다.");
         }
+        
+        if (claim.getClaim_status() == 3) {
+        	throw new RuntimeException("이미 처리 완료된 신청입니다.");
+        }
 
         int result = orderClaimMapper.updateStatus(claim_code, claim_status);
 
@@ -72,6 +122,8 @@ public class OrderClaimService {
         }
 
         if (claim_status == 3 && claim.getClaim_type() == 2) {
+        	refundReturnClaim(claim);
+        	
             cartMapper.restoreUsedPoint(claim.getC_code(), claim.getId());
             cartMapper.restoreCouponDiscountAsPoint(claim.getC_code(), claim.getId());
         }
@@ -97,14 +149,11 @@ public class OrderClaimService {
             dto.getClaim_type()
         );
 
-        int statusResult = orderClaimMapper.updateStatus(
-            dto.getClaim_code(),
-            dto.getClaim_status()
-        );
-
-        if (typeResult != 1 || statusResult != 1) {
-            throw new RuntimeException("교환/반품 정보 변경에 실패했습니다.");
+        if (typeResult != 1) {
+            throw new RuntimeException("교환/반품 유형 변경에 실패했습니다.");
         }
+
+        updateStatus(dto.getClaim_code(), dto.getClaim_status());
     }
 
     @Transactional
