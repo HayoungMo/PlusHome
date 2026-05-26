@@ -5,8 +5,6 @@ import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
-import AlertMui from "./AlertMui";
-import { useNavigate } from "react-router-dom";
 
 const InteriorBooking = ({ company, answers, setBookingPossible }) => {
   const [alert, setAlert] = useState({

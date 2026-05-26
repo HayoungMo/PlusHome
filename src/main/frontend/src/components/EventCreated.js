@@ -17,9 +17,12 @@ import SelectMui from "./SelectMui";
 import CouponAdd from "./CouponAdd";
 import CouponService from "../service/couponService";
 import TableCheckBoxMui from "./TableCheckBoxMui";
+import { useNavigate } from "react-router-dom";
 
 const EventCreated = () => {
+  const navigate = useNavigate();
   const randomNum = Math.floor(100000 + Math.random() * 900000);
+  const user = JSON.parse(localStorage.getItem("user"));
   const [sendList, setSendList] = useState([]);
   const [form, setForm] = useState({ e_id: randomNum });
   const [preview, setPreview] = useState([]);
@@ -44,6 +47,12 @@ const EventCreated = () => {
     { value: "OTHER", title: "본문 이미지" },
   ];
 
+  const requiredImageTags = [
+    { value: "BANNER", title: "배너 이미지" },
+    { value: "THUMBNAIL", title: "썸네일" },
+    { value: "OTHER", title: "본문 이미지" },
+  ];
+
   const isAvailableCoupon = useCallback((coupon) => {
     if (!coupon?.coupon_end) return false;
 
@@ -57,6 +66,10 @@ const EventCreated = () => {
     (coupon) => `${coupon.coupon_code}_${coupon.id}`,
     [],
   );
+
+  useEffect(() => {
+      user?.type !== "admin" && navigate(-1);
+    },[user])
 
   const getCouponListWithUsage = useCallback((coupons, usages) => {
     const usageMap = (usages || []).reduce((acc, usage) => {
@@ -121,7 +134,16 @@ const EventCreated = () => {
       if (!result.success) return;
 
       const availableCoupons = (result.data || []).filter(isAvailableCoupon);
-      setCouponList(getCouponListWithUsage(availableCoupons, usageList));
+      const couponsWithUsage = getCouponListWithUsage(
+        availableCoupons,
+        usageList,
+      );
+      setCouponList(
+        couponsWithUsage.sort(
+          (a, b) =>
+            Number(a.event_usage_count || 0) - Number(b.event_usage_count || 0),
+        ),
+      );
     };
 
     fetchCoupon();
@@ -188,8 +210,26 @@ const EventCreated = () => {
     }
   };
 
+  const getMissingImageTags = () => {
+    return requiredImageTags.filter(
+      (tag) => !sendList.some((item) => item.img_tag === tag.value),
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const missingImageTags = getMissingImageTags();
+    if (missingImageTags.length > 0) {
+      showAlert({
+        severity: "warning",
+        title: "이미지 등록 필요",
+        text: `${missingImageTags
+          .map((tag) => tag.title)
+          .join(", ")}를 각각 1개 이상 등록해주세요.`,
+      });
+      return;
+    }
 
     const result = await EventService.insertEvent(form);
 
@@ -421,7 +461,9 @@ const EventCreated = () => {
                     >
                       {sendList[index]?.img_tag === "THUMBNAIL"
                         ? "썸네일"
-                        :  sendList[index]?.img_tag === "BANNER" ?  "배너 이미지 ":"본문 이미지"}
+                        : sendList[index]?.img_tag === "BANNER"
+                          ? "배너 이미지 "
+                          : "본문 이미지"}
                     </Typography>
                   </Box>
                 ))}
@@ -458,6 +500,8 @@ const EventCreated = () => {
               checkedList={selectedCouponCodes}
               setCheckedList={setSelectedCouponCodes}
               rowKey="coupon_code"
+              pagination
+              defaultRowPerPage={5}
             />
           </Box>
         </Box>

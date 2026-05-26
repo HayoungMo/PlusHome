@@ -5,6 +5,7 @@ import InteriorService from '../service/interiorService';
 import FreeBoardService from '../service/freeBoardService';
 import SelectMui from '../components/SelectMui';
 import CheckboxMui from '../components/CheckboxMui';
+import ToggleButtonMui from '../components/ToggleButtonMui';
 import { 
     Button,
     Card,
@@ -63,7 +64,7 @@ const SearchPage = () => {
     
     //페이징 처리
     //const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 9; //한페이지에 9개씩
+    const itemsPerPage = 5; //한페이지에 5개씩
     //전체 탭에서 한 번에 보여줄 카드 수
     const carouselPageSize = 5; 
 
@@ -97,6 +98,12 @@ const SearchPage = () => {
             page: 1,
         });
     };
+
+    const onChangeSearchTab = (evt, nextType) => {
+        if(!nextType) return;
+
+        onClickTab(nextType);
+    }
 
 
     //검색 탭 목록 - 탭으로 쓸지 아니면 다른 방식으로 할지는 고민 , 현재는 객체로 넘겨줌
@@ -626,20 +633,89 @@ const SearchPage = () => {
         </Card>
     );
 };
-    const renderInteriorItem = (item) => (
-        <Link 
-            to="/interior/article"
-            state={{company: item}}
-            key={`${item.f_code}-${item.c_name}-${item.c_kind}`}
-        >
-            <div>
-                <p>{item.c_kind}</p>
-                <h3>{item.c_name}</h3>
-                <p>{item.c_addr}</p>
-                <p>{item.c_tel}</p>
-            </div>
-        </Link>
-    );
+    const renderInteriorItem = (item) => {
+        const region = getInteriorRegion(item.c_addr);
+
+        return (
+            <Card
+                key={`${item.c_id}-${item.c_kind}-${item.c_name}`}
+                variant="outlined"
+                sx={{
+                    width: 180,
+                    height: "100%",
+                }}
+            >
+                <CardActionArea
+                    component={Link}
+                    to="/interior/article"
+                    state={{ company: item }}
+                    sx={{ height: "100%" }}
+                >
+                    <div
+                        style={{
+                            height: "86px",
+                            backgroundColor: "#f3efe7",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#2f5f53",
+                            fontWeight: 800,
+                            fontSize: "18px",
+                        }}
+                    >
+                        {item.c_name?.slice(0, 2) || "업체"}
+                    </div>
+
+                    <CardContent sx={{ p: 1 }}>
+                        <p style={{ margin: "0 0 6px", color: "#666", fontSize: "12px" }}>
+                            {item.c_kind === "interior" ? "인테리어" : item.c_kind}
+                        </p>
+
+                        <h3
+                            style={{
+                                margin: "0 0 8px",
+                                fontSize: "14px",
+                                lineHeight: 1.35,
+                                minHeight: "38px",
+                            }}
+                        >
+                            {item.c_name}
+                        </h3>
+
+                        <Stack direction="row" spacing={1} mb={1}>
+                            {region && (
+                                <Chip
+                                    size="small"
+                                    color="primary"
+                                    variant="outlined"
+                                    label={region}
+                                />
+                            )}
+                        </Stack>
+
+                        <p
+                            style={{
+                                margin: "0 0 6px",
+                                fontSize: "12px",
+                                color: "#555",
+                                lineHeight: 1.35,
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                            }}
+                        >
+                            {item.c_addr || "주소 정보 없음"}
+                        </p>
+
+                        <p style={{ margin: 0, fontSize: "12px", color: "#777" }}>
+                            {item.c_tel || "전화번호 미등록"}
+                        </p>
+                    </CardContent>
+                </CardActionArea>
+            </Card>
+        );
+    };
     const renderFreeBoardItem = (item) => (
         <Link 
             to={`/freeBoard/article/${item.boardId}`} 
@@ -757,20 +833,13 @@ const SearchPage = () => {
                 </form>
 
                 {/* 검색 카테고리 탭 */}
-                <div>
-                    {searchTabs.map((tab) => (
-                        <Button 
-                            variant="contained" 
-                            color="primary"
-                            key={tab.value}
-                            type="button"
-                            onClick={() => onClickTab(tab.value)}
-                            style={{fontWeight: type === tab.value ? "bold" : "normal" ,}}
-                        >
-                            {tab.title}
-                        </Button>
-                        
-                    ))}
+                <div style={{marginTop: "10px"}}>
+                    <ToggleButtonMui
+                        value={type}
+                        exclusive={true}
+                        onChange={onChangeSearchTab}
+                        ButtonList={searchTabs}
+                    />
                 </div>
                     {/* 가구 필터 UI */}
                     {type === "furniture" && (
@@ -924,35 +993,28 @@ const SearchPage = () => {
 
             {/* 검색 결과 목록, 페이징 처리 페이징 버튼 추가*/}
             {type !== "all" && !isEmptyKeywordCategory && totalPages > 1 && (
-                <section>
-                    <button
+                <section style={{ marginTop: "24px", textAlign: "center"}}>
+                    <Button
                         type="button"
+                        variant="outlined"
                         onClick={() => movePage(Math.max(1, page - 1))}
                         disabled={page === 1}
                     >
                         이전
-                    </button>
+                    </Button>
 
-                    {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
-                    <button
-                        key={pageNumber}
-                        type="button"
-                        onClick={() => movePage(pageNumber)}
-                        style={{
-                            fontWeight: page === pageNumber ? "bold" : "normal",
-                        }}
-                    >
-                        {pageNumber}
-                    </button>
-                ))}
+                    <span style={{margin: "0 12px", fontWeight: 600}}>
+                        {page} /{totalPages}
+                    </span>
 
-                    <button
+                    <Button
                         type="button"
+                        variant="outlined"
                         onClick={() => movePage(Math.min(totalPages, page + 1))}
                         disabled={page === totalPages}
                     >
                         다음
-                    </button>
+                    </Button>
             </section>
         )}
     </div>
