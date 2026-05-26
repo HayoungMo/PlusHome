@@ -226,6 +226,9 @@ public class InteriorService {
 	public List<InteriorScheduleDTO> getInteriorSchedule(InteriorScheduleDTO c_dto) throws Exception {
 		return interiorMapper.getInteriorSchedule(c_dto);
 	}
+	public int updateScheduleEndDate(InteriorScheduleDTO dto) throws Exception {
+		return interiorMapper.updateScheduleEndDate(dto);
+	}
 
 
 }

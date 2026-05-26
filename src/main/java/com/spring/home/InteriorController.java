@@ -533,4 +533,27 @@ public class InteriorController {
 		}
 		return result;
 	}
+	
+	@PostMapping("/update/updateScheduleEndDate")
+	public Map<String, Object> updateScheduleEndDate(@RequestBody InteriorScheduleDTO dto) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+		try {
+			int updateResult = interiorService.updateScheduleEndDate(dto);
+			if(updateResult > 0) {
+				result.put("success", true);
+				result.put("message", "시공 종료일이 수정되었습니다.");
+			} else {
+				result.put("success", false);
+				result.put("message", "시공 종료일이 수정중 오류가 발생하였습니다.");
+				result.put("error", "result is 0");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+			result.put("message", "시공 종료일이 수정중 오류가 발생하였습니다.");
+			result.put("error", e.toString());
+		}
+		return result;
+	}
+	
 }

@@ -6,6 +6,7 @@ import CalendarMui from "../components/CalendarMui";
 import ToggleButtonMui from "../components/ToggleButtonMui";
 import dayjs from "dayjs";
 import DatePickerMui from "./../components/DatePickerMui";
+import AlertMui from "../components/AlertMui";
 
 const InteriorScheduleControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -13,26 +14,37 @@ const InteriorScheduleControl = () => {
 	const { id } = userData;
 	const today = dayjs().format("YYYY-MM-DD");
 
+	const alertInit = { severity: null, text: "", open: false };
+
 	const [interiorScheduleList, setInteriorScheduleList] = useState([]);
 	const [selectedSchedule, setSelectedSchedule] = useState(null);
 	const [viewDataType, setViewDataType] = useState("working");
 	const [changeDate, setChangeDate] = useState(today);
+	const [alertInfo, setAlertInfo] = useState(alertInit);
 
+	const reLoadData = async () => {
+		const result = await InteriorService.getInteriorSchedule({ c_id: id });
+		if (result.success) {
+			const scheduleList = result.scheduleList ?? [];
+			setInteriorScheduleList(scheduleList);
+			setSelectedSchedule((prev) => {
+				if (!prev) return null;
+				return scheduleList[prev.rowIndex] ? prev : null;
+			});
+		}
+	};
 	useEffect(() => {
-		const reLoadData = async () => {
-			const result = await InteriorService.getInteriorSchedule({ c_id: id });
-			if (result.success) {
-				const scheduleList = result.scheduleList ?? [];
-				setInteriorScheduleList(scheduleList);
-				setSelectedSchedule((prev) => {
-					if (!prev) return null;
-					return scheduleList[prev.rowIndex] ? prev : null;
-				});
-			}
-		};
-
 		reLoadData();
 	}, [id]);
+
+	useEffect(() => {
+		if(!selectedSchedule || !selectedSchedule.is_enddate) return
+		setChangeDate(selectedSchedule.is_enddate)
+	},[selectedSchedule])
+
+	const completeDateChange = (e) => {
+		setChangeDate(e);
+	};
 
 	const displayScheduleList = useMemo(() => {
 		if (viewDataType === "all") {
@@ -58,6 +70,22 @@ const InteriorScheduleControl = () => {
 
 	const handleViewType = (event, newAlignment) => {
 		setViewDataType(newAlignment);
+	};
+
+	const onClickUpdateEndDate = async () => {
+		const dto = {
+			...selectedSchedule,
+			is_enddate: dayjs(changeDate).format("YYYY-MM-DD"),
+		};
+		const updateResult = await InteriorService.updateScheduleEndDate(dto);
+
+		setAlertInfo({
+			severity: updateResult.success ? "success" : "error",
+			title: updateResult.success ? "등록 성공" : "등록 실패",
+			text: updateResult.message,
+			open: true,
+		});
+		reLoadData();
 	};
 
 	const toggleButtonList = [
@@ -109,8 +137,12 @@ const InteriorScheduleControl = () => {
 					width: "460px",
 					justifyContent: "space-between",
 				}}>
-				<DatePickerMui value={changeDate} />
-				<Button variant="contained" color="primary">
+				<DatePickerMui
+					value={changeDate}
+					onChange={completeDateChange}
+					label="완료 날짜 수정"
+				/>
+				<Button variant="contained" color="primary" onClick={onClickUpdateEndDate}>
 					수정하기
 				</Button>
 				<Button variant="contained" color="success">
@@ -168,6 +200,17 @@ const InteriorScheduleControl = () => {
 					</Typography>
 				)}
 			</Paper>
+			{alertInfo.open && (
+				<AlertMui
+					severity={alertInfo?.severity}
+					variant="standard"
+					title={alertInfo?.title}
+					text={alertInfo?.text}
+					onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+					autoHideDuration={3000}
+					icon={true}
+				/>
+			)}
 		</div>
 	);
 };

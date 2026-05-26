@@ -114,5 +114,7 @@ public interface InteriorMapper {
 	public int insertInteriorSchedule(InteriorScheduleDTO dto) throws Exception;
 
 	public List<InteriorScheduleDTO> getInteriorSchedule(InteriorScheduleDTO c_dto) throws Exception;
+
+	public int updateScheduleEndDate(InteriorScheduleDTO dto) throws Exception;
 	
 }

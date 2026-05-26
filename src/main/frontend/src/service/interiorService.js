@@ -526,6 +526,15 @@ const getInteriorSchedule = async (c_dto) => {
 	}
 };
 
+const updateScheduleEndDate = async (data) => {
+	try {
+		const res = await http.post("/interior/update/updateScheduleEndDate", data);
+		return res.data;
+	} catch (error) {
+		console.error("insertInteriorSchedule : ", error);
+	}
+};
+
 const InteriorService = {
 	aiResponse,
 	aiResponselist,
@@ -559,7 +568,8 @@ const InteriorService = {
 	getPDFData,
 	getInteriorExampleByCompanyId,
 	insertInteriorSchedule,
-	getInteriorSchedule
+	getInteriorSchedule,
+	updateScheduleEndDate,
 };
 
 export default InteriorService;
