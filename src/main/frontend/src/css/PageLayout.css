@@ -51,7 +51,7 @@
 	height: 40px;
 	border: 0;
 	border-radius: 6px;
-	background-color: #2f5d50;
+	background-color: rgba(0, 140, 255, 0.92);
 	color: white;
 	padding: 0 16px;
 	cursor: pointer;
@@ -68,7 +68,7 @@
 }
 
 .shop-user a {
-	color: #2f5d50;
+	color: #000000;
 	font-weight: 700;
 	text-decoration: none;
 }
@@ -110,7 +110,7 @@
 }
 
 .shop-footer {
-	background-color: #021eaaf1;
+	background-color: rgba(0, 140, 255, 0.92);
 	color: white;
 }
 

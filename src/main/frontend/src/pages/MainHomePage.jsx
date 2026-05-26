@@ -4,9 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
-import SwitchMui from '../components/SwitchMui';
 import SnackbarAlert from '../components/SnackbarAlert';
 import EventPopup from './EventPopup';
+import DialogMui from "../components/DialogMui";
 
 const MainHomePage = ({ loginUser }) => {
 
@@ -73,6 +73,8 @@ const MainHomePage = ({ loginUser }) => {
         message: "",
         severity: "info",
     });
+    //다이얼로그
+    const [hideConfirmOpen, setHideConfirmOpen] = useState(false);
 
     const showSnackbar = (message, severity = "info") => {
         setSnackbar({
@@ -159,49 +161,31 @@ const MainHomePage = ({ loginUser }) => {
         return listA.every((code) => listB.includes(code));
     };
 
-    const hasPendingHiddenChange = () => {
-        return !isSameHiddenList(pendingHiddenFurnitureCodes, hiddenFurnitureCodes);
+    //토글버튼 대신 일반 버튼으로 변경
+    //추천 숨김 관리 on
+    const onHideStart = () => {
+        setPendingHiddenFurnitureCodes(hiddenFurnitureCodes);
+        setHideMode(true);
     };
 
-    const onHideModeChange = (evt) => {
-        const checked = evt.target.checked;
-
-        // 토글 ON: 현재 저장된 숨김 목록을 기준으로 관리 시작
-        if (checked) {
-            setPendingHiddenFurnitureCodes(hiddenFurnitureCodes);
-            setHideMode(true);
-            return;
-        }
-
-        // 토글 OFF: 선택 변경이 있으면 닫지 않고 완료 버튼을 누르게 안내
-        if (hasPendingHiddenChange()) {
-            showSnackbar("변경한 숨김 설정은 완료 버튼을 눌러 저장해주세요.", "warning");
-            return;
-        }
-
-        // 변경이 없으면 그냥 닫기
+    //숨김 취소를 버튼으로 바꿈: 사용자가 체크했던 변경사항을 버리고, 원래 저장된 숨김 목록으로 되돌리는 역할
+    const onHideCancel = () => {
         setPendingHiddenFurnitureCodes(hiddenFurnitureCodes);
         setHideMode(false);
+        showSnackbar("추천 숨김 관리를 취소했습니다.", "info")
     };
 
-    //로그인할때 이용하게 가능하게
+    //완료 버튼 클릭 시 확인 dialog 열기
     const onHideComplete = () => {
-        if(!currentUser?.id) {
-            showSnackbar("로그인 후 이용하실수 있습니다.");
+        if(isSameHiddenList(pendingHiddenFurnitureCodes, hiddenFurnitureCodes)){
+            showSnackbar("변경된 숨김 설정이 없습니다.","info");
             return;
         }
+        setHideConfirmOpen(true);
+    };
 
-        //변경되지 않으면 그냥 닫을수 있음
-        if(isSameHiddenList(pendingHiddenFurnitureCodes,hiddenFurnitureCodes)){
-            showSnackbar("숨김 처리할 가구를 선택해주세요.", "info");
-            return;
-        }
-
-        const isConfirm = window.confirm("선택한 가구를 추천 목록에서 숨김 처리하시겠습니까?");
-
-        if(!isConfirm) {
-            return;
-        }
+    //실제로 저장되는 함수는 따로 뺐다. 다이얼로그를 써야해서!@!!!!
+    const saveHiddenFurniture = () => {
 
         axios.post("http://localhost:8080/api/main/recommend/hide", {
             id: currentUser?.id,
@@ -235,6 +219,29 @@ const MainHomePage = ({ loginUser }) => {
                 severity={snackbar.severity}
                 onClose={closeSnackbar}
             />
+            <DialogMui
+                open={hideConfirmOpen}
+                onClose={() => setHideConfirmOpen(false)}
+                title="추천 숨김 처리"
+                text="선택한 가구를 추천 목록에서 숨김 처리하시겠습니까?"
+                buttons={[
+                    {
+                        title: "취소",
+                        color: "inherit",
+                        variant: "text",
+                        onClick: () => {
+                            setHideConfirmOpen(false);
+                            showSnackbar("숨김 처리를 취소했습니다.","info");
+                        },
+                    },
+                    {
+                        title: "확인",
+                        color: "primary",
+                        variant: "contained",
+                        onClick: saveHiddenFurniture,
+                    },
+                ]}
+                />
             {/* 메인 상단 영역 */}
                 <section
                     style={{
@@ -441,27 +448,41 @@ const MainHomePage = ({ loginUser }) => {
                     <h2 style={{margin:0}}>
                         {currentUser ? "맞춤 추천 가구" : "오늘의 추천 가구"}
                     </h2>
-                    <div style={{display: "flex", gap: "8px", alignItems: "center"}}>
-                        {currentUser?.id && (
-                            <SwitchMui
-                                checked={hideMode}
-                                onChange={onHideModeChange}
-                                label={hideMode ? "숨김 관리 중" : "추천 숨김 관리"}
-                                name="hideMode"
-                                width="180px"
-                            />
-                        )}
-                        {currentUser?.id && hideMode && (
+                   <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        {currentUser?.id && !hideMode && (
                             <Button
-                                variant="contained"
+                                variant="outlined"
                                 color="primary"
                                 size="small"
-                                onClick={onHideComplete}
+                                onClick={onHideStart}
                             >
-                                완료
+                                추천 숨김 관리
                             </Button>
                         )}
-                        <Link to ="/furniture/list">전체보기</Link>
+
+                        {currentUser?.id && hideMode && (
+                            <>
+                                <Button
+                                    variant="outlined"
+                                    color="inherit"
+                                    size="small"
+                                    onClick={onHideCancel}
+                                >
+                                    취소
+                                </Button>
+
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={onHideComplete}
+                                >
+                                    완료
+                                </Button>
+                            </>
+                        )}
+
+                        <Link to="/furniture/list">전체보기</Link>
                     </div>
                 </div>
                 

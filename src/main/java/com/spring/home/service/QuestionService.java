@@ -63,9 +63,24 @@ public class QuestionService {
 		questionMapper.updateAnswer(dto);
 	}
 	
+	//답변이 달린 문의 수정 관하여
 	public void updateData(QuestionDTO dto) throws Exception{
-		questionMapper.updateData(dto);
+		QuestionDTO savedQuestion = questionMapper.getReadDataByQIdx(dto.getQ_idx());
+		
+		if(savedQuestion == null) {
+			throw new RuntimeException("문의 정보를 찾을 수 없습니다.");
+		}
+		
+		if(savedQuestion.getQ_answer() != null && !savedQuestion.getQ_answer().trim().isEmpty()) {
+			throw new RuntimeException("답변이 등록된 문의는 수정할 수 없습니다.");
+		}
+		int updateCount = questionMapper.updateData(dto);
+		
+		if(updateCount == 0) {
+			throw new RuntimeException("문의 수정에 실패했습니다.");
+		}
 	}
+	
 	
 	//아이디로 삭제하면 안됨!!!!! -> 이 사람이 쓴 모든 글이 다 삭제됨
 	public void deleteData(int q_idx) throws Exception{
