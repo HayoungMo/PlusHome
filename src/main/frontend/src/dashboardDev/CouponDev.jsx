@@ -1,16 +1,23 @@
 import React from 'react';
 import CouponAddDev from '../components/CouponAddDev';
-import CouponListDev from '../components/CouponListDev';
+import CouponListDeve from './CouponListDeve'
+
 
 const CouponDev = (data) => {
-    const {selectedKeys, couponData, setCouponData} = data
+    const {selectedKeys, couponData, setCouponData,selectedCouponKeys,setSelectedCouponKeys} = data
     return (
         <div>
             <CouponAddDev
                 selectedKeys={selectedKeys}
                 couponData={couponData}
-                setCouponData={setCouponData}/>
-            <CouponListDev/>
+                setCouponData={setCouponData}
+                selectedCouponKeys={selectedCouponKeys}
+                 setSelectedCouponKeys={setSelectedCouponKeys}
+                />
+            <CouponListDeve
+                selectedCouponKeys={selectedCouponKeys}
+                setSelectedCouponKeys={setSelectedCouponKeys}
+            />
         </div>
     );
 };

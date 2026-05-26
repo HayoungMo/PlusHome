@@ -60,7 +60,7 @@ const TableChkMui = (props) => {
 	// 전체 선택
 	const handleSelectAll = (event) => {
 		if (event.target.checked) {
-			const allIds = rowData.map((row, index) => row.id || index);
+			const allIds = rowData.map((row, index) => row.id || row.coupon_code|| index);
 
 			setSelectedKeys(allIds);
 		} else {
@@ -143,7 +143,8 @@ const TableChkMui = (props) => {
 
 				<TableBody>
 					{rowData.map((row, rowIndex) => {
-						const rowId = row.id || rowIndex;
+						const rowId = row.id || row.coupon_code
+						|| rowIndex;
 
 						const isSelected = selectedKeys.includes(rowId);
 

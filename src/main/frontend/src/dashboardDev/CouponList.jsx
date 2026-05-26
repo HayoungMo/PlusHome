@@ -6,6 +6,7 @@ import { Button } from '@mui/material';
 import CouponDev from '../dashboardDev/CouponDev'
 import TextFieldMui from '../components/TextFieldMui';
 import SelectMui from '../components/SelectMui';
+import CouponDownDev from './CouponDownDev';
 
 const CouponList = () => {
 
@@ -13,6 +14,7 @@ const CouponList = () => {
     const [userType,setUserType] = useState("user");
     const [selectedUserKeys,setSelectedUserKeys] = useState([]);
     const [searchInfo,setSearchInfo] = useState({})
+    const [selectedCouponKeys,setSelectedCouponKeys] = useState([])
 
     const userColumns = [
     "id",
@@ -120,7 +122,10 @@ const CouponList = () => {
             <CouponDev 
                 selectedKeys={selectedUserKeys}
                 couponData={couponData}
-                setCouponData={setCouponData}/>
+                setCouponData={setCouponData}
+                selectedCouponKeys={selectedCouponKeys}
+                setSelectedCouponKeys={setSelectedCouponKeys}
+                />
 
          <div style={{
                 display: 'flex',
@@ -147,6 +152,10 @@ const CouponList = () => {
                 검색
             </Button>
         </div>
+            <CouponDownDev
+                selectedUserKeys={selectedUserKeys}
+                selectedCouponKeys={selectedCouponKeys}
+            />
             <TableChkMui
 
                     rowData={userList}
@@ -154,6 +163,7 @@ const CouponList = () => {
 
                     setSelectedKeys={setSelectedUserKeys}
                     selectedKeys={selectedUserKeys}
+    
                 />
             
         </div>

@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import CouponService from '../service/couponService';
-import TableMui from './TableMui';
-import TableCheckBoxMui from './TableCheckBoxMui';
+import TableChkMui from '../components/TableChkMui';
 
-const CouponListDev = () => {
+
+const CouponListDeve = (props) => {
   const [coupon, setCoupon] = useState();
 
+  const{selectedCouponKeys,setSelectedCouponKeys} = props;
+
   useEffect(() => {
+    
     const fetchCoupon = async () => {
+
       const result = await CouponService.selectCouponDev();
       if (!result.success) {
         return;
@@ -17,9 +21,13 @@ const CouponListDev = () => {
     fetchCoupon();
   }, []);
 
+  useEffect(()=>{
+    console.log("선택된 쿠폰",selectedCouponKeys)
+  },[selectedCouponKeys])
+
   return (
     <div>
-        <TableMui
+        <TableChkMui
           rowData={coupon}
           col={[
             "coupon_code",
@@ -28,9 +36,12 @@ const CouponListDev = () => {
             "coupon_max",
             "coupon_info",
           ]}
+
+          selectedKeys={selectedCouponKeys}
+          setSelectedKeys={setSelectedCouponKeys}
         />
     </div>
   );
 };
 
-export default CouponListDev;
+export default CouponListDeve;

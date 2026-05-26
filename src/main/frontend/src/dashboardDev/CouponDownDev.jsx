@@ -3,7 +3,11 @@ import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import CouponService from "../service/couponService";
 
-const CouponDownDev = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
+const CouponDownDev = (data) => {
+
+    const {selectedUserKeys, selectedCouponKeys} = data
+    
+
   const { coupon_code } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -24,82 +28,39 @@ const CouponDownDev = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
   };
 
   const handleDownload = async () => {
-    const id = localStorage.getItem("id");
 
-    if (!id) {
-      showAlert({
-        severity: "warning",
-        title: "로그인 필요",
-        text: "쿠폰 발급은 로그인 후 가능합니다.",
-      });
-      setTimeout(() => navigate("/login"), 1200);
-      return;
+    
+    
+    for(let i=0; i<selectedCouponKeys.length; i++){
+
+        const couponCode = selectedCouponKeys[i]
+
+        console.log("선택 쿠폰",couponCode)
+
+        const couponResult = await CouponService.selectCoupon(couponCode)
+
+        const couponData = couponResult.data;
+
+        for(let j=0; j<selectedUserKeys.length; j++){
+            const userId = selectedUserKeys[j];
+
+            console.log("선택 유저",userId)
+
+            await CouponService.insertCoupon({
+                ...couponData,
+                id:userId
+            })
+        }
+
     }
+}
 
-    try {
-      setLoading(true);
-
-      const couponResult = coupon ? { success: true, data: coupon } : await CouponService.selectCoupon(coupon_code);
-      const couponData = couponResult.data;
-
-      if (!couponResult.success || !couponData) {
-        showAlert({
-          severity: "error",
-          title: "발급 실패",
-          text: "올바르지 않은 쿠폰입니다.",
-        });
-        return;
-      }
-
-      const duplicate = await CouponService.checkCouponDuplicate({
-        coupon_code: couponData.coupon_code,
-        id,
-      });
-
-      if (!duplicate.success) {
-        showAlert({
-          severity: "warning",
-          title: "발급 불가",
-          text: "이미 등록된 쿠폰입니다.",
-        });
-        return;
-      }
-
-      const insert = await CouponService.insertCoupon({
-        ...couponData,
-        id,
-      });
-
-      if (!insert.success) {
-        showAlert({
-          severity: "error",
-          title: "발급 실패",
-          text: "쿠폰 발급에 실패했습니다.",
-        });
-        return;
-      }
-
-      showAlert({
-        severity: "success",
-        title: "발급 완료",
-        text: "쿠폰이 발급되었습니다.",
-      });
-    } catch (err) {
-      console.error(err);
-      showAlert({
-        severity: "error",
-        title: "오류",
-        text: "쿠폰 발급 중 오류가 발생했습니다.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    
 
   return (
     <>
       <Button variant="contained" disabled={loading} onClick={handleDownload}>
-        {loading ? "발급 중..." : buttonText}
+        적용
       </Button>
       <Snackbar
         open={alert.open}
