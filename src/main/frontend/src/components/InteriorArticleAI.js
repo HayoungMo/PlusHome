@@ -24,9 +24,6 @@ const InteriorArticleAI = ({ groupedTags, groupedReviewTags }) => {
     fetchResponse();
   }, [groupedTags, groupedReviewTags]);
 
-  console.log(groupedTags);
-  console.log(groupedReviewTags);
-
   return <div>{response}</div>;
 };
 

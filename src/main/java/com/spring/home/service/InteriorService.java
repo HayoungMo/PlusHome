@@ -54,8 +54,8 @@ public class InteriorService {
 		return interiorMapper.getLists();
 	}
 
-	public Map<String, Object> getPagedLists(int pageNum, int pageSize, String search, String filterType,
-			String filterValue) {
+	public Map<String, Object> getPagedLists(int pageNum, int pageSize, String search,
+			List<Map<String, Object>> filters) {
 		if (pageNum < 1) {
 			pageNum = 1;
 		}
@@ -66,8 +66,8 @@ public class InteriorService {
 		int start = (pageNum - 1) * pageSize + 1;
 		int end = pageNum * pageSize;
 
-		List<CompanyDTO> list = interiorMapper.getPagedLists(start, end, search, filterType, filterValue);
-		int totalCount = interiorMapper.getPagedListCount(search, filterType, filterValue);
+		List<CompanyDTO> list = interiorMapper.getPagedLists(start, end, search, filters);
+		int totalCount = interiorMapper.getPagedListCount(search, filters);
 		int totalPage = (int) Math.ceil((double) totalCount / pageSize);
 
 		Map<String, Object> result = new HashMap<>();

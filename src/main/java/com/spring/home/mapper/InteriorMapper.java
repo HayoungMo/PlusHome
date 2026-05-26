@@ -1,6 +1,7 @@
 package com.spring.home.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,13 +40,11 @@ public interface InteriorMapper {
 			@Param("start") int start,
 			@Param("end") int end,
 			@Param("search") String search,
-			@Param("filterType") String filterType,
-			@Param("filterValue") String filterValue);
+			@Param("filters") List<Map<String, Object>> filters);
 
 	public int getPagedListCount(
 			@Param("search") String search,
-			@Param("filterType") String filterType,
-			@Param("filterValue") String filterValue);
+			@Param("filters") List<Map<String, Object>> filters);
 	
 	public List<InteriorDTO> getArticleLists();
 	

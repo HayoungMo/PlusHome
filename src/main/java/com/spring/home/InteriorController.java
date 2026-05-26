@@ -4,10 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,9 +62,69 @@ public class InteriorController {
 			@RequestParam(defaultValue = "12") int pageSize,
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "") String filterType,
-			@RequestParam(defaultValue = "") String filterValue) {
+			@RequestParam(defaultValue = "") String filterValue,
+			@RequestParam MultiValueMap<String, String> requestParams) {
 
-		return interiorService.getPagedLists(pageNum, pageSize, search, filterType, filterValue);
+		List<Map<String, Object>> filters = getInteriorListFilters(requestParams, filterType, filterValue);
+		return interiorService.getPagedLists(pageNum, pageSize, search, filters);
+	}
+
+	private List<Map<String, Object>> getInteriorListFilters(
+			MultiValueMap<String, String> requestParams,
+			String filterType,
+			String filterValue) {
+		Map<String, List<String>> groupedFilters = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<String>> entry : requestParams.entrySet()) {
+			String filterKey = getFilterKey(entry.getKey());
+			if (filterKey == null || filterKey.isEmpty()) {
+				continue;
+			}
+
+			List<String> values = groupedFilters.computeIfAbsent(filterKey, key -> new ArrayList<>());
+			for (String value : entry.getValue()) {
+				if (value != null && !value.isEmpty() && !values.contains(value)) {
+					values.add(value);
+				}
+			}
+		}
+
+		if (groupedFilters.isEmpty()
+				&& filterType != null && !filterType.isEmpty()
+				&& filterValue != null && !filterValue.isEmpty()) {
+			List<String> values = new ArrayList<>();
+			values.add(filterValue);
+			groupedFilters.put(filterType, values);
+		}
+
+		List<Map<String, Object>> filters = new ArrayList<>();
+		for (Map.Entry<String, List<String>> entry : groupedFilters.entrySet()) {
+			if (entry.getValue().isEmpty()) {
+				continue;
+			}
+
+			Map<String, Object> filter = new HashMap<>();
+			filter.put("filterKey", entry.getKey());
+			filter.put("filterValues", entry.getValue());
+			filters.add(filter);
+		}
+
+		return filters;
+	}
+
+	private String getFilterKey(String paramName) {
+		String prefix = "filterValue[";
+		if (paramName == null || !paramName.startsWith(prefix)) {
+			return null;
+		}
+
+		int start = prefix.length();
+		int end = paramName.indexOf("]", start);
+		if (end <= start) {
+			return null;
+		}
+
+		return paramName.substring(start, end);
 	}
 
 	@GetMapping("/articlelists")
