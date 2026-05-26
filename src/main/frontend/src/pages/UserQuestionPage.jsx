@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import questionService from "../service/questionService";
-import { TextField } from "@mui/material";
+import { TextField,Button } from "@mui/material";
 import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
+import SnackbarAlert from '../components/SnackbarAlert';
 
 const UserQuestionPage = ({ user }) => {
     const [questions, setQuestions] = useState([]);
@@ -28,6 +29,29 @@ const UserQuestionPage = ({ user }) => {
     const [addImageFiles, setAddImageFiles] = useState({});
     //Loading 할래욧
     const [loading, setLoading] = useState(true)
+
+    //snackBar 사용
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "info",
+    });
+
+    const showSnackbar = (message, severity = "info") => {
+            setSnackbar({
+                open: true,
+                message,
+                severity,
+            });
+        };
+
+    const closeSnackbar = () => {
+        setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+        }));
+    };
+
     
     //회사 확잉
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
@@ -335,8 +359,12 @@ const UserQuestionPage = ({ user }) => {
 
     return (
         <div>
-            <h2>문의 확인</h2>
-
+            <SnackbarAlert
+                open={snackbar.open}
+                message={snackbar.message}
+                severity={snackbar.severity}
+                onClose={closeSnackbar}
+            />
             {questions.length === 0 ? (
                 <p>작성한 문의가 없습니다.</p>
             ) : (
@@ -523,16 +551,27 @@ const UserQuestionPage = ({ user }) => {
                                     </div>
                                 )}
 
-                                    {!isCompanyUser && (
-                                        <button type="button" onClick={() => startEdit(item)}>
+                                    {!isCompanyUser && !item.q_answer && (
+                                        <Button
+                                            type="button"
+                                            variant="contained"
+                                            size="small"
+                                            onClick={() => startEdit(item)}
+                                        >
                                             수정
-                                        </button>
+                                        </Button>
                                     )}
 
                                     {!isCompanyUser && (
-                                        <button type="button" onClick={() => deleteQuestion(item.q_idx)}>
+                                        <Button
+                                            type="button"
+                                            variant="contained"
+                                            color="error"
+                                            size="small"
+                                            onClick={() => startEdit(item)}
+                                        >
                                             삭제
-                                        </button>
+                                        </Button>
                                     )}
                             </div>
                         )}

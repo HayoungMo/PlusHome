@@ -84,7 +84,30 @@
 	   where id = #{id}
 	   order by q_idx desc
 	</select>
-
+	
+	<!-- 답변이 달렸는지 -->
+	<select id="getReadDataByQIdx" resultType="com.spring.home.dto.QuestionDTO">
+	    select
+	        q.id,
+	        q.f_code,
+	        q.q_idx,
+	        q.q_status,
+	        q.q_title,
+	        q.q_content,
+	        q.q_answer,
+	        q.q_answerDate,
+	        q.q_secret,
+	        q.q_guestPhone,
+	        q.q_createdDate,
+	        f.c_id,
+	        f.c_kind,
+	        f.c_name,
+	        f.f_name
+	    from question q
+	    join furniture f
+	      on q.f_code = f.f_code
+	   where q.q_idx = #{q_idx}
+	</select>
 	<!-- 업체별 답변 수정 -->
 	<update id="updateAnswer" parameterType="com.spring.home.dto.QuestionDTO">
 		update question
@@ -111,6 +134,7 @@
 				q_content = #{q_content},
 				q_secret = #{q_secret}
 		 where q_idx = #{q_idx}
+		   and q_answer is null
 	</update>
 	
 	<!-- 문의 삭제 -->
