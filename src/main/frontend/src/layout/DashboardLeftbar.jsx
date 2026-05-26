@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const DashBoardLeftbar = ({ menus, activeMenu, setActiveMenu }) => {
+	const navigate = useNavigate()
 
 	return (
 		<aside className="leftbar">
@@ -14,6 +16,14 @@ const DashBoardLeftbar = ({ menus, activeMenu, setActiveMenu }) => {
 					</li>
 				))}
 			</ul>
+
+			<button
+				type="button"
+				className="leftbar-mypage-button"
+				onClick={()=> navigate("/userpage")}
+			>
+				마이페이지
+			</button>
 		</aside>
 	);
 };

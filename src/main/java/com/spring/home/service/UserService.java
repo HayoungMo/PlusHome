@@ -22,10 +22,12 @@ import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.dto.ResponseIdDTO;
 import com.spring.home.dto.ResponsePwDTO;
 import com.spring.home.dto.UserDTO;
+import com.spring.home.dto.WalletDTO;
 import com.spring.home.mapper.CompanyMapper;
 import com.spring.home.mapper.CouponMapper;
 import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.UserMapper;
+import com.spring.home.mapper.WalletMapper;
 import com.spring.home.util.FileUtilMethod;
 //
 @Service
@@ -49,6 +51,9 @@ public class UserService {
 	@Autowired
 	private CouponMapper couponMapper;
 	
+	@Autowired
+	private WalletMapper walletMapper;
+	
 	@Transactional
 	public void insertUser(UserDTO dto) throws Exception{
 		
@@ -56,6 +61,8 @@ public class UserService {
 		dto.setPw(encodePw);
 		
 		userMapper.insertData(dto);	
+		//유저 생성시 지갑 추가 
+		createWalletIfAbsent(dto.getId());
 		
 		System.out.println("=== 회원가입 디버깅 ===");
 		System.out.println("type: " + dto.getType());
@@ -69,10 +76,24 @@ public class UserService {
 			cdto.setC_tel(dto.getTel());
 			companyMapper.insertData(cdto);
 		}
-		
-		
+				
 		
 		}
+	
+	private void createWalletIfAbsent(String id) throws Exception{
+		if (id == null || id.trim().isEmpty()) {
+			return;
+		}
+		
+		if(walletMapper.getReadData(id) != null) {
+			return;
+		}
+		
+		 WalletDTO wallet = new WalletDTO();
+		 wallet.setId(id);
+		 wallet.setMoney(0);
+		 walletMapper.insertData(wallet);
+	}
 	
 	private Map<String, String> authMap = new HashMap<>();
 	
@@ -352,7 +373,7 @@ public class UserService {
 		}
 	}
 	
-	
+	//
 
 }
 	

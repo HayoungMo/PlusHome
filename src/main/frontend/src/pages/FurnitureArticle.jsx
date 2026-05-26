@@ -147,6 +147,14 @@ const FurnitureArticle = () => {
         );
     };
 
+    const getRequiredOptionGroupNames = () => {
+      return Object.entries(optionGroups)
+      .filter(([, groupOptions]) => 
+        groupOptions.some((option) => option.o_important === "Y")
+    )
+    .map(([groupName]) => groupName)
+    }
+
     const getSelectedOptionListBySet = (optionSet) => {
         return Object.values(optionSet.selectedOptions)
             .map(o_code => options.find(option => option.o_code === o_code))
@@ -154,11 +162,13 @@ const FurnitureArticle = () => {
     };
 
     const isOptionSetComplete = (optionSet) => {
-        const groupCount = Object.keys(optionGroups).length;
+      const requiredGroupNames = getRequiredOptionGroupNames();
 
-        if (groupCount === 0) return true;
+      if (requiredGroupNames.length === 0) return true;
 
-        return getSelectedOptionListBySet(optionSet).length === groupCount;
+      return requiredGroupNames.every(
+        (groupName) => !!optionSet.selectedOptions[groupName]
+      );
     };
 
     useEffect(() => {
@@ -267,7 +277,7 @@ const FurnitureArticle = () => {
         const invalidSet = selectedOptionSets.some(set => !isOptionSetComplete(set));
 
         if (invalidSet) {
-            alert("옵션을 모두 선택해주세요.");
+            alert("필수 옵션을 선택해주세요.");
             return;
         }
 
@@ -339,7 +349,7 @@ const FurnitureArticle = () => {
       const invalidSet = selectedOptionSets.some(set => !isOptionSetComplete(set));
 
       if (invalidSet) {
-          alert("옵션을 모두 선택해주세요.");
+          alert("필수 옵션을 선택해주세요.");
           return;
       }
 

@@ -18,7 +18,10 @@ public interface CartMapper {
 	
 	public void updateData(CartDTO dto) throws Exception;
 	
-	public void deleteData(String c_code) throws Exception;
+	public int deleteData(
+			@Param("id") String id,
+			@Param("c_code") String c_code
+			) throws Exception;
 
 	public CartDTO findSameCart(
 		@Param("id") String id,
@@ -70,5 +73,6 @@ public interface CartMapper {
 	public int restoreCouponDiscountAsPoint(
 			@Param("c_code") String c_code,
 			@Param("id") String id);
+
 
 }

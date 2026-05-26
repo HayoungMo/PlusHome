@@ -94,6 +94,8 @@
     <delete id="deleteData" parameterType="string">
         DELETE FROM cart
         WHERE c_code = #{c_code}
+        AND id = #{id}
+        AND f_status = 'N'
     </delete>
 
     <select id="findSameCart" resultType="com.spring.home.dto.CartDTO">

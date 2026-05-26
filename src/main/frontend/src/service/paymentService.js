@@ -36,12 +36,14 @@ const confirmOrder = (c_code) => {
 };
 
 const checkStock = async (c_codes) => {
-    const res = await http.post("/payment/check-stock",{
-        c_codes,
-    })
+  const res = await http.post(
+    "/payment/check-stock",
+    { c_codes },
+    { headers: getAuthHeaders() }
+  );
 
-    return res.data
-}
+  return res.data;
+};
 
 export default {
     pay,

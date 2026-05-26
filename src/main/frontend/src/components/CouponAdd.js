@@ -74,7 +74,7 @@ const CouponAdd = ({onCreated}) => {
       const result = await CompanyService.getLists();
 
       const optionList = result.map((item) => ({
-        value: item.c_id + "_" + item.c_name + "_" + item.c_kind,
+        value: item.c_id + "_" + item.c_kind + "_" + item.c_name,
         title: item.c_name,
       }));
 

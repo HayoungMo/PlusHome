@@ -2,20 +2,24 @@ package com.spring.home.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CartOptionDTO;
+import com.spring.home.dto.CouponDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.PaymentDTO;
 import com.spring.home.dto.StockCheckDTO;
 import com.spring.home.dto.WalletDTO;
 import com.spring.home.mapper.CartMapper;
 import com.spring.home.mapper.CartOptionMapper;
+import com.spring.home.mapper.CouponMapper;
 import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.OptionsMapper;
 import com.spring.home.mapper.WalletMapper;
@@ -26,12 +30,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentService {
 
+	//배송비~
+	private static final int FREE_DELIVERY_LIMIT = 50000;
+	
 	private final WalletMapper walletMapper;
 	private final CartMapper cartMapper;
 	private final CartOptionMapper cartOptionMapper;
 	private final OptionsMapper optionsMapper;
 	private final FurnitureMapper furnitureMapper;
-
+	private final CouponMapper couponMapper;
+	
 	private void updateWallet(String id, int money) throws Exception {
 		WalletDTO wallet = new WalletDTO();
 		wallet.setId(id);
@@ -55,6 +63,163 @@ public class PaymentService {
 		return furniture.getC_id();
 	}
 	
+	private Map<String, String> getCouponCodeMap(List<PaymentDTO.CouponPayDTO> couponList){
+		Map<String, String> couponCodeMap = new HashMap<>();
+		Set<String> usedCouponCodes = new HashSet<>();
+		
+		if (couponList == null) {
+			return couponCodeMap;
+		}
+		
+		for (PaymentDTO.CouponPayDTO couponItem : couponList) {
+			if(couponItem == null || couponItem.getCoupon_code() == null || couponItem.getCoupon_code().trim().isEmpty()) {
+				continue;
+			}
+			
+			 String couponCode = couponItem.getCoupon_code().trim();
+
+	        if (!usedCouponCodes.add(couponCode)) {
+	            throw new RuntimeException("같은 쿠폰은 한 번만 사용할 수 있습니다.");
+	        }
+
+	        if (couponItem.getC_code() == null || couponItem.getC_code().trim().isEmpty()) {
+	            throw new RuntimeException("쿠폰 적용 상품 정보가 올바르지 않습니다.");
+	        }
+
+	        couponCodeMap.put(couponItem.getC_code().trim(), couponCode);
+	        
+		}
+		
+		return couponCodeMap;
+	}
+	
+	private int calculateDeliveryTotal(List<PaymentItem> paymentItems) throws Exception {
+	    Map<String, Integer> companyProductTotalMap = new HashMap<>();
+	    Map<String, Integer> companyDeliveryMap = new HashMap<>();
+
+	    for (PaymentItem item : paymentItems) {
+	        FurnitureDTO furniture = getFurnitureOrThrow(item.cart.getF_code());
+	        String companyId = furniture.getC_id();
+
+	        companyProductTotalMap.put(
+	            companyId,
+	            companyProductTotalMap.getOrDefault(companyId, 0) + item.productTotal
+	        );
+
+	        companyDeliveryMap.put(
+	            companyId,
+	            Math.max(
+	                companyDeliveryMap.getOrDefault(companyId, 0),
+	                Math.max(0, furniture.getF_deliveryPrice())
+	            )
+	        );
+	    }
+
+	    int deliveryTotal = 0;
+
+	    for (String companyId : companyProductTotalMap.keySet()) {
+	        int companyProductTotal = companyProductTotalMap.get(companyId);
+
+	        if (companyProductTotal < FREE_DELIVERY_LIMIT) {
+	            deliveryTotal += companyDeliveryMap.getOrDefault(companyId, 0);
+	        }
+	    }
+
+	    return deliveryTotal;
+	}
+	
+	private int applyCoupons(
+	        String id,
+	        Map<String, String> couponCodeMap,
+	        List<PaymentItem> paymentItems
+	) throws Exception {
+	    int totalCouponDiscount = 0;
+
+	    for (PaymentItem item : paymentItems) {
+	        String couponCode = couponCodeMap.get(item.cart.getC_code());
+
+	        if (couponCode == null) {
+	            continue;
+	        }
+
+	        CouponDTO coupon = couponMapper.getValidUserCoupon(id, couponCode);
+
+	        if (coupon == null) {
+	            throw new RuntimeException("사용할 수 없는 쿠폰입니다.");
+	        }
+
+	        if (!canApplyCouponToItem(coupon, item.cart.getF_code())) {
+	            throw new RuntimeException("해당 상품에 적용할 수 없는 쿠폰입니다.");
+	        }
+
+	        int discount = calculateCouponDiscount(coupon, item.productTotal);
+
+	        item.couponCode = couponCode;
+	        item.couponDiscount = discount;
+
+	        totalCouponDiscount += discount;
+	    }
+
+	    return totalCouponDiscount;
+	}
+	
+	private int calculateCouponDiscount(CouponDTO coupon, int itemProductTotal) {
+	    int discount = itemProductTotal * Math.max(0, coupon.getDiscount()) / 100;
+
+	    if (coupon.getCoupon_max() > 0) {
+	        discount = Math.min(discount, coupon.getCoupon_max());
+	    }
+
+	    return Math.min(discount, itemProductTotal);
+	}
+	
+	private boolean canApplyCouponToItem(CouponDTO coupon, String f_code) throws Exception {
+	    String couponType = coupon.getCoupon_type() == null ? "all" : coupon.getCoupon_type();
+	    String couponCatagory = coupon.getCoupon_catagory();
+
+	    if ("all".equals(couponType)) {
+	        return true;
+	    }
+
+	    if (couponCatagory == null || couponCatagory.trim().isEmpty()) {
+	        return false;
+	    }
+
+	    FurnitureDTO furniture = getFurnitureOrThrow(f_code);
+
+	    if ("company".equals(couponType)) {
+	        return couponCatagory.equals(furniture.getC_id());
+	    }
+
+	    if ("catagory".equals(couponType)) {
+	        return couponCatagory.equals(furniture.getF_catagory1())
+	            || couponCatagory.equals(furniture.getF_catagory2())
+	            || couponCatagory.equals(furniture.getF_catagory3())
+	            || couponCatagory.equals(furniture.getF_catagory4())
+	            || couponCatagory.equals(furniture.getF_catagory5());
+	    }
+
+	    return false;
+	}
+	
+	private FurnitureDTO getFurnitureOrThrow(String f_code) throws Exception {
+	    FurnitureDTO furniture = furnitureMapper.getReadData(f_code);
+
+	    if (furniture == null) {
+	        throw new RuntimeException("상품 정보를 찾을 수 없습니다.");
+	    }
+
+	    return furniture;
+	}
+	
+	private void decreaseWalletIfEnough(String id, int money) throws Exception {
+	    int result = walletMapper.decreaseIfEnough(id, money);
+
+	    if (result != 1) {
+	        throw new RuntimeException("지갑 잔액이 부족합니다.");
+	    }
+	}
+	
 	@Transactional
 	public void pay(String id, PaymentDTO dto) throws Exception {
 		if (dto.getC_codeList() == null || dto.getC_codeList().isEmpty()) {
@@ -62,23 +227,11 @@ public class PaymentService {
 		}
 
 		int usePoint = dto.getUse_point();
-		int couponDiscount = dto.getCouponDiscount();
 		
-		Map<String, Integer> couponDiscountMap = new HashMap<>();
-		
-		if(dto.getCouponList() != null) {
-			for(PaymentDTO.CouponPayDTO couponItem : dto.getCouponList()) {
-				int itemCouponDiscount = Math.max(0, couponItem.getCoupon_discount());
-				couponDiscountMap.put(couponItem.getC_code(), itemCouponDiscount);
-			}
-		}
+		Map<String, String> couponCodeMap = getCouponCodeMap(dto.getCouponList());
 
 		if (usePoint < 0) {
 			throw new RuntimeException("사용 포인트가 올바르지 않습니다.");
-		}
-
-		if (couponDiscount < 0) {
-			throw new RuntimeException("쿠폰 할인 금액이 올바르지 않습니다.");
 		}
 
 		if (usePoint > 0) {
@@ -103,13 +256,7 @@ public class PaymentService {
 			
 			int itemProductTotal = calculateCartProductTotal(cart, optionList);
 
-			int itemCouponDiscount = couponDiscountMap.getOrDefault(c_code, 0);
-
-			if (itemCouponDiscount > itemProductTotal) {
-				throw new RuntimeException("쿠폰 할인 금액이 상품 금액보다 클 수 없습니다.");
-			}
-
-			paymentItems.add(new PaymentItem(cart, optionList, itemProductTotal, itemCouponDiscount));
+			paymentItems.add(new PaymentItem(cart, optionList, itemProductTotal));
 			
 			productTotal += itemProductTotal;
 		}
@@ -118,13 +265,14 @@ public class PaymentService {
 			throw new RuntimeException("결제 금액이 올바르지 않습니다.");
 		}
 
-		int deliveryTotal = Math.max(0, dto.getDeliveryTotal());
+		int deliveryTotal = calculateDeliveryTotal(paymentItems);
+		int couponDiscount = applyCoupons(id, couponCodeMap, paymentItems);
+
 		int originalTotal = productTotal + deliveryTotal;
-
+		
 		if (usePoint + couponDiscount > originalTotal) {
-			throw new RuntimeException("할인 금액이 결제 금액보다 클 수 없습니다.");
+		    throw new RuntimeException("할인 금액은 결제 금액보다 클 수 없습니다.");
 		}
-
 		allocatePaymentAmount(paymentItems, productTotal, deliveryTotal, usePoint);
 
 		int finalPayTotal = 0;
@@ -132,13 +280,7 @@ public class PaymentService {
 			finalPayTotal += item.payTotal;
 		}
 
-		WalletDTO wallet = walletMapper.getReadData(id);
-
-		if (wallet == null || wallet.getMoney() < finalPayTotal) {
-			throw new RuntimeException("지갑 잔액이 부족합니다.");
-		}
-
-		updateWallet(id, -finalPayTotal);
+		decreaseWalletIfEnough(id, finalPayTotal);
 
 		for (PaymentItem item : paymentItems) {
 			decreaseStock(item.cart, item.optionList);
@@ -159,44 +301,58 @@ public class PaymentService {
 			if (result != 1) {
 				throw new RuntimeException("결제 상품 상태 변경에 실패했습니다.");
 			}
+			
+			if (item.couponCode != null) {
+			    int couponResult = couponMapper.useCoupon(id, item.couponCode);
+
+			    if (couponResult != 1) {
+			        throw new RuntimeException("쿠폰 사용 처리에 실패했습니다.");
+			    }
+			}
 		}
 	}
 
 	private void allocatePaymentAmount(
-			List<PaymentItem> paymentItems,
-			int productTotal,
-			int deliveryTotal,
-			int usePoint
-		) {
-			int allocatedDelivery = 0;
-			int allocatedUsePoint = 0;
+	        List<PaymentItem> paymentItems,
+	        int productTotal,
+	        int deliveryTotal,
+	        int usePoint
+	) {
+	    int allocatedDelivery = 0;
+	    int pointBaseTotal = 0;
 
-			for (int i = 0; i < paymentItems.size(); i++) {
-				PaymentItem item = paymentItems.get(i);
-				boolean last = i == paymentItems.size() - 1;
+	    for (int i = 0; i < paymentItems.size(); i++) {
+	        PaymentItem item = paymentItems.get(i);
+	        boolean last = i == paymentItems.size() - 1;
 
-				int itemDelivery = last
-					? deliveryTotal - allocatedDelivery
-					: deliveryTotal * item.productTotal / productTotal;
+	        int itemDelivery = last
+	            ? deliveryTotal - allocatedDelivery
+	            : deliveryTotal * item.productTotal / productTotal;
 
-				allocatedDelivery += itemDelivery;
+	        allocatedDelivery += itemDelivery;
 
-				int itemOriginalTotal = item.productTotal + itemDelivery;
-				int originalTotal = productTotal + deliveryTotal;
+	        item.originalTotal = item.productTotal + itemDelivery;
+	        item.pointBaseTotal = Math.max(0, item.originalTotal - item.couponDiscount);
 
-				int itemUsePoint = last
-					? usePoint - allocatedUsePoint
-					: usePoint * itemOriginalTotal / originalTotal;
+	        pointBaseTotal += item.pointBaseTotal;
+	    }
 
-				allocatedUsePoint += itemUsePoint;
+	    int allocatedUsePoint = 0;
 
-				item.usePoint = itemUsePoint;
-				item.payTotal = Math.max(
-					0,
-					itemOriginalTotal - itemUsePoint - item.couponDiscount
-				);
-			}
-		}
+	    for (int i = 0; i < paymentItems.size(); i++) {
+	        PaymentItem item = paymentItems.get(i);
+	        boolean last = i == paymentItems.size() - 1;
+
+	        int itemUsePoint = last
+	            ? usePoint - allocatedUsePoint
+	            : pointBaseTotal == 0 ? 0 : usePoint * item.pointBaseTotal / pointBaseTotal;
+
+	        allocatedUsePoint += itemUsePoint;
+
+	        item.usePoint = itemUsePoint;
+	        item.payTotal = Math.max(0, item.pointBaseTotal - itemUsePoint);
+	    }
+	}
 
 	private int calculateCartProductTotal(CartDTO cart, List<CartOptionDTO> optionList) {
 		int optionTotal = 0;
@@ -351,28 +507,33 @@ public class PaymentService {
 		private int payTotal;
 		private int usePoint;
 		private int couponDiscount;
+		private String couponCode;
+		private int originalTotal;
+		private int pointBaseTotal;
 
 		private PaymentItem(
 			CartDTO cart,
 			List<CartOptionDTO> optionList,
-			int productTotal,
-			int couponDiscount
+			int productTotal
 		) {
 			this.cart = cart;
 			this.optionList = optionList;
 			this.productTotal = productTotal;
-			this.couponDiscount = couponDiscount;
 		}
 	}
 	
-	public Map<String, Object> checkStock(List<String> c_codes) throws Exception{
+	public Map<String, Object> checkStock(String id, List<String> c_codes) throws Exception {
 		List<StockCheckDTO> shortageItems = new ArrayList<>();
+		
+		if (c_codes == null || c_codes.isEmpty()) {
+		    throw new RuntimeException("확인할 상품이 없습니다.");
+		}
 		
 		for(String c_code : c_codes) {
 			CartDTO cart = cartMapper.getReadData(c_code);
-			
-			if(cart == null) {
-				continue;
+
+			if (cart == null || !id.equals(cart.getId()) || !"N".equals(cart.getF_status())) {
+			    throw new RuntimeException("확인할 수 없는 장바구니 상품입니다.");
 			}
 			
 			FurnitureDTO furniture = furnitureMapper.getReadData(cart.getF_code());
@@ -429,5 +590,6 @@ public class PaymentService {
 	    return result;
 	    
 		}
+	
 	}
 

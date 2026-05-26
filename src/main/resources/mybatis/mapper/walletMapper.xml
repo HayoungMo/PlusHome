@@ -11,7 +11,14 @@
 
 <!-- 수정 -->
 <update id="updateData" parameterType="com.spring.home.dto.WalletDTO">
-	update wallet set money= money + #{money} where id=#{id}
+    update wallet set money = money + #{money} where id = #{id}
+</update>
+
+<update id="decreaseIfEnough">
+    UPDATE wallet
+    SET money = money - #{money}
+    WHERE id = #{id}
+      AND money >= #{money}
 </update>
 
 <!-- 삭제 -->

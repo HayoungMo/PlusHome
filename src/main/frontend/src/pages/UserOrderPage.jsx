@@ -100,7 +100,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                         }
 
                         const thumbnail = furniture?.imageList?.find(
-                            img => img.img_tag === "THUMBNAIL"
+                            (img) => (img.img_tag || "").trim().toUpperCase() === "THUMBNAIL"
                         );
 
                         const reviewResult =

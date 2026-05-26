@@ -175,34 +175,46 @@ const InteriorConstructionControl = () => {
 	return (
 		<div>
 			<h3>진행중인 시공 목록</h3>
-			<TableMui
-				rowData={workingList}
-				col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
-				columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
-				buttonData={buttonData}
-				buttonCol={["button1", "button2", "button3"]}
-				buttonColumns={["취소", "변경", "견적서 조회"]}
-			/>
+			{workingList.length !== 0 ? (
+				<TableMui
+					rowData={workingList}
+					col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
+					columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
+					buttonData={buttonData}
+					buttonCol={["button1", "button2", "button3"]}
+					buttonColumns={["취소", "변경", "견적서 조회"]}
+				/>
+			) : (
+				<div>No Data</div>
+			)}
 			<hr />
 			<h3>시공 완료 목록</h3>
-			<TableMui
-				rowData={doneList}
-				col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
-				columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
-				buttonData={buttonDataCancelOrDone}
-				buttonCol={["button2", "button3"]}
-				buttonColumns={["변경", "견적서 조회"]}
-			/>
+			{doneList.length !== 0 ? (
+				<TableMui
+					rowData={doneList}
+					col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
+					columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
+					buttonData={buttonDataCancelOrDone}
+					buttonCol={["button2", "button3"]}
+					buttonColumns={["변경", "견적서 조회"]}
+				/>
+			) : (
+				<div>No Data</div>
+			)}
 			<hr />
 			<h3>취소된 시공 목록</h3>
-			<TableMui
-				rowData={cancelList}
-				col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
-				columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
-				buttonData={buttonDataCancelOrDone}
-				buttonCol={["button2", "button3"]}
-				buttonColumns={["변경", "견적서 조회"]}
-			/>
+			{cancelList.length !== 0 ? (
+				<TableMui
+					rowData={cancelList}
+					col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
+					columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
+					buttonData={buttonDataCancelOrDone}
+					buttonCol={["button2", "button3"]}
+					buttonColumns={["변경", "견적서 조회"]}
+				/>
+			) : (
+				<div>No Data</div>
+			)}
 			{workStateChangeDialogOpen && (
 				<Dialog
 					open={workStateChangeDialogOpen}
