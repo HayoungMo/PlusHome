@@ -16,6 +16,7 @@ import CouponDownload from "../components/CouponDownload";
 const EventArticle = () => {
   const navigate = useNavigate();
   const { e_id } = useParams();
+  const user = JSON.parse(localStorage.getItem("user"));
   const [canUpdate, setCanUpdate] = useState(true);
   const [event, setEvent] = useState(null);
   const [imageList, setImageList] = useState([]);
@@ -28,6 +29,11 @@ const EventArticle = () => {
     title: "",
     text: "",
   });
+
+  useEffect(() => {
+    user?.type === "admin" ? setCanUpdate(true) : setCanUpdate(false)
+  },[user])
+
 
   useEffect(() => {
     const fetchCouponImage = async (coupons) => {

@@ -32,7 +32,7 @@ function InteriorArticle() {
   const [selectedExample, setSelectedExample] = useState(null);
   const [exampleImageIndex, setExampleImageIndex] = useState(0);
 
-  const [bookingPossible, setBookingPossible] = useState(false);
+  const [bookingPossible, setBookingPossible] = useState(answers ? true : false);
   const [examplePossible, setExamplePossible] = useState(false);
 
   const tagNameMap = {

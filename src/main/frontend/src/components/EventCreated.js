@@ -17,9 +17,12 @@ import SelectMui from "./SelectMui";
 import CouponAdd from "./CouponAdd";
 import CouponService from "../service/couponService";
 import TableCheckBoxMui from "./TableCheckBoxMui";
+import { useNavigate } from "react-router-dom";
 
 const EventCreated = () => {
+  const navigate = useNavigate();
   const randomNum = Math.floor(100000 + Math.random() * 900000);
+  const user = JSON.parse(localStorage.getItem("user"));
   const [sendList, setSendList] = useState([]);
   const [form, setForm] = useState({ e_id: randomNum });
   const [preview, setPreview] = useState([]);
@@ -63,6 +66,10 @@ const EventCreated = () => {
     (coupon) => `${coupon.coupon_code}_${coupon.id}`,
     [],
   );
+
+  useEffect(() => {
+      user?.type !== "admin" && navigate(-1);
+    },[user])
 
   const getCouponListWithUsage = useCallback((coupons, usages) => {
     const usageMap = (usages || []).reduce((acc, usage) => {
