@@ -21,5 +21,7 @@ public class QuestionDTO {
 	public String c_kind;
 	public String c_name;
 	public String f_name;
+	public String q_guestPhone;
+	public String q_pw;
 	
 }

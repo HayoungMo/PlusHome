@@ -251,6 +251,8 @@ const ShoppingMallOrderControl = () => {
 				]}
 				checkedList={checkedList}
 				setCheckedList={setCheckedList}
+				defaultRowPerPage={5}
+					pagination
 			/>
 
 			<div

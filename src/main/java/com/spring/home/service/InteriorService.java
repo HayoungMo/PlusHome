@@ -15,6 +15,7 @@ import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.InteriorDTO;
 import com.spring.home.dto.InteriorExampleDTO;
 import com.spring.home.dto.InteriorReviewDTO;
+import com.spring.home.dto.InteriorScheduleDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.mapper.InteriorMapper;
@@ -53,8 +54,8 @@ public class InteriorService {
 		return interiorMapper.getLists();
 	}
 
-	public Map<String, Object> getPagedLists(int pageNum, int pageSize, String search, String filterType,
-			String filterValue) {
+	public Map<String, Object> getPagedLists(int pageNum, int pageSize, String search,
+			List<Map<String, Object>> filters) {
 		if (pageNum < 1) {
 			pageNum = 1;
 		}
@@ -65,8 +66,8 @@ public class InteriorService {
 		int start = (pageNum - 1) * pageSize + 1;
 		int end = pageNum * pageSize;
 
-		List<CompanyDTO> list = interiorMapper.getPagedLists(start, end, search, filterType, filterValue);
-		int totalCount = interiorMapper.getPagedListCount(search, filterType, filterValue);
+		List<CompanyDTO> list = interiorMapper.getPagedLists(start, end, search, filters);
+		int totalCount = interiorMapper.getPagedListCount(search, filters);
 		int totalPage = (int) Math.ceil((double) totalCount / pageSize);
 
 		Map<String, Object> result = new HashMap<>();
@@ -218,6 +219,15 @@ public class InteriorService {
 	}
 	public InvoiceDTO getInvoiceCancel(BookingDTO b_dto) throws Exception {
 		return interiorMapper.getInvoiceCancel(b_dto);
+	}
+	public int insertInteriorSchedule(InteriorScheduleDTO dto) throws Exception {
+		return interiorMapper.insertInteriorSchedule(dto);
+	}
+	public List<InteriorScheduleDTO> getInteriorSchedule(InteriorScheduleDTO c_dto) throws Exception {
+		return interiorMapper.getInteriorSchedule(c_dto);
+	}
+	public int updateScheduleEndDate(InteriorScheduleDTO dto) throws Exception {
+		return interiorMapper.updateScheduleEndDate(dto);
 	}
 
 

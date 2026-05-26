@@ -4,6 +4,7 @@ import InteriorMyReview from "./InteriorMyReview";
 import { useNavigate } from "react-router-dom";
 import { Tabs, Tab, Box } from "@mui/material";
 import LikeService from "../service/likeService";
+import GetImgDir from "../resources/function/GetImgDir";
 
 const InteriorMyPage = ({ user }) => {
   const navigate = useNavigate();
@@ -17,23 +18,43 @@ const InteriorMyPage = ({ user }) => {
   };
 
   useEffect(() => {
-
     const fetchLikes = async () => {
-      await LikeService.getMyInteriorLikes()
-        .then((res) => {
-          setLikes(res.data || []);
-        })
-        .catch((error) => {
-          console.error(error);
+      try {
+        const res = await LikeService.getMyInteriorLikes();
+        const data = Array.isArray(res.data) ? res.data : [];
 
-          if (error.response?.status === 401) {
-            alert("권한 없음");
-            return;
-          }
+        const listWithImages = await Promise.all(
+          data.map(async (item) => {
+            const logo = await GetImgDir({
+              kind: "LOGO",
+              returnType: "list",
+              a: item.c_id,
+              b: item.c_kind,
+              c: item.c_name,
+              d: "Logo",
+              view: false,
+            });
 
-          alert("찜목록을 불러오지 못했습니다.");
-        })
+            return {
+              ...item,
+              logo: logo?.result?.length ? logo : null,
+            };
+          }),
+        );
+
+        setLikes(listWithImages);
+      } catch (error) {
+        console.error(error);
+
+        if (error.response?.status === 401) {
+          alert("권한 없음");
+          return;
+        }
+
+        alert("찜목록을 불러오지 못했습니다.");
+      }
     };
+
     fetchLikes();
   }, [user, navigate]);
 
@@ -61,7 +82,7 @@ const InteriorMyPage = ({ user }) => {
               <div className="interior-wishlist-grid">
                 {likes.map((item, idx) => {
                   const profileImage = item?.logo?.result?.find(
-                    (image) => image.img_tag === "PROFILE",
+                    (image) => image.img_tag === "LOGO",
                   )?.img_name;
 
                   return (

@@ -108,6 +108,7 @@ public class QuestionController {
 			if (questionList == null || questionList.size() == 0) {
 				result.put("success", true);
 				result.put("message", "등록된 문의가 없습니다.");
+				result.put("listSize", 0);
 				return result;
 			}
 

@@ -131,8 +131,9 @@ const TableMui = (props) => {
 						return (
 							<StyledTableRow
 								onClick={() => {
-									if (!setSelectedRow) return;
-									setSelectedRow({ ...row, rowIndex: realRowIndex });
+									const selectedRowData = { ...row, rowIndex: realRowIndex };
+									if (setSelectedRow) setSelectedRow(selectedRowData);
+									if (onRowClick) onRowClick(selectedRowData);
 								}}
 								// ------
 								key={

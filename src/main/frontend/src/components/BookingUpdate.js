@@ -1,10 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import InteriorService from "../service/interiorService";
 import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
-import { Button, Table, TableBody, TableCell, TableRow } from "@mui/material";
+import {
+	Button,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	Table,
+	TableBody,
+	TableCell,
+	TableRow,
+} from "@mui/material";
 import DialogMui from "./DialogMui";
 import SelectMui from "./SelectMui";
+import AlertMui from "./AlertMui";
+import DatePickerMui from "./DatePickerMui";
+import dayjs from "dayjs";
 
 const BookingUpdate = ({
 	company,
@@ -14,27 +26,84 @@ const BookingUpdate = ({
 	setSelectedInvoice,
 	selectedInvoiceDetailList,
 	setSelectedInvoiceDetailList,
+	bookingRefreshKey = 0,
 }) => {
 	const [booking, setBooking] = useState([]);
+	const handledRefreshKeyRef = useRef(bookingRefreshKey);
 
-	const reLoadBooking = async () => {
-		const data = await InteriorService.fetchBookingList(company);
-
-		const withOutStarted = data.filter(
-			(item) =>
-				item.b_status !== "working" &&
-				item.b_status !== "done" &&
-				item.b_status !== "cancel",
-		);
-
-		setBooking(withOutStarted);
+	const initDialog = {
+		open: false,
+		title: "",
+		text: "",
+		type: "",
 	};
 
-	useEffect(() => {
-		if (company) reLoadBooking();
+	const initAlertInfo = {
+		severity: "",
+		title: "",
+		text: "",
+		open: false,
+	};
 
+	const [dialogInfo, setDialogInfo] = useState(initDialog);
+	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
+
+	const [workingDateInfo, setWorkingDateInfo] = useState({
+		is_startdate: "",
+		is_enddate: "",
+	});
+
+	const isSameBooking = (bookingA, bookingB) => {
+		if (!bookingA || !bookingB) return false;
+
+		return (
+			bookingA.id === bookingB.id &&
+			bookingA.c_id === bookingB.c_id &&
+			bookingA.c_kind === bookingB.c_kind &&
+			bookingA.c_name === bookingB.c_name &&
+			bookingA.b_createdDate === bookingB.b_createdDate
+		);
+	};
+
+	const reLoadBooking = useCallback(
+		async (preserveSelection = false) => {
+			const data = await InteriorService.fetchBookingList(company);
+
+			const withOutStarted = data.filter(
+				(item) =>
+					item.b_status !== "working" &&
+					item.b_status !== "done" &&
+					item.b_status !== "cancel",
+			);
+
+			setBooking(withOutStarted);
+
+			if (preserveSelection) {
+				setSelectedBooking((prevSelectedBooking) => {
+					if (!prevSelectedBooking) return prevSelectedBooking;
+
+					const refreshedSelectedBooking = withOutStarted.find((item) =>
+						isSameBooking(item, prevSelectedBooking),
+					);
+
+					return refreshedSelectedBooking || null;
+				});
+			}
+		},
+		[company, setSelectedBooking],
+	);
+
+	useEffect(() => {
 		setSelectedBooking(null);
-	}, [company]);
+		if (company) reLoadBooking(false);
+	}, [company, reLoadBooking, setSelectedBooking]);
+
+	useEffect(() => {
+		if (handledRefreshKeyRef.current === bookingRefreshKey) return;
+
+		handledRefreshKeyRef.current = bookingRefreshKey;
+		if (company) reLoadBooking(true);
+	}, [bookingRefreshKey, company, reLoadBooking]);
 
 	const [dialogCancelBooking, setDialogCancelBooking] = useState(false);
 
@@ -44,22 +113,26 @@ const BookingUpdate = ({
 
 	const onClickstartRemodel = async () => {
 		if (selectedBooking.b_status !== "confirmed") {
-			alert("확정된 상담만 진행 가능합니다");
+			setAlertInfo({
+				severity: "error",
+				title: "변경 불가",
+				text: "확정된 견적서가 존재하지 않습니다.",
+				open: true,
+			});
 			return;
 		}
 
-		const startRemodel = {
-			...selectedBooking,
-			b_status: "working",
-		};
-
-		await InteriorService.UpdateBooking(startRemodel);
-
-		setSelectedBooking(null);
-		reLoadBooking();
+		setDialogInfo({
+			open: true,
+			title: "시공 시작",
+			text: "해당 견적서를 기준으로 시공을 시작한 상태로 변경합니다. 변경 하시겠습니까?",
+			type: "working",
+		});
 	};
 
 	const onClickCancelBooking = async () => {
+		setDialogCancelBooking({ ...dialogInfo, type: "cancel" });
+
 		const startRemodel = {
 			...selectedBooking,
 			b_status: "cancel",
@@ -70,6 +143,55 @@ const BookingUpdate = ({
 
 		setSelectedBooking(null);
 		reLoadBooking();
+	};
+
+	const onClickHandleCloseDialog = () => {
+		setDialogInfo(initDialog);
+	};
+
+	const onClickConfirmBookingStateChange = async (type) => {
+		if (type === "working") {
+			const startRemodel = {
+				...selectedBooking,
+				b_status: "working",
+			};
+
+			const result = await InteriorService.UpdateBooking(startRemodel);
+			if (result.success) {
+				const result2 = await InteriorService.insertInteriorSchedule({
+					...workingDateInfo,
+					...startRemodel,
+				});
+
+				if (result2.success) {
+					setAlertInfo({
+						severity: "success",
+						title: "저장 완료",
+						text: result2.message,
+						open: true,
+					});
+				} else {
+					setAlertInfo({
+						severity: "error",
+						title: "저장 실패",
+						text: result2.message,
+						open: true,
+					});
+				}
+			} else {
+				setAlertInfo({
+					severity: "error",
+					title: "변경 불가",
+					text: "확정된 견적서가 존재하지 않습니다.",
+					open: true,
+				});
+			}
+
+			setSelectedBooking(null);
+			reLoadBooking();
+			setDialogInfo(initDialog);
+		} else if (type === "cancel") {
+		}
 	};
 
 	useEffect(() => {}, [selectedBooking]);
@@ -115,9 +237,10 @@ const BookingUpdate = ({
 						<Button variant="contained" color="secondary" onClick={onClickstartRemodel}>
 							시공 시작
 						</Button>
-						{(booking.b_status !== "cancel" || booking.b_status !== "done") && (
-							<Button onClick={handleDialogCancelBooking}>상담 취소</Button>
-						)}
+						{selectedBooking.b_status !== "cancel" &&
+							selectedBooking.b_status !== "done" && (
+								<Button onClick={handleDialogCancelBooking}>상담 취소</Button>
+							)}
 						<DialogMui
 							open={dialogCancelBooking}
 							onClose={handleDialogCancelBooking}
@@ -140,6 +263,55 @@ const BookingUpdate = ({
 					</>
 				)}
 			</div>
+			{dialogInfo.open && (
+				<Dialog
+					open={dialogInfo.open}
+					onClose={() => setDialogInfo({ ...dialogInfo, open: false })}
+					maxWidth="md"
+					fullWidth>
+					<DialogTitle>{dialogInfo.title}</DialogTitle>
+
+					<DialogContent>
+						{dialogInfo.text}
+
+						<DatePickerMui
+							value={workingDateInfo.is_startdate}
+							onChange={(e) => {
+								setWorkingDateInfo({ ...workingDateInfo, is_startdate: e });
+							}}
+							label="시공 시작일"
+						/>
+						<DatePickerMui
+							value={workingDateInfo.is_enddate}
+							onChange={(e) => {
+								setWorkingDateInfo({ ...workingDateInfo, is_enddate: e });
+							}}
+							label="시공 종료일"
+						/>
+
+						<Button variant="outlined" color="error" onClick={onClickHandleCloseDialog}>
+							취소
+						</Button>
+						<Button
+							variant="outlined"
+							color="primary"
+							onClick={() => onClickConfirmBookingStateChange(dialogInfo.type)}>
+							확인
+						</Button>
+					</DialogContent>
+				</Dialog>
+			)}
+			{alertInfo?.open && (
+				<AlertMui
+					severity={alertInfo?.severity}
+					variant="standard"
+					title={alertInfo?.title}
+					text={alertInfo?.text}
+					onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+					autoHideDuration={3000}
+					icon={true}
+				/>
+			)}
 		</div>
 	);
 };

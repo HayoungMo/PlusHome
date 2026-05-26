@@ -43,6 +43,7 @@ const EventUpdate = () => {
 
   const imageTagOptions = [
     { value: "THUMBNAIL", title: "썸네일" },
+    { value: "BANNER", title: "배너용 이미지" },
     { value: "OTHER", title: "본문 이미지" },
   ];
 
@@ -406,7 +407,9 @@ const EventUpdate = () => {
                 >
                   <Box
                     component="img"
-                    src={updatePreviewMap[item.img_originalName] || item.img_name}
+                    src={
+                      updatePreviewMap[item.img_originalName] || item.img_name
+                    }
                     alt={item.img_tag || "event"}
                     sx={{
                       width: "100%",
@@ -518,7 +521,9 @@ const EventUpdate = () => {
                     >
                       {sendList[index]?.img_tag === "THUMBNAIL"
                         ? "썸네일"
-                        : "본문 이미지"}
+                        : sendList[index]?.img_tag === "BANNER"
+                          ? "배너 이미지 "
+                          : "본문 이미지"}
                     </Typography>
                   </Box>
                 ))}

@@ -10,4 +10,5 @@ public class InteriorDTO {
 	
 	private String i_tag;
 	private String i_text;
+	private String i_text_before;
 }

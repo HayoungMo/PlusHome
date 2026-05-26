@@ -31,6 +31,7 @@ const Address = ({ isC, form, setForm }) => { //company의 경우 isC에 True, �
           addr1: item.roadAddress || item.jibunAddress,
           addr:
             prev.addr !== null && prev.c_addr?.includes("__")
+            //prev.addr !== null && prev.addr?.includes("__")
               ? (item.roadAddress || item.jibunAddress) +
                 "__" +
                 prev.addr.split("__")[1]

@@ -11,6 +11,7 @@ const ImageViewer = ({
   date,
   writer,
   star,
+  reply,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
 
@@ -119,6 +120,20 @@ const ImageViewer = ({
 
           {(content || currentImage.content) && (
             <p>{content || currentImage.content}</p>
+          )}
+
+          {reply && (
+            <div className="image-viewer-reply">
+              <strong>업체 답변</strong>
+
+              {reply.fr_subject && (
+                <div className="image-viewer-reply-title">
+                  {reply.fr_subject}
+                </div>
+              )}
+
+              <p>{reply.fr_content || "답변 내용이 없습니다."}</p>
+            </div>
           )}
 
           {images.length > 1 && (

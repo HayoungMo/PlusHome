@@ -20,6 +20,7 @@ const InteriorBookingControl = () => {
 	const [selectedBooking, setSelectedBooking] = useState(null);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [selectedInvoiceDetailLatestList, setSelectedInvoiceDetailLatestList] = useState([]);
+	const [bookingRefreshKey, setBookingRefreshKey] = useState(0);
 
 	const [transferListMuiLeft, setTransferListMuiLeft] = useState([]);
 	const [transferListMuiRight, setTransferListMuiRight] = useState([]);
@@ -29,6 +30,10 @@ const InteriorBookingControl = () => {
 
 		setSelectedCompany(null);
 		setInteriorCompanyList(setIndexToCompanyList);
+	};
+
+	const refreshBookingList = () => {
+		setBookingRefreshKey((prev) => prev + 1);
 	};
 
 	// 렌더링 시 매번 새로 만드는거 방지
@@ -102,6 +107,7 @@ const InteriorBookingControl = () => {
 				setSelectedInvoice={setSelectedInvoice}
 				selectedInvoiceDetailList={selectedInvoiceDetailLatestList}
 				setSelectedInvoiceDetailList={setSelectedInvoiceDetailLatestList}
+				bookingRefreshKey={bookingRefreshKey}
 			/>
 
 			<InteriorInvoiceAdd
@@ -119,6 +125,7 @@ const InteriorBookingControl = () => {
 				setRight={setTransferListMuiRight}
 				//Button Columns
 				buttonData={buttonData}
+				onInvoiceSaved={refreshBookingList}
 			/>
 		</div>
 	);

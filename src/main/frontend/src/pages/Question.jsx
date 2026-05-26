@@ -4,6 +4,7 @@ import { TextField } from '@mui/material';
 import CheckboxMui from '../components/CheckboxMui';
 import ImageService from '../service/imageService';
 import GetImgDir from '../resources/function/GetImgDir';
+import SnackbarAlert from '../components/SnackbarAlert';
 
 const Question = ({ f_code,furniture }) => {
     const [questions, setQuestions] = useState([]);
@@ -11,6 +12,8 @@ const Question = ({ f_code,furniture }) => {
         q_title:"",
         q_content:"",
         q_secret:"N",
+        guestPhone: "",
+        q_pw: "",
     });
     const [answerForms, setAnswerForms] = useState({});
     const [questionFiles,setQuestionFiles] = useState([]);
@@ -19,6 +22,28 @@ const Question = ({ f_code,furniture }) => {
     const loginUser = JSON.parse(localStorage.getItem("user") || "null");
 
     const userType = String(loginUser?.type || "").toLowerCase();
+
+    //snackbar 사용
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "info",
+    });
+
+    const showSnackbar = (message, severity = "info") => {
+            setSnackbar({
+                open: true,
+                message,
+                severity,
+            });
+        };
+
+    const closeSnackbar = () => {
+        setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+        }));
+    };
 
     //권한조건
     const isAdmin = 
@@ -53,12 +78,20 @@ const Question = ({ f_code,furniture }) => {
     };
     //답변 다는것
     const canReadQuestion = (item) => {
-        if(item.q_secret !== "Y") return true;
-        if(!loginUser) return false;
+        if (item.q_secret !== "Y") return true;
 
-        if(loginUser.id === item.id) return true;
-        if(isAdmin) return true;
-        if(isProductCompany(item)) return true;
+        if (loginUser) {
+            if (loginUser.id === item.id) return true;
+            if (isAdmin) return true;
+            if (isProductCompany(item)) return true;
+        }
+
+        //비회원 문의는 일단 작성자 번호가 브라우저에 남아있을 때만 볼 수 있게 한다.
+        const savedGuestPhone = localStorage.getItem("guestQuestionPhone");
+
+        if (item.q_guestPhone && savedGuestPhone === item.q_guestPhone) {
+            return true;
+        }
 
         return false;
     };
@@ -67,6 +100,19 @@ const Question = ({ f_code,furniture }) => {
         if(isAdmin) return true;
         if(isProductCompany(item)) return true;
     }
+
+    const maskWriter = (item) => {
+        if (item.id) return item.id;
+
+        const phone = String(item.q_guestPhone || "");
+        const digits = phone.replace(/[^0-9]/g, "");
+
+        if (digits.length === 11) {
+            return `${digits.slice(0, 3)}-${digits.slice(3, 5)}**-**${digits.slice(9)}`;
+        }
+
+        return "비회원";
+    };
 
     //5월 13일 이미지 파일 올리는 작업 하다 퇴근 5월 14일에 마저 할 예정(완)
     const getQuestionList = async () => {
@@ -85,7 +131,7 @@ const Question = ({ f_code,furniture }) => {
                     kind:"QUESTION",
                     returnType: "list",
                     a: item.f_code,
-                    d: item.id,
+                    d: item.id || item.q_guestPhone,
                     idx: item.q_idx,
                     view: true,
                 });
@@ -115,31 +161,44 @@ const Question = ({ f_code,furniture }) => {
 
         const user = JSON.parse(localStorage.getItem("user") || "null");
 
-        if(!user) {
-            alert("로그인 후 문의를 작성할 수 있습니다");
-            return;
-        }
+        //비회원 검사
+        const isGuest = !user;
+        const writerId = isGuest
+            ? questionForm.guestPhone.trim()
+            : user.id;
+        
+            if(isGuest && !questionForm.guestPhone.trim()) {
+                showSnackbar("휴대폰 번호를 입력해주세요.","warning");
+                return;
+            }
 
+            if (isGuest && !questionForm.q_pw.trim()){
+                showSnackbar("비회원 문의 확인용 비밀번호를 입력해주세요." , "warning");
+                return;
+            }
+        
         if(isMyCompanyProduct()) {
-            alert("자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.");
+            showSnackbar("자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.");
             return;
         }
 
         if(!questionForm.q_title.trim() || !questionForm.q_content.trim()){
-            alert("제목과 내용을 입력해주세요.");
+            showSnackbar("제목과 내용을 입력해주세요.","warning");
             return;
         }
 
         try{
             const savedQuestion = await questionService.writeQuestion({
-                id: user.id,
+                id: user ? user.id : null,
+                q_guestPhone: user ? "" : questionForm.guestPhone.trim(),
+                q_pw: user ? "" : questionForm.q_pw.trim(),
                 f_code,
                 q_title: questionForm.q_title,
                 q_content: questionForm.q_content,
                 q_secret: questionForm.q_secret, 
                 q_status: "received",
             });
-
+            const imageOwner = user ? user.id : questionForm.guestPhone.trim();
             if(questionFiles.length > 0) {
                 await ImageService.insertImage(
                     questionFiles.map((file) => ({
@@ -147,18 +206,22 @@ const Question = ({ f_code,furniture }) => {
                         img_kind: "QUESTION",
                         img_tag: "INFO",
                         dir_a: f_code,
-                        dir_d: user.id,
+                        dir_d: imageOwner,
                         img_idx: savedQuestion.q_idx,
                     }))
                 );
             }
 
-            alert("문의가 등록되었습니다.");
-
+            showSnackbar("문의가 등록되었습니다.","success");
+            if (isGuest) {
+                localStorage.setItem("guestQuestionPhone", questionForm.guestPhone.trim());
+            }
             setQuestionForm({
                 q_title: "",
                 q_content: "",
                 q_secret: "N",
+                guestPhone: "",
+                q_pw: "",
             });
             setQuestionFiles([]);
             
@@ -166,7 +229,7 @@ const Question = ({ f_code,furniture }) => {
         }catch(error){
             console.log(error);
             console.error("문의 등록 실패:",error);
-            alert("문의 등록에 실패하였습니다.");
+            showSnackbar("문의 등록에 실패하였습니다.");
         }
 
     };
@@ -183,7 +246,7 @@ const Question = ({ f_code,furniture }) => {
         const q_answer = answerForms[q_idx];
 
         if(!q_answer || !q_answer.trim()) {
-            alert("답변 내용을 입력해주세요.");
+            showSnackbar("답변 내용을 입력해주세요.", "warning");
             return;
         }
 
@@ -193,24 +256,50 @@ const Question = ({ f_code,furniture }) => {
                 q_answer,
             });
 
-            alert("답변이 등록되었습니다.");
+            showSnackbar("답변이 등록되었습니다.","success");
             setAnswerForms((prev) => ({
                 ...prev,
                 [q_idx]: "",
             }));
             getQuestionList();
         }catch (error){
-            console.error("답변 등록 실패:", error);
-            alert("답변 등록에 실패했습니다.")
+            console.error("답변 등록 실패:", "error");
+            showSnackbar("답변 등록에 실패했습니다.")
         }
     };
 
     return (
         <section style={{ marginTop: "40px" }}>
+            <SnackbarAlert
+                open={snackbar.open}
+                message={snackbar.message}
+                severity={snackbar.severity}
+                onClose={closeSnackbar}
+            />
             {isMyCompanyProduct() ? (
                 <p>자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.</p>
             ):(
                 <form onSubmit={onQuestionSubmit}>
+                    {!loginUser && (
+                        <>
+                            <TextField
+                                name="guestPhone"
+                                placeholder="휴대폰 번호"
+                                value={questionForm.guestPhone}
+                                onChange={onQuestionChange}
+                            />
+                            <br />
+
+                            <TextField
+                                name="q_pw"
+                                type="password"
+                                placeholder="비회원 문의 확인용 비밀번호"
+                                value={questionForm.q_pw}
+                                onChange={onQuestionChange}
+                            />
+                            <br />
+                        </>
+                    )}
                     <TextField
                         name="q_title"
                         placeholder="문의 제목"
@@ -259,7 +348,7 @@ const Question = ({ f_code,furniture }) => {
                         {canReadQuestion(item) ? (
                             <>
                                 <p>문의 내용: {item.q_content}</p>
-                                <p>작성자: {item.id}</p>
+                                <p>작성자: {maskWriter(item)}</p>
                             </>
                         ) : (
                             <p>작성자와 관리자만 확인할 수 있습니다.</p>

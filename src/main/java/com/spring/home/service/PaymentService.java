@@ -32,6 +32,29 @@ public class PaymentService {
 	private final OptionsMapper optionsMapper;
 	private final FurnitureMapper furnitureMapper;
 
+	private void updateWallet(String id, int money) throws Exception {
+		WalletDTO wallet = new WalletDTO();
+		wallet.setId(id);
+		wallet.setMoney(money);
+		
+		int result = walletMapper.updateData(wallet);
+		
+		if (result != 1) {
+			throw new RuntimeException("지갑 정보를 찾을 수 없습니다.");
+		}
+	}
+	
+	private String getCompanyId(String f_code) throws Exception{
+		FurnitureDTO furniture = furnitureMapper.getReadData(f_code);
+		
+		if(furniture == null || furniture.getC_id() == null || 
+				furniture.getC_id().trim().isEmpty()) {
+			throw new RuntimeException("상품 업체 정보를 찾을 수 없습니다.");
+		}
+		
+		return furniture.getC_id();
+	}
+	
 	@Transactional
 	public void pay(String id, PaymentDTO dto) throws Exception {
 		if (dto.getC_codeList() == null || dto.getC_codeList().isEmpty()) {
@@ -115,15 +138,13 @@ public class PaymentService {
 			throw new RuntimeException("지갑 잔액이 부족합니다.");
 		}
 
-		WalletDTO payWallet = new WalletDTO();
-		payWallet.setId(id);
-		payWallet.setMoney(-finalPayTotal);
-
-		walletMapper.updateData(payWallet);
+		updateWallet(id, -finalPayTotal);
 
 		for (PaymentItem item : paymentItems) {
 			decreaseStock(item.cart, item.optionList);
 
+			updateWallet(getCompanyId(item.cart.getF_code()), item.payTotal);
+			
 			int result = cartMapper.updatePaymentStatus(
 				item.cart.getC_code(),
 				id,
@@ -289,11 +310,8 @@ public class PaymentService {
 			refundMoney = calculateCartProductTotal(cart, optionList);
 		}
 
-		WalletDTO refundWallet = new WalletDTO();
-		refundWallet.setId(id);
-		refundWallet.setMoney(refundMoney);
-
-		walletMapper.updateData(refundWallet);
+		updateWallet(getCompanyId(cart.getF_code()), -refundMoney);
+		updateWallet(id, refundMoney);
 
 		int result = cartMapper.cancelOrder(c_code, id);
 

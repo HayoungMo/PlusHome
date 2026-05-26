@@ -109,6 +109,7 @@ const InteriorUpdate = (props) => {
 			c_name: c_name,
 			tag: i_tag,
 			text: i_text,
+			i_text_before:interiorInfo.i_text,
 		});
 
 		if (result.success) {

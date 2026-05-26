@@ -40,4 +40,19 @@
 		AND C.COUPON_END >= SYSDATE
 	</select>
 
+	<select id="getCouponEventUsage" resultType="map">
+		SELECT
+			EC.COUPON_CODE AS "coupon_code",
+			EC.ID AS "id",
+			EC.E_ID AS "e_id",
+			E.E_TITLE AS "e_title",
+			E.E_TYPE AS "e_type",
+			E.E_STARTDATE AS "e_startDate",
+			E.E_ENDDATE AS "e_endDate"
+		FROM EVENT_COUPON EC
+		JOIN EVENT E
+			ON EC.E_ID = E.E_ID
+		ORDER BY E.E_STARTDATE DESC NULLS LAST, E.E_ID DESC
+	</select>
+
 </mapper>

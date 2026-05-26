@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Pagination, Typography } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import GetImgDlr from "../resources/function/GetImgDir";
 import TextFieldMui from "./TextFieldMui";
-import SelectMui from "./SelectMui";
 import FilterBar from "./FilterBar";
 
 const PAGE_SIZE = 9;
@@ -12,9 +11,16 @@ const PAGE_SIZE = 9;
 const InteriorList = ({ tag, value }) => {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
+  const [originList, setOriginList] = useState([]);
+  const [tags, setTags] = useState([]);
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState(tag || "");
-  const [filterValue, setFilterValue] = useState(value || "");
+  const [filterValue, setFilterValue] = useState(() => {
+    if (tag && value) {
+      return { [tag]: value };
+    }
+
+    return value && typeof value === "object" ? value : {};
+  });
   const [pageNum, setPageNum] = useState(1);
   const [pageInfo, setPageInfo] = useState({
     totalCount: 0,
@@ -100,17 +106,71 @@ const InteriorList = ({ tag, value }) => {
     });
   };
 
+  const getCompanyKey = useCallback((company) => {
+    return `${company.c_id}_${company.c_kind}_${company.c_name}`;
+  }, []);
+
+  const hasSelectedFilters = useCallback((filters) => {
+    return Object.values(filters || {}).some((selectedValue) => {
+      return Array.isArray(selectedValue)
+        ? selectedValue.length > 0
+        : Boolean(selectedValue);
+    });
+  }, []);
+
+  const getFilteredCompanies = useCallback((companies, tagList, keyword, filters) => {
+    let result = [...companies];
+    const searchText = keyword?.trim();
+
+    if (searchText) {
+      result = result.filter(
+        (item) =>
+          item.c_name?.includes(searchText) ||
+          item.c_addr?.includes(searchText) ||
+          item.c_tel?.includes(searchText),
+      );
+    }
+
+    if (hasSelectedFilters(filters)) {
+      const tagMap = tagList.reduce((acc, item) => {
+        const key = getCompanyKey(item);
+        acc[key] = acc[key] || [];
+        acc[key].push(item);
+        return acc;
+      }, {});
+
+      result = result.filter((company) => {
+        const companyTags = tagMap[getCompanyKey(company)] || [];
+
+        return Object.entries(filters).every(([filterKey, selectedValue]) => {
+          const selectedValues = Array.isArray(selectedValue)
+            ? selectedValue
+            : [selectedValue];
+          const activeValues = selectedValues.filter(Boolean);
+
+          if (activeValues.length === 0) {
+            return true;
+          }
+
+          return companyTags.some(
+            (tag) =>
+              tag.i_tag === filterKey && activeValues.includes(tag.i_text),
+          );
+        });
+      });
+    }
+
+    return result;
+  }, [getCompanyKey, hasSelectedFilters]);
+
   useEffect(() => {
     const fetchData = async () => {
-      const data = await InteriorService.fetchPagedList({
-        pageNum,
-        pageSize: PAGE_SIZE,
-        search,
-        filterType,
-        filterValue,
-      });
+      const [companies, tagList] = await Promise.all([
+        InteriorService.fetchList(),
+        InteriorService.fetchArticleList(),
+      ]);
 
-      const companyList = Array.isArray(data?.list) ? data.list : [];
+      const companyList = Array.isArray(companies) ? companies : [];
       const listWithImages = await Promise.all(
         companyList.map(async (item) => {
           const logo = await GetImgDlr({
@@ -119,7 +179,7 @@ const InteriorList = ({ tag, value }) => {
             a: item.c_id,
             b: item.c_kind,
             c: item.c_name,
-            d: "LOGO",
+            d: "Logo",
             view: false,
           });
 
@@ -130,21 +190,40 @@ const InteriorList = ({ tag, value }) => {
         }),
       );
 
-      setList(listWithImages);
-      setPageInfo({
-        totalCount: data?.totalCount || 0,
-        totalPage: data?.totalPage || 0,
-        pageSize: data?.pageSize || PAGE_SIZE,
-      });
+      setOriginList(listWithImages);
+      setTags(Array.isArray(tagList) ? tagList : []);
     };
 
     fetchData();
-  }, [pageNum, search, filterType, filterValue]);
+  }, []);
+
+  useEffect(() => {
+    const filteredCompanies = getFilteredCompanies(
+      originList,
+      tags,
+      search,
+      filterValue,
+    );
+    const totalPage = Math.ceil(filteredCompanies.length / PAGE_SIZE);
+    const nextPageNum = Math.min(pageNum, totalPage || 1);
+
+    if (nextPageNum !== pageNum) {
+      setPageNum(nextPageNum);
+      return;
+    }
+
+    const start = (nextPageNum - 1) * PAGE_SIZE;
+    setList(filteredCompanies.slice(start, start + PAGE_SIZE));
+    setPageInfo({
+      totalCount: filteredCompanies.length,
+      totalPage,
+      pageSize: PAGE_SIZE,
+    });
+  }, [originList, tags, search, filterValue, pageNum, getFilteredCompanies]);
 
   const handleReset = () => {
     setSearch("");
-    setFilterType("");
-    setFilterValue("");
+    setFilterValue({});
     setPageNum(1);
   };
 
@@ -190,7 +269,7 @@ const InteriorList = ({ tag, value }) => {
               <img
                 className="interior-company-image"
                 src={
-                  item.logo.result.find((image) => image.img_tag === "PROFILE")
+                  item.logo.result.find((image) => image.img_tag === "LOGO")
                     ?.img_name
                 }
                 alt={`${item.c_name} 로고`}

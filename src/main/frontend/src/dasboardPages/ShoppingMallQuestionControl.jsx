@@ -72,6 +72,7 @@ const ShoppingMallQuestionControl = () => {
 			setAlertInfo({ severity: "info", text: result.message });
 			setAlertOpen(true);
 		} else {
+			console.log(result)
 			const questionList = result.questionList.map((record) => ({
 				...record,
 				image: (record.image || []).map((img) => ({

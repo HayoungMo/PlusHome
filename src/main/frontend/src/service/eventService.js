@@ -131,6 +131,16 @@ const selectCouponsByEvent = async (e_id) => {
   }
 };
 
+const selectCouponEventUsage = async () => {
+  try {
+    const res = await http.get("/eventCoupon/usage");
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
 const EventService = {
   insertEvent,
   selectPopupList,
@@ -141,6 +151,7 @@ const EventService = {
   insertEventCoupon,
   deleteEventCoupon,
   selectCouponsByEvent,
+  selectCouponEventUsage,
 };
 
 export default EventService;

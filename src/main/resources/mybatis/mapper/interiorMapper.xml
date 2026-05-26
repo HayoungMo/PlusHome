@@ -175,12 +175,6 @@
 					c.c_info,
 					c.c_boss
 				FROM company c
-				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-					INNER JOIN interior i
-						ON i.c_id = c.c_id
-						AND i.c_kind = c.c_kind
-						AND i.c_name = c.c_name
-				</if>
 				WHERE c.c_kind = 'interior'
 				<if test="search != null and search != ''">
 					AND (
@@ -189,9 +183,21 @@
 						OR c.c_tel LIKE '%' || #{search} || '%'
 					)
 				</if>
-				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-					AND i.i_tag = #{filterType}
-					AND i.i_text = #{filterValue}
+				<if test="filters != null and filters.size() > 0">
+					<foreach collection="filters" item="filter">
+						AND EXISTS (
+							SELECT 1
+							FROM interior i
+							WHERE i.c_id = c.c_id
+								AND i.c_kind = c.c_kind
+								AND i.c_name = c.c_name
+								AND i.i_tag = #{filter.filterKey}
+								AND i.i_text IN
+								<foreach collection="filter.filterValues" item="filterValue" open="(" separator="," close=")">
+									#{filterValue}
+								</foreach>
+						)
+					</foreach>
 				</if>
 				ORDER BY c.c_name ASC
 			) data
@@ -205,12 +211,6 @@
 		FROM (
 			SELECT DISTINCT c.c_id, c.c_kind, c.c_name
 			FROM company c
-			<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-				INNER JOIN interior i
-					ON i.c_id = c.c_id
-					AND i.c_kind = c.c_kind
-					AND i.c_name = c.c_name
-			</if>
 			WHERE c.c_kind = 'interior'
 			<if test="search != null and search != ''">
 				AND (
@@ -219,9 +219,21 @@
 					OR c.c_tel LIKE '%' || #{search} || '%'
 				)
 			</if>
-			<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-				AND i.i_tag = #{filterType}
-				AND i.i_text = #{filterValue}
+			<if test="filters != null and filters.size() > 0">
+				<foreach collection="filters" item="filter">
+					AND EXISTS (
+						SELECT 1
+						FROM interior i
+						WHERE i.c_id = c.c_id
+							AND i.c_kind = c.c_kind
+							AND i.c_name = c.c_name
+							AND i.i_tag = #{filter.filterKey}
+							AND i.i_text IN
+							<foreach collection="filter.filterValues" item="filterValue" open="(" separator="," close=")">
+								#{filterValue}
+							</foreach>
+					)
+				</foreach>
 			</if>
 		)
 	</select>
@@ -713,12 +725,13 @@
 		parameterType="com.spring.home.dto.InteriorDTO">
 		UPDATE interior
 		SET i_text = #{i_text}
-		WHERE c_id =
-		#{c_id}
-		AND c_kind = #{c_kind}
-		AND c_name = #{c_name}
-		AND i_tag =
-		#{i_tag}
+		<where>
+			AND c_id = #{c_id}
+			AND c_kind = #{c_kind}
+			AND c_name = #{c_name}
+			AND i_tag = #{i_tag}
+			AND i_text = #{i_text_before}
+		</where>
 	</update>
 
 	<update id="updateInteriorExample"
@@ -800,8 +813,7 @@
 		SELECT * FROM BOOKING
 		<where>
 			AND c_id = #{c_id}
-			AND B_STATUS = 'working' or B_STATUS = 'done'
-			or B_STATUS = 'cancel'
+			AND B_STATUS IN ('working', 'done', 'cancel')
 		</where>
 	</select>
 
@@ -828,6 +840,46 @@
 		AND C_NAME 	= #{c_name}
 		</where>
 	</select>
+	
+	<insert id="insertInteriorSchedule" parameterType="com.spring.home.dto.InteriorScheduleDTO">
+		INSERT INTO I_SCHEDULE
+		(ID,B_CREATEDDATE,C_ID,C_KIND,C_NAME,IS_STARTDATE,IS_ENDDATE)
+		VALUES
+		(#{id},#{b_createdDate},#{c_id},#{c_kind},#{c_name},#{is_startdate},#{is_enddate})
+	</insert>
+	
+	<select id="getInteriorSchedule" parameterType="hashMap"
+	resultType="com.spring.home.dto.InteriorScheduleDTO">
+		SELECT BOOKING.*, IS_STARTDATE, IS_ENDDATE 
+		FROM I_SCHEDULE JOIN BOOKING ON
+		I_SCHEDULE.ID = BOOKING.ID and 
+		I_SCHEDULE.C_ID = BOOKING.C_ID and
+		I_SCHEDULE.C_KIND = BOOKING.C_KIND and 
+		I_SCHEDULE.C_NAME = BOOKING.C_NAME and
+		I_SCHEDULE.B_CREATEDDATE = BOOKING.B_CREATEDDATE
+		<where>
+			AND I_SCHEDULE.c_id =#{c_id}
+			<if test="is_startdate != null and is_startdate != ''">
+				AND is_startdate =#{is_startdate}
+			</if>
+			<if test="is_enddate != null and is_enddate != ''">
+				AND is_enddate =#{is_enddate}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateScheduleEndDate" parameterType="hashMap">
+		UPDATE I_SCHEDULE
+		SET IS_ENDDATE = #{is_enddate}
+		<where>
+			AND ID = #{id}
+			AND B_CREATEDDATE = #{b_createdDate}
+			AND C_ID = #{c_id}
+			AND C_KIND = #{c_kind}
+			AND C_NAME = #{c_name}
+			AND IS_STARTDATE = #{is_startdate}
+		</where>
+	</update>
 
 
 </mapper>

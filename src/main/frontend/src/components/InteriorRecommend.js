@@ -81,7 +81,7 @@ const InteriorRecommend = ({ answers }) => {
             a: item.c_id,
             b: item.c_kind,
             c: item.c_name,
-            d: "LOGO",
+            d: "Logo",
             view: false,
           });
           return {
@@ -251,7 +251,7 @@ const InteriorRecommend = ({ answers }) => {
             <img
               className="interior-company-image"
               src={
-                item?.logo?.result.find((item) => item.img_tag === "PROFILE")
+                item?.logo?.result.find((item) => item.img_tag === "LOGO")
                   ?.img_name
               }
               alt={`${item.c_name} 로고`}
