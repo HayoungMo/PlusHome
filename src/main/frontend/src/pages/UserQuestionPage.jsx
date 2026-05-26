@@ -6,6 +6,7 @@ import ImageService from "../service/imageService";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
 import SnackbarAlert from '../components/SnackbarAlert';
+import DialogMui from "../components/DialogMui";
 
 const UserQuestionPage = ({ user }) => {
     const [questions, setQuestions] = useState([]);
@@ -51,8 +52,12 @@ const UserQuestionPage = ({ user }) => {
             open: false,
         }));
     };
-
     
+    // 문의 삭제 확인 다이얼로그 열렸는지 여부
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    //어떤 문의를 삭제할 건지.
+    const [deleteTargetIdx, setDeleteTargetIdx] = useState(null);
+
     //회사 확잉
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
     const currentUser = user || savedUser;
@@ -133,7 +138,7 @@ const UserQuestionPage = ({ user }) => {
         
         } catch (error) {
             console.error("문의 내역 조회 실패", error)
-            alert("문의 내역을 불러오지 못했습니다.")
+            showSnackbar("문의 내역을 불러오지 못했습니다.")
         
         } finally{
             setLoading(false)
@@ -272,17 +277,29 @@ const UserQuestionPage = ({ user }) => {
             return next;
         });
 
-        alert("문의가 수정되었습니다.");
+        showSnackbar("문의가 수정되었습니다.");
         cancelEdit();
         getMyQuestions();
     };
 
-    //문의 삭제
-    const deleteQuestion = async (q_idx) => {
-        if (!window.confirm("문의를 삭제하시겠습니까?")) return;
+    //문의 삭제는 버튼을 누른 그 문의의 q_idx를 따로 저장해줘야한다.
+    const openDeleteQuestionDialog = (q_idx) => {
+        setDeleteTargetIdx(q_idx);
+        setDeleteConfirmOpen(true);
+    };
+    const closeDeleteQuestionDialog = () => {
+        setDeleteConfirmOpen(false);
+        setDeleteTargetIdx(null);
+    };
 
-        await questionService.deleteQuestion(q_idx);
-        alert("문의가 삭제되었습니다.");
+    //문의 삭제, 실제 함수는 따로 작동.
+    const deleteQuestion = async () => {
+        if (!deleteTargetIdx) return;
+
+        await questionService.deleteQuestion(deleteTargetIdx);
+
+        showSnackbar("문의가 삭제되었습니다.", "success");
+        closeDeleteQuestionDialog();
         getMyQuestions();
     };
 
@@ -298,7 +315,7 @@ const UserQuestionPage = ({ user }) => {
         const q_answer = answerForms[q_idx];
 
         if(!q_answer || !q_answer.trim()) {
-            alert("답변 내용을 입력해주세요");
+            showSnackbar("답변 내용을 입력해주세요");
             return;
         }
 
@@ -306,7 +323,7 @@ const UserQuestionPage = ({ user }) => {
             q_idx,
             q_answer,
         });
-        alert("답변이 저장되었습니다.");
+        showSnackbar("답변이 저장되었습니다.");
 
         setAnswerEditIdx(null);
 
@@ -343,7 +360,7 @@ const UserQuestionPage = ({ user }) => {
 
         await questionService.deleteAnswer(q_idx);
 
-        alert("답변이 삭제되었습니다.");
+        showSnackbar("답변이 삭제되었습니다.");
 
         setAnswerForms((prev) => ({
             ...prev,
@@ -364,6 +381,26 @@ const UserQuestionPage = ({ user }) => {
                 message={snackbar.message}
                 severity={snackbar.severity}
                 onClose={closeSnackbar}
+            />
+            <DialogMui
+                open={deleteConfirmOpen}
+                onClose={closeDeleteQuestionDialog}
+                title="문의 삭제"
+                text="문의를 삭제하시겠습니까?"
+                buttons={[
+                    {
+                        title: "취소",
+                        color: "inherit",
+                        variant: "outlined",
+                        onClick: closeDeleteQuestionDialog,
+                    },
+                    {
+                        title: "삭제",
+                        color: "error",
+                        variant: "outlined",
+                        onClick: deleteQuestion,
+                    },
+                ]}
             />
             {questions.length === 0 ? (
                 <p>작성한 문의가 없습니다.</p>
@@ -568,7 +605,7 @@ const UserQuestionPage = ({ user }) => {
                                             variant="contained"
                                             color="error"
                                             size="small"
-                                            onClick={() => startEdit(item)}
+                                            onClick={() => openDeleteQuestionDialog(item.q_idx)}
                                         >
                                             삭제
                                         </Button>

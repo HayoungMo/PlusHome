@@ -27,123 +27,7 @@ const FindIdPage = () => {
 
     const [time,setTime] = useState(180)  
 
-    const [result,setResult] = useState('')
-
-    const sendCode = async () =>{
-
-         if(!form.email.trim()){
-                setMsg("이메일을 입력하세요.")
-                return
-            }
-
-            if(!form.name.trim()){
-                setMsg("이름을 입력하세요.")
-                return
-            }
-
-            setMsg('')
-        
-       try {
-            const res = await userService.sendCode({
-                email: form.email
-            });
-
-            if (res.success) {
-
-                alert("인증번호가 발송되었습니다.");
-
-                // 인증단계 이동
-                setStep(2);
-
-                // 타이머 초기화
-                setTime(180);
-            }
-
-        } catch (error) {
-
-            console.log(error);
-
-            alert("인증번호 발송 실패");
-        }
-    };
-
-
-
-    // 타이머
-    useEffect(() => {
-
-        // step2 아닐 때 실행 X
-        if (step !== 2) return;
-
-        // 시간 끝
-        if (time <= 0) {
-
-            setMsg("인증시간이 만료되었습니다.");
-
-            return;
-        }
-
-        const timer = setInterval(() => {
-
-            setTime(prev => prev - 1);
-
-        }, 1000);
-
-        return () => clearInterval(timer);
-
-    }, [time, step]);
-
-
-
-    // 인증번호 확인
-    const checkCode = async () => {
-
-        // 인증번호 입력 안 했을 때
-        if (!code) {
-
-            alert("인증번호를 입력해주세요.");
-
-            return;
-        }
-
-        // 시간 만료
-        if (time <= 0) {
-
-            alert("인증시간이 만료되었습니다.");
-
-            return;
-        }
-
-        try {
-
-            const res = await userService.checkCode({
-                email: form.email,
-                code: code
-            });
-
-            // 인증 성공
-            if (res.success) {
-
-                alert("인증 성공하였습니다.");
-
-                // 타이머 제거
-                setTime(0);
-
-                // 아이디 찾기 실행
-                findId();
-
-            } else {
-
-                alert("인증번호가 올바르지 않습니다.");
-            }
-
-        } catch (error) {
-
-            console.log(error);
-
-            alert("인증 실패");
-        }
-    };
+    const [result,setResult] = useState('')        
 
 
 
@@ -163,7 +47,7 @@ const FindIdPage = () => {
                 setResult(res.id);
 
                 // 결과 화면 이동
-                setStep(3);
+                setStep(2);
 
             } else {
 
@@ -232,79 +116,17 @@ const FindIdPage = () => {
                     <Button
                         type='button'
                         variant='contained'
-                        onClick={sendCode}
+                        onClick={findId}
                     >
-                        인증번호 받기
+                        아이디 찾기
                     </Button>
 
                 </div>
-            )}
-
-            
-
+            )}        
 
 
             {/* STEP 2 */}
             {step === 2 && (
-
-                <div>
-
-                    <p className="find-text">
-                        입력한 이메일로 인증번호를 발송했습니다.
-                    </p>
-
-                    <div className="input-group">
-
-                    <TextField
-                        fullWidth
-                        label='인증번호'
-                        value={code}
-                        onChange={(e) => {
-
-                            setCode(e.target.value);
-                        }}
-                    />
-
-                    </div>
-
-                    <Button
-                        color='inherit'
-                        variant='outlined'
-                        onClick={checkCode}
-                    >
-                        인증 확인
-                    </Button>
-
-                    <br /><br />
-
-
-
-                    {/* 타이머 */}
-                    {time > 0 && (
-
-                        <p style={{
-                            fontSize: '14px',
-                            color: time <= 30 ? 'red' : 'gray'
-                        }}>
-
-                            남은시간 :
-
-                            {String(Math.floor(time / 60)).padStart(2, '0')}
-
-                            :
-
-                            {String(time % 60).padStart(2, '0')}
-
-                        </p>
-                    )}
-
-                </div>
-            )}
-
-
-
-            {/* STEP 3 */}
-            {step === 3 && (
 
                 <div className="result-box">
 
@@ -312,18 +134,18 @@ const FindIdPage = () => {
 
                     <h3>{result}</h3>
 
-                    <br />
-
-                    <a href='/login'>
-                        로그인 하러가기
-                    </a>
+                    <p>입니다.</p>
 
                 </div>
             )}
 
+            <div className="find-links-wrap">
+
+            <div className="find-divider"></div>
 
 
-            <div className="login-links">
+
+            <div className="find-links">
 
             <a href='/findPw'>
                 비밀번호 찾기
@@ -336,6 +158,8 @@ const FindIdPage = () => {
             </a>
 
             </div>
+
+        </div>
 
         </div>
 

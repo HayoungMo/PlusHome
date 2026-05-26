@@ -63,7 +63,7 @@ public class UserService {
 		System.out.println("cDto 내용: " + dto.getCompanyDto());
 		
 		if("company".equals(dto.getType())&&dto.getCompanyDto() !=null) {
-			System.out.println("여기 왔어!");
+			System.out.println("회원가입!");
 			CompanyDTO cdto = dto.getCompanyDto();
 			cdto.setC_id(dto.getId());
 			cdto.setC_tel(dto.getTel());
@@ -143,6 +143,8 @@ public class UserService {
 		
 		return result;
 	}
+	
+	
 	
 	
 	public  ResponsePwDTO resetPassword(UserDTO dto) throws Exception {
@@ -340,29 +342,7 @@ public class UserService {
 		return userMapper.findUserPw(dto);
 	}
 	
-	//인증번호 생성
-	public String createCode() {
-		return String.valueOf((int)((Math.random() * 900000) + 100000)
-		);
-	}
 	
-	//인증번호 저장
-	public void saveCode(String email,String code) {
-		authMap.put(email, code);
-	}
-	
-	//인증번호 확인
-	public boolean checkCode(String email, String inputCode) {
-		String savedCode = authMap.get(email);
-		
-		if(savedCode == null) {
-			return false;
-		}
-		
-		return savedCode.equals(inputCode);
-				
-		
-	}
 	
 	//유저 쿠폰 발급 
 	public void insertCouponUser(CouponDTO dto) throws Exception {

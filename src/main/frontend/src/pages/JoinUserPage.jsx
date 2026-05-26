@@ -121,8 +121,17 @@ const JoinUserPage = () => {
         !/^(?=.*[a-z])(?=.*[0-9])[a-z0-9_-]{5,20}$/.test(value)
     ) {
 
-        return '5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.';
+        return;
 
+    }
+
+    return;
+
+    case 'pw':
+         if(
+        !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/.test(value)
+    ){
+        return '비밀번호 8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.';
     }
 
     return '';
@@ -153,7 +162,7 @@ const JoinUserPage = () => {
     if(
         !/^(?=.*[a-z])(?=.*[0-9])[a-z0-9_-]{5,20}$/.test(form.id)
     ){
-        return '5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.';
+        return '아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.';
     }
 
     // 중복확인 안했을 때
@@ -164,6 +173,11 @@ const JoinUserPage = () => {
     // 비밀번호
     if(!form.pw.trim()){
         return '비밀번호를 입력하세요.';
+    }
+    if(
+    !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/.test(form.pw)
+    ){
+        return '비밀번호 8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.';
     }
 
     // 비밀번호 확인
@@ -351,6 +365,15 @@ if(error){
 
     }
 
+    if(name === 'pw'){
+
+        setErrorMsg(prev => ({
+            ...prev,
+            pw:error
+        }))
+
+    }
+
 }else{
 
     if(name === 'id'){
@@ -358,6 +381,15 @@ if(error){
         setErrorMsg(prev => ({
             ...prev,
             idFormat:''
+        }))
+
+    }
+
+    if(name === 'pw'){
+
+        setErrorMsg(prev => ({
+            ...prev,
+            pw:''
         }))
 
     }
@@ -511,7 +543,7 @@ if(error){
 
                         <TextField
                             fullWidth
-                            label="아이디(필수)"
+                            label="[필수] 아이디"
                             name="id"
                             value={form.id}
                             onChange={onText}
@@ -541,8 +573,13 @@ if(error){
                         </div>
                     )}
 
+                    <div className="guide-msg">
+                            5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.
+                        </div>
+
+
                     {!errorMsg.idFormat && idCheck.msg && (
-                        <div className={idCheck.ok ? "success-msg" : "error-msg"}>
+                        <div className={idCheck.ok ? "success-msg" : "error-msg"}> 
                             {idCheck.msg}
                         </div>
                     )}
@@ -557,7 +594,7 @@ if(error){
 
     <TextField
         fullWidth
-        label="비밀번호(필수)"
+        label="[필수] 비밀번호"
         type="password"
         name="pw"
         value={form.pw}
@@ -581,7 +618,7 @@ if(error){
 
         setErrorMsg(prev => ({
             ...prev,
-            pw:'비밀번호를 입력하세요.'
+            pw:'비밀번호는 필수 정보입니다.'
         }))
 
     }else{
@@ -664,7 +701,7 @@ if(error){
 
                             <TextField
                                 fullWidth
-                                label="업체명(필수)"
+                                label="[필수] 업체명"
                                 type="text"
                                 name="c_name"
                                 value={form.c_name}
@@ -710,7 +747,7 @@ if(error){
 
                             <TextField
                                 fullWidth
-                                label="업체 상세주소(필수)"
+                                label="[필수] 업체 상세주소"
                                 type="text"
                                 name="c_addr2"
                                 value={form.c_addr2}
@@ -748,22 +785,7 @@ if(error){
                             </label>
 
                         </div>
-                        onBlur={() => {
-
-                          if(!form.name.trim()){
-                              setErrorMsg(prev => ({
-                                ...prev,
-                                name:'이름은 필수 정보입니다.'
-                            }))
-                          }else{
-                              setErrorMsg(prev => ({
-                                ...prev,
-                                name:''
-                            }))
-                          }
-
-                      }}
-    
+                        
 
                     </>
 
@@ -776,8 +798,8 @@ if(error){
                     <TextField
                         fullWidth
                          label={form.type === 'company'
-                            ? '사업주명(필수)'
-                            : '이름(필수)'
+                            ? '[필수] 사업주명'
+                            : '[필수] 이름'
                         }
                         type="text"
                         name="name"
@@ -818,7 +840,7 @@ if(error){
         <div className="code-wrap">
 
             <TextField
-                label="주민번호 앞자리(필수)"
+                label="[필수] 주민번호 앞자리"
                 name="codeFront"
                 value={codeFront}
 
@@ -861,7 +883,7 @@ if(error){
             <span>-</span>
 
             <TextField
-                label="주민번호 뒷자리"
+                label="[필수] 주민번호 뒷자리"
                 type="password"
                 name="codeBack"
                 value={codeBack}
@@ -907,7 +929,7 @@ if(error){
 
         <TextField
             fullWidth
-            label="사업자등록번호(필수)"
+            label="[필수] 사업자등록번호"
             name="code"
             value={form.code}
 
@@ -962,11 +984,11 @@ if(error){
 
                     <TextField
                         fullWidth
-                        label="이메일(필수)"
+                        label="[필수] 이메일"
                         placeholder={
                             email.domain === "direct"
-                            ? "example@domain.com"
-                            : "아이디 입력"
+                            ? "example@naver.com"
+                            : ""
                         }
                         value={email.id}
                         onChange={(e) => {
@@ -1042,7 +1064,7 @@ if(error){
                 <div className="join-input">
 
                     <DatePickerMui
-    label="생년월일(필수)"
+    label="[필수] 생년월일"
     value={birth}
 
     onChange={(value) => {
@@ -1095,7 +1117,7 @@ if(error){
 
               <TextField
                   type="text"
-                  label='전화번호(선택)'
+                  label='[선택] 전화번호'
                   name="mid"
                   value={tel.mid}
                   onChange={onTel}
@@ -1104,7 +1126,7 @@ if(error){
 
               <TextField
                   type="text"
-                  label='전화번호(선택)'
+                  label='[선택] 전화번호'
                   name="tail"
                   value={tel.tail}
                   onChange={onTel}

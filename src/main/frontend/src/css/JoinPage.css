@@ -276,3 +276,12 @@ select{
 .code-wrap .MuiTextField-root{
     flex:1;
 }
+
+.guide-msg{
+
+    margin-top:8px;
+
+    font-size:13px;
+
+    color:#9ca3af;
+}

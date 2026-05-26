@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import CouponService from '../service/couponService';
 import TableMui from './TableMui';
 import TableCheckBoxMui from './TableCheckBoxMui';
+import TableChkMui from './TableChkMui';
 
 const CouponListDev = () => {
   const [coupon, setCoupon] = useState();
@@ -19,7 +20,7 @@ const CouponListDev = () => {
 
   return (
     <div>
-        <TableMui
+        <TableChkMui
           rowData={coupon}
           col={[
             "coupon_code",
