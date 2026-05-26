@@ -60,7 +60,7 @@ const CouponDownDev = (data) => {
   return (
     <>
       <Button variant="contained" disabled={loading} onClick={handleDownload}>
-        적용
+        {loading ? "발급 중..." : "쿠폰 지급 해달라고"}
       </Button>
       <Snackbar
         open={alert.open}
