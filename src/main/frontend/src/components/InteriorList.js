@@ -179,7 +179,7 @@ const InteriorList = ({ tag, value }) => {
             a: item.c_id,
             b: item.c_kind,
             c: item.c_name,
-            d: "LOGO",
+            d: "Logo",
             view: false,
           });
 
@@ -269,7 +269,7 @@ const InteriorList = ({ tag, value }) => {
               <img
                 className="interior-company-image"
                 src={
-                  item.logo.result.find((image) => image.img_tag === "PROFILE")
+                  item.logo.result.find((image) => image.img_tag === "LOGO")
                     ?.img_name
                 }
                 alt={`${item.c_name} 로고`}
