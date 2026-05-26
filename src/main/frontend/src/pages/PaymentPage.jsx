@@ -26,6 +26,7 @@ import CartService from "../service/cartService";
 
 import WalletChargeMui from "../components/WalletChargeMui";
 import TextFieldMui from "../components/TextFieldMui";
+import Address from "../maps/Address";
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -52,7 +53,9 @@ const PaymentPage = () => {
   const [newReceiver, setNewReceiver] = useState({
     f_name: "",
     f_tel: "",
-    f_addr: "",
+    addr: "",
+    addr1: "",
+    addr2: "",
   });
 
   const [coupon, setCoupon] = useState([]);
@@ -69,7 +72,13 @@ const PaymentPage = () => {
   const [couponDialogOpen, setCouponDialogOpen] = useState(false)
   const [couponTargetItem, setCouponTargetItem] = useState(null)
 
-  const selectedReceiver = addressMode === "default" ? receiver : newReceiver;
+  const selectedNewReceiver = {
+    ...newReceiver,
+    f_addr: [newReceiver.addr1, newReceiver.addr2].filter(Boolean).join("__"),
+  }
+
+  const selectedReceiver = 
+    addressMode === "default" ? receiver : selectedNewReceiver;
 
   const getItemTotal = (item) => {
     const optionTotal = (item.options || []).reduce(
@@ -473,14 +482,28 @@ const PaymentPage = () => {
                       width="100%"
                       size="small"
                     />
-                    <TextFieldMui
-                      label="주소"
-                      name="f_addr"
-                      value={newReceiver.f_addr}
-                      onChange={changeNewReceiver}
-                      width="100%"
-                      size="small"
-                    />
+                    <Box
+                      sx={{
+                        border: "1px solid #eee",
+                        borderRadius: 1,
+                        p: 1,
+                      }}
+                    >
+                      <Address
+                        isC={false}
+                        form={newReceiver}
+                        setForm={setNewReceiver}
+                      />
+
+                      <TextFieldMui
+                        label="상세주소"
+                        name="addr2"
+                        value={newReceiver.addr2 || ""}
+                        onChange={changeNewReceiver}
+                        width="100%"
+                        size="small"
+                      />
+                    </Box>
                   </Stack>
                 )}
               </Box>

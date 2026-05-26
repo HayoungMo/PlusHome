@@ -24,7 +24,8 @@ public interface QuestionMapper {
 	
 	public void deleteAnswer(@Param("q_idx") int q_idx) throws Exception;
 	
-	public void updateData(QuestionDTO dto) throws Exception;
+	//MyBatis update는 수정된 행 수를 int로 받을수 있다. 답변 달린 문의라서 수정여부를 확인하기 위해서
+	public int updateData(QuestionDTO dto) throws Exception;
 	
 	public void deleteData(@Param("q_idx") int q_idx) throws Exception;
 	//자회사 상품페이지 문의 답변 금지 백엔드

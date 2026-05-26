@@ -18,7 +18,7 @@ public interface WalletMapper {
 	
 	public WalletDTO getReadData(String id) throws Exception;
 	
-	public void updateData(WalletDTO dto) throws Exception;
+	public int updateData(WalletDTO dto) throws Exception;
 	
 	public void deleteData(String id) throws Exception;
 }

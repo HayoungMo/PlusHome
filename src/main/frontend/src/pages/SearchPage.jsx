@@ -107,6 +107,7 @@ const SearchPage = () => {
         { value: "freeBoard", title: "자유게시판"},
     ];
 
+
     //주소창의 keyword가 바뀔때마다 자동으로 검색 실행...을 굳이? 일단 넣어
     //뒤로가기 해서 주소가 바뀌면 이 useEffect를 실행하고 결과를 복구한다.
     useEffect(()=>{

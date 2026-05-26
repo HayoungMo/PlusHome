@@ -3,6 +3,7 @@ import Header from "./Header";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import "../css/PageLayout.css";
+import FloatingButtonMui from "../components/FloatingButtonMui";
 
 const PageLayout = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	// 로그인
@@ -21,6 +22,7 @@ const PageLayout = ({ loginUser, setLoginUser, setLoginInfo }) => {
 			</main>
 
 			<Footer />
+			<FloatingButtonMui/>
 		</div>
 	);
 };

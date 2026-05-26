@@ -899,27 +899,33 @@
   white-space: pre-wrap;
 }
 
+.user-review-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
 .user-review-card {
   width: 100%;
+  min-height: 360px;
+  height: 100%;
   padding: 18px 20px 14px;
-  margin-bottom: 14px;
   border: 1px solid #dfe8f5;
   border-radius: 10px;
   background: #fff;
-  text-align: left !important;
   box-sizing: border-box;
-  min-height: 360px;
+  text-align: left !important;
+  display: flex;
+  flex-direction: column;
 }
 
-.user-review-product-summary,
 .user-review-product-area {
   display: flex;
   align-items: flex-start;
-  justify-content: flex-start;
   gap: 12px;
   padding-bottom: 14px;
   border-bottom: 1px solid #edf0f3;
-  text-align: left !important;
 }
 
 .user-review-product-thumb {
@@ -939,65 +945,62 @@
   display: block;
 }
 
-.user-review-product-meta,
 .user-review-product-info {
   min-width: 0;
   padding-top: 1px;
-  text-align: left !important;
 }
 
-.user-review-product-meta p,
 .user-review-company {
   margin: 0 0 3px;
   color: #8a8f98;
   font-size: 13px;
   line-height: 1.3;
-  text-align: left !important;
 }
 
-.user-review-product-meta strong,
 .user-review-product-info h4 {
-  display: block;
   margin: 0 0 5px;
   color: #111827;
   font-size: 16px;
   font-weight: 800;
   line-height: 1.35;
   word-break: keep-all;
-  text-align: left !important;
 }
 
 .user-review-options {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  text-align: left !important;
 }
 
-.user-review-options span {
+.user-review-options span,
+.user-review-option-empty {
   color: #8a8f98;
   font-size: 13px;
   line-height: 1.35;
 }
 
-.user-review-option-empty {
-  color: #a3aab5;
-}
-
 .user-review-body {
+  flex: 1;
   padding-top: 14px;
-  text-align: left !important;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
 }
 
-.user-review-rating-row,
+.user-review-rating-row {
+  min-height: 28px;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .user-review-rating {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 6px;
   min-width: 0;
-  margin: 0 0 10px;
-  text-align: left !important;
 }
 
 .user-review-rating strong {
@@ -1007,28 +1010,38 @@
   line-height: 1;
 }
 
+.user-review-reply-badge {
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 0 8px;
+  border: 1px solid #b8d7ff;
+  border-radius: 999px;
+  background: #eaf3ff;
+  color: #1976d2;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
 .user-review-title-line {
   display: flex;
   align-items: baseline;
-  justify-content: flex-start;
   gap: 8px;
   margin: 0 0 8px;
-  text-align: left !important;
 }
 
-.user-review-title,
 .user-review-title-line h4 {
   margin: 0;
   color: #111827;
   font-size: 16px;
   font-weight: 800;
   line-height: 1.45;
-  text-align: left !important;
 }
 
-.user-review-date,
 .user-review-title-line span {
-  margin: 0;
   color: #8a8f98;
   font-size: 13px;
   line-height: 1.4;
@@ -1036,22 +1049,22 @@
 }
 
 .user-review-content {
-  margin: 0 0 10px;
-  color: #111827;
+  margin: 0 0 12px;
+  color: #374151;
   font-size: 15px;
   line-height: 1.6;
-  white-space: pre-line;
-  text-align: left !important;
+  white-space: pre-wrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .user-review-images {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
   gap: 8px;
-  margin: 0;
-  text-align: left !important;
-  min-height: 88px;
+  margin: 0 0 12px;
 }
 
 .user-review-images img {
@@ -1065,11 +1078,9 @@
 }
 
 .user-review-no-image {
+  padding: 10px 0;
   color: #9ca3af;
   font-size: 13px;
-  min-height: 88px;
-  display: flex;
-  align-items: center;
 }
 
 .user-review-action-buttons {
@@ -1077,10 +1088,12 @@
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
-  margin: 10px 0 0;
-  padding: 0;
-  position: static;
-  text-align: right !important;
+  margin-top: auto;
+  cursor: default;
+}
+
+.user-review-action-buttons * {
+  cursor: default;
 }
 
 .user-review-action-buttons .MuiButton-root {
@@ -1118,79 +1131,63 @@
   color: #008cff;
 }
 
-.user-review-edit-form {
-  display: grid;
-  gap: 14px;
-  min-width: 0;
-  text-align: left;
+.user-review-clickable-title {
+  cursor: pointer;
 }
 
-.user-review-furniture-name {
-  margin: 0;
-  color: #111827;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.4;
-}
-
-.user-review-edit-image {
+.user-review-edit-dialog-title {
   position: relative;
-  width: 86px;
-  height: 86px;
+  width: 100%;
+  min-height: 34px;
+  padding-right: 42px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.35;
+  box-sizing: border-box;
 }
 
-.user-review-edit-image {
-  min-width: 0;
-  padding: 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: #fafafa;
+.user-review-edit-dialog-title strong {
+  display: block;
+  font-weight: 800;
 }
 
-.user-review-edit-image img {
-  width: 86px;
-  height: 86px;
-  object-fit: cover;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+.user-review-edit-dialog-title button {
+  position: absolute;
+  right: -6px;
+  top: -4px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 30px;
+  line-height: 30px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-review-edit-dialog-title button:hover {
+  color: #111827;
   background: #f3f4f6;
 }
 
-.user-review-add-image-form {
-  display: grid;
-  gap: 8px;
-}
-
-.user-review-add-image-form p {
-  margin: 0;
-  color: #555;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.user-review-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  align-items: start;
-}
-
-.user-review-card {
-  margin-bottom: 0;
-}
-
-.user-review-delete-dialog-text {
-  display: block;
-  font-size: 16px;
-  font-weight: 500;
-  color: #4b5563;
-  text-align: center;
-}
-
 .user-review-edit-form {
   display: grid;
-  gap: 14px;
+  gap: 16px;
+  min-width: 0;
   text-align: left;
+}
+
+.user-review-edit-product-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #edf0f3;
+  border-radius: 8px;
+  background: #fafbfc;
 }
 
 .user-review-edit-section {
@@ -1198,25 +1195,18 @@
   justify-content: flex-start;
 }
 
-.user-review-edit-divider {
-  width: 100%;
-  border: 0;
-  border-top: 1px solid #edf0f3;
-  margin: 0;
-}
-
 .user-review-edit-field {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-columns: 58px minmax(0, 1fr);
   align-items: flex-start;
   gap: 10px;
 }
 
 .user-review-edit-field > span {
-  padding-top: 14px;
+  padding-top: 13px;
   color: #374151;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -1234,104 +1224,36 @@
 .user-review-add-image-form p {
   margin: 0;
   color: #374151;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .user-review-edit-images {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .user-review-edit-image {
-  width: 86px;
-  display: grid;
-  gap: 6px;
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex: 0 0 104px;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  background: #fafafa;
+  box-sizing: border-box;
 }
 
 .user-review-edit-image img {
-  width: 86px;
-  height: 86px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   background: #f3f4f6;
-}
-
-.user-review-edit-image .MuiButton-root,
-.user-review-add-image-form .MuiButton-root {
-  height: 32px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.user-review-edit-dialog-title {
-  position: relative;
-  padding-right: 42px;
-  color: #111827;
-  font-size: 20px;
-  line-height: 1.35;
-}
-
-
-.user-review-edit-dialog-title strong {
-  font-weight: 800;
-  color: #111827;
-}
-
-.user-review-edit-dialog-title span {
-  margin-left: 5px;
-  color: #8a8f98;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.user-review-edit-dialog-title button {
-  position: absolute;
-  right: -12px;
-  top: -5px;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  background: transparent;
-  color: #9ca3af;
-  font-size: 26px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.user-review-edit-dialog-title button:hover {
-  color: #111827;
-}
-
-.user-review-edit-product-area {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #edf0f3;
-  border-radius: 8px;
-  background: #fafbfc;
-}
-
-.user-review-edit-upload-btn.MuiButton-root {
-  width: auto;
-  min-width: 108px;
-  height: 38px;
-  padding: 0 16px;
-  border-radius: 6px;
-  background: #008cff;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: none;
-}
-
-.user-review-edit-upload-btn.MuiButton-root:hover {
-  background: #0077d9;
-  box-shadow: none;
+  box-sizing: border-box;
 }
 
 .user-review-edit-image-delete {
@@ -1340,12 +1262,12 @@
   right: 5px;
   width: 22px;
   height: 22px;
-  border: 1px solid rgba(17, 24, 39, 0.18);
+  border: 1px solid #d1d5db;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
+  background: #fff;
   color: #374151;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   line-height: 18px;
   cursor: pointer;
   padding: 0;
@@ -1357,357 +1279,44 @@
   background: #fff5f5;
 }
 
-/* .user-review-edit-form ~ * .MuiButton-outlined,
-.MuiDialogActions-root .MuiButton-outlinedInherit {
-  border-color: #e5e7eb !important;
-  color: #4b5563 !important;
-}
-
-.user-review-edit-form ~ * .MuiButton-outlined:hover,
-.MuiDialogActions-root .MuiButton-outlinedInherit:hover {
-  border-color: #d1d5db !important;
-  background: #fafafa !important;
-} */
-
 .user-review-edit-image-new::after {
   content: "추가";
   position: absolute;
-  left: 5px;
-  bottom: 5px;
-  padding: 2px 5px;
+  left: 8px;
+  bottom: 8px;
+  padding: 2px 6px;
   border-radius: 4px;
   background: rgba(0, 140, 255, 0.92);
   color: #fff;
   font-size: 11px;
-  font-weight: 700;
-}
-
-.user-review-delete-dialog-title {
-  color: #111827;
-  font-size: 20px;
   font-weight: 800;
-  line-height: 1.35;
 }
 
-.user-review-delete-dialog-content {
-  padding: 4px 0 2px;
-  text-align: left;
-}
-
-.user-review-delete-dialog-content p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.6;
-}
-
-/* .MuiDialogActions-root {
-  padding: 12px 24px 20px !important;
-  gap: 8px;
-}
-
-.MuiDialogActions-root .MuiButton-root {
-  min-width: 70px;
-  height: 36px;
-  border-radius: 7px;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: none;
-} */
-
-.user-review-content {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 회사 대시 보드 추가 를위 한 눈물 겨운 여정 */
-.user-section-tabs.has-dashboard {
-  display: flex;
-  justify-content: center;
-  gap: 64px;
-}
-
-.user-section-tabs.has-dashboard button {
-  justify-self: auto;
-  margin: 0;
-}
-
-.user-company-dashboard-menu {
-  display: grid;
-  gap: 8px;
-  margin-top: 16px;
-  width: 100%;
-  margin-top: 18px;
-}
-
-.user-company-dashboard-menu button {
-  width: 100%;
-  height: 44px;
-  border: 1px solid #dfe3e8;
-  border-radius: 8px;
-  background: #fff;
-  color: #111827;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 800;
-  box-sizing: border-box;
-}
-
-.user-company-dashboard-menu button:hover {
-  border-color: #008cff;
-  color: #008cff;
-  background: #f6fbff;
-}
-
-.user-profile-dashboard-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  height: 44px;
-  margin-top: 18px;
-
-  border: 1px solid #dfe3e8;
-  border-radius: 8px;
-  background: #fff;
-  color: #111827;
-
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 800;
-  box-sizing: border-box;
-}
-
-.user-profile-dashboard-button:hover {
-  border-color: #008cff;
-  color: #008cff;
-  background: #f6fbff;
-}
-
-.user-profile-panel-actions button.primary {
-  border-color: #008cff;
-  background: #008cff;
-  color: #fff;
-}
-
-.user-profile-panel-actions button.primary:hover {
-  border-color: #0077d9;
-  background: #0077d9;
-  color: #fff;
-}
-
-.user-profile-panel-actions .dashboard {
-  margin-right: auto;
-}
-.user-review-body p {
-  margin: 0;
-  color: #374151;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.interior-my-review-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  align-items: start;
-}
-
-.interior-my-review-card {
-  width: 100%;
-  min-height: 320px;
-  padding: 18px 20px 14px;
-  border: 1px solid #dfe8f5;
-  border-radius: 10px;
-  background: #fff;
-  text-align: left;
-  box-sizing: border-box;
-  box-shadow: none;
-}
-
-.interior-my-review-company-area {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 12px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #edf0f3;
-}
-
-.interior-my-review-company-thumb {
-  width: 58px;
-  height: 58px;
-  flex: 0 0 58px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #f3f4f6;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.interior-my-review-company-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.interior-my-review-company-info {
-  min-width: 0;
-  padding-top: 1px;
-}
-
-.interior-my-review-company-info p {
-  margin: 0 0 3px;
-  color: #8a8f98;
-  font-size: 13px;
-  line-height: 1.3;
-}
-
-.interior-my-review-company-info h4 {
-  margin: 0 0 5px;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 1.35;
-  word-break: keep-all;
-}
-
-.interior-my-review-company-info span {
-  color: #8a8f98;
-  font-size: 13px;
-}
-
-.interior-my-review-body {
-  padding-top: 14px;
-}
-
-.interior-my-review-title-line {
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: 8px;
-  margin: 0 0 8px;
-}
-
-.interior-my-review-title-line h4 {
-  margin: 0;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.interior-my-review-title-line span {
-  color: #8a8f98;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.interior-my-review-content {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 96px;
-  margin: 0 0 10px;
+.user-review-add-image-form {
+  margin-top: 0;
   padding: 0;
-  color: #374151;
-  font-size: 15px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.interior-my-review-images {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 8px;
-  min-height: 88px;
-  margin: 0;
-  padding: 0;
-  border-bottom: 0;
+  border: 0;
   background: transparent;
 }
 
-.interior-my-review-images img {
-  width: 88px;
-  height: 88px;
-  object-fit: cover;
-  display: block;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: #f3f4f6;
-}
-
-.interior-my-review-no-image {
-  min-height: 88px;
-  color: #9ca3af;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-}
-
-.interior-my-review-action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
-  margin: 10px 0 0;
-}
-
-.interior-my-review-action-buttons .MuiButton-root {
-  min-width: 56px;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
+.user-review-edit-upload-btn.MuiButton-root {
+  width: 100%;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 7px;
+  background: #008cff;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
   box-shadow: none;
 }
 
-.interior-my-review-edit-form {
-  display: grid;
-  gap: 14px;
-  min-width: 0;
-  text-align: left;
-}
-
-.interior-my-review-edit-form .user-review-add-image-form .MuiButton-root {
-  justify-self: start;
-}
-
-.interior-my-review-edit-company-area {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #edf0f3;
-  border-radius: 8px;
-  background: #fafbfc;
-}
-
-.interior-my-review-empty {
-  margin: 32px 0;
-  padding: 34px 24px;
-  border: 1px solid #dfe8f5;
-  border-radius: 10px;
-  background: #fff;
-  color: #7b818a;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+.user-review-edit-upload-btn.MuiButton-root:hover {
+  background: #0077d9;
+  box-shadow: none;
 }
 
 @media (max-width: 860px) {
-  .interior-my-review-list,
   .user-review-list {
     grid-template-columns: 1fr;
   }
