@@ -14,10 +14,13 @@ import {
   Radio,
   RadioGroup,
   Select,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
 import { AiFillCar } from "react-icons/ai";
+
+import AlertMui from "../components/AlertMui";
 
 import PaymentService from "../service/paymentService";
 import WalletService from "../service/walletService";
@@ -68,6 +71,28 @@ const PaymentPage = () => {
   const [itemCouponMap, setItemCouponMap] = useState({});
   const [paySuccess, setPaySuccess] = useState(false);
   const [walletChargeOpen, setWalletChargeOpen] = useState(false);
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "info",
+    title: "",
+    text: "",
+  })
+
+  const showAlert = ({ severity = "info", title = "", text= ""}) =>{
+    setAlert({
+      open: true,
+      severity,
+      title,
+      text
+    })
+  }
+
+  const closeAlert = () => {
+    setAlert((prev) => ({
+      ...prev,
+      open: false,
+    }));
+  };
 
   const [couponDialogOpen, setCouponDialogOpen] = useState(false)
   const [couponTargetItem, setCouponTargetItem] = useState(null)
@@ -140,16 +165,17 @@ const PaymentPage = () => {
     const itemTotal = getItemTotal(item);
     const percentDiscount =
       itemTotal * (Number(selectedCoupon.discount || 0) / 100);
-    const maxDiscount = Number(selectedCoupon.coupon_max || 0);
+    
+      const maxDiscount = Number(selectedCoupon.coupon_max || 0);
+      const discount =
+        maxDiscount > 0 ? Math.min(percentDiscount, maxDiscount) : percentDiscount;
 
-    return Math.floor(Math.min(percentDiscount, maxDiscount));
+      return Math.floor(Math.min(discount, itemTotal));
   };
 
   const couponDiscount = items.reduce((sum, item) => {
     return sum + getItemCouponDiscount(item);
   }, 0);
-
-  const selectedCouponCodes = Object.values(itemCouponMap).filter(Boolean);
 
   const appliedPoint = Math.min(
     Number(usePoint || 0),
@@ -195,8 +221,15 @@ const PaymentPage = () => {
 
   useEffect(()=>{
     if (!location.state || !items.length) {
-      alert("결제할 상품 정보가 없습니다.")
-      navigate("/cart")
+      showAlert({
+        severity: "warning",
+        title: "결제 정보 없음",
+        text: "결제할 상품 정보가 없습니다.",
+      });
+
+      setTimeout(() => {
+        navigate("/cart");
+      }, 500);  
     }
   },[])
   
@@ -277,7 +310,11 @@ const PaymentPage = () => {
 
   const onPayClick = () => {
     if (items.length === 0) {
-      alert("결제할 상품이 없습니다.");
+      showAlert({
+        severity: "warning",
+        title: "상품 없음",
+        text: "결제할 상품이 없습니다.",
+      });
       return;
     }
 
@@ -286,7 +323,11 @@ const PaymentPage = () => {
       !selectedReceiver.f_tel ||
       !selectedReceiver.f_addr
     ) {
-      alert("배송 정보를 입력해주세요.");
+      showAlert({
+        severity: "warning",
+        title: "배송 정보",
+        text: "배송 정보를 입력해주세요.",
+      });
       return;
     }
 
@@ -321,17 +362,6 @@ const PaymentPage = () => {
           coupon_discount: getItemCouponDiscount(item),
         })),
       });
-
-      if (selectedCouponCodes.length > 0) {
-        await Promise.all(
-          selectedCouponCodes.map((coupon_code) =>
-            CouponService.deleteCoupon({
-              id: user.id,
-              coupon_code,
-            })
-          )
-        );
-      }
 
       setWalletMoney((prev) => prev - finalPayTotal);
       setPaySuccess(true);
@@ -371,7 +401,21 @@ const PaymentPage = () => {
   }
 
   return (
-    
+    <>
+    <Snackbar
+      open={alert.open}
+      autoHideDuration={3000}
+      onClose={closeAlert}
+      anchorOrigin={{ vertical: "top", horizontal: "center"}}>
+      <div>
+        <AlertMui
+          severity= {alert.severity}
+          title={alert.title}
+          text={alert.text}
+          onClose={closeAlert}
+        />
+      </div>
+    </Snackbar>
     <Box
       sx={{
         p: 3,
@@ -1012,6 +1056,7 @@ const PaymentPage = () => {
       />
 
     </Box>
+  </>
   );
 };
 

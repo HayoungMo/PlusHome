@@ -51,6 +51,8 @@
 	color: white;
 	padding: 24px 16px;
 	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
 }
 
 .leftbar ul {
@@ -89,4 +91,21 @@
 	background-color: #ffffff;
 	color: #222831;
 	font-weight: bold;
+}
+
+.leftbar-mypage-button {
+	margin-top: auto;
+	width: 100%;
+	border: none;
+	background: #ffffff;
+	color: #222831;
+	padding: 12px 10px;
+	border-radius: 6px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.leftbar-mypage-button:hover {
+	background: #ffffff;
+	color: #222831;
 }

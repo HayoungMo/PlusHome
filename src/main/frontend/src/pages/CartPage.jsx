@@ -10,9 +10,12 @@ import {
   MenuItem,
   Paper,
   Select,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
+import AlertMui from "../components/AlertMui";
+import DialogMui from "../components/DialogMui"
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
@@ -33,6 +36,61 @@ const CartPage = () => {
   const [selectedMap, setSelectedMap] = useState({});
   const [selectedOptionMap, setSelectedOptionMap] = useState({});
   const [loading, setLoading] = useState(true)
+  const [alert, setAlert] = useState({
+    open: false, 
+    severity: "info",
+    title: "",
+    text: "",
+  })
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: "",
+    text: "",
+    onConfirm: null
+  })
+
+  const showAlert = ({severity = "info", title = "", text= ""})=>{
+    setAlert({
+      open: true,
+      severity,
+      title,
+      text,
+    })
+  }
+
+  const closeAlert = () => {
+    setAlert((prev) => ({
+      ...prev,
+      open: false, 
+    }))
+  }
+
+  const openConfirmDialog = ({ title, text, onConfirm }) => {
+    setConfirmDialog({
+      open: true,
+      title,
+      text,
+      onConfirm,
+    });
+  };
+
+  const closeConfirmDialog = () => {
+    setConfirmDialog((prev) => ({
+      ...prev,
+      open: false,
+      onConfirm: null,
+    }));
+  };
+
+  const runConfirmDialog = async () => {
+    const confirmAction = confirmDialog.onConfirm;
+
+    closeConfirmDialog();
+
+    if (confirmAction) {
+      await confirmAction();
+    }
+  };
 
   const allSelected =
     cart.length > 0 && cart.every((item) => selectedMap[item.c_code]);
@@ -172,9 +230,11 @@ const CartPage = () => {
     return Object.values(mergedMap);
   };
 
-  const loadCart = async () => {
+  const loadCart = async ( showLoading = true ) => {
     try {
-      setLoading(true)
+      if(showLoading){
+        setLoading(true)
+      }
       
       const res = await CartService.getMyCart();
       const cartList = res.data || [];
@@ -183,54 +243,54 @@ const CartPage = () => {
 
       const cartWithDetail = await Promise.all(
         cartList.map(async (item) => {
-          const optionRes = await CartService.getCartOptions(item.c_code);
-          const furnitureRes = await FurnitureService.getFurnitureItem(
-            item.f_code
-          );
+        const optionRes = await CartService.getCartOptions(item.c_code);
+        const furnitureRes = await FurnitureService.getFurnitureItem(
+          item.f_code
+        );
 
-          const cartOptions = optionRes.data || [];
-          let originalOptions = [];
+        const cartOptions = optionRes.data || [];
 
-          if (cartOptions.length > 0) {
-            const originalOptionRes =
-              await OptionsService.getFurnitureOptions(item.f_code);
+        const originalOptionRes =
+          await OptionsService.getFurnitureOptions(item.f_code);
 
-            originalOptions = originalOptionRes.data || [];
-            nextOptionMap[item.c_code] = {};
+        const originalOptions = originalOptionRes.data || [];
 
-            cartOptions.forEach((cartOption) => {
-              const matchedOption = originalOptions.find(
-                (option) =>
-                  option.o_select === cartOption.co_select &&
-                  option.o_text === cartOption.co_text
-              );
+        if (originalOptions.length > 0) {
+          nextOptionMap[item.c_code] = {};
 
-              if (matchedOption) {
-                nextOptionMap[item.c_code][matchedOption.o_select] =
-                  matchedOption.o_code;
-              }
-            });
-          }
+          cartOptions.forEach((cartOption) => {
+            const matchedOption = originalOptions.find(
+              (option) =>
+                option.o_select === cartOption.co_select &&
+                option.o_text === cartOption.co_text
+            );
 
-          const furniture = furnitureRes || {};
-          const thumbnail = furniture.imageList?.find(
-            (img) => img.img_tag === "THUMBNAIL"
-          );
+            if (matchedOption) {
+              nextOptionMap[item.c_code][matchedOption.o_select] =
+                matchedOption.o_code;
+            }
+          });
+        }
 
-          return {
-            ...item,
-            options: cartOptions,
-            originalOptions,
-            furniture,
-            thumbnail: thumbnail?.img_name || null,
-          };
-        })
+        const furniture = furnitureRes || {};
+        const thumbnail = furniture.imageList?.find(
+          (img) => img.img_tag === "THUMBNAIL"
+        );
+
+        return {
+          ...item,
+          options: cartOptions,
+          originalOptions,
+          furniture,
+          thumbnail: thumbnail?.img_name || null,
+        };
+      })
       );
 
       const merged = await normalizeDuplicateCart(cartWithDetail);
 
       if (merged) {
-        await loadCart();
+        await loadCart(showLoading);
         return;
       }
 
@@ -246,14 +306,66 @@ const CartPage = () => {
       setSelectedOptionMap(nextOptionMap);
     } catch (error) {
       console.error("장바구니 조회 실패", error);
-      alert("장바구니 조회에 실패했습니다.");
+      showAlert({
+        severity: "error",
+        title:"조회 실패",
+        text: "장바구니 조회에 실패했습니다.",
+      })
     } finally {
-      setLoading(false)
+      if(showLoading){
+        setLoading(false)
+      }
     }
   };
 
+  const feedback = (
+    <>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={closeAlert}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <div>
+          <AlertMui
+            severity={alert.severity}
+            title={alert.title}
+            text={alert.text}
+            onClose={closeAlert}
+          />
+        </div>
+      </Snackbar>
+
+      <DialogMui
+        open={confirmDialog.open}
+        onClose={closeConfirmDialog}
+        title={confirmDialog.title}
+        text={confirmDialog.text}
+        buttons={[
+          {
+            title: "취소",
+            color: "inherit",
+            variant: "outlined",
+            onClick: closeConfirmDialog,
+          },
+          {
+            title: "삭제",
+            color: "error",
+            variant: "contained",
+            onClick: runConfirmDialog,
+          },
+        ]}
+      />
+    </>
+  );
+
   if (loading) {
-    return <Loading message="장바구니 정보를 불러오는 중입니다." />;
+    return (
+      <>
+        {feedback}
+        <Loading message="장바구니 정보를 불러오는 중입니다." />
+      </>
+    )
   }
 
   const getGroupedCart = () => {
@@ -318,9 +430,6 @@ const CartPage = () => {
 
   const selectedItems = cart.filter((item) => selectedMap[item.c_code]);
 
-  const selectedItemCount = selectedItems.reduce((sum,item)=>{
-    return sum + Number(item.f_count || 0)
-  },0)
 
   const getOptionPrice = (item) => {
     return (item.options || []).reduce(
@@ -355,10 +464,18 @@ const CartPage = () => {
     }, 0);
   };
 
-  const getSelectedCompanyGroups = () => {
+  const getItemsCount = (items) => {
+    return items.reduce((sum,item) => sum + Number(item.f_count || 0), 0)
+  }
+
+  const getItemsProductTotal = (items) => {
+    return items.reduce((sum, item) => sum + getItemProductPrice(item),0)
+  }
+
+  const getItemsDeliveryTotal = (items) => {
     const groups = {};
 
-    selectedItems.forEach((item) => {
+    items.forEach((item) => {
       const companyKey =
         item.furniture?.c_id || item.furniture?.c_name || "unknown";
 
@@ -367,17 +484,17 @@ const CartPage = () => {
       groups[companyKey].push(item);
     });
 
-    return Object.values(groups);
+    return Object.values(groups).reduce(
+      (sum, companyItems) => sum + getCompanyDeliveryFee(companyItems),
+      0
+    );
   };
 
-  const selectedProductTotal = selectedItems.reduce((sum, item) => {
-    return sum + getItemProductPrice(item);
-  }, 0);
+  const selectedItemCount = getItemsCount(selectedItems);
 
-  const selectedDeliveryTotal = getSelectedCompanyGroups().reduce(
-    (sum, companyItems) => sum + getCompanyDeliveryFee(companyItems),
-    0
-  );
+  const selectedProductTotal = getItemsProductTotal(selectedItems);
+
+  const selectedDeliveryTotal = getItemsDeliveryTotal(selectedItems);
 
   const selectedPayTotal = selectedProductTotal + selectedDeliveryTotal;
 
@@ -409,24 +526,42 @@ const CartPage = () => {
       );
     } catch (error) {
       console.error("수량 변경 실패", error);
-      alert("수량 변경에 실패했습니다.");
+      showAlert({
+        severity: "error",
+        title: "변경 실패",
+        text: "수량 변경에 실패했습니다.",
+      });
     }
   };
 
   const onUpdateCartOption = async (item) => {
     const optionGroups = getOptionGroups(item.originalOptions || []);
-    const groupNames = Object.keys(optionGroups);
+    const requiredGroupNames = Object.entries(optionGroups)
+      .filter(([, groupOptions]) =>
+        groupOptions.some((option) => option.o_important === "Y")
+      )
+      .map(([groupName]) => groupName);
 
-    const selectedOptionList = Object.values(selectedOptionMap[item.c_code] || {})
+    const selectedOptionMapForItem = selectedOptionMap[item.c_code] || {};
+
+    const missingRequiredOption = requiredGroupNames.some(
+      (groupName) => !selectedOptionMapForItem[groupName]
+    );
+
+    if (missingRequiredOption) {
+      showAlert({
+        severity: "warning",
+        title: "옵션 선택",
+        text: "필수 옵션을 선택해주세요.",
+      });
+      return;
+    }
+
+    const selectedOptionList = Object.values(selectedOptionMapForItem)
       .map((o_code) =>
         (item.originalOptions || []).find((option) => option.o_code === o_code)
       )
       .filter(Boolean);
-
-    if (selectedOptionList.length !== groupNames.length) {
-      alert("옵션을 모두 선택해주세요.");
-      return;
-    }
 
     try {
       await CartService.deleteCart(item.c_code);
@@ -449,17 +584,32 @@ const CartPage = () => {
         })),
       });
 
-      alert("옵션이 변경되었습니다.");
-      await loadCart();
+      showAlert({
+        severity: "success",
+        title: "변경 완료",
+        text: "옵션이 변경되었습니다.",
+      });
+
+      await loadCart(false);
     } catch (error) {
       console.error("옵션 변경 실패", error);
-      alert("옵션 변경에 실패했습니다.");
+      showAlert({
+        severity: "error",
+        title: "변경 실패",
+        text: "옵션 변경에 실패했습니다.",
+      });
     }
   };
 
-  const removeItem = async (item) => {
-    if (!window.confirm("장바구니에서 삭제하시겠습니까?")) return;
+  const removeItem = (item) => {
+    openConfirmDialog({
+      title: "삭제 확인",
+      text: "장바구니에서 삭제하시겠습니까?",
+      onConfirm: () => removeItemSubmit(item),
+    });
+  }
 
+  const removeItemSubmit = async (item) => {
     try {
       const deleteCodes = item.c_codeList || [item.c_code];
 
@@ -477,42 +627,70 @@ const CartPage = () => {
         return next;
       });
 
-      alert("삭제되었습니다.");
+      showAlert({
+        severity: "success",
+        title: "삭제 성공",
+        text: "삭제되었습니다."
+      })
     } catch (error) {
       console.error("장바구니 삭제 실패", error);
-      alert("장바구니 삭제에 실패했습니다.");
+      showAlert({
+        severity: "error",
+        title: "삭제 실패",
+        text: "장바구니 삭제에 실패했습니다."
+      })
     }
   };
 
   const removeSelectedItems = async () => {
     if (selectedItems.length === 0) {
-      alert("삭제할 상품을 선택해주세요.");
+      showAlert({
+        severity: "warning",
+        title: "상품 선택",
+        text: "삭제할 상품을 선택해주세요."
+      })
       return;
     }
 
-    if (!window.confirm("선택한 상품을 삭제하시겠습니까?")) return;
+    const targets = [...selectedItems]
 
+    openConfirmDialog({
+      title: "삭제 확인",
+      text: "선택한 상품을 삭제하시겠습니까?",
+      onConfirm: ()=> removeSelectedItemsSubmit(targets),
+    })
+  }
+
+  const removeSelectedItemsSubmit = async (items) => {
     try {
       await Promise.all(
-        selectedItems.flatMap((item) =>
+        items.flatMap((item) =>
           (item.c_codeList || [item.c_code]).map((c_code) =>
             CartService.deleteCart(c_code)
           )
         )
       );
 
-      const selectedCodes = selectedItems.map((item) => item.c_code);
+      const selectedCodes = items.map((item) => item.c_code);
 
       setCart((prev) =>
         prev.filter((item) => !selectedCodes.includes(item.c_code))
       );
 
       setSelectedMap({});
-
-      alert("선택 상품을 삭제했습니다.");
+  
+      showAlert({
+        severity: "success",
+        title: "삭제 성공",
+        text: "선택 상품을 삭제했습니다."
+      })
     } catch (error) {
       console.error("선택 삭제 실패", error);
-      alert("선택 삭제에 실패했습니다.");
+       showAlert({
+        severity: "error",
+        title: "삭제 실패",
+        text: "선택 삭제에 실패했습니다."
+      })
     }
   };
 
@@ -520,47 +698,62 @@ const CartPage = () => {
     navigate(`/furniture/article/${f_code}`);
   };
 
-  const onPayment = async () => {
-    if (selectedItems.length === 0) {
-      alert("결제할 상품을 선택해주세요.");
+  const onPayment = async (items = selectedItems) => {
+    if (items.length === 0) {
+      showAlert({
+        severity: "warning",
+        title: "상품 선택",
+        text: "결제할 상품을 선택해주세요.",
+      });
       return;
     }
 
-    const c_codes = selectedItems.flatMap((item)=>
-      item.c_codeList || [item.c_code])
+    const c_codes = items.flatMap((item) => item.c_codeList || [item.c_code]);
 
-    try{
-        const result = await PaymentService.checkStock(c_codes)
-    
-        if (!result.ok) {
-          const message = result.items
-            .map((item) => {
-              if (item.type === "OPTION") {
-                return `${item.productName} - ${item.optionName}: ${item.optionValue}
-    구매 수량: ${item.requestedCount}개 / 현재 재고: ${item.stock}개`;
-              }
+    try {
+      const result = await PaymentService.checkStock(c_codes);
 
-              return `${item.productName}
-    구매 수량: ${item.requestedCount}개 / 현재 재고: ${item.stock}개`;
-            })
-            .join("\n\n");
+      if (!result.ok) {
+        const message = result.items
+          .map((item) => {
+            if (item.type === "OPTION") {
+              return `${item.productName} - ${item.optionName}: ${item.optionValue}
+  구매 수량: ${item.requestedCount}개 / 현재 재고: ${item.stock}개`;
+            }
 
-          alert(`재고가 부족한 상품이 있습니다.\n\n${message}`);
-          return;
-    }
+            return `${item.productName}
+  구매 수량: ${item.requestedCount}개 / 현재 재고: ${item.stock}개`;
+          })
+          .join("\n\n");
+
+        showAlert({
+          severity: "warning",
+          title: "재고 부족",
+          text: `재고가 부족한 상품이 있습니다.\n\n${message}`,
+        });
+        return;
+      }
+
+      const productTotal = getItemsProductTotal(items);
+      const deliveryTotal = getItemsDeliveryTotal(items);
 
       navigate("/payment", {
         state: {
-          items: selectedItems,
-          itemCount: selectedItemCount,
-          productTotal: selectedProductTotal,
-          deliveryTotal: selectedDeliveryTotal,
-          payTotal: selectedPayTotal,
+          items,
+          itemCount: getItemsCount(items),
+          productTotal,
+          deliveryTotal,
+          payTotal: productTotal + deliveryTotal,
         },
       });
-    } catch (error){
-      console.error("재고 확인 실패", error)
-      alert("재고 확인 중 오류가 발생했습니다.")
+    } catch (error) {
+      console.error("재고 확인 실패", error);
+
+      showAlert({
+        severity: "error",
+        title: "재고 확인 실패",
+        text: "재고 확인 중 오류가 발생했습니다.",
+      });
     }
   };
 
@@ -568,38 +761,43 @@ const CartPage = () => {
 
   if (cart.length === 0) {
     return (
-      <Box
-        sx={{
-          minHeight: "520px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        }}
-      >
-        <Box>
-          <Typography variant="h6" fontWeight={700}>
-            아직 상품이 없습니다
-          </Typography>
+      <>
+      {feedback}
+        <Box
+          sx={{
+            minHeight: "520px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          <Box>
+            <Typography variant="h6" fontWeight={700}>
+              아직 상품이 없습니다
+            </Typography>
 
-          <Typography color="text.secondary" mt={0.5}>
-            원하는 상품을 담아보세요
-          </Typography>
+            <Typography color="text.secondary" mt={0.5}>
+              원하는 상품을 담아보세요
+            </Typography>
 
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3 }}
-            onClick={() => navigate("/furniture/list")}
-          >
-            상품페이지로
-          </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3 }}
+              onClick={() => navigate("/furniture/list")}
+            >
+              상품페이지로
+            </Button>
+          </Box>
         </Box>
-      </Box>
+      </>
     );
   }
 
   return (
+    <>
+    {feedback}  
     <Box sx={{ p: 3, maxWidth: 1180, mx: "auto" }}>
       <Typography variant="h5" fontWeight={700} mb={2} textAlign="center">
         장바구니
@@ -901,12 +1099,15 @@ const CartPage = () => {
 
                                         {isLastOption && (
                                           <Button
+                                            type="button"
                                             variant="outlined"
                                             color="inherit"
                                             size="small"
-                                            onClick={() =>
-                                              onUpdateCartOption(item)
-                                            }
+                                            onClick={(evt) => {
+                                              evt.preventDefault()
+                                              evt.stopPropagation()
+                                              onUpdateCartOption(item)  
+                                            }}
                                             sx={{
                                               height: 30,
                                               minWidth: 52,
@@ -968,7 +1169,7 @@ const CartPage = () => {
                             variant="outlined"
                             color="primary"
                             size="small"
-                            onClick={onPayment}
+                            onClick={() => onPayment([item])}
                             sx={{
                               height: 32,
                               minWidth: 84,
@@ -1051,13 +1252,14 @@ const CartPage = () => {
             color="primary"
             size="large"
             sx={{ mt: 2 }}
-            onClick={onPayment}
+            onClick={() => onPayment()}
           >
             {selectedItemCount}개 상품 구매하기
           </Button>
         </Paper>
       </Box>
     </Box>
+  </>
   );
 };
 

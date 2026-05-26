@@ -309,18 +309,6 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
                     <Divider sx={{ my: 2.5 }} />
 
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        {onClose && (
-                            <Button
-                                type="button"
-                                variant="outlined"
-                                color="inherit"
-                                onClick={closeWalletModal}
-                                disabled={charging}
-                            >
-                                취소
-                            </Button>
-                        )}
-
                         <Button
                             type="button"
                             variant="contained"
@@ -334,6 +322,18 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
                         >
                             {money ? `${Number(money).toLocaleString()}원 충전하기` : "충전하기"}
                         </Button>
+
+                        {onClose && (
+                            <Button
+                                type="button"
+                                variant="outlined"
+                                color="inherit"
+                                onClick={closeWalletModal}
+                                disabled={charging}
+                            >
+                                취소
+                            </Button>
+                        )}
                     </Stack>
                 </DialogContent>
             </Dialog>

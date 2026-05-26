@@ -49,12 +49,19 @@ const ImageViewer = ({
   const currentImage = images[currentIndex] || images[0];
 
   return (
-    <div className="image-viewer" role="dialog" aria-modal="true">
-      <button type="button" className="image-viewer-close" onClick={onClose}>
-        ×
-      </button>
+    <div 
+      className="image-viewer" 
+      role="dialog" 
+      aria-modal="true"
+      onClick={onClose}
+      >
 
-      <div className="image-viewer-panel">
+      <div className="image-viewer-panel"
+            onClick={(evt) => evt.stopPropagation()}>
+
+        <button type="button" className="image-viewer-close" onClick={onClose}>
+          ×
+        </button>
         <div className="image-viewer-left">
           {images.length > 1 && (
             <button
@@ -102,7 +109,25 @@ const ImageViewer = ({
         <aside className="image-viewer-right">
           <div className="image-viewer-heading">
             <div className="image-viewer-rating">
-              <span>★</span>
+              <span className="image-viewer-stars">
+                {[1, 2, 3, 4, 5].map((score) => {
+                  const fillPercent = Math.max(
+                    0,
+                    Math.min(1, Number(star || 0) - (score - 1))
+                  ) * 100;
+
+                  return (
+                    <span
+                      key={score}
+                      className="image-viewer-star"
+                      style={{ "--fill": `${fillPercent}%` }}
+                    >
+                      ★
+                    </span>
+                  );
+                })}
+              </span>
+
               <strong>{Number(star || 0)}</strong>
             </div>
 

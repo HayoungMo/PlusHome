@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.spring.home.dto.CouponDTO;
 
@@ -25,4 +26,12 @@ public interface CouponMapper {
 	public void updateData(CouponDTO dto) throws Exception;
 	
 	public void deleteData(CouponDTO dto) throws Exception;
+	
+	public CouponDTO getValidUserCoupon(
+			@Param("id") String id,
+			@Param("coupon_code") String coupon_code) throws Exception;
+
+	public int useCoupon(
+			@Param("id") String id,
+			@Param("coupon_code") String coupon_code) throws Exception;
 }

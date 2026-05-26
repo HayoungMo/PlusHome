@@ -21,4 +21,8 @@ public interface WalletMapper {
 	public int updateData(WalletDTO dto) throws Exception;
 	
 	public void deleteData(String id) throws Exception;
+	
+	public int decreaseIfEnough(
+			@Param("id") String id,
+			@Param("money") int money) throws Exception;
 }

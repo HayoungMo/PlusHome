@@ -570,13 +570,15 @@ const UserReviewPage = ({ user }) => {
             </div>
 
             <div className="user-review-action-buttons">
-              <Button
-                className="user-review-primary-btn"
-                variant="contained"
-                onClick={() => openEditModal(item)}
-              >
-                수정
-              </Button>
+              {!item.reply && (
+                <Button
+                  className="user-review-primary-btn"
+                  variant="contained"
+                  onClick={() => openEditModal(item)}
+                >
+                  수정
+                </Button>
+              )}
 
               <Button
                 className="user-review-secondary-btn"
@@ -597,7 +599,7 @@ const UserReviewPage = ({ user }) => {
           <div className="user-review-edit-dialog-title">
             <strong>가구 리뷰 수정</strong>
             <button type="button" onClick={closeEditModal}>
-              ?
+              ×
             </button>
           </div>
         }
@@ -695,7 +697,7 @@ const UserReviewPage = ({ user }) => {
                         className="user-review-edit-image-delete"
                         onClick={() => imageDelete([record.img_originalName])}
                       >
-                        ?
+                        ×
                       </button>
                     </div>
                   ))}
@@ -714,7 +716,7 @@ const UserReviewPage = ({ user }) => {
                           setSendList((prev) => prev.filter((_, idx) => idx !== imageIdx));
                         }}
                       >
-                        ?
+                        ×
                       </button>
                     </div>
                   ))}

@@ -120,9 +120,18 @@ public class CartController {
 	}
 
 	@GetMapping("/options")
-	public ResponseEntity<?> getCartOptions(String c_code) throws Exception {
-		List<CartOptionDTO> options = cartService.getOptions(c_code);
-		return ResponseEntity.ok(options);
+	public ResponseEntity<?> getCartOptions(
+	        @RequestHeader(value = "Authorization", required = false) String authorization,
+	        String c_code
+	) throws Exception {
+	    String id = getTokenUserId(authorization);
+
+	    if (id == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+	    }
+
+	    List<CartOptionDTO> options = cartService.getOptions(id, c_code);
+	    return ResponseEntity.ok(options);
 	}
 
 	@GetMapping("/point")
@@ -153,7 +162,7 @@ public class CartController {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
 	    }
 
-	    cartService.deleteData(c_code);
+	    cartService.deleteData(id,c_code);
 
 	    Map<String, Object> result = new HashMap<>();
 	    result.put("message", "삭제되었습니다.");
