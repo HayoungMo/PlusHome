@@ -140,4 +140,31 @@
     WHERE coupon_code = #{coupon_code}
     AND id = #{id}
 </update>
+
+<select id="getValidUserCoupon" resultType="com.spring.home.dto.CouponDTO">
+	SELECT
+        coupon_code,
+        discount,
+        coupon_end,
+        coupon_max,
+        coupon_info,
+        coupon_used,
+        coupon_type,
+        coupon_catagory,
+        id
+    FROM coupon
+    WHERE id = #{id}
+      AND coupon_code = #{coupon_code}
+      AND coupon_end >= SYSDATE
+      AND NVL(coupon_used, 'N') = 'N'
+</select>
+
+<update id="useCoupon">
+    UPDATE coupon
+    SET coupon_used = 'Y'
+    WHERE id = #{id}
+      AND coupon_code = #{coupon_code}
+      AND coupon_end >= SYSDATE
+      AND NVL(coupon_used, 'N') = 'N'
+</update>
 </mapper>
