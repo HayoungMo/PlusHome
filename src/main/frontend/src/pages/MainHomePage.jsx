@@ -7,51 +7,13 @@ import CheckboxMui from '../components/CheckboxMui';
 import SnackbarAlert from '../components/SnackbarAlert';
 import EventPopup from './EventPopup';
 import DialogMui from "../components/DialogMui";
+import MainEventBanner from '../components/MainEventBanner';
 
 const MainHomePage = ({ loginUser }) => {
 
     // 가구 리스트 상태 , 처음에는 빈배열
     const [furniture, setFurniture] = useState([]);
-    const [interiorCompanies, setInteriorCompanies] = useState([]);
-
-    //메인영상 옆에 이벤트 슬라이드 항목
-   const [sideSlideIndex, setSideSlideIndex] = useState(0);
-
-    const sideSlides = [
-        {
-            title: "PlusHome 이벤트",
-            text: "진행 중인 혜택과 소식을 확인해보세요.",
-            buttonText:"이벤트 보기",
-            link: "/event",
-        },
-        {
-            title: "어세오세요",
-            text: "회원님을 위한 추천 가구와 맞춤 서비스 기능을 사용할 수 있습니다.",
-            buttonText:"회원가입",
-            link: "/join",
-        },
-        {
-            title: "자유롭게 소통해요",
-            text: "자유게시판에서 인테리어와 생활 이야기를 나눠보세요.",
-            buttonText: "게시판 가기",
-            link: "/freeboard/list",
-        },
-        {
-            title: "인테리어 상담",
-            text: "회원을 위한 인테리어 상담 서비스를 확인해보세요.",
-            buttonText: "상담 신청",
-            link: "/interior/question",
-        },
-    ];
-
-    const moveSideSlide = (direction) => {
-        setSideSlideIndex((prev) => {
-            if (direction === "next") {
-                return prev >= sideSlides.length - 1 ? 0 : prev + 1;
-            }
-            return prev <= 0 ? sideSlides.length - 1 : prev - 1;
-        })
-    }
+    const [interiorCompanies, setInteriorCompanies] = useState([]);    
 
     //로그인 알고릐즘에 대해서
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
@@ -208,7 +170,7 @@ const MainHomePage = ({ loginUser }) => {
         (item) => !hiddenFurnitureCodes.includes(item.f_code)
     );
 
-    const currentSideSlide = sideSlides[sideSlideIndex];
+    
 
     return (
         <div>
@@ -277,133 +239,7 @@ const MainHomePage = ({ loginUser }) => {
                         </video>
                     </div>
 
-                    <div
-                        style={{
-                            position: "relative",
-                            height: "360px",
-                            borderRadius: "8px",
-                            border: "1px solid #e5e1da",
-                            backgroundColor: "#f3efe7",
-                            overflow: "hidden",
-                            boxSizing: "border-box",
-                            padding: "32px 24px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            textAlign: "center",
-                        }}
-                    >
-                        <div>
-                            <p
-                                style={{
-                                    margin: "0 0 10px",
-                                    fontSize: "13px",
-                                    color: "#777",
-                                    fontWeight: 600,
-                                }}
-                            >
-                                PlusHome
-                            </p>
-
-                            <h2 style={{ margin: "0 0 14px", lineHeight: 1.35 }}>
-                                {currentSideSlide.title}
-                            </h2>
-
-                            <p
-                                style={{
-                                    margin: "0 0 22px",
-                                    color: "#555",
-                                    lineHeight: 1.5,
-                                }}
-                            >
-                                {currentSideSlide.text}
-                            </p>
-
-                            <Button
-                                variant="contained"
-                                color="success"
-                                component={Link}
-                                to={currentSideSlide.link}
-                            >
-                                {currentSideSlide.buttonText}
-                            </Button>
-                        </div>
-
-                        <Button
-                            type="button"
-                            onClick={() => moveSideSlide("prev")}
-                            sx={{
-                                position: "absolute",
-                                left: "10px",
-                                top: "50%",
-                                transform: "translateY(-50%)",
-                                minWidth: "36px",
-                                width: "36px",
-                                height: "36px",
-                                borderRadius: "50%",
-                                backgroundColor: "#fff",
-                                color: "#333",
-                                boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
-                                "&:hover": {
-                                    backgroundColor: "#f5f5f5",
-                                },
-                            }}
-                        >
-                            {"<"}
-                        </Button>
-
-                        <Button
-                            type="button"
-                            onClick={() => moveSideSlide("next")}
-                            sx={{
-                                position: "absolute",
-                                right: "10px",
-                                top: "50%",
-                                transform: "translateY(-50%)",
-                                minWidth: "36px",
-                                width: "36px",
-                                height: "36px",
-                                borderRadius: "50%",
-                                backgroundColor: "#fff",
-                                color: "#333",
-                                boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
-                                "&:hover": {
-                                    backgroundColor: "#f5f5f5",
-                                },
-                            }}
-                        >
-                            {">"}
-                        </Button>
-
-                        <div
-                            style={{
-                                position: "absolute",
-                                left: "50%",
-                                bottom: "14px",
-                                transform: "translateX(-50%)",
-                                display: "flex",
-                                gap: "6px",
-                            }}
-                        >
-                            {sideSlides.map((slide, index) => (
-                                <button
-                                    key={slide.title}
-                                    type="button"
-                                    onClick={() => setSideSlideIndex(index)}
-                                    style={{
-                                        width: sideSlideIndex === index ? "20px" : "8px",
-                                        height: "8px",
-                                        borderRadius: "999px",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        backgroundColor:
-                                            sideSlideIndex === index ? "#2f5f53" : "#ccc",
-                                    }}
-                                    aria-label={`${index + 1}번 슬라이드로 이동`}
-                                />
-                            ))}
-                        </div>
-                    </div>
+                    <MainEventBanner/>
                 </section>
 
             <section style={{ marginTop: "24px" }}>

@@ -40,7 +40,7 @@ import CouponDownload from "./components/CouponDownload";
 import CompanyClaimManage from "./pages/CompanyClaimManage";
 import EventPage from "./pages/EventPage";
 import Loading from "./components/Loading";
-import EventArticle from "./components/EventArticle";
+import EventArticle from "./pages/EventArticle";
 import EventUpdate from "./components/EventUpdate";
 import EventCreated from "./components/EventCreated";
 

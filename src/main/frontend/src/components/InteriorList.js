@@ -7,6 +7,17 @@ import TextFieldMui from "./TextFieldMui";
 import FilterBar from "./FilterBar";
 
 const PAGE_SIZE = 9;
+const MULTI_FILTER_KEYS = ["housingType", "spaces"];
+
+const getInitialFilterValue = (tag, value) => {
+  if (tag && value) {
+    return {
+      [tag]: MULTI_FILTER_KEYS.includes(tag) ? [value] : value,
+    };
+  }
+
+  return value && typeof value === "object" ? value : {};
+};
 
 const InteriorList = ({ tag, value }) => {
   const navigate = useNavigate();
@@ -14,13 +25,9 @@ const InteriorList = ({ tag, value }) => {
   const [originList, setOriginList] = useState([]);
   const [tags, setTags] = useState([]);
   const [search, setSearch] = useState("");
-  const [filterValue, setFilterValue] = useState(() => {
-    if (tag && value) {
-      return { [tag]: value };
-    }
-
-    return value && typeof value === "object" ? value : {};
-  });
+  const [filterValue, setFilterValue] = useState(() =>
+    getInitialFilterValue(tag, value),
+  );
   const [pageNum, setPageNum] = useState(1);
   const [pageInfo, setPageInfo] = useState({
     totalCount: 0,
@@ -164,6 +171,17 @@ const InteriorList = ({ tag, value }) => {
   }, [getCompanyKey, hasSelectedFilters]);
 
   useEffect(() => {
+    if (tag && value) {
+      const selectedValue = ["housingType", "spaces"].includes(tag)
+        ? [value]
+        : value;
+
+      setFilterValue({ [tag]: selectedValue });
+      setPageNum(1);
+    }
+  }, [tag, value]);
+
+  useEffect(() => {
     const fetchData = async () => {
       const [companies, tagList] = await Promise.all([
         InteriorService.fetchList(),
@@ -196,6 +214,11 @@ const InteriorList = ({ tag, value }) => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setFilterValue(getInitialFilterValue(tag, value));
+    setPageNum(1);
+  }, [tag, value]);
 
   useEffect(() => {
     const filteredCompanies = getFilteredCompanies(
