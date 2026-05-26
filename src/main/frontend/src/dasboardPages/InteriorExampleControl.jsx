@@ -11,6 +11,7 @@ import InteriorExUpdate from "../components/InteriorExUpdate";
 import SelectMui from "./../components/SelectMui";
 import InteriorExModelAdd from "./../components/InteriorExModelAdd";
 import InteriorExModelUpdate from "../components/InteriorExModelUpdate";
+import ToggleButtonMui from "./../components/ToggleButtonMui";
 
 const ExampleIsEmpty = (props) => {
 	const {
@@ -266,18 +267,15 @@ const InteriorExampleControl = () => {
 
 	return (
 		<div>
-			<ToggleButtonGroup
+			<ToggleButtonMui
 				value={viewType}
-				exclusive
+				exclusive={true}
 				onChange={handleViewType}
-				aria-label="view type set">
-				<ToggleButton value="example" aria-label="example">
-					Example
-				</ToggleButton>
-				<ToggleButton value="model" aria-label="model">
-					Model
-				</ToggleButton>
-			</ToggleButtonGroup>
+				ButtonList={[
+					{ title: "Example", value: "example" },
+					{ title: "Model", value: "model" },
+				]}
+			/>
 
 			<TabsMui
 				tabValue={tabValue}

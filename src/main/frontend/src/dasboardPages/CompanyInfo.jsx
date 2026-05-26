@@ -10,6 +10,7 @@ import AlertMui from "../components/AlertMui";
 import Alert from "@mui/material/Alert";
 import DialogMui from "../components/DialogMui";
 import CompanySection from "./CompanySection";
+import ImageService from "../service/imageService";
 
 const CompanyInfo = (props) => {
 	const localUserData = localStorage.getItem("user");
@@ -48,6 +49,7 @@ const CompanyInfo = (props) => {
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [previewDir, setPreviewDir] = useState(null);
 
 	const onChangeNewCompanyInfo = (e) => {
 		const { name, value } = e.target;
@@ -250,6 +252,58 @@ const CompanyInfo = (props) => {
 		});
 	};
 
+	const changeCompnayLogo = async () => {
+		const logoFile = document.getElementsByName("logoFileInput")?.[0].files?.[0];
+		if (!logoFile) {
+			return;
+		}
+		const selectedCompanyList = editedCompanyList.filter((row) =>
+			selectedCompanyKeys.includes(makeCompanyKey(row)),
+		);
+		if (selectedCompanyList.length === 0) {
+			setAlertInfo({
+				severity: "error",
+				title: "오류",
+				text: "선택된 데이터가 없습니다",
+			});
+			setAlertOpen(!alertOpen);
+		} else if (selectedCompanyList.length > 1) {
+			setAlertInfo({
+				severity: "error",
+				title: "오류",
+				text: "선택된 데이터가 많습니다",
+			});
+			setAlertOpen(!alertOpen);
+		}
+
+		debugger
+		const dto = [
+			{
+				img_kind: "LOGO",
+				img_tag: "LOGO",
+				dir_a: selectedCompanyList[0].c_id,
+				dir_b: selectedCompanyList[0].c_kind,
+				dir_c: selectedCompanyList[0].c_name,
+				dir_d: "Logo",
+				img_idx: 0,
+				file: logoFile,
+			},
+		];
+
+		const result = await ImageService.insertImage(dto);
+
+		if (result.data.success) {
+			setAlertInfo({
+				severity: result.data.success ? "success" : "error",
+				title: result.data.success ? "등록 성공" : "등록 실패",
+				text: result.data.success
+					? "Logo 등록에 성공하였습니다"
+					: "Logo 등록에 실패하였습니다",
+			});
+			setAlertOpen(true);
+		}
+	};
+
 	const dialogConfirmButtonList = [
 		{
 			title: "Cancel",
@@ -309,6 +363,25 @@ const CompanyInfo = (props) => {
 				<TextFieldMui label="개인주소" value={addr} />
 				<TextFieldMui label="개인연락처" value={tel} />
 				<TextFieldMui label="이메일" value={email} />
+			</div>
+			<div>
+				<Button variant="contained" color="secondary" component="label">
+					이미지 등록
+					<input
+						type="file"
+						hidden
+						name="logoFileInput"
+						onChange={(e) => {
+							const file = e.target.files?.[0];
+							const previewUrl = URL.createObjectURL(file);
+							setPreviewDir(previewUrl);
+						}}
+					/>
+				</Button>
+				<img src={previewDir} alt="Company_logo_preview" />
+				<Button variant="contained" color="primary" onClick={changeCompnayLogo}>
+					저장하기
+				</Button>
 			</div>
 			<div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
 				<SwitchMui

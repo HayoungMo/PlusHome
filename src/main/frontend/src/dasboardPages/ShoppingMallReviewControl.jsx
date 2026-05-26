@@ -124,6 +124,8 @@ const ShoppingMallReviewControl = () => {
 		console.log("===== reLoadData =====");
 		const result = await FurnitureService.getFurnitureByUserId(id);
 
+		if (!result || !result?.furnitureList) return;
+
 		const withThumbnail = await getImgFurnitureList(result.furnitureList);
 
 		console.log(withThumbnail);
@@ -236,7 +238,7 @@ const ShoppingMallReviewControl = () => {
 		const findReply =
 			replyList.find((element) => element.fr_idx === replyIndex) || initReviewAndReply;
 
-		console.log(selectedReview)
+		console.log(selectedReview);
 
 		setSelectedReply(findReply);
 	}, [selectedReview]);
