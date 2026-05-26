@@ -2,12 +2,19 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
+import BedIcon from "@mui/icons-material/Bed";
+import WeekendIcon from "@mui/icons-material/Weekend";
+import DeskIcon from "@mui/icons-material/Desk";
+import ChairIcon from "@mui/icons-material/Chair";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
 import SnackbarAlert from '../components/SnackbarAlert';
 import EventPopup from './EventPopup';
 import DialogMui from "../components/DialogMui";
 import MainEventBanner from '../components/MainEventBanner';
+import { Category } from '@mui/icons-material';
 
 const MainHomePage = ({ loginUser }) => {
 
@@ -23,6 +30,15 @@ const MainHomePage = ({ loginUser }) => {
         loginUser && typeof loginUser === "object"
             ? loginUser
             : savedUser; 
+    //메인화면 아이콘 넣기
+    const categoryMenus = [
+    { title: "침대", icon: <BedIcon /> },
+    { title: "소파", icon: <WeekendIcon /> },
+    { title: "책상", icon: <DeskIcon /> },
+    { title: "의자", icon: <ChairIcon /> },
+    { title: "수납", icon: <Inventory2Icon /> },
+    { title: "조명", icon: <LightbulbIcon /> },
+];
 
     const [hideMode, setHideMode] = useState(false);
     const [hiddenFurnitureCodes, setHiddenFurnitureCodes] = useState([]);
@@ -246,25 +262,41 @@ const MainHomePage = ({ loginUser }) => {
                 <div
                     style={{
                         display: "flex",
-                        gap: "12px",
+                        gap: "73px",
                         flexWrap: "wrap",
                         justifyContent: "center",
                     }}
                 >
-                    {["침대", "소파", "책상", "의자", "수납", "조명"].map((category) => (
-                        <Link
-                            key={category}
-                            to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category)}&sort=latest`}
+                    {categoryMenus.map((category) => (
+                         <Link
+                            key={category.title}
+                            to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category.title)}&sort=latest`}
                             style={{
-                                padding: "10px 18px",
-                                border: "1px solid #ddd",
-                                borderRadius: "20px",
+                                width: "86px",
+                                textAlign: "center",
                                 textDecoration: "none",
-                                color: "#333",
-                                backgroundColor: "white",
+                                color: "#222",
                             }}
                         >
-                            {category}
+                            <div
+                                style={{
+                                    width: "62px",
+                                    height: "62px",
+                                    margin: "0 auto 8px",
+                                    borderRadius: "18px",
+                                    backgroundColor: "#f5f1ea",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "rgba(0, 140, 255, 0.92)",
+                                }}
+                            >
+                                {React.cloneElement(category.icon, { fontSize: "large" })}
+                            </div>
+
+                            <span style={{ fontSize: "14px", fontWeight: 600 }}>
+                                {category.title}
+                            </span>
                         </Link>
                     ))}
                 </div>
@@ -287,12 +319,12 @@ const MainHomePage = ({ loginUser }) => {
                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                         {currentUser?.id && !hideMode && (
                             <Button
-                                variant="outlined"
+                                variant="contained"
                                 color="primary"
                                 size="small"
                                 onClick={onHideStart}
                             >
-                                추천 숨김 관리
+                                추천 숨김
                             </Button>
                         )}
 

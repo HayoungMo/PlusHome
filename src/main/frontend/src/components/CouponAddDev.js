@@ -93,7 +93,7 @@ const CouponAddDev= (data) => {
     }
     console.log("최종데이터:",data)
     console.log(data)
-    const result = await CouponService.insertCouponDev(data);
+    const result = await CouponService.insertCoupon(data);
 
     if (result.success) {
       setAlert({
