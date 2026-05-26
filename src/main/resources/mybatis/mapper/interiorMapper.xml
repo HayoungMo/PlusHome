@@ -870,16 +870,21 @@
 	
 	<update id="updateScheduleEndDate" parameterType="hashMap">
 		UPDATE I_SCHEDULE
-		SET IS_ENDDATE = #{is_enddate}
+		<set>
+			<if test='is_startdate != null'>
+				IS_STARTDATE = #{is_startdate},
+			</if>
+			<if test='is_enddate != null'>
+				IS_ENDDATE = #{is_enddate},
+			</if>
+		</set>
 		<where>
 			AND ID = #{id}
 			AND B_CREATEDDATE = #{b_createdDate}
 			AND C_ID = #{c_id}
 			AND C_KIND = #{c_kind}
 			AND C_NAME = #{c_name}
-			AND IS_STARTDATE = #{is_startdate}
 		</where>
 	</update>
-
 
 </mapper>

@@ -599,6 +599,7 @@ public class InteriorController {
 	@PostMapping("/update/updateScheduleEndDate")
 	public Map<String, Object> updateScheduleEndDate(@RequestBody InteriorScheduleDTO dto) throws Exception {
 		Map<String, Object> result = new HashMap<>();
+		System.out.println(dto);
 		try {
 			int updateResult = interiorService.updateScheduleEndDate(dto);
 			if(updateResult > 0) {
