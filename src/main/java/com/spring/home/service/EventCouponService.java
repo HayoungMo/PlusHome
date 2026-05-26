@@ -1,6 +1,7 @@
 package com.spring.home.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,5 +30,9 @@ public class EventCouponService {
 	
 	public List<CouponDTO> getCouponsByEvent(int e_id) throws Exception {
 		return eventCouponMapper.getCouponsByEvent(e_id);
+	}
+
+	public List<Map<String, Object>> getCouponEventUsage() throws Exception {
+		return eventCouponMapper.getCouponEventUsage();
 	}
 }

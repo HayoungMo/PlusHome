@@ -133,7 +133,7 @@ function InteriorArticle() {
         a: data.c_id,
         b: data.c_kind,
         c: data.c_name,
-        d: "LOGO",
+        d: "Logo",
         view: false,
       });
       setCompany(
@@ -251,7 +251,7 @@ function InteriorArticle() {
 
           {company?.logo?.result?.map((item, idx) => (
             <div key={idx}>
-              {item.img_tag === "PROFILE" && (
+              {item.img_tag === "LOGO" && (
                 <img
                   className="profile-image"
                   src={item.img_name}

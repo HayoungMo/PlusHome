@@ -175,12 +175,6 @@
 					c.c_info,
 					c.c_boss
 				FROM company c
-				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-					INNER JOIN interior i
-						ON i.c_id = c.c_id
-						AND i.c_kind = c.c_kind
-						AND i.c_name = c.c_name
-				</if>
 				WHERE c.c_kind = 'interior'
 				<if test="search != null and search != ''">
 					AND (
@@ -189,9 +183,21 @@
 						OR c.c_tel LIKE '%' || #{search} || '%'
 					)
 				</if>
-				<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-					AND i.i_tag = #{filterType}
-					AND i.i_text = #{filterValue}
+				<if test="filters != null and filters.size() > 0">
+					<foreach collection="filters" item="filter">
+						AND EXISTS (
+							SELECT 1
+							FROM interior i
+							WHERE i.c_id = c.c_id
+								AND i.c_kind = c.c_kind
+								AND i.c_name = c.c_name
+								AND i.i_tag = #{filter.filterKey}
+								AND i.i_text IN
+								<foreach collection="filter.filterValues" item="filterValue" open="(" separator="," close=")">
+									#{filterValue}
+								</foreach>
+						)
+					</foreach>
 				</if>
 				ORDER BY c.c_name ASC
 			) data
@@ -205,12 +211,6 @@
 		FROM (
 			SELECT DISTINCT c.c_id, c.c_kind, c.c_name
 			FROM company c
-			<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-				INNER JOIN interior i
-					ON i.c_id = c.c_id
-					AND i.c_kind = c.c_kind
-					AND i.c_name = c.c_name
-			</if>
 			WHERE c.c_kind = 'interior'
 			<if test="search != null and search != ''">
 				AND (
@@ -219,9 +219,21 @@
 					OR c.c_tel LIKE '%' || #{search} || '%'
 				)
 			</if>
-			<if test="filterType != null and filterType != '' and filterValue != null and filterValue != ''">
-				AND i.i_tag = #{filterType}
-				AND i.i_text = #{filterValue}
+			<if test="filters != null and filters.size() > 0">
+				<foreach collection="filters" item="filter">
+					AND EXISTS (
+						SELECT 1
+						FROM interior i
+						WHERE i.c_id = c.c_id
+							AND i.c_kind = c.c_kind
+							AND i.c_name = c.c_name
+							AND i.i_tag = #{filter.filterKey}
+							AND i.i_text IN
+							<foreach collection="filter.filterValues" item="filterValue" open="(" separator="," close=")">
+								#{filterValue}
+							</foreach>
+					)
+				</foreach>
 			</if>
 		)
 	</select>

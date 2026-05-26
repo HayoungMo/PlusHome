@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   AlertTitle,
@@ -41,16 +41,47 @@ const EventCreated = () => {
   const imageTagOptions = [
     { value: "THUMBNAIL", title: "썸네일" },
     { value: "BANNER", title: "배너용 이미지" },
+    { value: "OTHER", title: "본문 이미지" },
   ];
 
-  const isAvailableCoupon = (coupon) => {
+  const isAvailableCoupon = useCallback((coupon) => {
     if (!coupon?.coupon_end) return false;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     return new Date(coupon.coupon_end) >= today;
-  };
+  }, []);
+
+  const getUsageKey = useCallback(
+    (coupon) => `${coupon.coupon_code}_${coupon.id}`,
+    [],
+  );
+
+  const getCouponListWithUsage = useCallback((coupons, usages) => {
+    const usageMap = (usages || []).reduce((acc, usage) => {
+      const key = `${usage.coupon_code}_${usage.id}`;
+      acc[key] = acc[key] || [];
+      acc[key].push(usage);
+      return acc;
+    }, {});
+
+    return (coupons || []).map((coupon) => {
+      const couponUsage = usageMap[getUsageKey(coupon)] || [];
+      const usageText = couponUsage.length
+        ? couponUsage
+            .map((usage) => usage.e_title || `event ${usage.e_id}`)
+            .join(", ")
+        : "미사용";
+
+      return {
+        ...coupon,
+        event_usage_status: couponUsage.length ? "사용중" : "미사용",
+        event_usage: usageText,
+        event_usage_count: couponUsage.length,
+      };
+    });
+  }, [getUsageKey]);
 
   const makeEvent = (name, value) => ({
     target: {
@@ -83,19 +114,31 @@ const EventCreated = () => {
 
   useEffect(() => {
     const fetchCoupon = async () => {
-      const result = await CouponService.selectCouponDev();
+      const [result, usageList] = await Promise.all([
+        CouponService.selectCouponDev(),
+        EventService.selectCouponEventUsage(),
+      ]);
       if (!result.success) return;
 
-      setCouponList((result.data || []).filter(isAvailableCoupon));
+      const availableCoupons = (result.data || []).filter(isAvailableCoupon);
+      setCouponList(getCouponListWithUsage(availableCoupons, usageList));
     };
 
     fetchCoupon();
-  }, []);
+  }, [getCouponListWithUsage, isAvailableCoupon]);
 
   const handleCouponCreated = (newCoupon) => {
     if (!isAvailableCoupon(newCoupon)) return;
 
-    setCouponList((prev) => [newCoupon, ...prev]);
+    setCouponList((prev) => [
+      {
+        ...newCoupon,
+        event_usage_status: "미사용",
+        event_usage: "미사용",
+        event_usage_count: 0,
+      },
+      ...prev,
+    ]);
     setSelectedCouponCodes((prev) => [...prev, newCoupon.coupon_code]);
   };
 
@@ -162,6 +205,9 @@ const EventCreated = () => {
     const selectedCouponObjects = couponList.filter((coupon) =>
       selectedCouponCodes.includes(coupon.coupon_code),
     );
+    const usedCouponCount = selectedCouponObjects.filter(
+      (coupon) => Number(coupon.event_usage_count || 0) > 0,
+    ).length;
 
     await Promise.all(
       selectedCouponObjects.map((coupon) =>
@@ -184,9 +230,12 @@ const EventCreated = () => {
     }
 
     showAlert({
-      severity: "success",
+      severity: usedCouponCount > 0 ? "warning" : "success",
       title: "등록 성공",
-      text: "이벤트가 등록되었습니다.",
+      text:
+        usedCouponCount > 0
+          ? `이벤트가 등록되었습니다. 선택한 쿠폰 중 ${usedCouponCount}개는 다른 이벤트에서도 사용중입니다.`
+          : "이벤트가 등록되었습니다.",
     });
   };
 
@@ -372,7 +421,7 @@ const EventCreated = () => {
                     >
                       {sendList[index]?.img_tag === "THUMBNAIL"
                         ? "썸네일"
-                        : "본문 이미지"}
+                        :  sendList[index]?.img_tag === "BANNER" ?  "배너 이미지 ":"본문 이미지"}
                     </Typography>
                   </Box>
                 ))}
@@ -394,6 +443,17 @@ const EventCreated = () => {
                 "coupon_end",
                 "coupon_max",
                 "coupon_info",
+                "event_usage_status",
+                "event_usage",
+              ]}
+              columns={[
+                "쿠폰 코드",
+                "할인",
+                "만료일",
+                "최대 할인",
+                "쿠폰 정보",
+                "이벤트 사용",
+                "사용중 이벤트",
               ]}
               checkedList={selectedCouponCodes}
               setCheckedList={setSelectedCouponCodes}

@@ -1,6 +1,7 @@
 package com.spring.home.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -17,4 +18,6 @@ public interface EventCouponMapper {
 	public void deleteByEvent(int e_id) throws Exception;
 	
 	public List<CouponDTO> getCouponsByEvent(int e_id) throws Exception;
+
+	public List<Map<String, Object>> getCouponEventUsage() throws Exception;
 }

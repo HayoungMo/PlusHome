@@ -1,6 +1,7 @@
 package com.spring.home;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -41,5 +42,10 @@ public class EventCouponController {
 	@GetMapping("/event/{e_id}")
 	public List<CouponDTO> getCouponsByEvent(@PathVariable int e_id) throws Exception {
 		return eventCouponService.getCouponsByEvent(e_id);
+	}
+
+	@GetMapping("/usage")
+	public List<Map<String, Object>> getCouponEventUsage() throws Exception {
+		return eventCouponService.getCouponEventUsage();
 	}
 }
