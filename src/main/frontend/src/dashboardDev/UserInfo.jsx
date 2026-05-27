@@ -7,7 +7,6 @@ import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
 import SelectMui from '../components/SelectMui';
 import TextFieldMui from '../components/TextFieldMui';
-import ToggleButton from '../components/ToggleButtonMui';
 
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
@@ -520,17 +519,17 @@ const companyColumns = [
 
         <div>
 
-            <Button>
+            <Button
                 color='primary'
                 variant='contained'
-                onClick={() => setUserType("user")}
+                onClick={() => setUserType("user")}>
                 user
             </Button>
 
-            <Button>
+            <Button
                 color='primary'
                 variant='contained'
-                onClick={() => setUserType("company")}
+                onClick={() => setUserType("company")}>
                 company
             </Button>
 
