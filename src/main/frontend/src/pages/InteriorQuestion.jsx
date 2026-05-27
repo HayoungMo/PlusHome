@@ -115,6 +115,8 @@ const InteriorQuestion = () => {
 
   const isConfirmStep = step === questions.length;
   const progress = (step / questions.length) * 100;
+  const spaceOptions = questionOptions.q5;
+  const allSpacesSelected = data.spaces.length === spaceOptions.length;
 
   const handleOpen = () => {
     setOpen(true);
@@ -141,6 +143,13 @@ const InteriorQuestion = () => {
       spaces: checked
         ? [...prev.spaces, value]
         : prev.spaces.filter((item) => item !== value),
+    }));
+  };
+
+  const handleAllSpacesChange = (checked) => {
+    setData((prev) => ({
+      ...prev,
+      spaces: checked ? spaceOptions.map((option) => option.value) : [],
     }));
   };
 
@@ -178,6 +187,18 @@ const InteriorQuestion = () => {
 
                   {question.multi ? (
                     <div className="confirm-checkbox-list">
+                      <label>
+                        <CheckboxMui
+                          name="spaces-all"
+                          value="all"
+                          label="전체 선택"
+                          checked={allSpacesSelected}
+                          onChange={(e) =>
+                            handleAllSpacesChange(e.target.checked)
+                          }
+                        />
+                      </label>
+
                       {question.options.map((option) => (
                         <label key={option.value}>
                           <CheckboxMui
@@ -261,6 +282,16 @@ const InteriorQuestion = () => {
         {current.multi ? (
           <>
             <div className="question-options">
+              <label>
+                <CheckboxMui
+                  name="spaces-all"
+                  value="all"
+                  label="전체 선택"
+                  checked={allSpacesSelected}
+                  onChange={(e) => handleAllSpacesChange(e.target.checked)}
+                />
+              </label>
+
               {current.options.map((option) => (
                 <label key={option.value}>
                   <CheckboxMui

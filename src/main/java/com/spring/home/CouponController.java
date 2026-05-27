@@ -39,6 +39,18 @@ public class CouponController {
 	
 	@PostMapping("/insert")
 	public void insertData(@RequestBody CouponDTO dto) throws Exception{		
+		
+		//5월 27일 안예린 추가한 코드(문제 생기면 말씀해 주세요.)
+		if(dto.getCoupon_code()==null || dto.getCoupon_code().equals("")) {
+			String code = UUID.randomUUID().toString();
+			dto.setCoupon_code(code);
+			
+			dto.setId(code);
+			System.out.println("데이터" + dto);
+		}
+		
+		
+		//기존 코드
 		couponService.insertData(dto);
 	}
 	

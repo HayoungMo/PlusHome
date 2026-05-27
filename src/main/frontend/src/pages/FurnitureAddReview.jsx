@@ -14,8 +14,21 @@ const FurnitureAddReview = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const c_code = location.state?.c_code;
+  const localUserData = localStorage.getItem("user");
+  const userData = JSON.parse(localUserData);
+  const {
+    addr,
+    birth,
+    code,
+    email,
+    gender,
+    id,
+    name,
+    tel,
+    type,
+    companyList = [],
+  } = userData;
 
-  const id = localStorage.getItem("id");
   const {f_code} = useParams();
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);

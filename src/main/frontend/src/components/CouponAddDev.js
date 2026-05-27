@@ -11,7 +11,7 @@ import { furnitureCategoryOptions } from "./FurnitureCategorySelect";
 
 const CouponAddDev= (data) => {
 
-   const {selectedKeys, couponData, setCouponData} = data
+   const {selectedKeys, couponData, setCouponData,reloadFunc} = data
 
   //쿠폰 발급 페이지
   const [companyList, setCompanyList] = useState();
@@ -85,6 +85,9 @@ const CouponAddDev= (data) => {
     const result = await CouponService.insertCoupon(data);
 
     if (result.success) {
+
+      await reloadFunc?.()
+
       setAlert({
         open: true,
         severity: "success",

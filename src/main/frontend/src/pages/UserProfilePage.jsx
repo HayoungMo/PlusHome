@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import UserPageService from '../service/userPageService';
 import Address from "../maps/Address";
 import { useNavigate } from 'react-router-dom';
+import { Snackbar } from "@mui/material";
+import AlertMui from "../components/AlertMui";
 
 const UserProfilePage = ({
   user, 
@@ -21,16 +23,46 @@ const UserProfilePage = ({
         addr1: user?.addr?.split("__")?.[0] || "",
         addr2: user?.addr?.split("__")?.[1] || "",
       });
+
+    const [verifying, setVerifying] = useState(false)
+    const [updating, setUpdating] = useState(false)
+
+    const [alert, setAlert] = useState({
+      open: false,
+      severity: "info",
+      title: "",
+      text: "",
+    })
     
+    const showAlert = ({ severity = "info", title = "", text = "" }) => {
+      setAlert({
+        open: true,
+        severity,
+        title,
+        text,
+      });
+    };
+
+    const closeAlert = () => {
+      setAlert((prev) => ({
+        ...prev,
+        open: false,
+      }));
+    };
+
     if(!user){
         return <div>회원 정보를 불러올 수 없습니다.</div>
     }
 
     const onVerifyPassword = () => {
+      if (verifying) return;
+
         if(!password.trim()){
             setPasswordError("비밀번호를 입력해주세요.");
             return;
         }
+
+        setVerifying(true)
 
         UserPageService.verifyMyPagePassword(password)
         .then(()=> {
@@ -42,6 +74,9 @@ const UserProfilePage = ({
             console.error(error)
             setPassword("")
             setPasswordError("비밀번호가 일치하지 않습니다.")
+        })
+        .finally(()=>{
+          setVerifying(false)
         })
     }
     
@@ -74,11 +109,19 @@ const UserProfilePage = ({
     };
 
     const onUpdate= () => {
+      if(updating) return
+
         if(form.pw && form.pw !== form.pwConfirm){
-            alert("새 비밀번호가 일치하지 않습니다.")
-            return
+            showAlert({
+              severity: "warning",
+              title: "비밀번호 확인",
+              text: "새 비밀번호가 일치하지 않습니다.",
+            });
+            return;
         }
         
+        setUpdating(true)
+
         const updateData = {
           email: form.email,
           pw: form.pw,
@@ -92,15 +135,46 @@ const UserProfilePage = ({
             setLoginUser?.(res.data.id)
             localStorage.setItem("user", JSON.stringify(res.data))
 
-            alert("회원 정보가 수정되었습니다.")
+            showAlert({
+              severity: "success",
+              title: "수정 완료",
+              text: "회원 정보가 수정되었습니다.",
+            });
             setMode("view")
         })
         .catch((error)=>{
             console.error(error)
-            alert("회원 정보 수정에 실패했습니다.")
+            showAlert({
+              severity: "error",
+              title: "수정 실패",
+              text: "회원 정보 수정에 실패했습니다.",
+            });
+        })
+        .finally(()=>{
+          setUpdating(false)
         })
     }
+
+    const feedback = (
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={closeAlert}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <div>
+          <AlertMui
+            severity={alert.severity}
+            title={alert.title}
+            text={alert.text}
+            onClose={closeAlert}
+          />
+        </div>
+      </Snackbar>
+    )
     return (
+      <>
+      {feedback}
       <section>
         {mode === "view" && (
         <div className="user-profile-panel">
@@ -190,8 +264,13 @@ const UserProfilePage = ({
             )}
 
             <div className="user-password-actions">
-              <button type="button" className="primary" onClick={onVerifyPassword}>
-                확인
+              <button 
+                type="button" 
+                className="primary" 
+                disabled={verifying}
+                onClick={onVerifyPassword}>
+                
+                {verifying ? "확인 중" : "확인"}
               </button>
               <button
                 type="button"
@@ -266,10 +345,25 @@ const UserProfilePage = ({
           </div>
 
           <div className="user-form-actions">
-            <button type="button" className="primary" onClick={onUpdate}>
-              수정 완료
+            <button
+              type="button"
+              className="primary"
+              disabled={updating}
+              onClick={onUpdate}
+            >
+              {updating ? "수정 중" : "수정 완료"}
             </button>
-            <button type="button" onClick={() => setMode("view")}>
+            <button
+              type="button"
+              onClick={() => {
+                setForm((prev) => ({
+                  ...prev,
+                  pw: "",
+                  pwConfirm: "",
+                }));
+                setMode("view");
+              }}
+            >
               취소
             </button>
             
@@ -277,6 +371,7 @@ const UserProfilePage = ({
         </div>
       )}
       </section>
+      </>
     );
 };
 

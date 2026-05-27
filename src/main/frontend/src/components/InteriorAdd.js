@@ -9,6 +9,7 @@ import FloatingActionButtonMui from "./FloatingActionButtonMui";
 import AddIcon from "@mui/icons-material/Add";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import {regionData} from "../resources/function/RegionData";
+import CheckboxMui from "./CheckboxMui";
 
 const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
   const [sendList, setSendList] = useState([]);
@@ -19,6 +20,7 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
     tag: "",
     text: "",
   });
+  const [selectedSpaces, setSelectedSpaces] = useState([]);
 
   const [alert, setAlert] = useState({
     open: false,
@@ -109,9 +111,97 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
       [name]: value,
       ...(name === "tag" ? { text: "" } : {}),
     }));
+
+    if (name === "tag") {
+      setSelectedSpaces([]);
+    }
   };
+  const selectedQuestion = questions.find((q) => q.value === form.tag);
+  const spaceOptions = questionOptions.q3;
+  const allSpacesSelected = selectedSpaces.length === spaceOptions.length;
+
+  const handleSpaceChange = (value, checked) => {
+    setSelectedSpaces((prev) =>
+      checked ? [...prev, value] : prev.filter((item) => item !== value),
+    );
+  };
+
+  const handleAllSpacesChange = (checked) => {
+    setSelectedSpaces(checked ? spaceOptions.map((option) => option.value) : []);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
+    if (form.tag === "spaces") {
+      if (selectedSpaces.length === 0) {
+        setAlert({
+          open: true,
+          severity: "warning",
+          title: "선택 필요",
+          text: "공간을 하나 이상 선택해 주세요.",
+        });
+        return;
+      }
+
+      const existingInterior = await InteriorService.fetchArticle({
+        c_id: form.c_id,
+        c_kind: form.c_kind,
+        c_name: form.c_name,
+      });
+
+      const existingSpaces = new Set(
+        (Array.isArray(existingInterior) ? existingInterior : [])
+          .filter((item) => item.i_tag === "spaces")
+          .map((item) => item.i_text),
+      );
+
+      const spacesToAdd = selectedSpaces.filter(
+        (space) => !existingSpaces.has(space),
+      );
+
+      if (spacesToAdd.length === 0) {
+        setAlert({
+          open: true,
+          severity: "info",
+          title: "추가할 공간 없음",
+          text: "선택한 공간이 모두 이미 등록되어 있습니다.",
+        });
+        return;
+      }
+
+      const results = await Promise.all(
+        spacesToAdd.map((space) =>
+          InteriorService.AddInterior({
+            ...form,
+            text: space,
+          }),
+        ),
+      );
+
+      if (results.every((result) => result.success)) {
+        onSuccess();
+        setAlert({
+          open: true,
+          severity: "success",
+          title: "등록 성공",
+          text:
+            spacesToAdd.length === selectedSpaces.length
+              ? "인테리어 공간 정보가 등록되었습니다."
+              : "이미 등록된 공간을 제외하고 새 공간만 등록했습니다.",
+        });
+      } else {
+        setAlert({
+          open: true,
+          severity: "error",
+          title: "등록 실패",
+          text: "공간 정보 등록 중 오류가 발생했습니다.",
+        });
+      }
+
+      setSendList([]);
+      return;
+    }
+
     const sendForm =
       form.tag === "location"
         ? {
@@ -140,8 +230,6 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
     setSendList([]);
   };
 
-  const selectedQuestion = questions.find((q) => q.value === form.tag);
-
   return (
     <div>
       {alert.open && (
@@ -169,14 +257,38 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
             required
           />
           {form.tag !== "location" ? (
-            <SelectMui
-              label="세부 선택"
-              name="text"
-              value={form.text}
-              onChange={handleChange}
-              option={selectedQuestion?.options || []}
-              required
-            />
+            <>
+              {selectedQuestion?.multi ? (
+                <div>
+                  <CheckboxMui
+                    name="spaces-all"
+                    label="전체 선택"
+                    checked={allSpacesSelected}
+                    onChange={(e) => handleAllSpacesChange(e.target.checked)}
+                  />
+
+                  {spaceOptions.map((option) => (
+                    <CheckboxMui
+                      key={option.value}
+                      name={`spaces-${option.value}`}
+                      label={option.title}
+                      checked={selectedSpaces.includes(option.value)}
+                      onChange={(e) =>
+                        handleSpaceChange(option.value, e.target.checked)
+                      }
+                    />
+                  ))}
+                </div>
+              ) : (
+                <SelectMui
+                  label="세부 선택"
+                  name="text"
+                  value={form.text}
+                  onChange={handleChange}
+                  option={selectedQuestion?.options || []}
+                />
+              )}
+            </>
           ) : (
             <>
               <SelectMui

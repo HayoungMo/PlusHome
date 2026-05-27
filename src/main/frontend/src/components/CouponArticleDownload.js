@@ -11,9 +11,20 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
     title: "",
     text: "",
   });
-
-  const id = localStorage.getItem("id");
-
+  const localUserData = localStorage.getItem("user");
+  const userData = JSON.parse(localUserData);
+  const {
+    addr,
+    birth,
+    code,
+    email,
+    gender,
+    id,
+    name,
+    tel,
+    type,
+    companyList = [],
+  } = userData;
   const showAlert = ({ severity, title, text }) => {
     setAlert({
       open: true,
