@@ -61,7 +61,7 @@ const InteriorReview = () => {
           title: `에러`,
           text: "이미 작성한 리뷰가 있습니다.",
         });
-        navigate("../interior/mypage");
+        navigate("../userpage");
       }
     };
 
