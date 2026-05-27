@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
-import FreeBoardService from '../service/freeBoardService';
 import SelectMui from '../components/SelectMui';
 import CheckboxMui from '../components/CheckboxMui';
 import ToggleButtonMui from '../components/ToggleButtonMui';
@@ -60,7 +59,6 @@ const SearchPage = () => {
     const [results, setResults] = useState({
         furniture:[],
         interior:[],
-        freeBoard:[],
     });
 
     const [loading, setLoading] = useState(false);
@@ -75,7 +73,6 @@ const SearchPage = () => {
     const [carouselIndex, setCarouselIndex] = useState({
         furniture: 0,
         interior: 0,
-        freeBoard: 0,
     });
 
     const moveCarousel = (sectionKey, listLength, direction) => {
@@ -115,7 +112,6 @@ const SearchPage = () => {
         { value: "all", title: "전체"},
         { value: "furniture", title: "쇼핑"},
         { value: "interior", title: "인테리어"},
-        { value: "freeBoard", title: "자유게시판"},
     ];
 
 
@@ -381,16 +377,7 @@ const SearchPage = () => {
         });
     };
 
-    //자유게시판은 기존의 서비스를 사용함
-    const getFreeBoardList = async () => {
-        const data = await FreeBoardService.getLists({
-            pageNum: 1,
-            searchKey: "title",
-            searchValue: keyword.trim(),
-            category:"",
-        });
-        return data.lists || [];
-    };
+
 
     //실제로 검색기능을 하는 함수, 전체 검색시 탭에 있는 항목을 다 검색후에 합치는 방식
     const getSearchResult = async () => {
@@ -401,16 +388,15 @@ const SearchPage = () => {
             const trimmedKeyword = keyword.trim();
             // 디비에서 불러와서 카테고리 만드는것, 검색어가 없어도 필터 검색을 해야해서 return 하면 안된다.
             if (!trimmedKeyword && type !== "all" && type !== "furniture" && type !== "interior") {
-                setResults({ furniture: [], interior: [], freeBoard: [] });
+                setResults({ furniture: [], interior: [] });
                 return;
             }   
 
             //타입별로 다시 잘 나눠준다, 이전에는 중복으로 가져왔는데 바꿈
             const needFurniture = type === "all" || type === "furniture";
             const needInterior = type === "all" || type === "interior";
-            const needFreeBoard = type === "all" || type === "freeBoard";
 
-            const [furnitureData, interiorData, freeBoardData] = await Promise.all([
+            const [furnitureData, interiorData ] = await Promise.all([
                 needFurniture 
                     ? trimmedKeyword 
                         ? getSearchFurniture() : getAllFurniture() 
@@ -419,11 +405,6 @@ const SearchPage = () => {
                 needInterior
                     ? InteriorService.fetchList()
                     :Promise.resolve([]),
-
-                needFreeBoard
-                    ?getFreeBoardList()
-                    : Promise.resolve([]),
-                
             ]);
 
             const sortedFurnitureList = sortByKorean(
@@ -449,12 +430,11 @@ const SearchPage = () => {
                 (item) => item.c_name
             );
 
-            const freeBoardList = sortByKorean(freeBoardData || [], (item) => item.title);
 
             setResults({
                 furniture: type === "interior" || type === "freeBoard" ? [] : furnitureList,
                 interior: type === "furniture" || type === "freeBoard" ? [] : interiorList,
-                freeBoard: type === "furniture" || type === "interior" ? [] : freeBoardList,
+
             });
         } catch (error) {
             console.error(" 통합 검색 실패:", error);
@@ -485,8 +465,6 @@ const SearchPage = () => {
         ? results.furniture
         : type === "interior"
         ? results.interior
-        : type === "freeBoard"
-        ? results.freeBoard
         : [];
         
     
@@ -727,18 +705,6 @@ const SearchPage = () => {
             </Card>
         );
     };
-    const renderFreeBoardItem = (item) => (
-        <Link 
-            to={`/freeBoard/article/${item.boardId}`} 
-            key={item.boardId}
-        >
-            <div>
-                <p>{item.category || "자유"}</p>
-                <h3>{item.title}</h3>
-                <p>{item.userName || "방문자"}</p>
-            </div>
-        </Link>
-    );
 
     const SearchSection = ({sectionKey, title, list, renderItem}) => {
         const startIndex = carouselIndex[sectionKey] || 0;
@@ -972,12 +938,6 @@ const SearchPage = () => {
                             list={results.interior}
                             renderItem={renderInteriorItem}
                         />
-                        <SearchSection
-                            sectionKey="freeBoard"
-                            title={keyword ? `'${keyword}'이 포함된 자유게시판 결과` : "자유게시판 결과 '가나다' 순"}
-                            list={results.freeBoard}
-                            renderItem={renderFreeBoardItem}
-                        />
                     </>
                 )}
                 {!loading && !isEmptyKeywordCategory && type !== "all" && (
@@ -995,7 +955,7 @@ const SearchPage = () => {
                             >
                                 {type === "furniture" && currentItems.map(renderFurnitureItem)}
                                 {type === "interior" && currentItems.map(renderInteriorItem)}
-                                {type === "freeBoard" && currentItems.map(renderFreeBoardItem)}
+                                
                             </div>
                         )}
                     </>
