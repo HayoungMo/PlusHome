@@ -1,19 +1,21 @@
 .interior-all-review-page {
-  max-width: 1200px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 40px 24px 64px;
-  color: #1f2937;
+  padding: 0 0 40px;
+  color: #2f3438;
 }
 
 .interior-all-review-title {
-  margin: 0 0 24px;
-  font-size: 28px;
+  margin: 0 0 8px;
+  color: #2f3438;
+  font-size: 24px;
   font-weight: 800;
+  line-height: 1.3;
 }
 
 .interior-review-group {
-  padding: 24px 0 32px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 28px 0 34px;
+  border-bottom: 1px solid #eaedef;
 }
 
 .interior-review-company {
@@ -22,50 +24,51 @@
   background: transparent;
   padding: 0;
   margin: 0 0 18px;
-  color: #111827;
+  color: #2f3438;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 800;
+  line-height: 1.3;
   text-align: left;
 }
 
 .interior-review-company:hover {
-  color: #2563eb;
+  color: #00a1ff;
 }
 
 .interior-review-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 28px 18px;
 }
 
 .interior-review-card {
   appearance: none;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #ffffff;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   padding: 0;
-  overflow: hidden;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: transform 0.18s ease;
 }
 
 .interior-review-card:hover {
   transform: translateY(-2px);
-  border-color: #bfdbfe;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
 
 .interior-review-card-thumb {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  background: #f3f4f6;
+  aspect-ratio: 1 / 0.72;
+  background: #f7f9fa;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px #eaedef;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #8a8f98;
   font-size: 14px;
+  overflow: hidden;
 }
 
 .interior-review-card-thumb img {
@@ -73,19 +76,39 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.22s ease, filter 0.22s ease;
+}
+
+.interior-review-card:hover .interior-review-card-thumb img {
+  filter: brightness(0.97);
+  transform: scale(1.025);
 }
 
 .interior-review-card-info {
   display: grid;
-  gap: 10px;
-  padding: 14px;
+  gap: 9px;
+  padding: 11px 0 0;
+}
+
+.interior-review-card-info .MuiChip-root {
+  height: 24px;
+  border-radius: 6px;
+  background: #f0faff;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .interior-review-card-info p {
   margin: 0;
-  color: #374151;
+  color: #008cff;
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.5;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .all-review-dialog-content {
@@ -97,6 +120,7 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   background: #ffffff;
+  color: #2f3438;
 }
 
 .all-review-dialog-images {
@@ -106,7 +130,7 @@
   gap: 10px;
   overflow: hidden;
   padding: 12px;
-  background: #f6f7f9;
+  background: #f7f9fa;
   box-sizing: border-box;
 }
 
@@ -132,7 +156,14 @@
   text-align: center;
   font-size: 14px;
   font-weight: 700;
-  color: #374151;
+  color: #2f3438;
+}
+
+.all-review-slide-controls .MuiButton-root {
+  border-radius: 6px;
+  background: #00a1ff;
+  color: #fff;
+  font-weight: 800;
 }
 
 .all-review-dialog-info {
@@ -141,22 +172,34 @@
   max-height: 180px;
   overflow-y: auto;
   padding: 16px;
-  border-top: 1px solid #edf0f3;
+  border-top: 1px solid #eaedef;
 }
 
 .all-review-dialog-info p {
   margin: 0;
-  color: #374151;
+  color: #2f3438;
   line-height: 1.6;
+}
+
+.all-review-dialog-info .MuiChip-root,
+.interior-all-review-page .MuiPaginationItem-root.Mui-selected {
+  background-color: #00a1ff;
+  color: #fff;
+  font-weight: 800;
+}
+
+.interior-all-review-page .MuiTypography-root {
+  color: #828c94;
 }
 
 @media (max-width: 640px) {
   .interior-all-review-page {
-    padding: 28px 16px 48px;
+    padding: 0 0 36px;
   }
 
   .interior-review-grid {
     grid-template-columns: 1fr;
+    gap: 22px;
   }
 
   .all-review-dialog {

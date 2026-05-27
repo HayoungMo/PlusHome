@@ -7,6 +7,7 @@ import NumberField from "./NumberFieldMui";
 import DatePickerMui from "./DatePickerMui";
 import CompanyService from "../service/companyService";
 import SelectMui from "./SelectMui";
+import { furnitureCategoryOptions } from "./FurnitureCategorySelect";
 
 const CouponAddDev= (data) => {
 
@@ -56,19 +57,7 @@ const CouponAddDev= (data) => {
     { value: "catagory", title: "카테고리별 적용" },
   ];
 
-  const categoryOptions = [
-    { value: "bed", title: "침대" },
-    { value: "sofa", title: "소파" },
-    { value: "desk", title: "책상" },
-    { value: "chair", title: "의자" },
-    { value: "table", title: "식탁" },
-    { value: "storage", title: "수납장" },
-    { value: "light", title: "조명" },
-    { value: "mattress", title: "매트리스" },
-    { value: "dresser", title: "화장대" },
-    { value: "closet", title: "옷장" },
-    { value: "custom", title: "직접 입력" },
-  ];
+  const categoryOptions = furnitureCategoryOptions.f_catagory1;
   
   useEffect(()=>{
     const fetchCompany = async() => {

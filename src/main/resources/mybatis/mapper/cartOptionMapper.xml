@@ -52,5 +52,11 @@
         DELETE FROM cart_option
         WHERE c_code = #{c_code}
     </delete>
+    
+    <update id="updateCountByCartCode">
+	    UPDATE cart_option
+	    SET co_count = #{co_count}
+	    WHERE c_code = #{c_code}
+	</update>
 
 </mapper>

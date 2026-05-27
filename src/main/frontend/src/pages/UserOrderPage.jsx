@@ -20,6 +20,20 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const [statusFilter, setStatusFilter] = useState("all");
     const [openedClaimImages, setOpenedClaimImages] = useState({})
     const [actionLoading, setActionLoading] = useState(false);
+    	const localUserData = localStorage.getItem("user");
+      const userData = JSON.parse(localUserData);
+      const {
+        addr,
+        birth,
+        code,
+        email,
+        gender,
+        id,
+        name,
+        tel,
+        type,
+        companyList = [],
+      } = userData;
 
     const [claimModal, setClaimModal] = useState({
         open: false, 
@@ -56,10 +70,10 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
 
         try {
             const imageList = await ImageService.getImageData({
-                kind: "CLAIM",
-                a: item.claim_code,
-                d: localStorage.getItem("id"),
-                idx: -1
+              kind: "CLAIM",
+              a: item.claim_code,
+              d: id,
+              idx: -1,
             });
 
             setOpenedClaimImages(prev => ({

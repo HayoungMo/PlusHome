@@ -16,6 +16,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import React, { useState } from 'react';
 import InteriorRecommend from './InteriorRecommend';
 import { useNavigate } from 'react-router-dom';
+import {
+    customCategoryValue,
+    furnitureCategoryOptions,
+} from "./FurnitureCategorySelect";
 
 const ChatbotModal = ({ onClose }) => {
 
@@ -24,69 +28,40 @@ const ChatbotModal = ({ onClose }) => {
         {label:"인테리어 추천", mode:"interior"}
     ];
 
+    const getFurnitureOptions = (field) => 
+        (furnitureCategoryOptions[field] || [])
+            .filter((item) => item.value !== customCategoryValue)
+            .map((item) => ({
+                label: item.title,
+                value: item.value,
+            }));
     const furnitureQuestions = [
-        {
-            key: "f_catagory1",
-            message: "어떤 가구를 찾고 계신가요?",
-            options: [
-                { label: "침대", value: "침대" },
-                { label: "소파", value: "소파" },
-                { label: "책상", value: "책상" },
-                { label: "의자", value: "의자" },
-                { label: "식탁", value: "식탁" },
-                { label: "수납장", value: "수납장" },
-                { label: "조명", value: "조명" },
-            ],
-        },
-        {
-            key: "f_catagory2",
-            message: "어느 공간에 둘 예정인가요?",
-            options: [
-                { label: "침실", value: "침실" },
-                { label: "거실", value: "거실" },
-                { label: "주방", value: "주방" },
-                { label: "서재", value: "서재" },
-                { label: "현관", value: "현관" },
-                { label: "아이방", value: "아이방" },
-            ],
-        },
-        {
-            key: "f_catagory3",
-            message: "원하는 분위기는 어떤 쪽인가요?",
-            options: [
-                { label: "모던", value: "모던" },
-                { label: "내추럴", value: "내추럴" },
-                { label: "심플", value: "심플" },
-                { label: "빈티지", value: "빈티지" },
-                { label: "앤틱", value: "앤틱" },
-                { label: "북유럽", value: "북유럽" },
-            ],
-        },
-        {
-            key: "f_catagory4",
-            message: "선호하는 소재나 특징이 있나요?",
-            options: [
-                { label: "원목", value: "원목" },
-                { label: "패브릭", value: "패브릭" },
-                { label: "가죽", value: "가죽" },
-                { label: "철제", value: "철제" },
-                { label: "접이식", value: "접이식" },
-                { label: "수납형", value: "수납형" },
-            ],
-        },
-        {
-            key: "f_catagory5",
-            message: "누구를 위한 가구인가요?",
-            options: [
-                { label: "1인가구", value: "1인가구" },
-                { label: "신혼", value: "신혼" },
-                { label: "가족", value: "가족" },
-                { label: "반려동물", value: "반려동물" },
-                { label: "아이", value: "아이" },
-                { label: "소형공간", value: "소형공간" },
-            ],
-        },
-    ];
+            {
+                key: "f_catagory1",
+                message: "어떤 가구를 찾고 계신가요?",
+                options: getFurnitureOptions("f_catagory1"),
+            },
+            {
+                key: "f_catagory2",
+                message: "어느 공간에 둘 예정인가요?",
+                options: getFurnitureOptions("f_catagory2"),
+            },
+            {
+                key: "f_catagory3",
+                message: "원하는 분위기는 어떤 쪽인가요?",
+                options: getFurnitureOptions("f_catagory3"),
+            },
+            {
+                key: "f_catagory4",
+                message: "선호하는 소재나 특징이 있나요?",
+                options: getFurnitureOptions("f_catagory4"),
+            },
+            {
+                key: "f_catagory5",
+                message: "누구를 위한 가구인가요?",
+                options: getFurnitureOptions("f_catagory5"),
+            },
+        ];
     //인테리어 추천 기준(인테리어 디비와 페이지 참고)
     const interiorQuestions = [
          {

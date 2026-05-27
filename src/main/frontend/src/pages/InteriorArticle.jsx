@@ -28,6 +28,7 @@ function InteriorArticle() {
 
   const [article, setArticle] = useState([]);
   const [example, setExample] = useState([]);
+  const [exModel, setExModel] = useState();
 
   const [selectedExample, setSelectedExample] = useState(null);
   const [exampleImageIndex, setExampleImageIndex] = useState(0);
@@ -101,7 +102,7 @@ function InteriorArticle() {
   };
 
   const handleNext = () => {
-    if (!localStorage.getItem("id") || !localStorage.getItem("token")) {
+    if (!localStorage.getItem("user") || !localStorage.getItem("token")) {
       alert("로그인이 필요한 서비스입니다.");
       navigate("/login");
       return;
@@ -115,7 +116,7 @@ function InteriorArticle() {
   };
 
   const handleBookingToggle = () => {
-    if (!localStorage.getItem("id") || !localStorage.getItem("token")) {
+    if (!localStorage.getItem("user") || !localStorage.getItem("token")) {
       alert("로그인이 필요한 서비스입니다.");
       navigate("/login");
       return;
@@ -135,11 +136,21 @@ function InteriorArticle() {
         c: data.c_name,
         d: "Logo",
         view: false,
+      });      
+      const model = await GetImgDir({
+        kind: "I_EXAMPLE",
+        returnType: "list",
+        a: data.c_id,
+        b: data.c_kind,
+        c: data.c_name,
+        d: "LOGO",
+        view: false,
       });
       setCompany(
         {
           ...data,
           logo,
+          model,
         } || {},
       );
     };
@@ -173,13 +184,16 @@ function InteriorArticle() {
 
           return {
             ...item,
-            logo,
+            logo: logo,
           };
         }),
       );
 
+
       setExample(listWithImages);
     };
+
+
 
     fetchCompany();
     fetchArticle();
@@ -301,7 +315,6 @@ function InteriorArticle() {
           <Maps c_addr={company.c_addr?.split("__")[0]} />
         </div>
       </div>
-
       <div className="tag-card">
         <div className="section-title">업체 전문 분야</div>
 
@@ -321,7 +334,6 @@ function InteriorArticle() {
           </div>
         ))}
       </div>
-
       <div className="example-card">
         <div className="section-title">시공 사례</div>
 
@@ -400,7 +412,9 @@ function InteriorArticle() {
                   variant="contained"
                   size="small"
                   onClick={handleNextExampleImage}
-                  disabled={exampleImageIndex === selectedExampleImages.length - 1}
+                  disabled={
+                    exampleImageIndex === selectedExampleImages.length - 1
+                  }
                 >
                   다음
                 </Button>
@@ -418,24 +432,24 @@ function InteriorArticle() {
           </div>
         </div>
       </DialogInside>
-      <div className="example-card">
-        <div className="section-title">시공 3D 모델</div>
-        <div style={{ display: "flex" }}>
-          {company?.logo?.result?.map(
-            (item) =>
-              item.img_tag === "MODEL" && (
-                <InteriorModelViewer src={item.img_name} />
-              ),
-          )}
+      {company?.model && (
+        <div className="example-card">
+          <div className="section-title">시공 3D 모델</div>
+          <div style={{ display: "flex" }}>
+            {company?.model?.result?.map(
+              (item) =>
+                item.img_tag === "MODEL" && (
+                  <InteriorModelViewer src={item.img_name} />
+                ),
+            )}
+          </div>
         </div>
-      </div>
-
+      )}
       <div className="example-card">
         <div className="section-title">리뷰 및 후기</div>
 
         <InteriorReviewList company={company} />
       </div>
-
       <div className="example-card">
         <div className="section-title">ai 정보 요약</div>
         {/* <InteriorArticleAI

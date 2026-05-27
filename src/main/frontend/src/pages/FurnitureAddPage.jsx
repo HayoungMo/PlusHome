@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import FurnitureService from "../service/furnitureService";
 import { useNavigate } from "react-router-dom";
-import SelectMui from "../components/SelectMui";
+import FurnitureCategorySelect, {
+    furnitureCategoryFields,
+    furnitureCategoryLabels,
+    getFurnitureCategorySaveValue,
+} from "../components/FurnitureCategorySelect";
 
 const FurnitureAddPage = ({ onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
@@ -15,30 +19,6 @@ const FurnitureAddPage = ({ onSuccess }) => {
 
 	const navigate = useNavigate();
 
-	//catagory1~5를 프론트에서 조건 걸어줌. - 0515 모하영 
-	const categoryOptions = {
-		f_catagory1: ["침대", "소파", "책상", "의자", "식탁", "수납장", "조명", "매트리스", "화장대", "옷장", "직접 입력"], //상품종류
-		f_catagory2: ["침실", "거실", "주방", "서재", "현관", "아이방","방", "화장실 ", "직접 입력"], //위치,공간
-		f_catagory3: ["모던", "내추럴", "심플", "빈티지", "앤틱", "북유럽", "직접 입력"], //분위기
-		f_catagory4: ["원목", "패브릭", "가죽", "철제", "접이식", "수납형", "저상형", "직접 입력"], //가구 소재 혹은 어떤 특징
-		f_catagory5: ["1인가구", "신혼", "가족", "반려동물", "아이", "소형공간", "직접 입력"], //가구단위
-	};
-
-	const categoryLabels = {
-		f_catagory1: "상품종류",
-		f_catagory2: "공간",
-		f_catagory3: "스타일",
-		f_catagory4: "소재/특징",
-		f_catagory5: "대상/상황",
-	};
-
-	const makeCategorySelectOptions = (field) => [
-		{value: "", title: `${categoryLabels[field]} 선택`},
-		...categoryOptions[field].map((item) => ({
-			value: item,
-			title: item,
-		})),
-	];
 
 	const [data, setData] = useState({
 		c_id: company?.c_id || id || "",
@@ -192,9 +172,7 @@ const FurnitureAddPage = ({ onSuccess }) => {
 
 	//카테고리 값 - 0515 모하영 
 	const getCategoryValue = (field) => {
-		return data[field] === "직접 입력"
-			? customCategory[field].trim()
-			: data[field];
+		return getFurnitureCategorySaveValue(data[field], customCategory[field]);
 	};
 
 
@@ -257,17 +235,10 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				return;
 			}
 			// 0515 모하영 
-			const categoryFields = [
-				"f_catagory1",
-				"f_catagory2",
-				"f_catagory3",
-				"f_catagory4",
-				"f_catagory5",
-			];
 
-			for(const field of categoryFields) {
+			for(const field of furnitureCategoryFields) {
 				if(!getCategoryValue(field)){
-					alert(`${categoryLabels[field]}을(를) 선택하거나 입력해주세요.`);
+					alert(`${furnitureCategoryLabels[field]}을(를) 선택하거나 입력해주세요.`);
 					return;
 				}
 			}
@@ -405,32 +376,21 @@ const FurnitureAddPage = ({ onSuccess }) => {
 			<br />
 			<br />
 
-			{["f_catagory1", "f_catagory2", "f_catagory3", "f_catagory4", "f_catagory5"].map((field) => (
-				<div key={field}>
-					<SelectMui
-						label={categoryLabels[field]}
-						name={field}
-						value={data[field]}
-						option={makeCategorySelectOptions(field)}
-						width="220px"
-						onChange={changeInput}
-					/>
-
-					{data[field] === "직접 입력" && (
-						<input
-							placeholder={`${categoryLabels[field]} 직접 입력`}
-							value={customCategory[field]}
-							onChange={(evt) =>
-								setCustomCategory((prev) => ({
-									...prev,
-									[field]: evt.target.value,
-								}))
-							}
-						/>
-					)}
-
-					<br />
-				</div>
+			{furnitureCategoryFields.map((field) => (
+				<FurnitureCategorySelect
+					key={field}
+					field={field}
+					value={data[field]}
+					customValue={customCategory[field]}
+					onChange={changeInput}
+					onCustomChange={(value) =>
+						setCustomCategory((prev) => ({
+							...prev,
+							[field]: value,
+						}))
+					}
+					width="220px"
+				/>
 			))}
 
 

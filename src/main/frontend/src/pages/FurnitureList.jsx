@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import FurnitureService from "../service/furnitureService";
 import LikeService from "../service/likeService";
 import Loading from "../components/Loading";
+import { Snackbar } from "@mui/material";
+import AlertMui from "../components/AlertMui";
 
 const FurnitureList = () => {
     const location = useLocation();
@@ -30,6 +32,31 @@ const FurnitureList = () => {
     const [likedMap, setLikedMap] = useState({});
     
     const [loading , setLoading] = useState(true)
+
+    const [likingMap, setLikingMap] = useState({})
+    
+    const [alert, setAlert] = useState({
+        open: false,
+        severity: "info",
+        title: "",
+        text: "",
+    })
+
+    const showAlert = ({ severity = "info", title = "", text = "" }) => {
+        setAlert({
+            open: true,
+            severity,
+            title,
+            text,
+        });
+        };
+
+    const closeAlert = () => {
+        setAlert((prev) => ({
+            ...prev,
+            open: false,
+        }));
+        };
 
     const [sort, setSort] = useState(urlSort);
     const pageCount = Math.max(0, endPage - startPage + 1);
@@ -96,7 +123,11 @@ const FurnitureList = () => {
             setNextPage(data.nextPage);
         } catch (error) {
             console.error("가구 조회 실패:", error);
-            alert("가구 조회에 실패했습니다.");
+            showAlert({
+                severity: "error",
+                title: "조회 실패",
+                text: "가구 조회에 실패했습니다.",
+            });
         } finally{
             setLoading(false)
         }
@@ -120,35 +151,86 @@ const FurnitureList = () => {
         return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(nextSort)}`;
     };
 
+    const feedback = (
+        <Snackbar
+            open={alert.open}
+            autoHideDuration={3000}
+            onClose={closeAlert}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+            <div>
+            <AlertMui
+                severity={alert.severity}
+                title={alert.title}
+                text={alert.text}
+                onClose={closeAlert}
+            />
+            </div>
+        </Snackbar>
+    );   
+
     const onToggleLike = (evt, f_code) => {
         evt.preventDefault();
         evt.stopPropagation();
 
+        if (likingMap[f_code]) return;
+
         const token = localStorage.getItem("token");
 
         if (!token) {
-            alert("로그인이 필요합니다.");
+            showAlert({
+            severity: "warning",
+            title: "로그인 필요",
+            text: "로그인이 필요합니다.",
+            });
+
+            setTimeout(() => {
+            navigate("/login");
+            }, 500);
+
             return;
         }
 
+        setLikingMap((prev) => ({
+            ...prev,
+            [f_code]: true,
+        }));
+
         LikeService.toggleFurnitureLike(f_code)
             .then((res) => {
-                setLikedMap((prev) => ({
-                    ...prev,
-                    [f_code]: res.data?.liked || false,
-                }));
+            setLikedMap((prev) => ({
+                ...prev,
+                [f_code]: res.data?.liked || false,
+            }));
             })
             .catch((error) => {
-                console.error("찜 처리 실패", error);
-                alert("찜 처리에 실패했습니다.");
+            console.error("찜 처리 실패", error);
+            showAlert({
+                severity: "error",
+                title: "찜 실패",
+                text: "찜 처리에 실패했습니다.",
             });
-    };
+            })
+            .finally(() => {
+            setLikingMap((prev) => ({
+                ...prev,
+                [f_code]: false,
+            }));
+            });
+        };
 
     if (loading) {
-        return <Loading message="상품 목록을 불러오는 중입니다." />;
+        return(
+            <>
+                {feedback}
+                <Loading message="상품 목록을 불러오는 중입니다." />;
+            </>
+        )
     }
 
     return (
+        <>
+        {feedback}
         <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "24px" }}>
             <div
                 style={{
@@ -364,6 +446,8 @@ const FurnitureList = () => {
             justifyContent: "center",
             userSelect: "none",
             WebkitTapHighlightColor: "transparent",
+            opacity: likingMap[item.f_code] ? 0.5 : 1,
+            pointerEvents: likingMap[item.f_code] ? "none" : "auto",
             textShadow: "0 1px 4px rgba(255,255,255,0.9)",
         }}
     >
@@ -516,6 +600,7 @@ const FurnitureList = () => {
                 </>
             )}
         </div>
+    </>
     );
 };
 
