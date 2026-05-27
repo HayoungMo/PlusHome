@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,43 +78,56 @@ public class UserController {
 	}
 	
 	@GetMapping("/me")
-	public Map<String, Object> me(@RequestHeader("Authorization") String authHeader) {
+	public ResponseEntity<Map<String, Object>> me(@RequestHeader("Authorization") String authHeader) {
 
 	    Map<String, Object> result = new HashMap<>();
 
 	    try {
 	        // 토큰 추출
-	        String token = authHeader.replace("Bearer ", "");
-
-	        // 만료 체크
-	        if (jwtUtil.isExpired(token)) {
-	            result.put("success", false);
-	            return result;
+	        String token = authHeader.replace("Bearer ", "");	        
+	        
+	        
+	        //토큰 만료 체크
+	        
+	        if(jwtUtil.isExpired(token)) {
+	        	
+	        	result.put("success",false);
+	        	result.put("message", "Token만료");
+	        	
+	        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);   		        	
+	        	
 	        }
-
-	        // id 꺼내기
+	        
+	        // id 추출하기
 	        String id = jwtUtil.getId(token);
-	        String type = jwtUtil.getType(token);
-
-	        // 사용자 조회
+	        
+	        //사용자 조회하기
 	        UserDTO user = userService.findById(id);
-
-	        if (user == null) {
-	            result.put("success", false);
-	            return result;
+	        
+	        //사용자가 없을 때
+	        if(user ==null) {
+	        	result.put("success", false);
+	        	
+	        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
 	        }
-
+	        
+	        //비밀번호 제거
 	        user.setPw(null);
-
+	        
 	        result.put("success", true);
 	        result.put("user", user);
-
-	    } catch (Exception e) {
-	        result.put("success", false);
-	    }
-
-	    return result;
-	}
+	        
+	        return ResponseEntity.ok(result);
+	        
+	    }catch (Exception e) {
+			result.put("success", false);
+			
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+		}
+	    
+	}  
+	        
+	       
 	
 	//아이디 찾기
 	@PostMapping("/find-Id")
