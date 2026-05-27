@@ -7,6 +7,7 @@ import ImageService from "../service/imageService";
 import DialogMui from "./DialogMui";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Loading from "./Loading";
+import "../css/InteriorMyReview.css";
 
 const InteriorMyReview = ({ id }) => {
   const [review, setReview] = useState([]);

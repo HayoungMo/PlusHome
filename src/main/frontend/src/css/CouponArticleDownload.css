@@ -1,0 +1,242 @@
+.coupon-article-download {
+  width: 100%;
+  max-width: 900px;
+  margin: 28px auto 0;
+  padding: 18px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2f3438;
+  box-sizing: border-box;
+}
+
+.coupon-article-download-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.coupon-article-download-header h3 {
+  margin: 2px 0 0;
+  color: #2f3438;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.coupon-article-download-header > span {
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f0faff;
+  color: #00a1ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.coupon-article-download-eyebrow {
+  margin: 0;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.coupon-article-download-list {
+  display: grid;
+  gap: 10px;
+}
+
+.coupon-article-download-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  min-height: 96px;
+  padding: 16px;
+  border: 1px solid #d8f1ff;
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, #f0faff 0, #ffffff 44%),
+    #ffffff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.coupon-event-download-card {
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+}
+
+.coupon-article-download-card-has-logo {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+}
+
+.coupon-event-download-logo {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.coupon-event-download-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.coupon-event-download-logo span {
+  color: #00a1ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.coupon-article-download-card::before,
+.coupon-article-download-card::after {
+  content: "";
+  position: absolute;
+  right: 178px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #d8f1ff;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.coupon-article-download-card::before {
+  top: -10px;
+}
+
+.coupon-article-download-card::after {
+  bottom: -10px;
+}
+
+.coupon-article-download-badge {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #00a1ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.coupon-article-download-main {
+  min-width: 0;
+}
+
+.coupon-article-download-main strong {
+  display: block;
+  color: #00a1ff;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.coupon-article-download-main p {
+  margin: 6px 0 0;
+  color: #2f3438;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.coupon-article-download-meta {
+  display: grid;
+  gap: 8px;
+  min-width: 150px;
+  margin: 0;
+  padding-left: 18px;
+  border-left: 1px dashed #c8d7df;
+}
+
+.coupon-article-download-meta div {
+  display: grid;
+  gap: 2px;
+}
+
+.coupon-article-download-meta dt {
+  color: #828c94;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.coupon-article-download-meta dd {
+  margin: 0;
+  color: #2f3438;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.coupon-article-download-empty {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.coupon-article-download-button.MuiButton-root {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 14px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.coupon-event-download-button.MuiButton-root {
+  min-width: 108px;
+  min-height: 42px;
+  border-radius: 6px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .coupon-article-download {
+    padding: 14px;
+  }
+
+  .coupon-article-download-card,
+  .coupon-article-download-card-has-logo,
+  .coupon-event-download-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .coupon-article-download-card::before,
+  .coupon-article-download-card::after {
+    display: none;
+  }
+
+  .coupon-article-download-meta {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+    padding: 12px 0 0;
+    border-left: 0;
+    border-top: 1px dashed #c8d7df;
+  }
+
+  .coupon-event-download-button.MuiButton-root {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

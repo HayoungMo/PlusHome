@@ -172,7 +172,7 @@ const InteriorAllReivew = () => {
       ))}
 
       {review.length === 0 && (
-        <Typography color="text.secondary" sx={{ mt: 3 }}>
+        <Typography className="interior-all-review-empty" color="text.secondary">
           등록된 리뷰가 없습니다.
         </Typography>
       )}

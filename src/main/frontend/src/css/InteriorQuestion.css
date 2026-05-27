@@ -1,34 +1,46 @@
 .interior-question-page {
-  width: min(100%, 1120px);
+  width: min(100%, 1180px);
   min-height: calc(100vh - 120px);
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 34px 24px 56px;
   box-sizing: border-box;
+  color: #2f3438;
+}
+
+.interior-question-page .MuiLinearProgress-root {
+  height: 6px;
+  border-radius: 999px;
+  background-color: #f0f3f5;
+}
+
+.interior-question-page .MuiLinearProgress-bar {
+  border-radius: 999px;
+  background-color: #00a1ff;
 }
 
 .question-card {
   width: min(100%, 720px);
-  margin: 32px auto 0;
+  margin: 30px auto 0;
   padding: 32px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaedef;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(47, 52, 56, 0.06);
   box-sizing: border-box;
 }
 
 .question-card h2 {
-  margin: 12px 0 28px;
+  margin: 10px 0 26px;
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.35;
-  color: #111827;
+  color: #2f3438;
 }
 
 .question-step {
   font-size: 14px;
-  font-weight: 600;
-  color: #6b7280;
+  font-weight: 800;
+  color: #00a1ff;
 }
 
 .question-options {
@@ -41,6 +53,8 @@
   min-height: 56px;
   justify-content: flex-start;
   padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 800;
   text-align: left;
 }
 
@@ -50,11 +64,59 @@
   min-height: 48px;
 }
 
+.question-options label > div,
+.confirm-checkbox-list label > div {
+  width: 100% !important;
+}
+
+.question-options .MuiFormControl-root,
+.confirm-checkbox-list .MuiFormControl-root {
+  width: 100%;
+}
+
+.question-options .MuiFormLabel-root,
+.confirm-checkbox-list .MuiFormLabel-root {
+  color: #2f3438;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.question-options .MuiFormGroup-root,
+.confirm-checkbox-list .MuiFormGroup-root {
+  min-height: 44px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.question-options .MuiFormGroup-root:hover,
+.confirm-checkbox-list .MuiFormGroup-root:hover {
+  border-color: #00a1ff;
+  background: #f0faff;
+}
+
+.question-options .MuiCheckbox-root,
+.confirm-checkbox-list .MuiCheckbox-root {
+  color: #b8c2c9;
+}
+
+.question-options .MuiCheckbox-root.Mui-checked,
+.confirm-checkbox-list .MuiCheckbox-root.Mui-checked {
+  color: #00a1ff;
+}
+
 .question-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 28px;
+}
+
+.question-actions .MuiButton-root {
+  min-height: 42px;
+  border-radius: 6px;
+  font-weight: 800;
 }
 
 .confirm-layout {
@@ -77,7 +139,7 @@
 
 .confirm-question {
   padding-bottom: 20px;
-  border-bottom: 1px solid #eef0f3;
+  border-bottom: 1px solid #eaedef;
 }
 
 .confirm-question:last-child {
@@ -88,8 +150,8 @@
 .confirm-question p {
   margin: 0 0 10px;
   font-size: 15px;
-  font-weight: 700;
-  color: #374151;
+  font-weight: 800;
+  color: #2f3438;
 }
 
 .confirm-checkbox-list {
@@ -101,6 +163,11 @@
 .calculator-card {
   position: sticky;
   top: 24px;
+}
+
+.calculator-card,
+.confirm-card {
+  box-shadow: none;
 }
 
 @media (max-width: 900px) {
@@ -120,6 +187,7 @@
 
   .question-card {
     padding: 24px 18px;
+    margin-top: 24px;
   }
 
   .question-card h2 {

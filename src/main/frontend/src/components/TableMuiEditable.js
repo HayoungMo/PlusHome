@@ -43,190 +43,159 @@ const StyledTableRow = styled(TableRow)(() => ({
 }));
 
 const TableMuiEditable = ({
-	rowData = [],
-	columns = [],
-	onChange,
-	updateAvailable = true,
-	readOnlyColumns = [],
-	// -- CheckBox
-	selectable = false,
-	selectedRows = [],
-	onSelectionChange,
-	getRowKey = (row, index) => row.id || index,
+  rowData = [],
+  columns = [],
+  selectedRow = null,
+  setSelectedRow = null,
+  onChange,
+  updateAvailable = true,
+  readOnlyColumns = [],
+  defaultRowPerPage = 10,
 }) => {
-	const [rows, setRows] = useState(rowData);
-	const [editingCell, setEditingCell] = useState(null);
-	const [editValue, setEditValue] = useState("");
+  const [rows, setRows] = useState(rowData);
+  const [editingCell, setEditingCell] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(defaultRowPerPage);
 
-	const tableColumns = rows.length > 0 ? Object.keys(rows[0]) : [];
+  const tableColumns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
-	const handleDoubleClick = (rowIndex, column, value) => {
-		if (!updateAvailable) return;
+  const handleDoubleClick = (rowIndex, column, value) => {
+    if (!updateAvailable) return;
 
-		if (editingCell) return;
+    if (editingCell) return;
 
-		setEditingCell({ rowIndex, column });
-		setEditValue(value ?? "");
-	};
+    setEditingCell({ rowIndex, column });
+    setEditValue(value ?? "");
+  };
 
-	const handleSave = () => {
-		if (!editingCell) return;
+  const handleSave = () => {
+    if (!editingCell) return;
 
-		const { rowIndex, column } = editingCell;
+    const { rowIndex, column } = editingCell;
 
-		const updatedRows = rows.map((row, index) => {
-			if (index !== rowIndex) return row;
+    const updatedRows = rows.map((row, index) => {
+      if (index !== rowIndex) return row;
 
-			return {
-				...row,
-				[column]: editValue,
-			};
-		});
+      return {
+        ...row,
+        [column]: editValue,
+      };
+    });
 
-		setRows(updatedRows);
-		setEditingCell(null);
+    setRows(updatedRows);
+    setEditingCell(null);
 
-		if (onChange) {
-			onChange(updatedRows);
-		}
-	};
+    if (onChange) {
+      onChange(updatedRows);
+    }
+  };
 
-	const handleKeyDown = (e) => {
-		if (e.key === "Enter") {
-			handleSave();
-		}
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSave();
+    }
 
-		if (e.key === "Escape") {
-			setEditingCell(null);
-		}
-	};
+    if (e.key === "Escape") {
+      setEditingCell(null);
+    }
+  };
 
-	const handleSelectRow = (row, rowIndex) => {
-		const rowKey = getRowKey(row, rowIndex);
+  useEffect(() => {
+    if (Array.isArray(rowData)) {
+      setRows(rowData);
+    }
+  }, [rowData]);
 
-		const newSelectedRows = selectedRows.includes(rowKey)
-			? selectedRows.filter((key) => key !== rowKey)
-			: [...selectedRows, rowKey];
+  return (
+    <TableContainer
+      component={Paper}
+      sx={{
+        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+        overflow: "hidden",
+      }}
+    >
+      <Table sx={{ minWidth: 650 }} aria-label="editable table">
+        <TableHead>
+          <TableRow>
+            {tableColumns.map((column, index) => (
+              <StyledTableCell key={column} align="right">
+                {columns.length > 0 ? columns[index] : column}
+              </StyledTableCell>
+            ))}
+          </TableRow>
+        </TableHead>
 
-		onSelectionChange?.(newSelectedRows);
-	};
+        <TableBody>
+          {rows.map((row, rowIndex) => {
+            const realRowIndex = page * rowsPerPage + rowIndex;
+            const isSelected = selectedRow?.rowIndex === realRowIndex;
 
-	const handleSelectAll = () => {
-		const allRowKeys = rows.map((row, index) => getRowKey(row, index));
+            return (
+              <StyledTableRow
+                key={row.id || rowIndex}
+                onClick={() => {
+                  const selectedRowData = { ...row, rowIndex: realRowIndex };
+                  if (setSelectedRow) setSelectedRow(selectedRowData);
+                }}
+                // ------
+								key={
+									row.f_code
+										? `${row.f_code}__${realRowIndex}`
+										: `${row.id}__${realRowIndex}` || realRowIndex
+								}
+								sx={{
+									backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
+									cursor: setSelectedRow ? "pointer" : "default",
+								}}
+              >
+                {tableColumns.map((column) => {
+                  const isReadOnly = readOnlyColumns.includes(column);
 
-		const isAllSelected =
-			allRowKeys.length > 0 && allRowKeys.every((key) => selectedRows.includes(key));
+                  const isEditing =
+                    editingCell?.rowIndex === rowIndex &&
+                    editingCell?.column === column;
 
-		const newSelectedRows = isAllSelected ? [] : allRowKeys;
-
-		onSelectionChange?.(newSelectedRows);
-	};
-
-	useEffect(() => {
-		if (Array.isArray(rowData)) {
-			setRows(rowData);
-		}
-	}, [rowData]);
-
-	return (
-		<TableContainer
-			component={Paper}
-			sx={{
-				boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-				overflow: "hidden",
-			}}>
-			<Table sx={{ minWidth: 650 }} aria-label="editable table">
-				<TableHead>
-					<TableRow>
-						{selectable && (
-							<StyledTableCell padding="checkbox" align="center">
-								<Checkbox
-									checked={
-										rows.length > 0 &&
-										rows.every((row, index) =>
-											selectedRows.includes(getRowKey(row, index)),
-										)
-									}
-									indeterminate={
-										selectedRows.length > 0 &&
-										!rows.every((row, index) =>
-											selectedRows.includes(getRowKey(row, index)),
-										)
-									}
-									onChange={handleSelectAll}
-								/>
-							</StyledTableCell>
-						)}
-						{tableColumns.map((column, index) => (
-							<StyledTableCell key={column} align="right">
-								{columns.length > 0 ? columns[index] : column}
-							</StyledTableCell>
-						))}
-					</TableRow>
-				</TableHead>
-
-				<TableBody>
-					{rows.map((row, rowIndex) => {
-						const rowKey = getRowKey(row, rowIndex);
-						const isSelected = selectedRows.includes(rowKey);
-
-						return (
-							<StyledTableRow key={row.id || rowIndex}>
-								{selectable && (
-									<StyledTableCell padding="checkbox" align="center">
-										<Checkbox
-											checked={isSelected}
-											onChange={() => handleSelectRow(row, rowIndex)}
-											onDoubleClick={(e) => e.stopPropagation()}
-										/>
-									</StyledTableCell>
-								)}
-								{tableColumns.map((column) => {
-									const isReadOnly = readOnlyColumns.includes(column);
-
-									const isEditing =
-										editingCell?.rowIndex === rowIndex &&
-										editingCell?.column === column;
-
-									return (
-										<StyledTableCell
-											key={column}
-											align="right"
-											onDoubleClick={() => {
-												if (isReadOnly) return;
-												handleDoubleClick(rowIndex, column, row[column]);
-											}}
-											sx={{
-												cursor: isReadOnly
-													? "default"
-													: updateAvailable
-														? "pointer"
-														: "default",
-											}}>
-											{isEditing && updateAvailable ? (
-												<TextField
-													value={editValue}
-													onChange={(e) => setEditValue(e.target.value)}
-													onBlur={handleSave}
-													onKeyDown={handleKeyDown}
-													onDoubleClick={(e) => e.stopPropagation()}
-													size="small"
-													autoFocus
-													variant="standard"
-												/>
-											) : (
-												row[column]
-											)}
-										</StyledTableCell>
-									);
-								})}
-							</StyledTableRow>
-						);
-					})}
-				</TableBody>
-			</Table>
-		</TableContainer>
-	);
+                  return (
+                    <StyledTableCell
+                      key={column}
+                      align="right"
+                      onDoubleClick={() => {
+                        if (isReadOnly) return;
+                        handleDoubleClick(rowIndex, column, row[column]);
+                      }}
+                      sx={{
+                        cursor: isReadOnly
+                          ? "default"
+                          : updateAvailable
+                            ? "pointer"
+                            : "default",
+                      }}
+                    >
+                      {isEditing && updateAvailable ? (
+                        <TextField
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onBlur={handleSave}
+                          onKeyDown={handleKeyDown}
+                          onDoubleClick={(e) => e.stopPropagation()}
+                          size="small"
+                          autoFocus
+                          variant="standard"
+                        />
+                      ) : (
+                        row[column]
+                      )}
+                    </StyledTableCell>
+                  );
+                })}
+              </StyledTableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 };
 
 export default TableMuiEditable;

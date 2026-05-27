@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Button, Chip, Pagination, Stack, Typography } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
-import SelectMui from "../components/SelectMui";
 import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllExample.css";
+import MultiFilterBar from "../components/MultiFilterBar";
 
 const PAGE_SIZE = 6;
 
@@ -41,6 +41,25 @@ const InteriorAllExample = () => {
     { value: "tile", title: "타일" },
     { value: "floor", title: "마루" },
   ];
+
+  const filterGroups = [
+    {
+      key: "housingType",
+      label: "주거 유형",
+      options: tagOptions1,
+    },
+    {
+      key: "space",
+      label: "공간",
+      options: tagOptions2,
+    },
+  ];
+
+  const handleFilterChange = (selectedFilters) => {
+    setFilterType(selectedFilters.housingType || "");
+    setFilterValue(selectedFilters.space || "");
+    setPageNum(1);
+  };
 
   const handleNext = (data) => {
     navigate("/interior/article", {
@@ -149,32 +168,15 @@ const InteriorAllExample = () => {
   return (
     <div className="interior-all-example-page">
       <div className="interior-all-example-toolbar">
-        <SelectMui
-          label="tag1"
-          name="filterType"
-          value={filterType}
-          onChange={(e) => {
-            setFilterType(e.target.value);
-            setFilterValue("");
-            setPageNum(1);
+        <MultiFilterBar
+          groups={filterGroups}
+          selectedValues={{
+            housingType: filterType,
+            space: filterValue,
           }}
-          option={tagOptions1}
+          onChange={handleFilterChange}
+          onReset={handleReset}
         />
-
-        {filterType && (
-          <SelectMui
-            label="tag2"
-            name="filterValue"
-            value={filterValue}
-            onChange={(e) => {
-              setFilterValue(e.target.value);
-              setPageNum(1);
-            }}
-            option={tagOptions2}
-          />
-        )}
-
-        <Button onClick={handleReset}>초기화</Button>
       </div>
 
       <h2 className="interior-all-example-title">예시 조회 결과</h2>
@@ -208,14 +210,22 @@ const InteriorAllExample = () => {
                 >
                   <div className="interior-example-thumb">
                     {thumbnail ? (
-                      <img src={thumbnail.img_name} alt={`${item.c_name} 예시`} />
+                      <img
+                        src={thumbnail.img_name}
+                        alt={`${item.c_name} 예시`}
+                      />
                     ) : (
                       <span>이미지 없음</span>
                     )}
                   </div>
 
                   <div className="interior-example-info">
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      flexWrap="wrap"
+                      useFlexGap
+                    >
                       <Chip label={item.ie_tag} size="small" />
                       <Chip label={item.ie_tag2} size="small" />
                     </Stack>
@@ -229,7 +239,10 @@ const InteriorAllExample = () => {
       ))}
 
       {example.length === 0 && (
-        <Typography color="text.secondary" sx={{ mt: 3 }}>
+        <Typography
+          className="interior-all-example-empty"
+          color="text.secondary"
+        >
           등록된 예시가 없습니다.
         </Typography>
       )}
