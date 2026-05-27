@@ -126,7 +126,18 @@ public class HomeService {
 				String.valueOf(item.getF_catagory5())
 			).toLowerCase();
 	}
-	
+	//f_catagory1 검색은 bed 검색시 침대도 같이 잡게 하는거
+	private boolean containsAny(String text, String... words) {
+	    if (text == null) return false;
+
+	    for (String word : words) {
+	        if (word != null && text.contains(word.toLowerCase())) {
+	            return true;
+	        }
+	    }
+
+	    return false;
+	}
 	private int getRecommendScore(FurnitureDTO item, UserDTO user) {
 	    if (user == null) {
 	        return 0;
@@ -138,32 +149,31 @@ public class HomeService {
 	    String text = furnitureText(item);
 
 	    if ("female".equals(gender)) {
-	        if (text.contains("침대")) score += 3;
-	        if (text.contains("조명")) score += 2;
-	        if (text.contains("수납")) score += 2;
-	        if (text.contains("내추럴") || text.contains("심플")) score += 1;
+	        if (containsAny(text, "침대", "bed", "bedframe", "bunkbed", "mattress")) score += 3;
+	        if (containsAny(text, "조명", "light")) score += 2;
+	        if (containsAny(text, "수납", "storage", "drawer", "shelf", "bookcase", "cabinet", "closet")) score += 2;
+	        if (containsAny(text, "내추럴", "natural") || containsAny(text, "심플", "simple")) score += 1;
 	    }
-
 	    if ("male".equals(gender)) {
-	        if (text.contains("책상")) score += 3;
-	        if (text.contains("의자")) score += 2;
-	        if (text.contains("수납")) score += 2;
-	        if (text.contains("모던") || text.contains("심플")) score += 1;
+	        if (containsAny(text, "책상", "desk", "computerdesk")) score += 3;
+	        if (containsAny(text, "의자", "chair", "diningchair", "officechair", "stool", "bench")) score += 2;
+	        if (containsAny(text, "수납", "storage", "drawer", "shelf", "bookcase", "cabinet")) score += 2;
+	        if (containsAny(text, "모던", "modern") || containsAny(text, "심플", "simple")) score += 1;
 	    }
 
 	    if (age >= 20 && age < 30) {
-	        if (text.contains("원룸")) score += 3;
-	        if (text.contains("책상")) score += 2;
-	        if (text.contains("조명")) score += 2;
-	        if (text.contains("소파")) score += 1;
+	        if (containsAny(text, "원룸", "singlehousehold", "smallspace")) score += 3;
+	        if (containsAny(text, "책상", "desk", "computerdesk")) score += 2;
+	        if (containsAny(text, "조명", "light")) score += 2;
+	        if (containsAny(text, "소파", "sofa", "sofabed")) score += 1;
 	    } else if (age >= 30 && age < 40) {
-	        if (text.contains("소파")) score += 3;
-	        if (text.contains("침대")) score += 2;
-	        if (text.contains("식탁")) score += 2;
+	        if (containsAny(text, "소파", "sofa", "sofabed", "recliner")) score += 3;
+	        if (containsAny(text, "침대", "bed", "bedframe", "mattress")) score += 2;
+	        if (containsAny(text, "식탁", "table", "diningchair")) score += 2;
 	    } else if (age >= 40) {
-	        if (text.contains("침대")) score += 2;
-	        if (text.contains("소파")) score += 2;
-	        if (text.contains("수납")) score += 3;
+	        if (containsAny(text, "침대", "bed", "bedframe", "mattress")) score += 2;
+	        if (containsAny(text, "소파", "sofa", "recliner")) score += 2;
+	        if (containsAny(text, "수납", "storage", "drawer", "shelf", "cabinet", "closet")) score += 3;
 	    }
 
 	    if (item.getF_discount() > 0) {

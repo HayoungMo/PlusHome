@@ -1,6 +1,8 @@
 import React from "react";
 import SelectMui from "./SelectMui";
 
+//카테고리 적용이 많아서 컴포넌트 파일로 빼둠
+
 export const customCategoryValue = "custom";
 export const customCategoryPrefix = "custom:";
 
@@ -26,15 +28,38 @@ const makeOptions = (items) =>
 export const furnitureCategoryOptions = {
     f_catagory1: makeOptions([
         ["bed", "침대"],
-        ["sofa", "소파"],
-        ["desk", "책상"],
-        ["chair", "의자"],
-        ["table", "식탁"],
-        ["storage", "수납장"],
-        ["light", "조명"],
+        ["bedFrame", "침대프레임"],
+        ["bunkBed", "이층침대"],
         ["mattress", "매트리스"],
-        ["dresser", "화장대"],
+        ["sofa", "소파"],
+        ["sofaBed", "소파베드"],
+        ["recliner", "리클라이너"],
+        ["table", "식탁"],
+        ["coffeeTable", "거실테이블"],
+        ["sideTable", "사이드테이블"],
+        ["lowTable", "좌식테이블"],
+        ["desk", "책상"],
+        ["computerDesk", "컴퓨터책상"],
+        ["chair", "의자"],
+        ["diningChair", "식탁의자"],
+        ["officeChair", "사무용의자"],
+        ["stool", "스툴"],
+        ["bench", "벤치"],
+        ["storage", "수납장"],
+        ["drawer", "서랍장"],
+        ["shelf", "선반"],
+        ["bookcase", "책장"],
+        ["cabinet", "캐비닛"],
         ["closet", "옷장"],
+        ["dresser", "화장대"],
+        ["tvStand", "TV장"],
+        ["shoeCabinet", "신발장"],
+        ["hanger", "행거"],
+        ["mirror", "거울"],
+        ["partition", "파티션"],
+        ["rug", "러그"],
+        ["curtain", "커튼"],
+        ["light", "조명"],
     ]),
     f_catagory2: makeOptions([
         ["bedroom", "침실"],
@@ -84,6 +109,25 @@ const legacyValueToCode = Object.values(furnitureCategoryOptions)
         return map;
     }, {});
 
+const legacyCategoryAliases = {
+    수납: "storage",
+    테이블: "table",
+    밥상: "table",
+    쇼파: "sofa",
+    장롱: "closet",
+    붙박이장: "closet",
+    화장대의자: "chair",
+    티비장: "tvStand",
+    TV다이: "tvStand",
+    거실장: "tvStand",
+    카페트: "rug",
+    카펫: "rug",
+    조명기구: "light",
+    lighting: "light",
+};
+
+Object.assign(legacyValueToCode, legacyCategoryAliases);
+
 export const getFurnitureCategorySelectOptions = (field) => [
     { value: "", title: `${furnitureCategoryLabels[field]} 선택` },
     ...(furnitureCategoryOptions[field] || []),
@@ -119,7 +163,7 @@ export const getFurnitureCategoryTitle = (value) => {
 };
 
 export const getFurnitureCategoryCode = (value) => {
-    const text = String(value || "");
+    const text = String(value || "").trim();
 
     return legacyValueToCode[text] || text;
 };

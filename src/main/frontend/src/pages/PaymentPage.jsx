@@ -152,19 +152,21 @@ const PaymentPage = () => {
       }
 
     if (couponType === "catagory") {
-      const itemCategories = [
-        item.furniture?.f_catagory1,
-        item.furniture?.f_catagory2,
-        item.furniture?.f_catagory3,
-        item.furniture?.f_catagory4,
-        item.furniture?.f_catagory5,
-      ].filter(Boolean);
+        const itemCategories = [
+          item.furniture?.f_catagory1,
+          item.furniture?.f_catagory2,
+          item.furniture?.f_catagory3,
+          item.furniture?.f_catagory4,
+          item.furniture?.f_catagory5,
+        ]
+          .filter(Boolean)
+          .map(getFurnitureCategoryCode);
 
-      return itemCategories.includes(couponCatagory);
-    }
+        return itemCategories.includes(getFurnitureCategoryCode(couponCatagory));
+      }
 
-      return false;
-  };
+    return false;
+    };
 
   const getItemCouponDiscount = (item) => {
     const couponCode = itemCouponMap[item.c_code];

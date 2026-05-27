@@ -233,7 +233,7 @@ const SearchPage = () => {
         { value: "", title: "전체 카테고리" },
         ...filterOptions.furnitureCategories.map((item) => ({
             value: item,
-            title: getFurnitureCategoryCode(item),
+            title: getFurnitureCategoryTitle(item),
         })),
     ];
 
@@ -360,14 +360,19 @@ const SearchPage = () => {
             if (!word) return allFurniture;
 
             return allFurniture.filter((item) => {
-                const fields = [
+               const fields = [
                     item.f_name,
                     item.c_name,
                     item.f_catagory1,
+                    getFurnitureCategoryTitle(item.f_catagory1),
                     item.f_catagory2,
+                    getFurnitureCategoryTitle(item.f_catagory2),
                     item.f_catagory3,
+                    getFurnitureCategoryTitle(item.f_catagory3),
                     item.f_catagory4,
+                    getFurnitureCategoryTitle(item.f_catagory4),
                     item.f_catagory5,
+                    getFurnitureCategoryTitle(item.f_catagory5),
                 ];
 
             return fields.some((value) =>
