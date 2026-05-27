@@ -73,9 +73,10 @@ const CouponAdd = ({onCreated}) => {
   useEffect(()=>{
     const fetchCompany = async() => {
       const result = await CompanyService.getLists();
-
+      
+      // 쿠폰 적용 시 c_id로 업체를 비교하므로 value는 c_id만 사용하게 바꿈
       const optionList = result.map((item) => ({
-        value: item.c_id + "_" + item.c_kind + "_" + item.c_name,
+        value: item.c_id ,
         title: item.c_name,
       }));
 

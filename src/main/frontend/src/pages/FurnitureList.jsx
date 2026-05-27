@@ -5,6 +5,7 @@ import LikeService from "../service/likeService";
 import Loading from "../components/Loading";
 import { Snackbar } from "@mui/material";
 import AlertMui from "../components/AlertMui";
+import { getFurnitureCategorySelectOptions } from "../components/FurnitureCategorySelect";
 
 const FurnitureList = () => {
     const location = useLocation();
@@ -268,9 +269,13 @@ const FurnitureList = () => {
                     marginBottom: "16px",
                 }}
             >
+                {/* 기존 검색어가 남지 않게 수정 - 0527 모하영 */}
                 <select
                     value={searchKey}
-                    onChange={(evt) => setSearchKey(evt.target.value)}
+                    onChange={(evt) => {
+                            setSearchKey(evt.target.value);
+                            setSearchValue("");
+                        }}
                     style={{
                         height: "36px",
                         border: "1px solid #ddd",
@@ -283,22 +288,36 @@ const FurnitureList = () => {
                     <option value="c_name">업체명</option>
                 </select>
 
-                <input
-                    value={searchValue}
-                    onChange={(evt) => setSearchValue(evt.target.value)}
-                    onKeyDown={(evt) => {
-                        if (evt.key === "Enter") {
-                        onSearch();
-                        }
-                    }}
-                    placeholder="검색어"
-                    style={{
-                        height: "36px",
-                        border: "1px solid #ddd",
-                        borderRadius: "4px",
-                        padding: "0 10px",
-                    }}
-                />
+                {searchKey === "f_catagory1" ? (
+                    <select
+                        value={searchValue}
+                        onChange={(evt) => setSearchValue(evt.target.value)}
+                        style={{
+                            height: "36px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                            padding: "0 8px",
+                        }}
+                    >
+                        {getFurnitureCategorySelectOptions("f_catagory1").map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.title}
+                            </option>
+                        ))}
+                    </select>
+                ) : (
+                    <input
+                        value={searchValue}
+                        onChange={(evt) => setSearchValue(evt.target.value)}
+                        placeholder="검색어"
+                        style={{
+                            height: "36px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                            padding: "0 10px",
+                        }}
+                    />
+                )}
 
                 <button
                     onClick={onSearch}
