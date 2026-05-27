@@ -10,7 +10,7 @@ import InteriorCreated from "./pages/InteriorCreated";
 import InteriorQuestion from "./pages/InteriorQuestion";
 import JoinUserPage from "./pages/JoinUserPage";
 import LoginPage from "./pages/LoginPage";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import ExportPDF from "./pages/ExportPDF";
 import ExportPDFViewPage from "./pages/ExportPDFViewPage";
 import FurnitureList from "./pages/FurnitureList";
@@ -45,8 +45,57 @@ import EventUpdate from "./components/EventUpdate";
 import EventCreated from "./components/EventCreated";
 
 function App() {
+
+  //5월 27일 토큰 만료 시 자동 로그아웃을 위함 - 안예린 추가
     const [loginUser, setLoginUser] = useState(null);
-    const [loginInfo, setLoginInfo] = useState(null);
+    const [loginInfo, setLoginInfo] = useState(null);   
+   
+    useEffect(()=>{
+
+      const checkToken = () =>{
+        const token = localStorage.getItem("token")
+
+        if(!token) return
+
+        try{
+          const payload = JSON.parse(
+            atob(token.split(".")[1])
+          )
+
+          const exp = payload.exp * 1000;
+
+          //토큰 만료
+          if(Date.now() >= exp){
+
+            localStorage.removeItem("token")
+            localStorage.removeItem("user")
+            localStorage.removeItem("id")
+
+            setLoginUser(null);
+            setLoginInfo(null)
+
+            alert("로그인이 만료되었습니다.")
+
+            window.location.href="/login"
+
+          }
+
+        } catch(e){
+          console.log("토큰 에러:",e)
+          localStorage.clear()
+          window.location.href = "/login"
+        }
+
+      }
+
+      //최초 실행
+      checkToken()
+
+      //10초마다 검사요???????????
+      const interval = setInterval(checkToken,10000);
+      return () => clearInterval(interval)
+
+    },[])
 
     return (
       <div className="App">
