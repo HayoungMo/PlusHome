@@ -89,18 +89,24 @@ const FurnitureList = () => {
             return;
         }
 
-        list.forEach((item) => {
-            LikeService.checkFurnitureLike(item.f_code)
-                .then((res) => {
-                    setLikedMap((prev) => ({
-                        ...prev,
-                        [item.f_code]: res.data?.liked || false,
-                    }));
-                })
-                .catch((error) => {
-                    console.error("찜 여부 확인 실패", error);
-                });
-        });
+        LikeService.getMyFurnitureLikes()
+            .then((res) => {
+            const likedCodes = new Set(
+                (res.data || []).map((item) => item.f_code)
+            );
+
+            const nextLikedMap = {};
+
+            list.forEach((item) => {
+                nextLikedMap[item.f_code] = likedCodes.has(item.f_code);
+            });
+
+            setLikedMap(nextLikedMap);
+            })
+            .catch((error) => {
+            console.error("찜 목록 조회 실패", error);
+            setLikedMap({});
+            });
     }, [list]);
 
     const getList = async (page = pageNum) => {
@@ -223,7 +229,7 @@ const FurnitureList = () => {
         return(
             <>
                 {feedback}
-                <Loading message="상품 목록을 불러오는 중입니다." />;
+                <Loading message="상품 목록을 불러오는 중입니다." />
             </>
         )
     }
@@ -280,6 +286,11 @@ const FurnitureList = () => {
                 <input
                     value={searchValue}
                     onChange={(evt) => setSearchValue(evt.target.value)}
+                    onKeyDown={(evt) => {
+                        if (evt.key === "Enter") {
+                        onSearch();
+                        }
+                    }}
                     placeholder="검색어"
                     style={{
                         height: "36px",
@@ -357,7 +368,7 @@ const FurnitureList = () => {
                         marginTop: "20px",
                     }}
                 >
-                    가구 목록을 불러올 수 없습니다
+                    조건에 맞는 상품이 없습니다.
                 </div>
             ) : (
                 <>
@@ -429,6 +440,7 @@ const FurnitureList = () => {
         onClick={(evt) => onToggleLike(evt, item.f_code)}
         onKeyDown={(evt) => {
             if (evt.key === "Enter" || evt.key === " ") {
+                evt.preventDefault();
                 onToggleLike(evt, item.f_code);
             }
         }}
@@ -558,10 +570,15 @@ const FurnitureList = () => {
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
+                                if (pageNum <= 1) return;
                                 navigate(makeListUrl(prevPage));
                             }}
-                        >
-                            ◀ 이전
+                            style={{
+                                pointerEvents: pageNum <= 1 ? "none" : "auto",
+                                color: pageNum <= 1 ? "#aaa" : "blue",
+                            }}
+                            >
+                        ◀ 이전
                         </a>
 
                         {pageCount > 0 &&
@@ -587,15 +604,20 @@ const FurnitureList = () => {
                                 </a>
                             ))}
 
-                        <a
+                            <a
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
+                                if (pageNum >= totalPage) return;
                                 navigate(makeListUrl(nextPage));
                             }}
-                        >
+                            style={{
+                                pointerEvents: pageNum >= totalPage ? "none" : "auto",
+                                color: pageNum >= totalPage ? "#aaa" : "blue",
+                            }}
+                            >
                             다음 ▶
-                        </a>
+                            </a>
                     </div>
                 </>
             )}
