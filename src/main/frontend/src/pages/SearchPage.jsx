@@ -15,6 +15,10 @@ import {
     Chip,
     Stack,
         } from '@mui/material';
+import {
+    getFurnitureCategoryCode,
+    getFurnitureCategoryTitle,
+        } from "../components/FurnitureCategorySelect";
 
 const SearchPage = () => {
 
@@ -181,8 +185,10 @@ const SearchPage = () => {
         const categorySet = new Set();
 
         list.forEach((item) => {
-            if (item.f_catagory1) {
-                categorySet.add(item.f_catagory1);
+
+            const categoryCode = getFurnitureCategoryCode(item.f_catagory1);
+            if (categoryCode) {
+                categorySet.add(categoryCode);
             }
         });
 
@@ -227,7 +233,7 @@ const SearchPage = () => {
         { value: "", title: "전체 카테고리" },
         ...filterOptions.furnitureCategories.map((item) => ({
             value: item,
-            title: item,
+            title: getFurnitureCategoryCode(item),
         })),
     ];
 
@@ -252,7 +258,7 @@ const SearchPage = () => {
             );
 
             const matchCategory =
-                !category || item.f_catagory1 === category;
+                !category || getFurnitureCategoryCode(item.f_catagory1) === category;
 
 
             const matchMinPrice =

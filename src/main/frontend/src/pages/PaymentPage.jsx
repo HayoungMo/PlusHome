@@ -30,6 +30,10 @@ import CartService from "../service/cartService";
 import WalletChargeMui from "../components/WalletChargeMui";
 import TextFieldMui from "../components/TextFieldMui";
 import Address from "../maps/Address";
+import {
+    getFurnitureCategoryCode,
+    getFurnitureCategoryTitle,
+} from "../components/FurnitureCategorySelect";
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -121,21 +125,31 @@ const PaymentPage = () => {
   Number(stateItemCount || 0) ||
   items.reduce((sum, item) => sum + Number(item.f_count || 0), 0);
 
-  const canApplyCouponToItem = (couponItem, item) => {
-    const couponType = couponItem.coupon_type || "all";
-    const couponCatagory = couponItem.coupon_catagory || "";
+  const getCouponCompanyId = (couponCatagory) => {
+    const parts = (couponCatagory || "").split("_");
 
-    if (couponType === "all") {
-      return true;
+    if (parts.length < 3) {
+      return couponCatagory;
     }
 
-    if (!couponCatagory) {
-      return false;
-    }
+    return parts.slice(0, -2).join("_");
+  };
 
-    if (couponType === "company") {
-      return couponCatagory === item.furniture?.c_id;
-    }
+    const canApplyCouponToItem = (couponItem, item) => {
+      const couponType = couponItem.coupon_type || "all";
+      const couponCatagory = couponItem.coupon_catagory || "";
+
+      if (couponType === "all") {
+        return true;
+      }
+
+      if (!couponCatagory) {
+        return false;
+      }
+
+      if (couponType === "company") {
+        return getCouponCompanyId(couponCatagory) === item.furniture?.c_id;
+      }
 
     if (couponType === "catagory") {
       const itemCategories = [
@@ -149,7 +163,7 @@ const PaymentPage = () => {
       return itemCategories.includes(couponCatagory);
     }
 
-    return false;
+      return false;
   };
 
   const getItemCouponDiscount = (item) => {
@@ -394,7 +408,7 @@ const PaymentPage = () => {
     }
 
     if (couponType === "catagory"){
-      return `카테고리 적용: ${couponCatagory}`
+      return `카테고리 적용: ${getFurnitureCategoryTitle(couponCatagory)}`
     }
 
     return "적용 범위 확인 필요"
@@ -819,7 +833,7 @@ const PaymentPage = () => {
         fullWidth
       >
         <DialogTitle fontWeight={700}>
-          {paySuccess ? "결제 완료" : "결제 확인"}
+          {paySuccess ? "" : "결제 확인"}
         </DialogTitle>
 
         <DialogContent>
