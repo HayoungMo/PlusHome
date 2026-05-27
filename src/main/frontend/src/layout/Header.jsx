@@ -22,9 +22,6 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 		}
 
 		setSearchKeyword("");
-
-		navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=all&page=1`);
-		setSearchKeyword("");
 	};
 
 	const logout = () => {
@@ -40,9 +37,16 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	return (
 		<header className="shop-header">
 			<div className="shop-header-inner">
-				<Link to="/" className="shop-logo">
+				<a 
+					href="/"
+					className="shop-logo"
+					onClick={(evt) => {
+						evt.preventDefault();
+						window.location.href = "/";
+					}}
+				>
 					PlusHome
-				</Link>
+				</a>
 
 				<form className="shop-search" onSubmit={onSearch}>
 					<input

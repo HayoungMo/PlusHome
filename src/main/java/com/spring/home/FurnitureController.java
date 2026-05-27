@@ -45,7 +45,12 @@ public class FurnitureController {
 			@RequestParam(defaultValue = "1") int pageNum,
 			@RequestParam(defaultValue = "f_name") String searchKey,
 			@RequestParam(defaultValue = "") String searchValue,
-			@RequestParam(defaultValue = "latest") String sort) throws Exception {
+			@RequestParam(defaultValue = "latest") String sort,
+			@RequestParam(defaultValue = "") String f_catagory1,
+			@RequestParam(defaultValue = "") String f_catagory2,
+			@RequestParam(defaultValue = "") String f_catagory3,
+			@RequestParam(defaultValue = "") String f_catagory4,
+			@RequestParam(defaultValue = "") String f_catagory5) throws Exception {
 
 		int numPerPage = 8; // 한 페이지 당 가구 몇개 보이는지
 		// 변수이름이 왜 이렇게 된건지는 물어보지 말아주시길
@@ -69,10 +74,39 @@ public class FurnitureController {
 				&& !sort.equals("salesHigh")) {
 			sort = "latest";
 		}
+		//카타고리 1을 위해서 필터를 걸어줬습니다. 0527 모하영
+		String[] categoryFilters = furnitureService.getEffectiveCategoryFilters(
+		        searchKey,
+		        searchValue,
+		        f_catagory1,
+		        f_catagory2,
+		        f_catagory3,
+		        f_catagory4,
+		        f_catagory5
+		);
 
-		List<FurnitureDTO> list = furnitureService.getLists(start, end, searchKey, searchValue,sort);
+		List<FurnitureDTO> list = furnitureService.getLists(
+		        start,
+		        end,
+		        searchKey,
+		        searchValue,
+		        sort,
+		        categoryFilters[0],
+		        categoryFilters[1],
+		        categoryFilters[2],
+		        categoryFilters[3],
+		        categoryFilters[4]
+		);
 
-		int totalCount = furnitureService.countSearchData(searchKey, searchValue);
+		int totalCount = furnitureService.countSearchData(
+		        searchKey,
+		        searchValue,
+		        categoryFilters[0],
+		        categoryFilters[1],
+		        categoryFilters[2],
+		        categoryFilters[3],
+		        categoryFilters[4]
+		);
 
 		int totalPage = (int) Math.ceil((double) totalCount / numPerPage);
 

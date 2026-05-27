@@ -42,7 +42,26 @@ public class PaymentService {
 	
 	//대소문자 구분 안함
 	private String normalizeCouponValue(String value) {
-	    return value == null ? "" : value.trim().toLowerCase();
+		//침대 -> bed 변환이 안되서, 백에서 터질수 있어서 임시 방지
+		if (value == null) {
+	        return "";
+	    }
+
+	    String text = value.trim();
+
+	    switch (text) {
+	        case "침대": return "bed";
+	        case "소파": return "sofa";
+	        case "책상": return "desk";
+	        case "의자": return "chair";
+	        case "식탁": return "table";
+	        case "수납장": return "storage";
+	        case "조명": return "light";
+	        case "매트리스": return "mattress";
+	        case "화장대": return "dresser";
+	        case "옷장": return "closet";
+	        default: return text.toLowerCase();
+	    }
 	}
 	
 	private void updateWallet(String id, int money) throws Exception {

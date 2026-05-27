@@ -1,47 +1,67 @@
 .interior-review-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 28px 18px;
 }
 
 .interior-review-item {
   display: flex;
   flex-direction: column;
-  min-height: 260px;
-  padding: 18px;
-  border: 1px solid #edf0f3;
-  border-radius: 8px;
-  background: #ffffff;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: transform 0.18s ease;
+}
+
+.interior-review-item:hover {
+  transform: translateY(-2px);
 }
 
 .interior-review-item p {
   margin: 0 0 10px;
   font-size: 16px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: #2f3438;
 }
 
 .interior-review-content {
-  min-height: 72px;
-  color: #374151;
-  line-height: 1.55;
+  order: 2;
+  min-height: 0;
+  padding-top: 11px;
+  color: #008cff;
+  font-size: 14px;
+  line-height: 1.5;
+  display: -webkit-box;
   overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .interior-review-image-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 16px;
+  order: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .interior-review-thumb {
-  width: 96px;
-  height: 96px;
+  width: 100%;
+  aspect-ratio: 1 / 0.76;
   border-radius: 8px;
   overflow: hidden;
-  background: #f6f7f9;
+  background: #f7f9fa;
+  box-shadow: inset 0 0 0 1px #eaedef;
+}
+
+.interior-review-thumb:first-child:nth-last-child(1) {
+  grid-column: 1 / -1;
+  aspect-ratio: 1 / 0.68;
 }
 
 .interior-review-thumb img {
@@ -50,6 +70,12 @@
   object-fit: cover;
   display: block;
   cursor: pointer;
+  transition: transform 0.22s ease, filter 0.22s ease;
+}
+
+.interior-review-thumb img:hover {
+  filter: brightness(0.97);
+  transform: scale(1.025);
 }
 
 .interior-review-modal {
@@ -60,16 +86,16 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(47, 52, 56, 0.74);
   box-sizing: border-box;
 }
 
 .interior-review-modal-content {
   width: min(960px, 88vw);
   height: min(680px, 82vh);
-  padding: 18px;
+  padding: 12px;
   border-radius: 8px;
-  background: #111827;
+  background: #fff;
   box-sizing: border-box;
 }
 
@@ -83,6 +109,7 @@
 @media (max-width: 640px) {
   .interior-review-list {
     grid-template-columns: 1fr;
+    gap: 22px;
   }
 
   .interior-review-modal {

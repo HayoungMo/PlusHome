@@ -12,6 +12,7 @@ import {
 import EventService from "../service/eventService";
 import GetImgDir from "../resources/function/GetImgDir";
 import CouponDownload from "../components/CouponDownload";
+import "../css/CouponArticleDownload.css";
 
 const EventArticle = () => {
   const navigate = useNavigate();
@@ -216,112 +217,56 @@ const EventArticle = () => {
       </Typography>
 
       {couponList.length > 0 && (
-        <Box sx={{ mt: 4, mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            이벤트 쿠폰
-          </Typography>
-          {couponList.map((coupon) => (
-            <Box
-              key={`${coupon.coupon_code}-${coupon.id}`}
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 2,
-                border: "1px solid #e5e5e5",
-                borderRadius: 1.5,
-                p: { xs: 1.5, sm: 2 },
-                mb: 1.5,
-                bgcolor: "#fff",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  width: "100%",
-                  minWidth: 0,
-                }}
+        <section className="coupon-article-download">
+          <div className="coupon-article-download-header">
+            <div>
+              <p className="coupon-article-download-eyebrow">COUPON</p>
+              <h3>이벤트 쿠폰</h3>
+            </div>
+            <span>{couponList.length}개</span>
+          </div>
+
+          <div className="coupon-article-download-list">
+            {couponList.map((coupon) => (
+              <article
+                className="coupon-article-download-card coupon-event-download-card"
+                key={`${coupon.coupon_code}-${coupon.id}`}
               >
-                <Box
-                  sx={{
-                    width: 88,
-                    height: 88,
-                    borderRadius: 1,
-                    border: "1px solid #eee",
-                    bgcolor: "#f5f5f5",
-                    flexShrink: 0,
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
+                <div className="coupon-article-download-badge">할인</div>
+
+                <div className="coupon-event-download-logo">
                   {getCouponLogo(coupon) ? (
-                    <Box
-                      component="img"
-                      src={getCouponLogo(coupon)}
-                      alt=""
-                      sx={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
+                    <img src={getCouponLogo(coupon)} alt="" />
                   ) : (
-                    <Typography
-                      sx={{
-                        px: 1,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "text.secondary",
-                        textAlign: "center",
-                      }}
-                    >
-                      COUPON
-                    </Typography>
+                    <span>COUPON</span>
                   )}
-                </Box>
+                </div>
 
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography
-                    sx={{
-                      fontWeight: 800,
-                      lineHeight: 1.35,
-                      wordBreak: "keep-all",
-                    }}
-                  >
-                    {coupon.coupon_info}
-                  </Typography>
-                  <Typography color="text.secondary">
-                    할인 {coupon.discount} / 최대 {coupon.coupon_max}
-                  </Typography>
-                  <Typography color="text.secondary">
-                    유효기간 {coupon.coupon_end}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box
-                sx={{
-                  alignSelf: { xs: "stretch", sm: "center" },
-                  "& .MuiButton-root": {
-                    width: { xs: "100%", sm: "auto" },
-                    minWidth: 112,
-                    whiteSpace: "nowrap",
-                  },
-                }}
-              >
-                <CouponDownload coupon={coupon} />
-              </Box>
-            </Box>
-          ))}
-        </Box>
+                <div className="coupon-article-download-main">
+                  <strong>{coupon.discount}%</strong>
+                  <p>{coupon.coupon_info}</p>
+                </div>
+
+                <dl className="coupon-article-download-meta">
+                  <div>
+                    <dt>최대 할인 금액</dt>
+                    <dd>{coupon.coupon_max || "-"}</dd>
+                  </div>
+                  <div>
+                    <dt>사용 기한</dt>
+                    <dd>{coupon.coupon_end || "상시"}</dd>
+                  </div>
+                </dl>
+
+                <CouponDownload
+                  coupon={coupon}
+                  className="coupon-event-download-button"
+                />
+              </article>
+            ))}
+          </div>
+        </section>
       )}
-
       <Button variant="contained" onClick={() => navigate("/event")}>
         목록으로
       </Button>
