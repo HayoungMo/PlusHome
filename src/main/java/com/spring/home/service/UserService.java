@@ -199,8 +199,30 @@ public class UserService {
 		return result;
 	}
 	
+	// 이메일, 전화번호 형식 
+	private boolean isBlank(String value) {
+		return value == null || value.trim().isEmpty();
+	}
+	
+	private void validateMyPageUser(UserDTO user) {
+		String email = user.getEmail() == null ? "" : user.getEmail().trim();
+
+		if (!email.isEmpty()
+		        && !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+		    throw new RuntimeException("이메일 형식이 올바르지 않습니다.");
+		}
+		
+		if (!isBlank(user.getTel())
+		            && !user.getTel().matches("^01[016789]\\d{7,8}$")) {
+		    throw new RuntimeException("전화번호는 하이픈 없이 입력해주세요.");
+		}
+	}
+	
 	public void updateMyPageUser(UserDTO user) throws Exception {
-	    if (user.getPw() != null && !user.getPw().trim().isEmpty()) {
+	    
+		validateMyPageUser(user);
+		
+		if (user.getPw() != null && !user.getPw().trim().isEmpty()) {
 	        user.setPw(passwordEncoder.encode(user.getPw()));
 	    } else {
 	        user.setPw(null);

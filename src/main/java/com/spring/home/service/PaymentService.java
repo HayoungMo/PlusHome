@@ -14,6 +14,8 @@ import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CartOptionDTO;
 import com.spring.home.dto.CouponDTO;
 import com.spring.home.dto.FurnitureDTO;
+import com.spring.home.dto.FurnitureReviewDTO;
+import com.spring.home.dto.OrderClaimDTO;
 import com.spring.home.dto.PaymentDTO;
 import com.spring.home.dto.StockCheckDTO;
 import com.spring.home.dto.WalletDTO;
@@ -21,7 +23,9 @@ import com.spring.home.mapper.CartMapper;
 import com.spring.home.mapper.CartOptionMapper;
 import com.spring.home.mapper.CouponMapper;
 import com.spring.home.mapper.FurnitureMapper;
+import com.spring.home.mapper.FurnitureReviewMapper;
 import com.spring.home.mapper.OptionsMapper;
+import com.spring.home.mapper.OrderClaimMapper;
 import com.spring.home.mapper.WalletMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +43,8 @@ public class PaymentService {
 	private final OptionsMapper optionsMapper;
 	private final FurnitureMapper furnitureMapper;
 	private final CouponMapper couponMapper;
+	private final FurnitureReviewMapper furnitureReviewMapper;
+	private final OrderClaimMapper orderClaimMapper;
 	
 	//대소문자 구분 안함
 	private String normalizeCouponValue(String value) {
@@ -473,7 +479,39 @@ public class PaymentService {
 	}
 
 	public List<CartDTO> getMyOrders(String id) throws Exception {
-		return cartMapper.getMyOrders(id);
+		List<CartDTO> orderList = cartMapper.getMyOrders(id);
+		
+		if (orderList == null || orderList.isEmpty()) {
+			return orderList;
+		}
+		
+		for(CartDTO order : orderList) {
+			order.setOptions(cartOptionMapper.getByCartCode(order.getC_code()));
+			order.setFurniture(furnitureMapper.getReadData(order.getF_code()));
+		
+			if (order.getF_dstatus() == 5) {
+				FurnitureReviewDTO review = 
+						furnitureReviewMapper.getReviewByCartCode(order.getC_code());
+				
+				order.setReviewed(review != null);
+			}
+			
+			
+            OrderClaimDTO claim =
+                orderClaimMapper.getByCartCode(order.getC_code(), id);
+
+            if (claim != null) {
+                order.setClaimed(true);
+                order.setClaim_type(claim.getClaim_type());
+                order.setClaim_status(claim.getClaim_status());
+                order.setClaim_code(claim.getClaim_code());
+                order.setClaim_reason(claim.getClaim_reason());
+            }
+	        
+			
+		}
+		
+		return orderList;
 	}
 
 	@Transactional

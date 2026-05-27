@@ -20,6 +20,9 @@ import UserCouponPage from './UserCouponPage';
 import WalletChargeMui from '../components/WalletChargeMui';
 import InteriorMyPage from '../components/InteriorMyPage';
 import UserProfileCard from '../components/UserProfileCard';
+import { Snackbar } from "@mui/material";
+import AlertMui from "../components/AlertMui";
+import DialogMui from "../components/DialogMui";
 
 const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const navigate = useNavigate()
@@ -33,6 +36,29 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const [profileImage, setProfileImage] = useState(null);
     const [wallet, setWallet] = useState(null)
     const [point, setPoint] = useState(0)
+    const [profileImageDialogOpen, setProfileImageDialogOpen] = useState(false)
+    const [alert, setAlert] = useState({
+        open: false,
+        severity: "info",
+        title: "",
+        text: "",
+    })
+
+    const showAlert = ({ severity = "info", title = "", text = "" }) => {
+        setAlert({
+            open: true,
+            severity,
+            title,
+            text,
+        })
+    }
+
+    const closeAlert = () => {
+        setAlert((prev) => ({
+            ...prev,
+            open: false,
+        }))
+    }
     
     const getSectionByMenu = (menu) => {
         if (["orders", "wishlist", "reviews", "inquiries"].includes(menu)) {
@@ -118,8 +144,15 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         const token = localStorage.getItem("token")
 
         if(!token){
-            alert("로그인이 필요합니다.")
-            navigate("/login")
+            setLoading(false)
+            showAlert({
+                severity: "warning",
+                title: "로그인 필요",
+                text: "로그인이 필요합니다.",
+            })
+            setTimeout(() => {
+                navigate("/login")
+            }, 800)
             return
         }
 
@@ -167,8 +200,14 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             setUser(parsedUser);
             setLoginUser?.(parsedUser.id);
             }else{
-                alert("사용자 정보를 불러오지 못했습니다.")
-                navigate("/login")
+                showAlert({
+                    severity: "error",
+                    title: "조회 실패",
+                    text: "사용자 정보를 불러오지 못했습니다.",
+                })
+                setTimeout(() => {
+                    navigate("/login")
+                }, 800)
             }
         })
         .finally(()=>{
@@ -187,10 +226,15 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
 
     const onClickProfileImage = () => {
         if(profileImage) {
-            const ok = window.confirm("프로필 이미지 수정?")
-            if (!ok) return
+            setProfileImageDialogOpen(true)
+            return
         }
 
+        fileInputRef.current.click()
+    }
+
+    const onConfirmProfileImageChange = () => {
+        setProfileImageDialogOpen(false)
         fileInputRef.current.click()
     }
 
@@ -204,10 +248,18 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         try {
             const savedImage = await UserPageService.updateProfileImage(file);
             setProfileImage(savedImage);
-            alert("프로필 이미지가 저장되었습니다.");
+            showAlert({
+                severity: "success",
+                title: "저장 완료",
+                text: "프로필 이미지가 저장되었습니다.",
+            })
         } catch (error) {
             console.error(error);
-            alert("프로필 이미지 저장에 실패했습니다.");
+            showAlert({
+                severity: "error",
+                title: "저장 실패",
+                text: "프로필 이미지 저장에 실패했습니다.",
+            })
         } finally {
             evt.target.value = "";
         }
@@ -217,6 +269,42 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         return <Loading message='마이페이지 정보를 불러오는 중입니다.'/>
 
     return (
+        <>
+        <Snackbar
+            open={alert.open}
+            autoHideDuration={3000}
+            onClose={closeAlert}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+            <div>
+                <AlertMui
+                    severity={alert.severity}
+                    title={alert.title}
+                    text={alert.text}
+                    onClose={closeAlert}
+                />
+            </div>
+        </Snackbar>
+
+        <DialogMui
+            open={profileImageDialogOpen}
+            onClose={() => setProfileImageDialogOpen(false)}
+            title="프로필 이미지 수정"
+            text="프로필 이미지를 변경하시겠습니까?"
+            buttons={[
+                {
+                    title: "취소",
+                    onClick: () => setProfileImageDialogOpen(false),
+                },
+                {
+                    title: "변경",
+                    color: "primary",
+                    variant: "contained",
+                    onClick: onConfirmProfileImageChange,
+                },
+            ]}
+        />
+
         <div className={`user-mypage ${activeSection !== "info" ? "wide" : ""}`}>
         {activeSection === "info" && (
             <aside className="user-mypage-menu">
@@ -328,6 +416,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             </section>
             </main>
         </div>
+        </>
         );
 };
 

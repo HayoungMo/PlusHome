@@ -120,12 +120,36 @@ const UserProfilePage = ({
             return;
         }
         
+        const email = form.email.trim()
+        const tel = form.tel.trim()
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const telRegex = /^01[016789]\d{7,8}$/;
+
+        if (email && !emailRegex.test(email)) {
+          showAlert({
+            severity: "warning",
+            title: "이메일 확인",
+            text: "이메일 형식이 올바르지 않습니다.",
+          });
+          return;
+        }
+
+        if (tel && !telRegex.test(tel)) {
+          showAlert({
+            severity: "warning",
+            title: "전화번호 확인",
+            text: "전화번호는 하이픈 없이 입력해주세요.",
+          });
+          return;
+        }
+
         setUpdating(true)
 
         const updateData = {
-          email: form.email,
+          email,
           pw: form.pw,
-          tel: form.tel,
+          tel,
           addr: [form.addr1, form.addr2].filter(Boolean).join("__"),
         };
 

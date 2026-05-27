@@ -83,6 +83,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
     };
 
     const [options, setOptions] = useState([]);
+    const [useOptions, setUseOptions] = useState(false);
     const [deletedOptions, setDeletedOptions] = useState([]);
 
     const [thumbnail, setThumbnail] = useState(null);
@@ -104,14 +105,19 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                 setCategoryData(res);
 
                 const optionRes = await OptionsService.getFurnitureOptions(f_code);
+
+                const optionList = optionRes.data || [];
+
                 setOptions(
-                    (optionRes.data || []).map((option) => ({
+                    optionList.map((option) => ({
                         ...option,
                         o_count: String(option.o_count || 0),
                         o_price: String(option.o_price || 0),
                         isNew: false,
                     }))
                 );
+
+                setUseOptions(optionList.length > 0);
 
                 const imageList = res.imageList || [];
 
@@ -222,7 +228,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
     const changeInput = (evt) => {
         const { name, value } = evt.target;
 
-        const numberFields = ["f_price", "f_discount", "f_point","f_deliveryprice"];
+        const numberFields = ["f_price", "f_discount", "f_point", "f_count", "f_deliveryprice"];
 
         if (numberFields.includes(name)) {
             let numStr = value.replace(/[^0-9]/g, "");
@@ -252,6 +258,11 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
             if (name === "f_point") {
                 if (num < 0) num = 0;
                 updatedData.f_point = String(num);
+            }
+
+            if (name === "f_count") {
+                if (num < 0) num = 0;
+                updatedData.f_count = String(num);
             }
 
             if (name === "f_deliveryprice") {
@@ -331,25 +342,26 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                     return;
                 }
             }
-            const optionList = options
-                .filter(
-                    (option) =>
-                        option.o_select.trim() !== "" || option.o_text.trim() !== ""
-                )
-                .map((option) => ({
-                    o_code: option.o_code,
-                    f_code,
-                    o_select: option.o_select.trim(),
-                    o_text: option.o_text.trim(),
-                    o_count: Number(option.o_count || 0),
-                    o_price: Number(option.o_price || 0),
-                    o_important: option.o_important,
-                }));
+            const optionList = useOptions
+    ? options
+        .filter(
+            (option) =>
+                option.o_select.trim() !== "" || option.o_text.trim() !== ""
+            )
+            .map((option) => ({
+                o_code: option.o_code,
+                f_code,
+                o_select: option.o_select.trim(),
+                o_text: option.o_text.trim(),
+                o_count: Number(option.o_count || 0),
+                o_price: Number(option.o_price || 0),
+                o_important: option.o_important,
+            }))
+        : [];
 
-            const totalOptionCount = optionList.reduce(
-                (sum, option) => sum + Number(option.o_count || 0),
-                0
-            );
+    const totalOptionCount = useOptions
+        ? optionList.reduce((sum, option) => sum + Number(option.o_count || 0), 0)
+        : Number(data.f_count || 0);
 
             const dto = {
                 ...data,
@@ -397,7 +409,7 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
     };
 
     return (
-        <div>
+        <>
             <button onClick={onBack}>가구 리스트</button>
 
             <h3>가구 수정 페이지</h3>
@@ -541,11 +553,56 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
 
             <p>
                 전체 수량:{" "}
-                {options.reduce((sum, option) => sum + Number(option.o_count || 0), 0)}
+                {useOptions
+                    ? options.reduce((sum, option) => sum + Number(option.o_count || 0), 0)
+                    : Number(data.f_count || 0)}
             </p>
 
             <hr />
 
+            <label>
+                <input
+                    type="checkbox"
+                    checked={useOptions}
+                    onChange={(evt) => {
+                        const checked = evt.target.checked;
+                        setUseOptions(checked);
+
+                        if (checked && options.length === 0) {
+                            setOptions([
+                                {
+                                    o_select: "",
+                                    o_text: "",
+                                    o_count: "0",
+                                    o_price: "0",
+                                    o_important: "N",
+                                    isNew: true,
+                                },
+                            ]);
+                        }
+                    }}
+                />
+                옵션 사용
+            </label>
+
+            <br/>
+            
+            {!useOptions && (
+                <>
+                    <label>재고 수량:</label>
+                    <input
+                        name="f_count"
+                        value={data.f_count}
+                        onChange={changeInput}
+                    />
+                    <br />
+                </>
+            )}
+
+            <br />
+
+        {useOptions && (
+        <>
             <h3>옵션 수정</h3>
 
             {options.map((option, index) => (
@@ -613,9 +670,11 @@ const FurnitureUpdatePage = ({ furniture = null, onSuccess }) => {
                 옵션 추가
             </button>
 
+            </>
+    )}
             <br />
             <button onClick={onUpdate}>수정</button>
-        </div>
+        </>
     );
 };
 

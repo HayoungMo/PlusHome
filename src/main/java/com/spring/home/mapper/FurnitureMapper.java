@@ -1,4 +1,4 @@
-package com.spring.home.mapper;
+﻿package com.spring.home.mapper;
 
 import java.util.List;
 
@@ -56,3 +56,4 @@ public interface FurnitureMapper {
 	
 	public int getFurnitureStock(String f_code);
 }
+

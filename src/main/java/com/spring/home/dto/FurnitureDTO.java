@@ -1,4 +1,4 @@
-package com.spring.home.dto;
+﻿package com.spring.home.dto;
 
 import java.util.Date;
 import java.util.List;
@@ -41,3 +41,4 @@ public class FurnitureDTO {
 	
 	private List<ImageDTO> imageList;
 }
+

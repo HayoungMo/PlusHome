@@ -108,28 +108,30 @@ const ImageViewer = ({
 
         <aside className="image-viewer-right">
           <div className="image-viewer-heading">
-            <div className="image-viewer-rating">
-              <span className="image-viewer-stars">
-                {[1, 2, 3, 4, 5].map((score) => {
-                  const fillPercent = Math.max(
-                    0,
-                    Math.min(1, Number(star || 0) - (score - 1))
-                  ) * 100;
+            {star !== undefined && star !== null && Number(star) > 0 && (
+              <div className="image-viewer-rating">
+                <span className="image-viewer-stars">
+                  {[1, 2, 3, 4, 5].map((score) => {
+                    const fillPercent = Math.max(
+                      0,
+                      Math.min(1, Number(star || 0) - (score - 1))
+                    ) * 100;
 
-                  return (
-                    <span
-                      key={score}
-                      className="image-viewer-star"
-                      style={{ "--fill": `${fillPercent}%` }}
-                    >
-                      ★
-                    </span>
-                  );
-                })}
-              </span>
+                    return (
+                      <span
+                        key={score}
+                        className="image-viewer-star"
+                        style={{ "--fill": `${fillPercent}%` }}
+                      >
+                        ★
+                      </span>
+                    );
+                  })}
+                </span>
 
-              <strong>{Number(star || 0)}</strong>
-            </div>
+                <strong>{Number(star || 0)}</strong>
+              </div>
+            )}
 
             <h3>{title || currentImage.title || "이미지"}</h3>
           </div>

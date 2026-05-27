@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Snackbar } from "@mui/material";
 
 import PaymentService from "../service/paymentService";
 import CartService from "../service/cartService";
@@ -9,6 +10,8 @@ import OrderClaimService from "../service/orderClaimService";
 import ImageService from "../service/imageService";
 
 import Loading from "../components/Loading";
+import AlertMui from "../components/AlertMui";
+import DialogMui from "../components/DialogMui";
 
 import OrderClaimInfo from "./OrderClaimInfo";
 import OrderClaimModal from "./OrderClaimModal";
@@ -20,20 +23,22 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const [statusFilter, setStatusFilter] = useState("all");
     const [openedClaimImages, setOpenedClaimImages] = useState({})
     const [actionLoading, setActionLoading] = useState(false);
-    	const localUserData = localStorage.getItem("user");
-      const userData = JSON.parse(localUserData);
-      const {
-        addr,
-        birth,
-        code,
-        email,
-        gender,
-        id,
-        name,
-        tel,
-        type,
-        companyList = [],
-      } = userData;
+    const furnitureCacheRef = useRef(new Map());
+    const [alert, setAlert] = useState({
+        open: false,
+        severity: "info",
+        title: "",
+        text: "",
+    });
+    const [confirmDialog, setConfirmDialog] = useState({
+        open: false,
+        title: "",
+        text: "",
+        confirmText: "확인",
+        onConfirm: null,
+    });
+    const localUserData = JSON.parse(localStorage.getItem("user") || "{}");
+    const id = user?.id || localUserData.id;
 
     const [claimModal, setClaimModal] = useState({
         open: false, 
@@ -55,6 +60,48 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             item: null,
             claim_type: null
         });
+    };
+
+    const showAlert = ({ severity = "info", title = "", text = "" }) => {
+        setAlert({
+            open: true,
+            severity,
+            title,
+            text,
+        });
+    };
+
+    const closeAlert = () => {
+        setAlert(prev => ({
+            ...prev,
+            open: false,
+        }));
+    };
+
+    const openConfirmDialog = ({ title, text, confirmText = "확인", onConfirm }) => {
+        setConfirmDialog({
+            open: true,
+            title,
+            text,
+            confirmText,
+            onConfirm,
+        });
+    };
+
+    const closeConfirmDialog = () => {
+        setConfirmDialog(prev => ({
+            ...prev,
+            open: false,
+        }));
+    };
+
+    const handleConfirmDialog = async () => {
+        const action = confirmDialog.onConfirm;
+        closeConfirmDialog();
+
+        if (action) {
+            await action();
+        }
     };
 
     const toggleClaimImages = async (item) => {
@@ -82,7 +129,11 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             }));
         } catch (error) {
             console.error("교환/반품 이미지 조회 실패", error);
-            alert("첨부 이미지를 불러오지 못했습니다.");
+            showAlert({
+                severity: "error",
+                title: "이미지 조회 실패",
+                text: "첨부 이미지를 불러오지 못했습니다.",
+            });
         }
     };
 
@@ -90,10 +141,6 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         if (!user?.id) return
 
         loadOrders();
-
-        const timer = setInterval(loadOrders, 30000);
-
-        return () => clearInterval(timer);
     }, [user?.id]);
 
     const loadOrders = async () => {
@@ -104,78 +151,122 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             const ordersWithDetail = await Promise.all(
                 orderList.map(async (item) => {
                     try {
-                        const optionRes = await CartService.getCartOptions(item.c_code);
+                        let furniture = item.furniture;
 
-                        let furniture = null;
-                        try {
-                            furniture = await FurnitureService.getFurnitureItem(item.f_code);
-                        } catch (error) {
-                            console.error("주문 상품 정보 조회 실패", item.f_code, error);
+                        if (!furniture?.imageList) {
+                            let furniturePromise = furnitureCacheRef.current.get(item.f_code);
+
+                            if (!furniturePromise) {
+                                furniturePromise = FurnitureService.getFurnitureItem(item.f_code)
+                                    .catch((error) => {
+                                        console.error("주문 상품 정보 조회 실패", item.f_code, error);
+                                        return null;
+                                    });
+                                furnitureCacheRef.current.set(item.f_code, furniturePromise);
+                            }
+
+                            furniture = await furniturePromise;
                         }
 
                         const thumbnail = furniture?.imageList?.find(
                             (img) => (img.img_tag || "").trim().toUpperCase() === "THUMBNAIL"
                         );
 
-                        const reviewResult =
-                            Number(item.f_dstatus) === 5
-                                ? await FurnitureReviewService.checkReviewByCart(item.c_code)
-                                : { reviewed: false };
-
-                        const claimResult =
-                            Number(item.f_dstatus) === 4
-                                ? await OrderClaimService.checkClaim(item.c_code)
-                                : { claimed: false };
-
                         return {
                             ...item,
-                            options: optionRes.data || [],
+                            options: item.options || [],
                             furniture,
                             thumbnail: thumbnail?.img_name || null,
-                            reviewed: reviewResult.reviewed || false,
-                            claimed: claimResult.claimed || false,
-                            claim_type: claimResult.claim_type || null,
-                            claim_status: claimResult.claim_status ?? null,
-                            claim_code: claimResult.claim_code || null,
-                            claim_reason: claimResult.claim_reason || "",
+                            reviewed: item.reviewed || false,
+                            claimed: item.claimed || false,
+                            claim_type: item.claim_type || null,
+                            claim_status: item.claim_status ?? null,
+                            claim_code: item.claim_code || null,
+                            claim_reason: item.claim_reason || "",
                         };
                     } catch (error) {
                         console.error("주문 상세 구성 실패", item.c_code, error);
 
                         return {
                             ...item,
-                            options: [],
-                            furniture: null,
+                            options: item.options || [],
+                            furniture: item.furniture || null,
                             thumbnail: null,
-                            reviewed: false,
-                            claimed: false,
-                            claim_type: null,
-                            claim_status: null,
-                            claim_code: null,
-                            claim_reason: "",
+                            reviewed: item.reviewed || false,
+                            claimed: item.claimed || false,
+                            claim_type: item.claim_type || null,
+                            claim_status: item.claim_status ?? null,
+                            claim_code: item.claim_code || null,
+                            claim_reason: item.claim_reason || "",
                         };
                     }
                 })
             );
 
-
             setOrders(ordersWithDetail);
         } catch (error) {
             console.error("주문내역 조회 실패", error);
-            
-            if (error.response?.status === 401 || error.response?.status === 403) {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-                alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-                navigate("/login");
-                return;
-            }
+                
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    showAlert({
+                        severity: "warning",
+                        title: "로그인 만료",
+                        text: "로그인이 만료되었습니다. 다시 로그인해주세요.",
+                    });
+                    setTimeout(() => {
+                        navigate("/login");
+                    }, 800);
+                    return;
+                }
 
-            alert("주문내역 조회에 실패했습니다.");
-
+                showAlert({
+                    severity: "error",
+                    title: "조회 실패",
+                    text: "주문내역 조회에 실패했습니다.",
+                });
         } finally {
             setLoading(false);
         }
+    };
+
+    const updateOrderLocal = (c_code, changes) => {
+        setOrders(prev =>
+            prev.map(item =>
+                item.c_code === c_code
+                    ? { ...item, ...changes }
+                    : item
+            )
+        );
+    };
+
+    const handleClaimSuccess = ({ c_code, claim_type, claim_status, claim_code, claim_reason }) => {
+        updateOrderLocal(c_code, {
+            claimed: true,
+            claim_type,
+            claim_status,
+            claim_code,
+            claim_reason,
+        });
+
+        showAlert({
+            severity: "success",
+            title: claim_type === 1 ? "교환 신청 완료" : "반품 신청 완료",
+            text: claim_type === 1
+                ? "교환 신청이 접수되었습니다."
+                : "반품 신청이 접수되었습니다.",
+        });
+
+        closeClaimModal();
+    };
+
+    const handleClaimError = (message) => {
+        showAlert({
+            severity: "error",
+            title: "신청 실패",
+            text: message,
+        });
     };
 
     const getStatusText = (status) => {
@@ -199,6 +290,56 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         }
     };
 
+    const getOrderListTitle = () => {
+        switch (statusFilter) {
+            case "all":
+                return "주문내역 조회";
+            case "ready":
+                return "주문 완료 내역 조회";
+            case 2:
+                return "출고 내역 조회";
+            case 3:
+                return "배송 내역 조회";
+            case 4:
+                return "배송완료 내역 조회";
+            case 5:
+                return "구매확정 내역 조회";
+            case -1:
+                return "취소 내역 조회";
+            case "exchange":
+                return "교환 내역 조회";
+            case "return":
+                return "반품/환불 내역 조회";
+            default:
+                return "주문내역 조회";
+        }
+    };
+
+    const getEmptyOrderText = () => {
+        switch (statusFilter) {
+            case "all":
+                return "주문 내역이 없습니다.";
+            case "ready":
+                return "배송 준비중 내역이 없습니다.";
+            case 2:
+                return "출고 내역이 없습니다.";
+            case 3:
+                return "배송중 내역이 없습니다.";
+            case 4:
+                return "배송완료 내역이 없습니다.";
+            case 5:
+                return "구매확정 내역이 없습니다.";
+            case -1:
+                return "취소 내역이 없습니다.";
+            case "exchange":
+                return "교환 내역이 없습니다.";
+            case "return":
+                return "반품/환불 내역이 없습니다.";
+            default:
+                return "주문 내역이 없습니다.";
+        }
+    };
+
     const formatOrderDate = (dateValue) => {
         if (!dateValue) return "-";
 
@@ -218,29 +359,62 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const onCancelOrder = async (c_code) => {
         if (actionLoading) return
 
-        if (!window.confirm("주문을 취소하시겠습니까? 결제금액은 지갑으로 환불됩니다.")) return;
+        openConfirmDialog({
+            title: "주문취소",
+            text: "주문을 취소하시겠습니까? 결제금액은 지갑으로 환불됩니다.",
+            confirmText: "주문취소",
+            onConfirm: () => cancelOrder(c_code),
+        });
+    };
 
+    const cancelOrder = async (c_code) => {
         try {
-            setActionLoading(true)
+            setActionLoading(true);
 
             await PaymentService.cancelOrder(c_code);
-            setStatusFilter(-1)
-            await loadOrders()
-            await loadPoint?.()
-            await loadWallet?.()
 
-            alert("주문이 취소되었습니다.");
+            updateOrderLocal(c_code, {
+                f_dstatus: -1,
+                claimed: false,
+                claim_type: null,
+                claim_status: null,
+                claim_code: null,
+                claim_reason: "",
+            });
+
+            setStatusFilter(-1);
+            await loadPoint?.();
+            await loadWallet?.();
+
+            showAlert({
+                severity: "success",
+                title: "취소 완료",
+                text: "주문이 취소되었습니다.",
+            });
         } catch (error) {
             console.error("주문취소 실패", error);
-            alert(error.response?.data?.message || "주문취소에 실패했습니다.");
+            showAlert({
+                severity: "error",
+                title: "취소 실패",
+                text: error.response?.data?.message || "주문취소에 실패했습니다.",
+            });
+        } finally {
+            setActionLoading(false);
         }
     };
 
     const onAddCanceledOrderToCart = async (item) => {
         if (actionLoading) return;
 
-        if (!window.confirm("취소된 상품을 다시 장바구니에 담으시겠습니까?")) return;
+        openConfirmDialog({
+            title: "장바구니 담기",
+            text: "취소된 상품을 다시 장바구니에 담으시겠습니까?",
+            confirmText: "담기",
+            onConfirm: () => addCanceledOrderToCart(item),
+        });
+    };
 
+    const addCanceledOrderToCart = async (item) => {
         try {
             setActionLoading(true)
 
@@ -262,12 +436,21 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                 }))
             });
 
-            await loadOrders()
-            alert("장바구니에 다시 담았습니다.");
+            showAlert({
+                severity: "success",
+                title: "담기 완료",
+                text: "장바구니에 다시 담았습니다.",
+            });
             navigate("/cart");
         } catch (error) {
             console.error("장바구니 담기 실패", error);
-            alert("장바구니 담기에 실패했습니다.");
+            showAlert({
+                severity: "error",
+                title: "담기 실패",
+                text: "장바구니 담기에 실패했습니다.",
+            });
+        } finally {
+            setActionLoading(false)
         }
     };
 
@@ -298,12 +481,6 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             );
         }
 
-        if (statusFilter === "done") {
-            return orders.filter(item =>
-                [4, 5].includes(Number(item.f_dstatus))
-            );
-        }
-
         if (statusFilter === "exchange") {
             return orders.filter(item =>
                 item.claimed && Number(item.claim_type) === 1
@@ -322,30 +499,55 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const onConfirmOrder = async (c_code) => {
         if (actionLoading) return
 
-        if (!window.confirm("구매확정 하시겠습니까?")) return;
+        openConfirmDialog({
+            title: "구매확정",
+            text: "구매확정 하시겠습니까?",
+            confirmText: "구매확정",
+            onConfirm: () => confirmOrder(c_code),
+        });
+    };
 
+    const confirmOrder = async (c_code) => {
         try {
-            setActionLoading(true)
+            setActionLoading(true);
 
-            console.log("구매확정 요청 시작");
             await PaymentService.confirmOrder(c_code);
-            console.log("구매확정 요청 성공");
 
-            await loadOrders();
-            await loadPoint?.()
-            await loadWallet?.()
+            updateOrderLocal(c_code, {
+                f_dstatus: 5,
+                reviewed: false,
+                claimed: false,
+                claim_type: null,
+                claim_status: null,
+                claim_code: null,
+                claim_reason: "",
+            });
 
-            alert("구매확정 되었습니다.");
+            setStatusFilter(5);
+            await loadPoint?.();
+            await loadWallet?.();
+
+            showAlert({
+                severity: "success",
+                title: "구매확정 완료",
+                text: "구매확정 되었습니다.",
+            });
         } catch (error) {
             console.error("구매확정 실패", error);
-            alert(error.response?.data?.message || "구매확정에 실패했습니다.");
+            showAlert({
+                severity: "error",
+                title: "구매확정 실패",
+                text: error.response?.data?.message || "구매확정에 실패했습니다.",
+            });
+        } finally {
+            setActionLoading(false);
         }
     };
 
     const statusCards = [
         {
             key: "ready",
-            label: "배송준비중",
+            label: "주문 완료",
             count: countByStatus(0) + countByStatus(1)
         },
         {
@@ -378,14 +580,42 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
 
     return (
         <div style={{ padding: "20px" }}>
+            <Snackbar
+                open={alert.open}
+                autoHideDuration={3000}
+                onClose={closeAlert}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <div>
+                    <AlertMui
+                        severity={alert.severity}
+                        title={alert.title}
+                        text={alert.text}
+                        onClose={closeAlert}
+                    />
+                </div>
+            </Snackbar>
+
+            <DialogMui
+                open={confirmDialog.open}
+                onClose={closeConfirmDialog}
+                title={confirmDialog.title}
+                text={confirmDialog.text}
+                buttons={[
+                    {
+                        title: "취소",
+                        onClick: closeConfirmDialog,
+                    },
+                    {
+                        title: confirmDialog.confirmText,
+                        color: "primary",
+                        variant: "contained",
+                        disabled: actionLoading,
+                        onClick: handleConfirmDialog,
+                    },
+                ]}
+            />
             
-            <button type="button" onClick={loadOrders}>
-                새로고침
-            </button>
-            
-            <h3 style={{ marginBottom: "18px" }}>
-                나의 주문처리 현황{" "}
-            </h3>
 
             <div
                 style={{
@@ -439,12 +669,12 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                         padding: "18px",
                         border: "none",
                         borderRight: "1px solid #ddd",
-                        background: "white",
+                        background: statusFilter === -1 ? "black" : "white",
+                        color: statusFilter === -1 ? "white" : "black",
                         cursor: "pointer"
                     }}
                 >
                     취소 : {countByStatus(-1)}
-
                 </button>
 
                 <button
@@ -454,7 +684,9 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                         padding: "18px",
                         border: "none",
                         borderRight: "1px solid #ddd",
-                        background: "white"
+                        background: statusFilter === "exchange" ? "black" : "white",
+                        color: statusFilter === "exchange" ? "white" : "black",
+                        cursor: "pointer"
                     }}
                 >
                     교환 : {countByClaimType(1)}
@@ -466,15 +698,17 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                     style={{
                         padding: "18px",
                         border: "none",
-                        background: "white"
+                        background: statusFilter === "return" ? "black" : "white",
+                        color: statusFilter === "return" ? "white" : "black",
+                        cursor: "pointer"
                     }}
                 >
-                    반품 : {countByClaimType(2)}
+                    반품 / 환불 : {countByClaimType(2)}
                 </button>
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "18px" }}>
-                <h3 style={{ margin: 0 }}>주문내역 조회</h3>
+                <h3 style={{ margin: 0 }}>{getOrderListTitle()}</h3>
 
                 <button
                     type="button"
@@ -500,7 +734,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             borderBottom: "1px solid #ddd"
                         }}
                     >
-                        주문 내역이 없습니다.
+                        {getEmptyOrderText()}
                     </div>
                 ) : (
                     filteredOrders.map((item) => (
@@ -601,7 +835,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             {Number(item.f_dstatus) === 4 && (
                             item.claimed ? (
                                 <button type="button" disabled>
-                                    {Number(item.claim_type) === 1 ? "교환" : "반품"}{" "}
+                                    {Number(item.claim_type) === 1 ? "교환" : "반품(환불)"}{" "}
                                     {Number(item.claim_status) === -1
                                         ? "거절"
                                         : Number(item.claim_status) === 0
@@ -621,7 +855,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                     </button>
 
                                     <button type="button" onClick={() => openClaimModal(item, 2)}>
-                                        반품신청
+                                        반품/환불 신청
                                     </button>
                                 </>
                             )
@@ -700,7 +934,8 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                 item={claimModal.item}
                 claimType={claimModal.claim_type}
                 onClose={closeClaimModal}
-                onSuccess={loadOrders}
+                onSuccess={handleClaimSuccess}
+                onError={handleClaimError}
             />
 
         </div>

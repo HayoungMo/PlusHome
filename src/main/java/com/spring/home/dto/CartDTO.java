@@ -1,6 +1,7 @@
-package com.spring.home.dto;
+﻿package com.spring.home.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -38,4 +39,13 @@ public class CartDTO {
 	
 	private int groupLevel;
 	
+	private List<CartOptionDTO> options;
+	private FurnitureDTO furniture;
+	private boolean reviewed;
+	private boolean claimed;
+	private Integer claim_type;
+	private Integer claim_status;
+	private String claim_code;
+	private String claim_reason;
 }
+

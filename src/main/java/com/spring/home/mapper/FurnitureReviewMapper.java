@@ -1,4 +1,4 @@
-package com.spring.home.mapper;
+﻿package com.spring.home.mapper;
 
 import java.util.List;
 
@@ -20,5 +20,5 @@ public interface FurnitureReviewMapper {
 	public void insertReplyData(FurnitureReviewDTO dto) throws Exception;
 
 	public FurnitureReviewDTO getReviewByCartCode(String c_code) throws Exception;
-
 }
+
