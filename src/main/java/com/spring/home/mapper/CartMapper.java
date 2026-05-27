@@ -75,4 +75,7 @@ public interface CartMapper {
 			@Param("id") String id);
 
 
+	public List<CartDTO> findSameCarts(
+			@Param("id") String id,
+			@Param("f_code") String f_code) throws Exception;
 }

@@ -226,6 +226,7 @@ const fetchAllBookingList = async () => {
 };
 
 const AddInterior = async (data) => {
+	console.log(data)
 	try {
 		const res = await http.post("/interior/add/interior", {
 			c_id: data.c_id,

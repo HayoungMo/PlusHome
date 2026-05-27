@@ -229,4 +229,29 @@
 	      AND id = #{id}
 	      AND NVL(coupon_discount, 0) > 0
 	</update>
+	
+	<select id="findSameCarts" resultType="com.spring.home.dto.CartDTO">
+	    SELECT
+	        c_code,
+	        id,
+	        f_code,
+	        f_status,
+	        f_dstatus,
+	        f_count,
+	        f_addr,
+	        f_name,
+	        f_tel,
+	        f_price,
+	        f_point,
+	        pay_total,
+	        use_point,
+	        save_point,
+	        coupon_discount,
+	        cart_statusdate
+	    FROM cart
+	    WHERE id = #{id}
+	      AND f_code = #{f_code}
+	      AND f_status = 'N'
+	    ORDER BY cart_statusdate ASC
+	</select>
 </mapper>

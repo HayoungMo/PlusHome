@@ -93,7 +93,14 @@ public class CartController {
 	        }
 	    }
 
-	    String c_code = cartService.insertData(cartDTO, optionList);
+	    boolean mergeCart = true;
+
+	    Object mergeCartValue = body.get("mergeCart");
+	    if (mergeCartValue instanceof Boolean) {
+	        mergeCart = (Boolean) mergeCartValue;
+	    }
+
+	    String c_code = cartService.insertData(cartDTO, optionList, mergeCart);
 
 	    Map<String, Object> result = new HashMap<>();
 	    result.put("message", "장바구니에 담았습니다.");
