@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.home.dto.CompanyDTO;
-import com.spring.home.dto.FreeBoardDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.mapper.FurnitureMapper;
@@ -40,9 +39,6 @@ public class HomeService {
 
 	@Autowired
 	private InteriorService interiorService;
-
-	@Autowired
-	private FreeBoardService freeBoardService;
 	
 	//알고리즘 
 	@Autowired
@@ -206,19 +202,19 @@ public class HomeService {
 		Map<String, FurnitureDTO> map = new HashMap<>();
 
 		if (keyword.isEmpty()) {
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", "","latest")) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", "","latest", "", "", "", "", "")) {
 				map.put(item.getF_code(), item);
 			}
 		} else {
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", keyword,"latest")) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_name", keyword,"latest", "", "", "", "", "")) {
 				map.put(item.getF_code(), item);
 			}
 
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_catagory1", keyword,"latest")) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "f_catagory1", keyword,"latest", "", "", "", "", "")) {
 				map.put(item.getF_code(), item);
 			}
 
-			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "c_name", keyword,"latest")) {
+			for (FurnitureDTO item : furnitureMapper.getLists(1, 9999, "c_name", keyword,"latest", "", "", "", "", "")) {
 				map.put(item.getF_code(), item);
 			}
 		}
@@ -231,18 +227,6 @@ public class HomeService {
 				Comparator.nullsLast(String::compareTo)));
 
 		return lists;
-	}
-
-	// 자유게시판 검색결과
-	private List<FreeBoardDTO> getFreeBoardSearchResult(String keyword) {
-		try {
-			Map<String, Object> result = freeBoardService.getLists(
-					1, "title", keyword == null ? "" : keyword, "", "guest", "", "");
-			List<FreeBoardDTO> lists = (List<FreeBoardDTO>) result.get("lists");
-			return lists != null ? lists : new ArrayList<>();
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
 	}
 
 	// 인테리어 검색결과
@@ -280,15 +264,12 @@ public class HomeService {
 
 		List<FurnitureDTO> furniture = getFurnitureSearchResult(word);
 		List<CompanyDTO> interior = getInteriorSearchResult(word);
-		List<FreeBoardDTO> freeBoard = getFreeBoardSearchResult(word);
 
 		result.put("furniture", preview(furniture));
 		result.put("interior", preview(interior));
-		result.put("freeBoard", preview(freeBoard));
 
 		result.put("furnitureCount", furniture.size());
 		result.put("interiorCount", interior.size());
-		result.put("freeBoardCount", freeBoard.size());
 
 		return result;
 	}
@@ -319,8 +300,6 @@ public class HomeService {
 			list = getFurnitureSearchResult(word);
 		} else if ("interior".equals(type)) {
 			list = getInteriorSearchResult(word);
-		} else if ("freeboard".equals(type)) {
-			list = getFreeBoardSearchResult(word);
 		} else {
 			list = new ArrayList<>();
 		}

@@ -134,26 +134,56 @@ public class FurnitureService {
 		return f_code;
 	}
 	
-	public List<FurnitureDTO> getLists(int start, int end, String searchKey, String searchValue, String sort) throws Exception{
-		
-		List<FurnitureDTO> lists = furnitureMapper.getLists(start, end, searchKey, searchValue, sort);
-		
-		for(FurnitureDTO dto: lists) {
-			
-			ImageQueryDTO queryDTO = new ImageQueryDTO();
-			
-			queryDTO.setA(dto.getF_code());
-			queryDTO.setKind("FURNITURE");
-			queryDTO.setRange("ONE");
-			queryDTO.setIdx(-1);
-			
-			List<ImageDTO> imageList = imageService.getList(queryDTO);
-			
-			dto.setImageList(imageList);
-			
-		}
-		
-		return lists;
+	public List<FurnitureDTO> getLists(
+	        int start,
+	        int end,
+	        String searchKey,
+	        String searchValue,
+	        String sort
+		) throws Exception {
+		    return getLists(start, end, searchKey, searchValue, sort, "", "", "", "", "");
+	}
+	
+	public List<FurnitureDTO> getLists(
+	        int start,
+	        int end,
+	        String searchKey,
+	        String searchValue,
+	        String sort,
+	        String f_catagory1,
+	        String f_catagory2,
+	        String f_catagory3,
+	        String f_catagory4,
+	        String f_catagory5
+	) throws Exception {
+
+	    List<FurnitureDTO> lists = furnitureMapper.getLists(
+	            start,
+	            end,
+	            searchKey,
+	            searchValue,
+	            sort,
+	            f_catagory1,
+	            f_catagory2,
+	            f_catagory3,
+	            f_catagory4,
+	            f_catagory5
+	    );
+
+	    for (FurnitureDTO dto : lists) {
+	        ImageQueryDTO queryDTO = new ImageQueryDTO();
+
+	        queryDTO.setA(dto.getF_code());
+	        queryDTO.setKind("FURNITURE");
+	        queryDTO.setRange("ONE");
+	        queryDTO.setIdx(-1);
+
+	        List<ImageDTO> imageList = imageService.getList(queryDTO);
+
+	        dto.setImageList(imageList);
+	    }
+
+	    return lists;
 	}
 	
 	public FurnitureDTO getReadData(String f_code) throws Exception{
@@ -344,7 +374,98 @@ public class FurnitureService {
 	}
 	
 	public int countSearchData(String searchKey, String searchValue) {
-		return furnitureMapper.countSearchData(searchKey, searchValue);
+	    return countSearchData(searchKey, searchValue, "", "", "", "", "");
+	}
+
+	public int countSearchData(
+	        String searchKey,
+	        String searchValue,
+	        String f_catagory1,
+	        String f_catagory2,
+	        String f_catagory3,
+	        String f_catagory4,
+	        String f_catagory5
+	) {
+	    return furnitureMapper.countSearchData(
+	            searchKey,
+	            searchValue,
+	            f_catagory1,
+	            f_catagory2,
+	            f_catagory3,
+	            f_catagory4,
+	            f_catagory5
+	    );
+	}
+	//헬퍼를 추가했습니다. 검색결과가 0이면 카타고리1을 사용해서 검색하는걸로.....-0527모하영
+	private boolean isBlank(String value) {
+	    return value == null || value.trim().isEmpty();
+	}
+
+	public String[] getEffectiveCategoryFilters(
+	        String searchKey,
+	        String searchValue,
+	        String f_catagory1,
+	        String f_catagory2,
+	        String f_catagory3,
+	        String f_catagory4,
+	        String f_catagory5
+	) {
+	    int exactCount = countSearchData(
+	            searchKey,
+	            searchValue,
+	            f_catagory1,
+	            f_catagory2,
+	            f_catagory3,
+	            f_catagory4,
+	            f_catagory5
+	    );
+
+	    if (exactCount > 0) {
+	        return new String[] {
+	                f_catagory1,
+	                f_catagory2,
+	                f_catagory3,
+	                f_catagory4,
+	                f_catagory5
+	        };
+	    }
+
+	    boolean hasMainCategory = !isBlank(f_catagory1);
+	    boolean hasDetailCategory =
+	            !isBlank(f_catagory2)
+	            || !isBlank(f_catagory3)
+	            || !isBlank(f_catagory4)
+	            || !isBlank(f_catagory5);
+
+	    if (hasMainCategory && hasDetailCategory) {
+	        int mainCategoryCount = countSearchData(
+	                searchKey,
+	                searchValue,
+	                f_catagory1,
+	                "",
+	                "",
+	                "",
+	                ""
+	        );
+
+	        if (mainCategoryCount > 0) {
+	            return new String[] {
+	                    f_catagory1,
+	                    "",
+	                    "",
+	                    "",
+	                    ""
+	            };
+	        }
+	    }
+
+	    return new String[] {
+	            f_catagory1,
+	            f_catagory2,
+	            f_catagory3,
+	            f_catagory4,
+	            f_catagory5
+	    };
 	}
 
 	public List<FurnitureDTO> getFurnitureByCompany(FurnitureDTO dto) throws Exception {

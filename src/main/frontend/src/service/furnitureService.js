@@ -1,21 +1,41 @@
 import http, { fileHttp } from "../http-common";
 
+//카테고리 필터를 받을수 있게 바꿨습니다 0527 모하영
 const getFurniture = async ({
-	pageNum = 1,
-	searchKey,
-	searchValue,
-	sort = "latest",} = {}) => {
-	
+		pageNum = 1,
+		searchKey,
+		searchValue,
+		sort = "latest",
+		f_catagory1 = "",
+		f_catagory2 = "",
+		f_catagory3 = "",
+		f_catagory4 = "",
+		f_catagory5 = "",
+	} = {}) => {
 		const params = { pageNum, sort };
 
-	if (searchKey && searchValue) {
-		params.searchKey = searchKey;
-		params.searchValue = searchValue;
-	}
+		if (searchKey && searchValue) {
+			params.searchKey = searchKey;
+			params.searchValue = searchValue;
+		}
 
-	const res = await http.get("/furniture/list", { params });
-	return res.data;
-};
+		const categoryParams = {
+			f_catagory1,
+			f_catagory2,
+			f_catagory3,
+			f_catagory4,
+			f_catagory5,
+		};
+
+		Object.keys(categoryParams).forEach((key) => {
+			if (categoryParams[key]) {
+				params[key] = categoryParams[key];
+			}
+		});
+
+		const res = await http.get("/furniture/list", { params });
+		return res.data;
+	};
 
 const insertFurniture = async (params) => {
 	try {

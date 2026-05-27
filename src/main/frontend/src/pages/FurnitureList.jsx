@@ -19,12 +19,22 @@ const FurnitureList = () => {
     const urlSearchValue = searchParams.get("searchValue") || "";
     const urlSort = searchParams.get("sort") || "latest";
 
+    //URL에서 카테고리 값을 읽는다. - 0527 모하영
+    const urlCategoryFilters = {
+        f_catagory1: searchParams.get("f_catagory1") || "",
+        f_catagory2: searchParams.get("f_catagory2") || "",
+        f_catagory3: searchParams.get("f_catagory3") || "",
+        f_catagory4: searchParams.get("f_catagory4") || "",
+        f_catagory5: searchParams.get("f_catagory5") || "",
+    };
+
     const [list, setList] = useState([]);
     const [totalPage, setTotalPage] = useState(1);
 
-    //state 초기값을 수정 - 0522 모하영(sort까지)
+    //state 초기값을 수정 - 0522 모하영(sort까지),0527 모하영 추가
     const [searchKey, setSearchKey] = useState(urlSearchKey);
     const [searchValue, setSearchValue] = useState(urlSearchValue);
+    const [categoryFilters, setCategoryFilters] = useState(urlCategoryFilters);
 
     const [startPage, setStartPage] = useState(1);
     const [endPage, setEndPage] = useState(1);
@@ -71,16 +81,37 @@ const FurnitureList = () => {
         { value: "priceHigh", label: "높은 가격순" },
     ];
 
-    //URL이 바뀌면 state 동기화 해줌 - 0522 모하영
+    //URL이 바뀌면 state 동기화 해줌 - 0522 모하영, 0527 모하영 수정
     useEffect(() => {
-        setSearchKey(urlSearchKey);
-        setSearchValue(urlSearchValue);
-        setSort(urlSort);
-    },[urlSearchKey,urlSearchValue,urlSort]);
+    setSearchKey(urlSearchKey);
+    setSearchValue(urlSearchValue);
+    setSort(urlSort);
+    setCategoryFilters(urlCategoryFilters);
+    }, [
+        urlSearchKey,
+        urlSearchValue,
+        urlSort,
+        urlCategoryFilters.f_catagory1,
+        urlCategoryFilters.f_catagory2,
+        urlCategoryFilters.f_catagory3,
+        urlCategoryFilters.f_catagory4,
+        urlCategoryFilters.f_catagory5,
+    ]);
 
+    //챗봇 카테고리 검색을 위해 의존성 추가하기 0527 모하영
     useEffect(() => {
-        getList(pageNum);
-    }, [pageNum, searchKey, searchValue, sort]);
+    getList(pageNum);
+    }, [
+        pageNum,
+        searchKey,
+        searchValue,
+        sort,
+        categoryFilters.f_catagory1,
+        categoryFilters.f_catagory2,
+        categoryFilters.f_catagory3,
+        categoryFilters.f_catagory4,
+        categoryFilters.f_catagory5,
+    ]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -119,6 +150,7 @@ const FurnitureList = () => {
                 searchKey,
                 searchValue,
                 sort,
+                ...categoryFilters,
             });
 
             setList(data.list);
@@ -149,13 +181,39 @@ const FurnitureList = () => {
         navigate(makeListUrl(1));
     };
 
-    //근데 그 URL 문자열이 길어서 축약함수 - ㅡ0522 모하영
+    //근데 그 URL 문자열이 길어서 축약함수 - 0522 모하영, 0527 모하영
     const makeListUrl = (page) => {
-        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(sort)}`;
+        const params = new URLSearchParams({
+            page: String(page),
+            searchKey,
+            searchValue,
+            sort,
+        });
+
+        Object.keys(categoryFilters).forEach((key) => {
+            if (categoryFilters[key]) {
+                params.set(key, categoryFilters[key]);
+            }
+        });
+
+        return `/furniture/list?${params.toString()}`;
     };
     //makeListUrl이 현재 sort를 쓰기 때문에 정렬버튼에 따로 함수를 두면 좋다 - 0522모하영
     const makeListUrlWithSort = (page, nextSort) => {
-        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(nextSort)}`;
+        const params = new URLSearchParams({
+            page: String(page),
+            searchKey,
+            searchValue,
+            sort: nextSort,
+        });
+
+        Object.keys(categoryFilters).forEach((key) => {
+            if (categoryFilters[key]) {
+                params.set(key, categoryFilters[key]);
+            }
+        });
+
+        return `/furniture/list?${params.toString()}`;
     };
 
     const feedback = (
