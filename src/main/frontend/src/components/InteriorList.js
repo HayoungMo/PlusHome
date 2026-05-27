@@ -253,8 +253,6 @@ const InteriorList = ({ tag, value }) => {
   return (
     <div className="interior-list-section">
       <div className="interior-list-toolbar">
-        <h3>결과</h3>
-
         <FilterBar
           filterList={filterList}
           value={filterValue}

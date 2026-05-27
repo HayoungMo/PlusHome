@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.CouponDTO;
 import com.spring.home.mapper.CouponMapper;
 
@@ -55,5 +56,9 @@ public class CouponService {
 			System.out.println("세팅된 id" + dto.getId());
 			couponMapper.insertData(dto);
 		}
+	}
+	
+	public List<CouponDTO> getCouponListByCompanyId(CompanyDTO dto) throws Exception {
+		return couponMapper.getCouponListByCompanyId(dto);
 	}
 }

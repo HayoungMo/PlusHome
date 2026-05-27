@@ -25,45 +25,51 @@ const UserBookingLists = ({ id }) => {
       <div className="user-booking-card">
         <div className="user-booking-head">
           <div>
+            <p className="user-booking-eyebrow">BOOKING</p>
             <h3>예약 내역</h3>
             <p>진행 중인 상담과 예약 상세 정보를 확인할 수 있습니다.</p>
           </div>
+          <span className="user-booking-count">{booking?.length || 0}개</span>
         </div>
 
         <div className="user-booking-table">
-          <TableMuiCollapse
-            rowData={booking}
-            hiddenColumns={["b_answer"]}
-            collapseTitle="상담 상세 정보"
-            selectedRow={selectedRow}
-            setSelectedRow={setSelectedRow}
-            renderCollapse={(row) => {
-              let answer = {};
+          {booking?.length > 0 ? (
+            <TableMuiCollapse
+              rowData={booking}
+              hiddenColumns={["b_answer"]}
+              collapseTitle="상담 상세 정보"
+              selectedRow={selectedRow}
+              setSelectedRow={setSelectedRow}
+              renderCollapse={(row) => {
+                let answer = {};
 
-              try {
-                answer = row.b_answer ? JSON.parse(row.b_answer) : {};
-              } catch (e) {
-                answer = {};
-              }
+                try {
+                  answer = row.b_answer ? JSON.parse(row.b_answer) : {};
+                } catch (e) {
+                  answer = {};
+                }
 
-              return (
-                <Table size="small">
-                  <TableBody>
-                    {Object.keys(answer).map((key) => (
-                      <TableRow key={key}>
-                        <TableCell>{key}</TableCell>
-                        <TableCell>
-                          {Array.isArray(answer[key])
-                            ? answer[key].join(", ")
-                            : answer[key]}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              );
-            }}
-          />
+                return (
+                  <Table className="user-booking-detail-table" size="small">
+                    <TableBody>
+                      {Object.keys(answer).map((key) => (
+                        <TableRow key={key}>
+                          <TableCell>{key}</TableCell>
+                          <TableCell>
+                            {Array.isArray(answer[key])
+                              ? answer[key].join(", ")
+                              : answer[key]}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                );
+              }}
+            />
+          ) : (
+            <div className="user-booking-empty">예약 내역이 없습니다.</div>
+          )}
         </div>
       </div>
 

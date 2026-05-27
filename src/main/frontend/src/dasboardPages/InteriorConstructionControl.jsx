@@ -77,7 +77,7 @@ const InteriorConstructionControl = () => {
 		} else if (type === "working") {
 			setWorkStateChangeDialogInfo({
 				title: "시공 상태 변경",
-				text: "해당 시공을 진행중인 상태로 변경합니다. 변경하시겠습니까?",
+				text: "해당 시공을 선택한 상태로 변경합니다. 변경하시겠습니까?",
 				row: row,
 				type: "working",
 			});
@@ -226,7 +226,7 @@ const InteriorConstructionControl = () => {
 					<DialogContent>
 						{workStateChangeDialogInfo.text}
 
-						{workStateChangeDialogInfo.row.b_status === "cancel" && (
+						{(workStateChangeDialogInfo.row.b_status === "cancel" || workStateChangeDialogInfo.row.b_status === "done") && (
 							<SelectMui
 								label="배송 상태"
 								value={workStateChangeDialogInfo.type}

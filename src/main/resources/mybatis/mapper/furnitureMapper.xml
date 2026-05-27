@@ -76,7 +76,7 @@
 	where  f_code = #{f_code} 
 </delete>
 
-<!-- 전체 select -->
+<!-- 전체 select --> <!-- 0527 모하영 if 추가 -->
 <select id="getLists" parameterType="hashMap" resultType="com.spring.home.dto.FurnitureDTO">
 	select *
 	from   (
@@ -114,6 +114,25 @@
                              where    ${searchKey} like '%'
                                                || #{searchValue}
                                                || '%'
+                             <if test="f_catagory1 != null and f_catagory1 != ''">
+							    and f_catagory1 = #{f_catagory1}
+							</if>
+							
+							<if test="f_catagory2 != null and f_catagory2 != ''">
+							    and f_catagory2 = #{f_catagory2}
+							</if>
+							
+							<if test="f_catagory3 != null and f_catagory3 != ''">
+							    and f_catagory3 = #{f_catagory3}
+							</if>
+							
+							<if test="f_catagory4 != null and f_catagory4 != ''">
+							    and f_catagory4 = #{f_catagory4}
+							</if>
+							
+							<if test="f_catagory5 != null and f_catagory5 != ''">
+							    and f_catagory5 = #{f_catagory5}
+							</if>
 
                              <choose>
 	                             <when test="sort == 'old'">
@@ -182,24 +201,79 @@
 	from   furniture
 	where  f_code = #{f_code} 
 </select>
+
+
+<!-- 0527 모하영 if 추가 -->
 <select id="countSearchData" resultType="int">
-	select Count(*)
-	from   furniture
-	where  ${searchKey} like '%'
-	              || #{searchValue}
-	              || '%'
+    select Count(*)
+    from   furniture
+    where  ${searchKey} like '%'
+              || #{searchValue}
+              || '%'
+
+    <if test="f_catagory1 != null and f_catagory1 != ''">
+        and f_catagory1 = #{f_catagory1}
+    </if>
+
+    <if test="f_catagory2 != null and f_catagory2 != ''">
+        and f_catagory2 = #{f_catagory2}
+    </if>
+
+    <if test="f_catagory3 != null and f_catagory3 != ''">
+        and f_catagory3 = #{f_catagory3}
+    </if>
+
+    <if test="f_catagory4 != null and f_catagory4 != ''">
+        and f_catagory4 = #{f_catagory4}
+    </if>
+
+    <if test="f_catagory5 != null and f_catagory5 != ''">
+        and f_catagory5 = #{f_catagory5}
+    </if>
 </select>
 
 <select id="getFurnitureByCompany" parameterType="com.spring.home.dto.FurnitureDTO" resultType="com.spring.home.dto.FurnitureDTO">
-	SELECT * FROM furniture
+	WITH TARGET_FURNITURE AS (SELECT * FROM FURNITURE F
 	<where>
-		AND C_ID = #{c_id}
-		<if test="c_kind != null and c_name != null">
-			AND C_KIND = #{c_kind}
-			AND C_NAME = #{c_name}
-		</if>
-	</where>
-	ORDER BY f_createddate DESC
+		AND F.C_ID = #{c_id}
+        <if test="c_kind != null and c_name != null">
+        	AND F.C_KIND = #{c_kind}
+            AND F.C_NAME = #{c_name}
+        </if>
+    </where>
+	),
+	REVIEW_SUMMARY AS (SELECT R.F_CODE,
+		COUNT(CASE WHEN R.FR_IDX &gt; 0 THEN 1 END)       AS r_count,
+        COUNT(CASE WHEN R.FR_IDX &lt; 0 THEN 1 END)       AS a_count,
+        AVG(CASE WHEN R.FR_IDX &gt; 0 THEN R.FR_STAR END) AS star_avg
+	        FROM F_REVIEW R
+	        JOIN TARGET_FURNITURE TF
+        		ON R.F_CODE = TF.F_CODE
+        	GROUP BY R.F_CODE),
+	CART_SUMMARY AS (SELECT C.F_CODE,
+    	SUM(C.F_COUNT) AS cart_total_f_count,
+        SUM(C.F_PRICE) AS cart_total_f_price,
+        AVG(C.F_COUNT) AS cart_avg_f_count,
+        COUNT(*) AS cart_total_buy
+	        FROM CART C
+	        JOIN TARGET_FURNITURE TF
+	        	ON C.F_CODE = TF.F_CODE
+	        		WHERE C.F_STATUS = 'Y'
+	        GROUP BY C.F_CODE)
+	SELECT TF.*,
+		NVL(RS.r_count, 0) AS r_count,
+		NVL(RS.a_count, 0) AS a_count,
+		NVL(RS.star_avg, 0)     AS star_avg,
+		NVL(CS.cart_total_f_count, 0)  AS cart_total_f_count,
+		NVL(CS.cart_total_f_price, 0)  AS cart_total_f_price,
+		NVL(CS.cart_avg_f_count, 0)    AS cart_avg_f_count,
+		NVL(CS.cart_total_buy, 0)    AS cart_total_buy
+	FROM TARGET_FURNITURE TF
+		LEFT JOIN REVIEW_SUMMARY RS
+			ON TF.F_CODE = RS.F_CODE
+		LEFT JOIN CART_SUMMARY CS
+			ON TF.F_CODE = CS.F_CODE
+	ORDER BY TF.F_CREATEDDATE DESC
 </select>
 
 <update id="decreaseStock">

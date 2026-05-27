@@ -1,0 +1,194 @@
+.furniture-review {
+  width: 100%;
+  margin: 24px 0 0;
+  padding: 18px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2f3438;
+  box-sizing: border-box;
+}
+
+.furniture-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.furniture-review-header p {
+  margin: 0;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.furniture-review-header h3 {
+  margin: 2px 0 0;
+  color: #2f3438;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.furniture-review-header > span {
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f0faff;
+  color: #00a1ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.furniture-review-thumbnail-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 12px;
+}
+
+.furniture-review-thumbnail {
+  width: 112px;
+  height: 112px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.furniture-review-thumbnail:hover {
+  transform: translateY(-1px);
+  border-color: #bdeeff;
+}
+
+.furniture-review-thumbnail.is-selected {
+  border-color: #00a1ff;
+  box-shadow: 0 0 0 3px #e5f7ff;
+}
+
+.furniture-review-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.furniture-review-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 18px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eaedef;
+}
+
+.furniture-review-detail-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.furniture-review-detail-images img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.furniture-review-detail-content {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.furniture-review-detail-title {
+  display: grid;
+  gap: 8px;
+}
+
+.furniture-review-detail-title h4 {
+  margin: 0;
+  color: #2f3438;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.furniture-review-writer {
+  margin: 0;
+  color: #828c94;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.furniture-review-writer strong {
+  color: #2f3438;
+}
+
+.furniture-review-text {
+  margin: 0;
+  color: #2f3438;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.furniture-review-empty {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.furniture-review-empty p {
+  margin: 0;
+  color: #828c94;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .furniture-review {
+    padding: 14px;
+  }
+
+  .furniture-review-thumbnail {
+    width: 96px;
+    height: 96px;
+  }
+
+  .furniture-review-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .furniture-review-detail-content {
+    padding: 14px;
+  }
+}
