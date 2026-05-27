@@ -27,9 +27,12 @@ const CouponDownDev = (data) => {
     });
   };
 
-  const handleDownload = async () => {
-
+  const handleDownload = async () => {    
     
+
+    try{
+
+      setLoading(true)
     
     for(let i=0; i<selectedCouponKeys.length; i++){
 
@@ -50,17 +53,36 @@ const CouponDownDev = (data) => {
                 ...couponData,
                 id:userId
             })
+
         }
 
     }
-}
+
+      showAlert({
+        severity:"success",
+        title:"지급 성공",
+        text:"쿠폰이 지급되었습니다."
+      })
+
+    }catch(error){
+      console.log(error)
+
+      showAlert({
+        severity:"error",
+        title:"지급 실패",
+        text:"쿠폰 지급 중 오류가 발생했습니다."
+      })
+    }
+      setLoading(false)
+    
+  }
 
     
 
   return (
     <>
       <Button variant="contained" disabled={loading} onClick={handleDownload}>
-        {loading ? "발급 중..." : "쿠폰 지급 해달라고"}
+        {loading ? "발급 중..." : "쿠폰 지급"}
       </Button>
       <Snackbar
         open={alert.open}

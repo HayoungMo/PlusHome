@@ -7,6 +7,7 @@ import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
 import SelectMui from '../components/SelectMui';
 import TextFieldMui from '../components/TextFieldMui';
+import ToggleButton from '../components/ToggleButtonMui';
 
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
@@ -169,6 +170,7 @@ const companyColumns = [
                 title:"삭제 성공",
                 text:result.message,
             })
+            await reloadDataFunc()
         }else{
             setAlertInfo({
                 severity:"error",
@@ -246,6 +248,7 @@ const companyColumns = [
                 title:"복구 성공",
                 text:result.message,
             })
+            await reloadDataFunc()
         }else{
             setAlertInfo({
                 severity:"error",
@@ -313,6 +316,7 @@ const companyColumns = [
                     title:"수정 성공",
                     text:result.message,
                 })
+                await reloadDataFunc()
             }else{
                 setAlertInfo({
                     severity:"error",
@@ -337,6 +341,9 @@ const companyColumns = [
         
         setConfirmOpen(!confirmOpen)
         setAlertOpen(!alertOpen)
+
+        setSelectedUserKeys([]);
+        setUserUpdate(false);
     }
 
    
@@ -407,7 +414,12 @@ const companyColumns = [
                 title: "Cancel",
                 color: "error",
                 variant: "outlined",
-                onClick: () => setConfirmOpen(!confirmOpen),
+                onClick: async() =>{
+                    await reloadDataFunc()
+                    setSelectedUserKeys([])
+                    setUserUpdate(false)
+                    setConfirmOpen(false)
+                } 
             },
              {
                 title: "Save",
@@ -508,17 +520,17 @@ const companyColumns = [
 
         <div>
 
-            <Button
+            <Button>
                 color='primary'
                 variant='contained'
-                onClick={() => setUserType("user")}>
+                onClick={() => setUserType("user")}
                 user
             </Button>
 
-            <Button
+            <Button>
                 color='primary'
                 variant='contained'
-                onClick={() => setUserType("company")}>
+                onClick={() => setUserType("company")}
                 company
             </Button>
 

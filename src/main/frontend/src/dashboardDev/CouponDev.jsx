@@ -4,7 +4,7 @@ import CouponListDeve from './CouponListDeve'
 
 
 const CouponDev = (data) => {
-    const {selectedKeys, couponData, setCouponData,selectedCouponKeys,setSelectedCouponKeys} = data
+    const {selectedKeys, couponData, setCouponData,selectedCouponKeys,setSelectedCouponKeys,reloadFunc,setReloadFunc} = data
     return (
         <div>
             <CouponAddDev
@@ -13,10 +13,13 @@ const CouponDev = (data) => {
                 setCouponData={setCouponData}
                 selectedCouponKeys={selectedCouponKeys}
                  setSelectedCouponKeys={setSelectedCouponKeys}
+                 reloadFunc={reloadFunc}
+                 setReloadFunc={setReloadFunc}
                 />
             <CouponListDeve
                 selectedCouponKeys={selectedCouponKeys}
                 setSelectedCouponKeys={setSelectedCouponKeys}
+                setReloadFunc={setReloadFunc}
             />
         </div>
     );
