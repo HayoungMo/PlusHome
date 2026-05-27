@@ -32,12 +32,12 @@ const MainHomePage = ({ loginUser }) => {
             : savedUser; 
     //메인화면 아이콘 넣기
     const categoryMenus = [
-    { title: "침대", icon: <BedIcon /> },
-    { title: "소파", icon: <WeekendIcon /> },
-    { title: "책상", icon: <DeskIcon /> },
-    { title: "의자", icon: <ChairIcon /> },
-    { title: "수납", icon: <Inventory2Icon /> },
-    { title: "조명", icon: <LightbulbIcon /> },
+    { value: "bed", title: "침대", icon: <BedIcon /> },
+    { value: "sofa",title: "소파", icon: <WeekendIcon /> },
+    { value: "desk",title: "책상", icon: <DeskIcon /> },
+    { value: "chair",title: "의자", icon: <ChairIcon /> },
+    { value: "storage",title: "수납", icon: <Inventory2Icon /> },
+    { value: "light",title: "조명", icon: <LightbulbIcon /> },
 ];
 
     const [hideMode, setHideMode] = useState(false);
@@ -269,8 +269,8 @@ const MainHomePage = ({ loginUser }) => {
                 >
                     {categoryMenus.map((category) => (
                          <Link
-                            key={category.title}
-                            to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category.title)}&sort=latest`}
+                            key={category.value}
+                            to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category.value)}&sort=latest`}
                             style={{
                                 width: "86px",
                                 textAlign: "center",

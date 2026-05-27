@@ -9,7 +9,20 @@ import GetImgDir from "../resources/function/GetImgDir";
 const InteriorMyPage = ({ user }) => {
   const navigate = useNavigate();
   const [likes, setLikes] = useState([]);
-  const id = user?.id || localStorage.getItem("id");
+  	const localUserData = localStorage.getItem("user");
+    const userData = JSON.parse(localUserData);
+    const {
+      addr,
+      birth,
+      code,
+      email,
+      gender,
+      id,
+      name,
+      tel,
+      type,
+      companyList = [],
+    } = userData;
 
   const handleNext = (data) => {
     navigate("/interior/article", {

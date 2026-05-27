@@ -169,6 +169,7 @@ const companyColumns = [
                 title:"삭제 성공",
                 text:result.message,
             })
+            await reloadDataFunc()
         }else{
             setAlertInfo({
                 severity:"error",
@@ -246,6 +247,7 @@ const companyColumns = [
                 title:"복구 성공",
                 text:result.message,
             })
+            await reloadDataFunc()
         }else{
             setAlertInfo({
                 severity:"error",
@@ -313,6 +315,7 @@ const companyColumns = [
                     title:"수정 성공",
                     text:result.message,
                 })
+                await reloadDataFunc()
             }else{
                 setAlertInfo({
                     severity:"error",
@@ -337,6 +340,9 @@ const companyColumns = [
         
         setConfirmOpen(!confirmOpen)
         setAlertOpen(!alertOpen)
+
+        setSelectedUserKeys([]);
+        setUserUpdate(false);
     }
 
    
@@ -407,7 +413,12 @@ const companyColumns = [
                 title: "Cancel",
                 color: "error",
                 variant: "outlined",
-                onClick: () => setConfirmOpen(!confirmOpen),
+                onClick: async() =>{
+                    await reloadDataFunc()
+                    setSelectedUserKeys([])
+                    setUserUpdate(false)
+                    setConfirmOpen(false)
+                } 
             },
              {
                 title: "Save",

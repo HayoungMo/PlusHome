@@ -6,11 +6,9 @@ import TableChkMui from '../components/TableChkMui';
 const CouponListDeve = (props) => {
   const [coupon, setCoupon] = useState();
 
-  const{selectedCouponKeys,setSelectedCouponKeys} = props;
+  const{selectedCouponKeys,setSelectedCouponKeys,setReloadFunc} = props;
 
-  useEffect(() => {
-    
-    const fetchCoupon = async () => {
+  const fetchCoupon = async () => {
 
       const result = await CouponService.selectCouponDev();
       if (!result.success) {
@@ -18,7 +16,10 @@ const CouponListDeve = (props) => {
       }
       setCoupon(result.data || []);
     };
-    fetchCoupon();
+
+  useEffect(() => {  
+    fetchCoupon()
+    setReloadFunc(()=>fetchCoupon);
   }, []);
 
   useEffect(()=>{

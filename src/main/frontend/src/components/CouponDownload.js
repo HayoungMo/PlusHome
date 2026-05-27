@@ -13,6 +13,20 @@ const CouponDownload = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
     title: "",
     text: "",
   });
+  	const localUserData = localStorage.getItem("user");
+    const userData = JSON.parse(localUserData);
+    const {
+      addr,
+      birth,
+      code,
+      email,
+      gender,
+      id,
+      name,
+      tel,
+      type,
+      companyList = [],
+    } = userData;
 
   const showAlert = ({ severity, title, text }) => {
     setAlert({
@@ -24,8 +38,6 @@ const CouponDownload = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
   };
 
   const handleDownload = async () => {
-    const id = localStorage.getItem("id");
-
     if (!id) {
       showAlert({
         severity: "warning",

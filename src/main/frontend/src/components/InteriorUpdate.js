@@ -165,6 +165,7 @@ const InteriorUpdate = (props) => {
       c_kind: c_kind,
       c_name: c_name,
       tag: i_tag,
+      text: i_text,
     });
     onSuccess();
   };

@@ -15,6 +15,8 @@ const CouponList = () => {
     const [selectedUserKeys,setSelectedUserKeys] = useState([]);
     const [searchInfo,setSearchInfo] = useState({})
     const [selectedCouponKeys,setSelectedCouponKeys] = useState([])
+    const [reloadFunc, setReloadFunc] = useState(null)
+    
 
     const userColumns = [
     "id",
@@ -125,6 +127,9 @@ const CouponList = () => {
                 setCouponData={setCouponData}
                 selectedCouponKeys={selectedCouponKeys}
                 setSelectedCouponKeys={setSelectedCouponKeys}
+                reloadFunc={reloadFunc}
+                setReloadFunc={setReloadFunc}
+              
                 />
 
          <div style={{

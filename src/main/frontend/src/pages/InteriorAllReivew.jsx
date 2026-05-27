@@ -159,6 +159,7 @@ const InteriorAllReivew = () => {
 
                   <div className="interior-review-card-info">
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      <Chip label={item.c_name} size="small" />
                       <Chip label="리뷰" size="small" />
                     </Stack>
                     <p>{item.ir_content}</p>
