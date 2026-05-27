@@ -190,10 +190,16 @@
 	and coupon_end >=sysdate
 	
 	and nvl(coupon_used,'N') = 'N'
-	
-	
+</select>
 
+<select id="getCouponListByCompanyId" parameterType="hashMap" resultType="com.spring.home.dto.CouponDTO">
+	SELECT *
+	FROM coupon
+	<where>
+		AND coupon_type = 'company'
+		AND coupon_catagory LIKE CONCAT(#{c_id}, '\_%') ESCAPE '\'
+		AND ID = COUPON_CODE
+	</where>
 </select>
 
 </mapper>
-

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.CouponDTO;
 
 @Mapper
@@ -34,4 +35,6 @@ public interface CouponMapper {
 	public int useCoupon(
 			@Param("id") String id,
 			@Param("coupon_code") String coupon_code) throws Exception;
+
+	public List<CouponDTO> getCouponListByCompanyId(CompanyDTO dto) throws Exception;
 }

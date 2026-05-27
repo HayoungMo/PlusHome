@@ -211,8 +211,8 @@ const ShoppingMallOrderControl = () => {
 	}, [orderFurnitureList, tabValue, filterBarState]);
 
 	return (
-		<div>
-			<div>
+		<div className="shopping-mall-order-page">
+			<div className="shopping-mall-order-toolbar">
 				<FilterBar
 					filterList={orderFilterList}
 					value={filterBarState}
@@ -220,16 +220,19 @@ const ShoppingMallOrderControl = () => {
 				/>
 			</div>
 
-			<TabsMui
-				tabValue={tabValue}
-				handleTabChange={handleTabChange}
-				tabList={orderState}
-				tabKey="value"
-				label="title"
-				value="value"
-			/>
+			<div className="shopping-mall-order-tabs">
+				<TabsMui
+					tabValue={tabValue}
+					handleTabChange={handleTabChange}
+					tabList={orderState}
+					tabKey="value"
+					label="title"
+					value="value"
+				/>
+			</div>
 
-			<TableCheckBoxMui
+			<div className="shopping-mall-order-table">
+				<TableCheckBoxMui
 				rowData={tableDisplayDataList}
 				col={[
 					"cartbuyername",
@@ -253,15 +256,10 @@ const ShoppingMallOrderControl = () => {
 				setCheckedList={setCheckedList}
 				defaultRowPerPage={5}
 					pagination
-			/>
+				/>
+			</div>
 
-			<div
-				style={{
-					width: "500px",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-				}}>
+			<div className="shopping-mall-order-bulk-actions">
 				<div>{checkedList.length}개 선택됨</div>
 
 				<SelectMui
