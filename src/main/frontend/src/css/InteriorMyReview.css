@@ -1,0 +1,316 @@
+.interior-my-review-panel {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  color: #2f3438;
+}
+
+.interior-my-review-list {
+  display: grid;
+  gap: 16px;
+}
+
+.interior-my-review-card {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: stretch;
+  padding: 16px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.interior-my-review-company-area,
+.interior-my-review-edit-company-area {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.interior-my-review-company-area {
+  align-content: start;
+  padding-right: 16px;
+  border-right: 1px solid #eaedef;
+}
+
+.interior-my-review-company-thumb {
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.interior-my-review-company-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.interior-my-review-company-info {
+  min-width: 0;
+}
+
+.interior-my-review-company-info p {
+  margin: 0 0 4px;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.interior-my-review-company-info h4 {
+  margin: 0;
+  color: #2f3438;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interior-my-review-company-info span {
+  display: block;
+  margin-top: 6px;
+  color: #828c94;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.interior-my-review-body {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.interior-my-review-title-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.interior-my-review-title-line h4 {
+  margin: 0;
+  color: #2f3438;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.interior-my-review-title-line span {
+  flex: 0 0 auto;
+  color: #828c94;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.interior-my-review-content {
+  margin: 0;
+  padding: 0;
+  color: #2f3438;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.interior-my-review-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.interior-my-review-images img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.interior-my-review-no-image {
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.interior-my-review-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-start;
+  min-width: 86px;
+}
+
+.interior-my-review-action-buttons .MuiButton-root {
+  min-height: 36px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.interior-my-review-empty {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0 0;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.interior-my-review-edit-form {
+  display: grid;
+  gap: 18px;
+  padding: 4px 0;
+}
+
+.interior-my-review-edit-company-area {
+  padding: 14px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.interior-my-review-edit-form .user-review-edit-field {
+  display: grid;
+  gap: 8px;
+}
+
+.interior-my-review-edit-form .user-review-edit-field > span,
+.interior-my-review-edit-form .user-review-edit-image-tools > p,
+.interior-my-review-edit-form .user-review-add-image-form > p {
+  margin: 0;
+  color: #2f3438;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.interior-my-review-edit-form .MuiInputBase-root {
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.interior-my-review-edit-form .user-review-edit-image-tools,
+.interior-my-review-edit-form .user-review-add-image-form {
+  display: grid;
+  gap: 10px;
+}
+
+.interior-my-review-edit-form .user-review-edit-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.interior-my-review-edit-form .user-review-edit-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.interior-my-review-edit-form .user-review-edit-image img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+.interior-my-review-edit-form .user-review-edit-image-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.interior-my-review-edit-form .user-review-edit-upload-btn.MuiButton-root {
+  justify-self: start;
+  min-height: 38px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.interior-my-review-edit-form .user-review-option-empty {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  color: #828c94;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .interior-my-review-card {
+    grid-template-columns: 1fr;
+  }
+
+  .interior-my-review-company-area {
+    padding-right: 0;
+    padding-bottom: 14px;
+    border-right: 0;
+    border-bottom: 1px solid #eaedef;
+  }
+
+  .interior-my-review-action-buttons {
+    flex-direction: row;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .interior-my-review-card {
+    padding: 14px;
+  }
+
+  .interior-my-review-company-area,
+  .interior-my-review-edit-company-area {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .interior-my-review-company-thumb {
+    width: 64px;
+    height: 64px;
+  }
+
+  .interior-my-review-title-line {
+    display: grid;
+  }
+
+  .interior-my-review-action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

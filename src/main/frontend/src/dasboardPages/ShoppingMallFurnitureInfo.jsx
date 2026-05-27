@@ -17,6 +17,7 @@ import GetImgDir, { getImgFurnitureList } from "./../resources/function/GetImgDi
 import FurnitureUpdatePage from "./../pages/FurnitureUpdatePage";
 import DialogMui from "../components/DialogMui";
 import TabsMui from "../components/TabsMui";
+import dayjs from "dayjs";
 
 const ShoppingMallFurnitureInfo = () => {
 	const localUserData = localStorage.getItem("user");
@@ -37,8 +38,8 @@ const ShoppingMallFurnitureInfo = () => {
 
 	const [tabValue, setTabValue] = useState("all");
 	const [selectedTabCompany, setSelectedTabCompany] = useState({ c_id: id, c_name: "all" });
-	const [selectedTabCompanyFurnitureList, setSelectedTabCompanyFurnitureList] = useState([]);
 	const [allFurnitureList, setAllFurnitureList] = useState([]);
+	const [allFurnitureImgList, setAllFurnitureImgList] = useState([]);
 
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
 	const [alertOpen, setAlertOpen] = useState(false);
@@ -105,8 +106,10 @@ const ShoppingMallFurnitureInfo = () => {
 	const reloadFurnitureList = async () => {
 		FurnitureService.getFurnitureByUserId(id).then((res) => {
 			if (res.success === false) setAlertInfo({ severity: "error", text: res.message });
-			else if (res.furnitureList == null)
+			else if (res.furnitureList == null) {
 				setAlertInfo({ severity: "info", text: res.message });
+				setAllFurnitureList([]);
+			}
 
 			if (res.success === true && res.furnitureList !== null) {
 				setAlertInfo({ severity: "success", text: res.message });
@@ -117,83 +120,79 @@ const ShoppingMallFurnitureInfo = () => {
 	};
 
 	useEffect(() => {
-		console.log("useEffect [allFurnitureList, tabValue] ===================");
+		console.log("useEffect [allFurnitureList] ===================");
 
 		const makeImgDirInFurnitureList = async () => {
-			let result = [];
 			try {
 				const imgDirInFurnitureList = await getImgFurnitureList(allFurnitureList);
-				result = imgDirInFurnitureList;
+				setAllFurnitureImgList(imgDirInFurnitureList);
 			} catch (error) {
 				console.error("데이터 로드 실패:", error);
-			}
-			if (tabValue === "all") {
-				setSelectedTabCompanyFurnitureList(result);
-			} else {
-				const tabFurniture = result.filter((item) => item.c_name === tabValue);
-				setSelectedTabCompanyFurnitureList(tabFurniture);
+				setAllFurnitureImgList([]);
 			}
 		};
 
+		if (allFurnitureList.length === 0) {
+			setAllFurnitureImgList([]);
+			return;
+		}
+
 		makeImgDirInFurnitureList();
-	}, [allFurnitureList, tabValue]);
+	}, [allFurnitureList]);
 
 	useEffect(() => {
 		reloadFurnitureList();
 	}, [id]);
 
+	const selectedTabCompanyFurnitureList = useMemo(() => {
+		if (tabValue === "all") {
+			return allFurnitureImgList;
+		}
+
+		return allFurnitureImgList.filter((item) => item.c_name === tabValue);
+	}, [allFurnitureImgList, tabValue]);
+
 	const FurnitureInfoDiv = ({ furniture }) => {
 		const {
-			c_id,
-			c_kind,
-			c_name,
-			f_catagory1,
-			f_catagory2,
-			f_catagory3,
-			f_catagory4,
-			f_catagory5,
+			// c_id,c_kind,c_name,f_catagory1,f_catagory2,f_catagory3,f_catagory4,f_catagory5,f_count,f_discount,f_point,f_price,f_viewCount,imageList,
 			f_code,
-			f_count,
 			f_createdDate,
-			f_discount,
 			f_dprice,
 			f_name,
-			f_point,
-			f_price,
-			f_viewCount,
-			imageList,
 			thumbnail,
+			r_count,
+			a_count,
+			star_avg,
+			cart_total_f_count,
+			cart_total_f_price,
+			cart_avg_f_count,
+			cart_total_buy,
 		} = furniture;
 
 		return (
-			<div
-				style={{
-					width: "900px",
-					border: "1px solid black",
-					display: "flex",
-					flexDirection: "row",
-					alignItems: "center",
-				}}>
-				<div>
-					<Checkbox />
+			<div className="shopping-mall-product-card">
+				<div className="shopping-mall-product-thumb">
+					<img src={thumbnail} alt={f_code} />
 				</div>
-				<div>
-					<img src={thumbnail} alt={f_code} width={100} />
+				<div className="shopping-mall-product-main">
+					<div className="shopping-mall-product-name">{f_name}</div>
+					<div className="shopping-mall-product-price">{f_dprice.toLocaleString()}원</div>
+					<div className="shopping-mall-product-date">
+						{dayjs(f_createdDate).format("YYYY-MM-DD")}
+					</div>
 				</div>
-				<div>
-					<div>{f_name}</div>
-					<div>{f_dprice}</div>
-					<div>{f_createdDate}</div>
+				<div className="shopping-mall-product-metrics">
+					<div>리뷰 갯수 : {r_count}</div>
+					<div>답변 갯수 : {a_count}</div>
+					<div>평균 별점 : {star_avg}</div>
 				</div>
-				<div>
-					<Button color="success" variant="contained">
-						리뷰 조회
-					</Button>
-					<Button color="success" variant="contained">
-						주문 조회
-					</Button>
+				<div className="shopping-mall-product-metrics">
+					<div>판매된 물품 합 : {cart_total_f_count}</div>
+					<div>판매된 금액 합 : {cart_total_f_price}</div>
+					<div>평균 구매 갯수 : {cart_avg_f_count}</div>
+					<div>총 판매 횟수 : {cart_total_buy}</div>
 				</div>
-				<div>
+				<div className="shopping-mall-product-actions">
 					<Button
 						color="primary"
 						variant="contained"
@@ -218,10 +217,10 @@ const ShoppingMallFurnitureInfo = () => {
 	};
 
 	return (
-		<div>
-			<h3>상품 관리</h3>
-			<hr />
-
+		<div className="shopping-mall-product-page">
+			<div className="shopping-mall-product-header">
+				<h3>상품 관리</h3>
+			</div>
 			<TabsMui
 				tabValue={tabValue}
 				handleTabChange={handleTabChange}
@@ -233,7 +232,7 @@ const ShoppingMallFurnitureInfo = () => {
 
 			<div>
 				{tabValue !== "all" && (
-					<div style={{ border: "1px solid black", margin: "5px", padding: "5px" }}>
+					<div className="shopping-mall-company-summary">
 						<div>{selectedTabCompany.c_name}</div>
 						<div>{selectedTabCompany.c_addr}</div>
 						<div>{selectedTabCompany.c_boss}</div>
@@ -241,13 +240,13 @@ const ShoppingMallFurnitureInfo = () => {
 					</div>
 				)}
 			</div>
-			<div>
+			<div className="shopping-mall-product-list">
 				{selectedTabCompanyFurnitureList?.map((record) => (
 					<FurnitureInfoDiv furniture={record} />
 				))}
 				{/* <TableMui rowData={selectedTabCompanyFurnitureList} /> */}
 			</div>
-			<div>
+			<div className="shopping-mall-product-footer">
 				{tabValue !== "all" && (
 					<Button
 						variant="contained"

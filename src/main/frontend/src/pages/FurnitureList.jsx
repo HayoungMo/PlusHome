@@ -5,6 +5,7 @@ import LikeService from "../service/likeService";
 import Loading from "../components/Loading";
 import { Snackbar } from "@mui/material";
 import AlertMui from "../components/AlertMui";
+import { getFurnitureCategorySelectOptions } from "../components/FurnitureCategorySelect";
 
 const FurnitureList = () => {
     const location = useLocation();
@@ -18,12 +19,22 @@ const FurnitureList = () => {
     const urlSearchValue = searchParams.get("searchValue") || "";
     const urlSort = searchParams.get("sort") || "latest";
 
+    //URL에서 카테고리 값을 읽는다. - 0527 모하영
+    const urlCategoryFilters = {
+        f_catagory1: searchParams.get("f_catagory1") || "",
+        f_catagory2: searchParams.get("f_catagory2") || "",
+        f_catagory3: searchParams.get("f_catagory3") || "",
+        f_catagory4: searchParams.get("f_catagory4") || "",
+        f_catagory5: searchParams.get("f_catagory5") || "",
+    };
+
     const [list, setList] = useState([]);
     const [totalPage, setTotalPage] = useState(1);
 
-    //state 초기값을 수정 - 0522 모하영(sort까지)
+    //state 초기값을 수정 - 0522 모하영(sort까지),0527 모하영 추가
     const [searchKey, setSearchKey] = useState(urlSearchKey);
     const [searchValue, setSearchValue] = useState(urlSearchValue);
+    const [categoryFilters, setCategoryFilters] = useState(urlCategoryFilters);
 
     const [startPage, setStartPage] = useState(1);
     const [endPage, setEndPage] = useState(1);
@@ -70,16 +81,37 @@ const FurnitureList = () => {
         { value: "priceHigh", label: "높은 가격순" },
     ];
 
-    //URL이 바뀌면 state 동기화 해줌 - 0522 모하영
+    //URL이 바뀌면 state 동기화 해줌 - 0522 모하영, 0527 모하영 수정
     useEffect(() => {
-        setSearchKey(urlSearchKey);
-        setSearchValue(urlSearchValue);
-        setSort(urlSort);
-    },[urlSearchKey,urlSearchValue,urlSort]);
+    setSearchKey(urlSearchKey);
+    setSearchValue(urlSearchValue);
+    setSort(urlSort);
+    setCategoryFilters(urlCategoryFilters);
+    }, [
+        urlSearchKey,
+        urlSearchValue,
+        urlSort,
+        urlCategoryFilters.f_catagory1,
+        urlCategoryFilters.f_catagory2,
+        urlCategoryFilters.f_catagory3,
+        urlCategoryFilters.f_catagory4,
+        urlCategoryFilters.f_catagory5,
+    ]);
 
+    //챗봇 카테고리 검색을 위해 의존성 추가하기 0527 모하영
     useEffect(() => {
-        getList(pageNum);
-    }, [pageNum, searchKey, searchValue, sort]);
+    getList(pageNum);
+    }, [
+        pageNum,
+        searchKey,
+        searchValue,
+        sort,
+        categoryFilters.f_catagory1,
+        categoryFilters.f_catagory2,
+        categoryFilters.f_catagory3,
+        categoryFilters.f_catagory4,
+        categoryFilters.f_catagory5,
+    ]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -89,18 +121,24 @@ const FurnitureList = () => {
             return;
         }
 
-        list.forEach((item) => {
-            LikeService.checkFurnitureLike(item.f_code)
-                .then((res) => {
-                    setLikedMap((prev) => ({
-                        ...prev,
-                        [item.f_code]: res.data?.liked || false,
-                    }));
-                })
-                .catch((error) => {
-                    console.error("찜 여부 확인 실패", error);
-                });
-        });
+        LikeService.getMyFurnitureLikes()
+            .then((res) => {
+            const likedCodes = new Set(
+                (res.data || []).map((item) => item.f_code)
+            );
+
+            const nextLikedMap = {};
+
+            list.forEach((item) => {
+                nextLikedMap[item.f_code] = likedCodes.has(item.f_code);
+            });
+
+            setLikedMap(nextLikedMap);
+            })
+            .catch((error) => {
+            console.error("찜 목록 조회 실패", error);
+            setLikedMap({});
+            });
     }, [list]);
 
     const getList = async (page = pageNum) => {
@@ -112,6 +150,7 @@ const FurnitureList = () => {
                 searchKey,
                 searchValue,
                 sort,
+                ...categoryFilters,
             });
 
             setList(data.list);
@@ -142,13 +181,39 @@ const FurnitureList = () => {
         navigate(makeListUrl(1));
     };
 
-    //근데 그 URL 문자열이 길어서 축약함수 - ㅡ0522 모하영
+    //근데 그 URL 문자열이 길어서 축약함수 - 0522 모하영, 0527 모하영
     const makeListUrl = (page) => {
-        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(sort)}`;
+        const params = new URLSearchParams({
+            page: String(page),
+            searchKey,
+            searchValue,
+            sort,
+        });
+
+        Object.keys(categoryFilters).forEach((key) => {
+            if (categoryFilters[key]) {
+                params.set(key, categoryFilters[key]);
+            }
+        });
+
+        return `/furniture/list?${params.toString()}`;
     };
     //makeListUrl이 현재 sort를 쓰기 때문에 정렬버튼에 따로 함수를 두면 좋다 - 0522모하영
     const makeListUrlWithSort = (page, nextSort) => {
-        return `/furniture/list?page=${page}&searchKey=${encodeURIComponent(searchKey)}&searchValue=${encodeURIComponent(searchValue)}&sort=${encodeURIComponent(nextSort)}`;
+        const params = new URLSearchParams({
+            page: String(page),
+            searchKey,
+            searchValue,
+            sort: nextSort,
+        });
+
+        Object.keys(categoryFilters).forEach((key) => {
+            if (categoryFilters[key]) {
+                params.set(key, categoryFilters[key]);
+            }
+        });
+
+        return `/furniture/list?${params.toString()}`;
     };
 
     const feedback = (
@@ -223,7 +288,7 @@ const FurnitureList = () => {
         return(
             <>
                 {feedback}
-                <Loading message="상품 목록을 불러오는 중입니다." />;
+                <Loading message="상품 목록을 불러오는 중입니다." />
             </>
         )
     }
@@ -262,9 +327,13 @@ const FurnitureList = () => {
                     marginBottom: "16px",
                 }}
             >
+                {/* 기존 검색어가 남지 않게 수정 - 0527 모하영 */}
                 <select
                     value={searchKey}
-                    onChange={(evt) => setSearchKey(evt.target.value)}
+                    onChange={(evt) => {
+                            setSearchKey(evt.target.value);
+                            setSearchValue("");
+                        }}
                     style={{
                         height: "36px",
                         border: "1px solid #ddd",
@@ -277,17 +346,36 @@ const FurnitureList = () => {
                     <option value="c_name">업체명</option>
                 </select>
 
-                <input
-                    value={searchValue}
-                    onChange={(evt) => setSearchValue(evt.target.value)}
-                    placeholder="검색어"
-                    style={{
-                        height: "36px",
-                        border: "1px solid #ddd",
-                        borderRadius: "4px",
-                        padding: "0 10px",
-                    }}
-                />
+                {searchKey === "f_catagory1" ? (
+                    <select
+                        value={searchValue}
+                        onChange={(evt) => setSearchValue(evt.target.value)}
+                        style={{
+                            height: "36px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                            padding: "0 8px",
+                        }}
+                    >
+                        {getFurnitureCategorySelectOptions("f_catagory1").map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.title}
+                            </option>
+                        ))}
+                    </select>
+                ) : (
+                    <input
+                        value={searchValue}
+                        onChange={(evt) => setSearchValue(evt.target.value)}
+                        placeholder="검색어"
+                        style={{
+                            height: "36px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                            padding: "0 10px",
+                        }}
+                    />
+                )}
 
                 <button
                     onClick={onSearch}
@@ -357,7 +445,7 @@ const FurnitureList = () => {
                         marginTop: "20px",
                     }}
                 >
-                    가구 목록을 불러올 수 없습니다
+                    조건에 맞는 상품이 없습니다.
                 </div>
             ) : (
                 <>
@@ -429,6 +517,7 @@ const FurnitureList = () => {
         onClick={(evt) => onToggleLike(evt, item.f_code)}
         onKeyDown={(evt) => {
             if (evt.key === "Enter" || evt.key === " ") {
+                evt.preventDefault();
                 onToggleLike(evt, item.f_code);
             }
         }}
@@ -558,10 +647,15 @@ const FurnitureList = () => {
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
+                                if (pageNum <= 1) return;
                                 navigate(makeListUrl(prevPage));
                             }}
-                        >
-                            ◀ 이전
+                            style={{
+                                pointerEvents: pageNum <= 1 ? "none" : "auto",
+                                color: pageNum <= 1 ? "#aaa" : "blue",
+                            }}
+                            >
+                        ◀ 이전
                         </a>
 
                         {pageCount > 0 &&
@@ -587,15 +681,20 @@ const FurnitureList = () => {
                                 </a>
                             ))}
 
-                        <a
+                            <a
                             href="#"
                             onClick={(evt) => {
                                 evt.preventDefault();
+                                if (pageNum >= totalPage) return;
                                 navigate(makeListUrl(nextPage));
                             }}
-                        >
+                            style={{
+                                pointerEvents: pageNum >= totalPage ? "none" : "auto",
+                                color: pageNum >= totalPage ? "#aaa" : "blue",
+                            }}
+                            >
                             다음 ▶
-                        </a>
+                            </a>
                     </div>
                 </>
             )}

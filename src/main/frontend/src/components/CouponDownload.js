@@ -3,7 +3,11 @@ import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import CouponService from "../service/couponService";
 
-const CouponDownload = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
+const CouponDownload = ({
+  coupon = null,
+  buttonText = "쿠폰 받기",
+  className = "",
+}) => {
   const { coupon_code } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -13,20 +17,9 @@ const CouponDownload = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
     title: "",
     text: "",
   });
-  	const localUserData = localStorage.getItem("user");
-    const userData = JSON.parse(localUserData);
-    const {
-      addr,
-      birth,
-      code,
-      email,
-      gender,
-      id,
-      name,
-      tel,
-      type,
-      companyList = [],
-    } = userData;
+  const localUserData = localStorage.getItem("user");
+  const userData = JSON.parse(localUserData || "{}");
+  const { id } = userData;
 
   const showAlert = ({ severity, title, text }) => {
     setAlert({
@@ -110,7 +103,12 @@ const CouponDownload = ({ coupon = null, buttonText = "쿠폰 받기" }) => {
 
   return (
     <>
-      <Button variant="contained" disabled={loading} onClick={handleDownload}>
+      <Button
+        className={className}
+        variant="contained"
+        disabled={loading}
+        onClick={handleDownload}
+      >
         {loading ? "발급 중..." : buttonText}
       </Button>
       <Snackbar

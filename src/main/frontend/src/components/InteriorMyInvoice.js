@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import InteriorBooking from "./InteriorBooking";
 import TableMuiCollapse from "./TableMuiCollapse";
+import DialogInside from "./DialogInside";
 
 const InteriorMyInvoice = ({ booking }) => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const InteriorMyInvoice = ({ booking }) => {
 
   const [reBooking, setReBooking] = useState(false);
 
-    const [invoiceWithDetails, setInvoiceWithDetails] = useState([]);
+  const [invoiceWithDetails, setInvoiceWithDetails] = useState([]);
 
   const handleNext = (invoice) => {
     navigate("/interior/review", {
@@ -38,28 +39,28 @@ const InteriorMyInvoice = ({ booking }) => {
     }
   }, [booking]);
 
-   useEffect(() => {
-      const fetchInvoiceDetails = async () => {
-        const result = await Promise.all(
-          invoice.map(async (item) => {
-            const data = await InteriorUserService.fetchInvoiceDetails(item);
-  
-            return {
-              ...item,
-              detail: Array.isArray(data) ? data : data ? [data] : [],
-            };
-          }),
-        );
-  
-        setInvoiceWithDetails(result);
-      };
-  
-      if (Array.isArray(invoice) && invoice.length > 0) {
-        fetchInvoiceDetails();
-      } else {
-        setInvoiceWithDetails([]);
-      }
-    }, [invoice]);
+  useEffect(() => {
+    const fetchInvoiceDetails = async () => {
+      const result = await Promise.all(
+        invoice.map(async (item) => {
+          const data = await InteriorUserService.fetchInvoiceDetails(item);
+
+          return {
+            ...item,
+            detail: Array.isArray(data) ? data : data ? [data] : [],
+          };
+        }),
+      );
+
+      setInvoiceWithDetails(result);
+    };
+
+    if (Array.isArray(invoice) && invoice.length > 0) {
+      fetchInvoiceDetails();
+    } else {
+      setInvoiceWithDetails([]);
+    }
+  }, [invoice]);
 
   return (
     <div>
@@ -79,10 +80,11 @@ const InteriorMyInvoice = ({ booking }) => {
               {booking?.b_status === "done" &&
                 invoiceItem.invoice_kind === "Y" && (
                   <div>
-                    <Button 
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleNext(invoiceItem)}>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={() => handleNext(invoiceItem)}
+                    >
                       리뷰 작성
                     </Button>
 
@@ -95,14 +97,19 @@ const InteriorMyInvoice = ({ booking }) => {
                     </Button>
 
                     {reBooking && (
-                      <InteriorBooking
-                        company={{
-                          c_id: booking.c_id,
-                          c_kind: booking.c_kind,
-                          c_name: booking.c_name,
-                        }}
-                        answers={JSON.parse(booking.b_answer)}
-                      />
+                      <DialogInside
+                        open={reBooking}
+                        onClose={() => setReBooking(false)}
+                      >
+                        <InteriorBooking
+                          company={{
+                            c_id: booking.c_id,
+                            c_kind: booking.c_kind,
+                            c_name: booking.c_name,
+                          }}
+                          answers={JSON.parse(booking.b_answer)}
+                        />
+                      </DialogInside>
                     )}
                   </div>
                 )}

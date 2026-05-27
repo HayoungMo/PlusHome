@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import CouponService from "../service/couponService";
-import TableMui from "./TableMui";
+import GetImgDir from "../resources/function/GetImgDir";
+import "../css/CouponArticleDownload.css";
 
 const CouponArticleDownload = ({ c_id, catagory }) => {
   const [couponForm, setCouponForm] = useState([]);
@@ -12,19 +13,8 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
     text: "",
   });
   const localUserData = localStorage.getItem("user");
-  const userData = JSON.parse(localUserData);
-  const {
-    addr,
-    birth,
-    code,
-    email,
-    gender,
-    id,
-    name,
-    tel,
-    type,
-    companyList = [],
-  } = userData;
+  const userData = JSON.parse(localUserData || "{}");
+  const { id } = userData;
   const showAlert = ({ severity, title, text }) => {
     setAlert({
       open: true,
@@ -32,6 +22,11 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
       title,
       text,
     });
+  };
+
+  const getCouponLogo = (coupon) => {
+    return coupon.logo?.result?.find((item) => item.img_tag === "LOGO")
+      ?.img_name;
   };
 
   const handleSubmit = async () => {
@@ -94,7 +89,30 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
         catagory,
       });
 
-      setCouponForm(result.data || []);
+      const couponList = Array.isArray(result.data) ? result.data : [];
+      const listWithImages = await Promise.all(
+        couponList.map(async (item) => {
+          const categoryParts = (item.coupon_catagory || catagory || "").split(
+            "_",
+          );
+          const logo = await GetImgDir({
+            kind: "LOGO",
+            returnType: "list",
+            a: categoryParts[0] || item.c_id || c_id,
+            b: categoryParts[1] || item.c_kind || catagory,
+            c: categoryParts[2] || item.c_name,
+            d: "Logo",
+            view: false,
+          });
+
+          return {
+            ...item,
+            logo: logo?.result?.length ? logo : null,
+          };
+        }),
+      );
+
+      setCouponForm(listWithImages);
     };
 
     fetchCoupon();
@@ -127,25 +145,65 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
         </Alert>
       </Snackbar>
 
-      <div>
-        {couponForm.map((item) => (
-          <div
-            style={{
-              width: "900px",
-              border: "1px solid black",
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            {item.coupon_info}//
-            {item.discount}//
-            {item.coupon_max}//
-            {item.coupon_end}//
+      <section className="coupon-article-download">
+        <div className="coupon-article-download-header">
+          <div>
+            <p className="coupon-article-download-eyebrow">COUPON</p>
+            <h3>받을 수 있는 쿠폰</h3>
           </div>
-        ))}
-      </div>
-      <Button onClick={handleSubmit}>쿠폰 모두 받기</Button>
+          <span>{couponForm.length}개</span>
+        </div>
+
+        {couponForm.length > 0 ? (
+          <div className="coupon-article-download-list">
+            {couponForm.map((item) => (
+              <article
+                className="coupon-article-download-card coupon-article-download-card-has-logo"
+                key={item.coupon_code}
+              >
+                <div className="coupon-article-download-badge">할인</div>
+
+                <div className="coupon-event-download-logo">
+                  {getCouponLogo(item) ? (
+                    <img src={getCouponLogo(item)} alt="" />
+                  ) : (
+                    <span>COUPON</span>
+                  )}
+                </div>
+
+                <div className="coupon-article-download-main">
+                  <strong>{item.discount}%</strong>
+                  <p>{item.coupon_info}</p>
+                </div>
+
+                <dl className="coupon-article-download-meta">
+                  <div>
+                    <dt>최대 할인 금액</dt>
+                    <dd>{item.coupon_max || "-"}</dd>
+                  </div>
+                  <div>
+                    <dt>사용 기한</dt>
+                    <dd>{item.coupon_end || "상시"}</dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="coupon-article-download-empty">
+            발급 가능한 쿠폰이 없습니다.
+          </div>
+        )}
+
+        <Button
+          className="coupon-article-download-button"
+          variant="contained"
+          disabled={!couponForm.length}
+          onClick={handleSubmit}
+        >
+          쿠폰 모두 받기
+        </Button>
+      </section>
     </>
   );
 };

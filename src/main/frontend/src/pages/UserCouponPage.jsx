@@ -168,7 +168,6 @@ const UserCouponPage = ({ user }) => {
                 {successMessage}
               </Box>
             )}
-
           </form>
         )}
 
@@ -177,27 +176,36 @@ const UserCouponPage = ({ user }) => {
             {availableCoupons.length === 0 ? (
               <Box
                 sx={{
-                    py: 6,
-                    textAlign: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: 1,
-                    color: "text.secondary",
-                  }}
+                  py: 6,
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: 1,
+                  color: "text.secondary",
+                }}
               >
-                <Box sx={{mb: 2, fontWeight: 700}}>
-                    사용 가능한 쿠폰이 없습니다.
+                <Box sx={{ mb: 2, fontWeight: 700 }}>
+                  사용 가능한 쿠폰이 없습니다.
                 </Box>
 
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={()=> setTab(0)}
+                  onClick={() => setTab(0)}
                 >
                   쿠폰 등록하기
                 </Button>
               </Box>
-            ):(
-              <TableMui rowData={availableCoupons}/>
+            ) : (
+              <TableMui
+                rowData={availableCoupons}
+                col={[
+                  "coupon_code",
+                  "discount",
+                  "coupon_end",
+                  "coupon_max",
+                  "coupon_info",
+                ]}
+              />
             )}
           </>
         )}
@@ -207,17 +215,26 @@ const UserCouponPage = ({ user }) => {
             {usedCoupons.length === 0 ? (
               <Box
                 sx={{
-                    py: 6,
-                    textAlign: "center",
-                    border: "1px solid #ddd",
-                    borderRadius: 1,
-                    color: "text.secondary",
-                  }}
+                  py: 6,
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: 1,
+                  color: "text.secondary",
+                }}
               >
                 사용한 쿠폰이 없습니다.
               </Box>
-            ):(
-              <TableMui rowData={usedCoupons}/>
+            ) : (
+              <TableMui
+                rowData={usedCoupons}
+                col={[
+                  "coupon_code",
+                  "discount",
+                  "coupon_used",
+                  "coupon_max",
+                  "coupon_info",
+                ]}
+              />
             )}
           </>
         )}

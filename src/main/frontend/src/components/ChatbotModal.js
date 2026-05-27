@@ -18,6 +18,7 @@ import InteriorRecommend from './InteriorRecommend';
 import { useNavigate } from 'react-router-dom';
 import {
     customCategoryValue,
+    furnitureCategoryFields,
     furnitureCategoryOptions,
 } from "./FurnitureCategorySelect";
 
@@ -35,11 +36,22 @@ const ChatbotModal = ({ onClose }) => {
                 label: item.title,
                 value: item.value,
             }));
+
+    const chatbotFurnitureCategory1Options = [
+        { label: "침대", value: "bed" },
+        { label: "소파", value: "sofa" },
+        { label: "책상", value: "desk" },
+        { label: "의자", value: "chair" },
+        { label: "수납장", value: "storage" },
+        { label: "식탁", value: "table" },
+        { label: "조명", value: "light" },
+        { label: "매트리스", value: "mattress" },
+    ];
     const furnitureQuestions = [
             {
                 key: "f_catagory1",
                 message: "어떤 가구를 찾고 계신가요?",
-                options: getFurnitureOptions("f_catagory1"),
+                options: chatbotFurnitureCategory1Options,
             },
             {
                 key: "f_catagory2",
@@ -172,17 +184,24 @@ const ChatbotModal = ({ onClose }) => {
 
     //가구 추천 완료 후 검색으로 보내는 함수
     const goFurnitureSearch = () => {
-        const keyword = answers.f_catagory1;
-
-        if (!keyword) {
+        if (!answers.f_catagory1) {
             alert("추천 검색어가 없습니다");
             return;
         }
 
+        const params = new URLSearchParams({
+            page: "1",
+            sort: "latest",
+        });
+
+        furnitureCategoryFields.forEach((field) => {
+            if (answers[field]) {
+                params.set(field, answers[field]);
+            }
+        });
+
         onClose();
-        navigate(
-            `/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(keyword)}&sort=latest`
-        );
+        navigate(`/furniture/list?${params.toString()}`);
     };
 
     //이전 화면

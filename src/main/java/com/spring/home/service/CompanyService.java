@@ -70,4 +70,8 @@ public class CompanyService {
 		}
 		return total;
 	}
+
+	public List<CompanyDTO> getListByCompany(CompanyDTO dto) throws Exception {
+		return companyMapper.getListByCompany(dto);
+	}
 }

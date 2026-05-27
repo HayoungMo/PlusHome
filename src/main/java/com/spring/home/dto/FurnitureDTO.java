@@ -35,9 +35,19 @@ public class FurnitureDTO {
 	private int f_deliveryPrice;
 	
 	// 리뷰 갯수
-	private int r_count;
-	// 구매 횟수
-	private int s_count;
+	private String r_count;
+	// 답변 갯수
+	private String a_count;
+	// 별점 평균
+	private String star_avg;
+	// 총 판매된 물품 수
+	private String cart_total_f_count;
+	// 총 판매된 물품 금액
+	private String cart_total_f_price;
+	// 평균 구매 물품 수
+	private String cart_avg_f_count;
+	// 총 판매 횟수 ( 구매 횟수 기준 )
+	private String cart_total_buy;
 	
 	private List<ImageDTO> imageList;
 }

@@ -75,4 +75,20 @@
        AND c_name = #{c_name}
        AND c_kind = #{c_kind} 
 </delete>
+
+<select id="getListByCompany" parameterType="hashMap" resultType="com.spring.home.dto.CompanyDTO">
+ SELECT * FROM COMPANY
+ 	<where>
+ 	<if test="c_id != null and c_id != ''">
+ 		AND c_id = #{c_id} 	
+ 	</if>
+ 	 <if test="c_kind != null and c_kind != ''">
+ 		AND C_KIND = #{c_kind} 	
+ 	</if>
+ 	 <if test="c_name != null and c_name != ''">
+ 		AND C_NAME = #{c_name} 	
+ 	</if>
+ 	</where>
+</select>
+
 </mapper>

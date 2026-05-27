@@ -12,29 +12,38 @@ import { TablePagination } from "@mui/material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: "#1e89be",
-		color: "#fff",
-		fontSize: 15,
-		fontWeight: 700,
-		padding: "14px 16px",
-		borderBottom: "2px solid #1b5069",
+		backgroundColor: "#f8fafc",
+		color: "#334155",
+		fontSize: 13,
+		fontWeight: 800,
+		lineHeight: 1.4,
+		padding: "14px 18px",
+		borderBottom: "1px solid #d8dee8",
+		whiteSpace: "nowrap",
 	},
 
 	[`&.${tableCellClasses.body}`]: {
 		fontSize: 14,
-		padding: "12px 16px",
-		color: "#333",
-		borderBottom: "1px solid #e0e0e0",
+		fontWeight: 600,
+		lineHeight: 1.45,
+		padding: "14px 18px",
+		color: "#475569",
+		borderBottom: "1px solid #e5eaf2",
+		verticalAlign: "middle",
 	},
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	"&:nth-of-type(odd)": {
-		backgroundColor: "#fafafa",
+		backgroundColor: "#ffffff",
+	},
+
+	"&:nth-of-type(even)": {
+		backgroundColor: "#fbfdff",
 	},
 
 	"&:hover": {
-		backgroundColor: "#f1f8ff",
+		backgroundColor: "#eff6ff",
 		// cursor: "pointer",
 	},
 
@@ -127,8 +136,25 @@ const TableCheckBoxMui = (props) => {
 		<TableContainer
 			component={Paper}
 			sx={{
-				boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-				overflow: "hidden",
+				borderRadius: "8px",
+				border: "1px solid #d8dee8",
+				boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
+				overflow: "auto",
+				backgroundColor: "#ffffff",
+				"& .MuiCheckbox-root": {
+					color: "#94a3b8",
+				},
+				"& .MuiCheckbox-root.Mui-checked, & .MuiCheckbox-root.MuiCheckbox-indeterminate": {
+					color: "#1d4ed8",
+				},
+				"& .MuiTablePagination-root": {
+					borderTop: "1px solid #e5eaf2",
+					color: "#475569",
+				},
+				"& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+					fontSize: 13,
+					fontWeight: 700,
+				},
 			}}>
 			<Table sx={{ minWidth: 650 }} aria-label="simple table">
 				<TableHead>

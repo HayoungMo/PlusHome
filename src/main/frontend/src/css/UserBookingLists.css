@@ -1,41 +1,75 @@
 .user-booking-layout {
   display: grid;
-  gap: 22px;
+  gap: 18px;
   width: 100%;
   min-width: 0;
+  color: #2f3438;
 }
 
 .user-booking-card {
   min-width: 0;
-  border: 1px solid #dfe8f5;
-  border-radius: 10px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+  box-shadow: none;
   overflow: hidden;
 }
 
 .user-booking-head {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 18px;
-  padding: 20px 22px;
-  border-bottom: 1px solid #edf0f3;
-  text-align: center;
+  padding: 18px;
+  border-bottom: 1px solid #eaedef;
+  text-align: left;
 }
 
 .user-booking-head h3 {
-  margin: 0 0 6px;
+  margin: 2px 0 6px;
+  color: #2f3438;
   font-size: 20px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .user-booking-head p {
   margin: 0;
+  color: #828c94;
   font-size: 14px;
-  line-height: 1.45;
-  color: #7b818a;
+  line-height: 1.5;
+}
+
+.user-booking-eyebrow {
+  color: #00a1ff !important;
+  font-size: 12px !important;
+  font-weight: 800;
+}
+
+.user-booking-count {
+  flex: 0 0 auto;
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f0faff;
+  color: #00a1ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.user-booking-empty {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .user-booking-table {
@@ -48,29 +82,38 @@
   box-shadow: none;
 }
 
-.user-booking-table .MuiTable-root {
-  min-width: 720px;
+.user-booking-invoice {
+  padding: 18px;
 }
 
-.user-booking-invoice {
-  padding: 22px;
+.user-booking-invoice > div {
+  min-width: 0;
 }
 
 .user-booking-invoice > div > p:first-child {
-  margin: 0 0 16px;
+  margin: 0 0 14px;
+  color: #2f3438;
   font-size: 20px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .user-booking-invoice .MuiPaper-root {
+  border: 1px solid #eaedef;
+  border-radius: 8px;
   box-shadow: none;
-  border: 1px solid #edf0f3;
+  overflow: hidden;
+}
+
+.user-booking-invoice .MuiButton-root {
+  border-radius: 6px;
+  font-weight: 800;
 }
 
 @media (max-width: 640px) {
   .user-booking-head {
-    padding: 18px;
+    display: grid;
+    padding: 16px;
   }
 
   .user-booking-head h3,
@@ -78,7 +121,11 @@
     font-size: 18px;
   }
 
+  .user-booking-count {
+    justify-self: start;
+  }
+
   .user-booking-invoice {
-    padding: 18px;
+    padding: 14px;
   }
 }

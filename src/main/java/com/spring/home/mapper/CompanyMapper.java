@@ -28,4 +28,6 @@ public interface CompanyMapper {
 	public int updateCompanyDev(CompanyDTO dto) throws Exception;
 
 	public int deleteCompanyOne(CompanyDTO dto) throws Exception;
+
+	public List<CompanyDTO> getListByCompany(CompanyDTO dto) throws Exception;
 }

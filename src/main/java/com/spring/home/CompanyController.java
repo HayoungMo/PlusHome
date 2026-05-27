@@ -38,9 +38,9 @@ public class CompanyController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@GetMapping("/getAll")
-	public List<CompanyDTO> getLists() throws Exception{
+	public List<CompanyDTO> getLists() throws Exception {
 		return companyService.getLists();
 	}
 
@@ -138,10 +138,33 @@ public class CompanyController {
 			result.put("success", false);
 			result.put("message", "일부 데이터가 삭제되지 않았습니다");
 		} else {
-		result.put("success", true);
-		result.put("message", "성공적으로 삭제되었습니다");
+			result.put("success", true);
+			result.put("message", "성공적으로 삭제되었습니다");
 		}
 
 		return result;
 	}
+
+	@PostMapping("/getListByCompany")
+	public Map<String, Object> getListByCompany(@RequestBody CompanyDTO dto) {
+		Map<String, Object> result = new HashMap<>();
+		try {
+			List<CompanyDTO> companyList = companyService.getListByCompany(dto);
+
+			if (companyList.size() > 0) {
+				result.put("message", "유저 사업체 목록을 성공적으로 조회하였습니다.");
+			} else {
+				result.put("message", "등록된 사업체가 없습니다.");
+			}
+			result.put("success", true);
+			result.put("companyList", companyList);
+			result.put("size", companyList.size());
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("error", e.toString());
+			result.put("message", "사업체 조회중 오류가 발생하였습니다.");
+		}
+		return result;
+	}
+
 }

@@ -86,22 +86,6 @@
   font-weight: 800;
 }
 
-.action-buttons .MuiButton-outlined {
-  border-color: #00a1ff;
-  color: #00a1ff;
-}
-
-.action-buttons .MuiButton-contained {
-  background: #00a1ff;
-  color: #fff;
-  box-shadow: none;
-}
-
-.action-buttons .MuiButton-contained:hover {
-  background: #008cff;
-  box-shadow: none;
-}
-
 .tag-card .MuiChip-root,
 .example-content .MuiChip-root {
   height: 26px;
@@ -256,8 +240,6 @@
 
 .example-slide-controls .MuiButton-root {
   border-radius: 6px;
-  background: #00a1ff;
-  color: #fff;
   font-weight: 800;
 }
 
