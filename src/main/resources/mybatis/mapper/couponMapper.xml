@@ -7,7 +7,7 @@
 <!-- 입력 -->
 <insert id="insertData" parameterType="com.spring.home.dto.CouponDTO">
 	insert into coupon
-	(coupon_code, discount, coupon_end, coupon_max, coupon_info, id,coupon_type, coupon_catagory)
+	(coupon_code, discount, coupon_end, coupon_max, coupon_info, id, coupon_type, coupon_catagory)
 	values 
 	( #{coupon_code}, #{discount}, #{coupon_end}, #{coupon_max}, #{coupon_info}, #{id},#{coupon_type}, #{coupon_catagory})	            
 </insert>

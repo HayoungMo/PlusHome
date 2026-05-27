@@ -40,6 +40,11 @@ public class PaymentService {
 	private final FurnitureMapper furnitureMapper;
 	private final CouponMapper couponMapper;
 	
+	//대소문자 구분 안함
+	private String normalizeCouponValue(String value) {
+	    return value == null ? "" : value.trim().toLowerCase();
+	}
+	
 	private void updateWallet(String id, int money) throws Exception {
 		WalletDTO wallet = new WalletDTO();
 		wallet.setId(id);
@@ -173,6 +178,30 @@ public class PaymentService {
 	    return Math.min(discount, itemProductTotal);
 	}
 	
+	private String getCouponCompanyId(String couponCatagory) {
+	    if (couponCatagory == null) {
+	        return "";
+	    }
+
+	    String[] parts = couponCatagory.split("_");
+
+	    if (parts.length < 3) {
+	        return couponCatagory;
+	    }
+
+	    StringBuilder companyId = new StringBuilder();
+
+	    for (int i = 0; i < parts.length - 2; i++) {
+	        if (i > 0) {
+	            companyId.append("_");
+	        }
+
+	        companyId.append(parts[i]);
+	    }
+
+	    return companyId.toString();
+	}
+	
 	private boolean canApplyCouponToItem(CouponDTO coupon, String f_code) throws Exception {
 	    String couponType = coupon.getCoupon_type() == null ? "all" : coupon.getCoupon_type();
 	    String couponCatagory = coupon.getCoupon_catagory();
@@ -188,17 +217,20 @@ public class PaymentService {
 	    FurnitureDTO furniture = getFurnitureOrThrow(f_code);
 
 	    if ("company".equals(couponType)) {
-	        return couponCatagory.equals(furniture.getC_id());
+	    	return normalizeCouponValue(getCouponCompanyId(couponCatagory))
+	    	        .equals(normalizeCouponValue(furniture.getC_id()));
 	    }
 
 	    if ("catagory".equals(couponType)) {
-	        return couponCatagory.equals(furniture.getF_catagory1())
-	            || couponCatagory.equals(furniture.getF_catagory2())
-	            || couponCatagory.equals(furniture.getF_catagory3())
-	            || couponCatagory.equals(furniture.getF_catagory4())
-	            || couponCatagory.equals(furniture.getF_catagory5());
-	    }
+	        String targetCategory = normalizeCouponValue(couponCatagory);
 
+	        return targetCategory.equals(normalizeCouponValue(furniture.getF_catagory1()))
+	            || targetCategory.equals(normalizeCouponValue(furniture.getF_catagory2()))
+	            || targetCategory.equals(normalizeCouponValue(furniture.getF_catagory3()))
+	            || targetCategory.equals(normalizeCouponValue(furniture.getF_catagory4()))
+	            || targetCategory.equals(normalizeCouponValue(furniture.getF_catagory5()));
+	    }
+	    
 	    return false;
 	}
 	

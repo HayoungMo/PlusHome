@@ -121,35 +121,57 @@ const PaymentPage = () => {
   Number(stateItemCount || 0) ||
   items.reduce((sum, item) => sum + Number(item.f_count || 0), 0);
 
-  const canApplyCouponToItem = (couponItem, item) => {
-    const couponType = couponItem.coupon_type || "all";
-    const couponCatagory = couponItem.coupon_catagory || "";
+  const getCouponCompanyId = (couponCatagory) => {
+    const parts = (couponCatagory || "").split("_");
 
-    if (couponType === "all") {
-      return true;
+    if (parts.length < 3) {
+      return couponCatagory;
     }
 
-    if (!couponCatagory) {
+    return parts.slice(0, -2).join("_");
+  };
+
+    const canApplyCouponToItem = (couponItem, item) => {
+      const couponType = couponItem.coupon_type || "all";
+      const couponCatagory = couponItem.coupon_catagory || "";
+
+      if (couponType === "all") {
+        return true;
+      }
+
+      if (!couponCatagory) {
+        return false;
+      }
+
+      if (couponType === "company") {
+        return getCouponCompanyId(couponCatagory) === item.furniture?.c_id;
+      }
+
+      if (couponType === "catagory") {
+        const targetCategory = String(couponCatagory || "")
+          .trim()
+          .toLowerCase();
+
+        const itemCategories = [
+          item.furniture?.f_catagory1,
+          item.furniture?.f_catagory2,
+          item.furniture?.f_catagory3,
+          item.furniture?.f_catagory4,
+          item.furniture?.f_catagory5,
+        ]
+          .filter(Boolean)
+          .map((category) => String(category).trim().toLowerCase());
+
+        console.log("쿠폰 카테고리 비교", {
+          targetCategory,
+          itemCategories,
+          furniture: item.furniture,
+        });
+
+        return itemCategories.includes(targetCategory);
+      }
+
       return false;
-    }
-
-    if (couponType === "company") {
-      return couponCatagory === item.furniture?.c_id;
-    }
-
-    if (couponType === "catagory") {
-      const itemCategories = [
-        item.furniture?.f_catagory1,
-        item.furniture?.f_catagory2,
-        item.furniture?.f_catagory3,
-        item.furniture?.f_catagory4,
-        item.furniture?.f_catagory5,
-      ].filter(Boolean);
-
-      return itemCategories.includes(couponCatagory);
-    }
-
-    return false;
   };
 
   const getItemCouponDiscount = (item) => {
@@ -819,7 +841,7 @@ const PaymentPage = () => {
         fullWidth
       >
         <DialogTitle fontWeight={700}>
-          {paySuccess ? "결제 완료" : "결제 확인"}
+          {paySuccess ? "" : "결제 확인"}
         </DialogTitle>
 
         <DialogContent>

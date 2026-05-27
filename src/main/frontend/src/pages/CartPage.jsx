@@ -117,119 +117,6 @@ const CartPage = () => {
     }, {});
   };
 
-  const getCartOptionKey = (options) => {
-    return (options || [])
-      .map((option) => ({
-        select: (option.co_select || "").trim(),
-        text: (option.co_text || "").trim(),
-        price: Number(option.co_price || 0),
-      }))
-      .sort((a, b) => {
-        const selectCompare = a.select.localeCompare(b.select);
-        if (selectCompare !== 0) return selectCompare;
-
-        return a.text.localeCompare(b.text);
-      })
-      .map((option) => `${option.select}:${option.text}:${option.price}`)
-      .join("|");
-  };
-
-  const getDuplicateKey = (item) => {
-    const companyKey =
-      item.furniture?.c_id || item.furniture?.c_name || "unknown";
-
-    return `${companyKey}_${item.f_code}_${getCartOptionKey(item.options)}`;
-  };
-
-  const normalizeDuplicateCart = async (cartList) => {
-    const groups = {};
-
-    cartList.forEach((item) => {
-      const key = getDuplicateKey(item);
-
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(item);
-    });
-
-    const duplicateGroups = Object.values(groups).filter(
-      (items) => items.length > 1
-    );
-
-    if (duplicateGroups.length === 0) return false;
-
-    await Promise.all(
-      duplicateGroups.map(async (items) => {
-        const [first, ...duplicates] = items;
-        const totalCount = items.reduce(
-          (sum, item) => sum + Number(item.f_count || 0),
-          0
-        );
-
-        await CartService.updateCartCount({
-          c_code: first.c_code,
-          f_count: totalCount,
-        });
-
-        await Promise.all(
-          duplicates.map((item) => CartService.deleteCart(item.c_code))
-        );
-      })
-    );
-
-    return true;
-  };
-
-  const getMergeOptionKey = (options) => {
-    return (options || [])
-      .map((option) => ({
-        select: (option.co_select || "").trim(),
-        text: (option.co_text || "").trim(),
-        price: Number(option.co_price || 0),
-      }))
-      .sort((a, b) => {
-        const selectCompare = a.select.localeCompare(b.select);
-        if (selectCompare !== 0) return selectCompare;
-
-        return a.text.localeCompare(b.text);
-      })
-      .map((option) => `${option.select}:${option.text}:${option.price}`)
-      .join("|");
-  };
-
-  const mergeSameCartItems = (cartList) => {
-    const mergedMap = {};
-
-    cartList.forEach((item) => {
-      const companyKey =
-        item.furniture?.c_id || item.furniture?.c_name || "unknown";
-
-      const mergeKey = [
-        companyKey,
-        item.f_code,
-        getMergeOptionKey(item.options),
-      ].join("_");
-
-      if (!mergedMap[mergeKey]) {
-        mergedMap[mergeKey] = {
-          ...item,
-          c_codeList: [item.c_code],
-          f_count: Number(item.f_count || 0),
-        };
-
-        return;
-      }
-
-      mergedMap[mergeKey] = {
-        ...mergedMap[mergeKey],
-        c_codeList: [...mergedMap[mergeKey].c_codeList, item.c_code],
-        f_count:
-          Number(mergedMap[mergeKey].f_count || 0) + Number(item.f_count || 0),
-      };
-    });
-
-    return Object.values(mergedMap);
-  };
-
   const loadCart = async ( showLoading = true ) => {
     try {
       if(showLoading){
@@ -287,14 +174,7 @@ const CartPage = () => {
       })
       );
 
-      const merged = await normalizeDuplicateCart(cartWithDetail);
-
-      if (merged) {
-        await loadCart(showLoading);
-        return;
-      }
-
-      const mergedCart = mergeSameCartItems(cartWithDetail);
+      const mergedCart = cartWithDetail;
 
       const mergedSelected = {};
       mergedCart.forEach((item) => {
@@ -613,9 +493,9 @@ const CartPage = () => {
     try {
       const deleteCodes = item.c_codeList || [item.c_code];
 
-      await Promise.all(
-        deleteCodes.map((c_code) => CartService.deleteCart(c_code))
-      );
+      for (const c_code of deleteCodes) {
+        await CartService.deleteCart(c_code);
+      }
 
       setCart((prev) =>
         prev.filter((cartItem) => cartItem.c_code !== item.c_code)
@@ -663,13 +543,13 @@ const CartPage = () => {
 
   const removeSelectedItemsSubmit = async (items) => {
     try {
-      await Promise.all(
-        items.flatMap((item) =>
-          (item.c_codeList || [item.c_code]).map((c_code) =>
-            CartService.deleteCart(c_code)
-          )
-        )
+      const deleteCodes = items.flatMap(
+        (item) => item.c_codeList || [item.c_code]
       );
+
+      for (const c_code of deleteCodes) {
+        await CartService.deleteCart(c_code);
+      }
 
       const selectedCodes = items.map((item) => item.c_code);
 
