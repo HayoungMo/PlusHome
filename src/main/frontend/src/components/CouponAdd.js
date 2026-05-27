@@ -10,7 +10,19 @@ import SelectMui from "./SelectMui";
 
 const CouponAdd = ({onCreated}) => {
   //쿠폰 발급 페이지
-  const id = localStorage.getItem("id");
+  	const localUserData = localStorage.getItem("user");
+    const userData = JSON.parse(localUserData);
+    const {
+      addr,
+      birth,
+      code,
+      email,
+      gender,
+      id,
+      name,
+      tel,
+      type,
+    } = userData;
   const [companyList, setCompanyList] = useState();
   const [form, setForm] = useState({ 
     id: id,

@@ -9,8 +9,6 @@ const InteriorReviewList = ({ company }) => {
   useEffect(() => {
     const fetchReview = async () => {
       const data = await InteriorService.fetchInteriorReview(company);
-      console.log("리뷰데이터");
-      console.log(data);
       const companyList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
         companyList.map(async (item) => {

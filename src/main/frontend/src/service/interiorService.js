@@ -266,17 +266,17 @@ const AddInteriorExample = async (data) => {
 const AddBooking = async (data) => {
 	try {
 		const res = await http.post("/interior/add/booking", {
-			id: localStorage.getItem("id"),
-			c_id: data.c_id,
-			c_kind: data.c_kind,
-			c_name: data.c_name,
-			b_kind: data.kind,
-			b_long: data.long,
-			b_date: data.date,
-			b_status: "pending",
-			b_content: data.content,
-			b_answer: data.answers,
-		});
+      id: data.id,
+      c_id: data.c_id,
+      c_kind: data.c_kind,
+      c_name: data.c_name,
+      b_kind: data.kind,
+      b_long: data.long,
+      b_date: data.date,
+      b_status: "pending",
+      b_content: data.content,
+      b_answer: data.answers,
+    });
 
 		return {
 			success: true,
@@ -320,7 +320,7 @@ const AddInvoiceDetail = async (data) => {
 	console.log("들어온 데이터", data);
 	try {
 		const res = await http.post("/interior/add/invoice", {
-			id: localStorage.getItem("id"),
+			id: data.id,
 			c_id: data.c_id,
 			c_kind: data.c_kind,
 			c_name: data.c_name,
@@ -427,6 +427,7 @@ const DeleteInterior = async (data) => {
 			c_kind: data.c_kind,
 			c_name: data.c_name,
 			i_tag: data.tag,
+			i_text: data.text,
 		});
 		return {
 			success: true,

@@ -14,9 +14,22 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
     text: "",
   });
   const [open, setOpen] = useState(false);
+  const localUserData = localStorage.getItem("user");
+  const userData = JSON.parse(localUserData);
+  const {
+    addr,
+    birth,
+    code,
+    email,
+    gender,
+    id,
+    name,
+    tel,
+    type,
+    companyList = [],
+  } = userData;
 
   useEffect(() => {
-    const id = localStorage.getItem("id");
     const token = localStorage.getItem("token");
 
     if (!id || !token) {
@@ -82,6 +95,7 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
     e.preventDefault(); // 🔥 페이지 새로고침 막기
     const payload = {
       ...data,
+      id : id,
       answers: JSON.stringify(answers),
     };
     const result = await InteriorService.AddBooking(payload);

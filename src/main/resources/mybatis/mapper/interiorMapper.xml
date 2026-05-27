@@ -788,6 +788,7 @@
 		#{c_kind}
 		AND c_name = #{c_name}
 		AND i_tag = #{i_tag}
+		AND i_text = #{i_text}
 	</delete>
 
 	<delete id="deleteInteriorExample"
