@@ -4,23 +4,17 @@ import TableMui from "./../components/TableMui";
 import FurnitureService from "./../service/furnitureService";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import { getImgFurnitureList } from "../resources/function/GetImgDir";
-import RatingMui from "../components/RatingMui";
 import FurnitureReview from "../components/FurnitureReview";
-import { Button } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import TextFieldMui from "./../components/TextFieldMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
+import "../css/DashboardShoppingMall.css";
 
 const ShoppingMallReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList = [] } = userData;
-
-	const shopListState = useMemo(() => {
-		const shopList = companyList.filter((data) => data.c_kind === "shop");
-
-		return [{ c_id: id, c_name: "all" }, ...shopList];
-	}, [companyList]);
+	const { id } = userData;
 
 	const initReviewAndReply = {
 		c_id: "",
@@ -50,7 +44,6 @@ const ShoppingMallReviewControl = () => {
 	const [selectedReply, setSelectedReply] = useState(initReviewAndReply);
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
-	const [startValue, setStartValue] = useState(0);
 
 	const displayFurnitureList = useMemo(() => {
 		const shopList = furnitureList.map((record) => {
@@ -163,14 +156,14 @@ const ShoppingMallReviewControl = () => {
 
 	const handleReplySave = async () => {
 		const saveType = selectedReply.fr_idx !== 0;
-		// fr_idx 가 0 = 수정 아니면 저장
+
 		try {
 			const result = saveType
 				? await FurnitureReviewService.updateReplyOnDashboard(selectedReply)
 				: await FurnitureReviewService.insertReplyOnDashboard(
 						selectedReply,
 						selectedReview,
-					);
+				  );
 			if (result.success) {
 				setAlertInfo({
 					severity: "success",
@@ -188,7 +181,7 @@ const ShoppingMallReviewControl = () => {
 		} catch (error) {
 			setAlertInfo({
 				severity: "error",
-				title: "에러 발생",
+				title: "오류 발생",
 				text: error,
 			});
 			console.log(error);
@@ -202,13 +195,13 @@ const ShoppingMallReviewControl = () => {
 
 	const dialogUpdateConfirmButtonList = [
 		{
-			title: "Cancel",
+			title: "취소",
 			color: "error",
 			variant: "outlined",
 			onClick: () => setConfirmOpen(!confirmOpen),
 		},
 		{
-			title: "Save",
+			title: "저장",
 			color: "primary",
 			variant: "outlined",
 			onClick: () => handleReplySave(),
@@ -244,83 +237,106 @@ const ShoppingMallReviewControl = () => {
 	}, [selectedReview]);
 
 	return (
-		<div>
-			<div
-				style={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-					height: "fit-content",
-					marginBottom: "15px",
-					marginTop: "5px",
-				}}>
-				<SelectMui
-					label="상품 선택"
-					value={selectFurniture}
-					onChange={(e) => {
-						console.log("SelectMui : " + e.target.value);
-						setSelectFurniture(e.target.value);
-					}}
-					option={displayFurnitureList || []}
-					width="180px"
-				/>
-				<TextFieldMui value={totalReviewInfo.star} label="별점 평균" />
-				<TextFieldMui value={totalReviewInfo.qty} label="구매 물품 수" />
-				<TextFieldMui value={totalReviewInfo.price} label="총 금액" />
-			</div>
-			{selectdFurnitureInfo !== null && (
+		<div className="shopping-mall-review-page">
+			<div className="shopping-mall-review-header">
 				<div>
-					{selectdFurnitureInfo?.f_name} |
-					<div>
-						<img
-							width={100}
-							src={selectdFurnitureInfo?.thumbnail}
-							alt={selectdFurnitureInfo?.f_name}
-						/>
+					<h3>리뷰 관리</h3>
+					<p>상품별 고객 리뷰를 확인하고 기업 답글을 등록합니다.</p>
+				</div>
+				<div className="shopping-mall-review-summary">
+					<Chip label={`리뷰 ${displayReviewList.length}건`} variant="outlined" />
+					<Chip label={`평균 ${totalReviewInfo.star}점`} color="primary" variant="outlined" />
+					<Chip label={`구매 ${totalReviewInfo.qty}건`} variant="outlined" />
+				</div>
+			</div>
+
+			<section className="shopping-mall-review-card">
+				<div className="shopping-mall-review-toolbar">
+					<SelectMui
+						label="상품 선택"
+						value={selectFurniture}
+						onChange={(e) => {
+							console.log("SelectMui : " + e.target.value);
+							setSelectFurniture(e.target.value);
+						}}
+						option={displayFurnitureList || []}
+						width="220px"
+					/>
+					<div className="shopping-mall-review-metrics">
+						<TextFieldMui value={totalReviewInfo.star} label="별점 평균" />
+						<TextFieldMui value={totalReviewInfo.qty} label="구매 물품 수" />
+						<TextFieldMui value={totalReviewInfo.price} label="총 금액" />
 					</div>
 				</div>
-			)}
-			<TableMui
-				rowData={displayReviewList}
-				col={["id", "fr_star", "fr_subject", "f_name", "c_id", "f_code"]}
-				selectedRow={selectedReview}
-				setSelectedRow={setSelectedReview}
-				defaultRowPerPage={5}
-				resetPageKey={selectFurniture}
-				pagination
-			/>
-			선택한 리뷰
-			{selectedReview.fr_idx !== 0 && (
-				<div>
-					<FurnitureReview
-						key={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
-						fr_idx={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
-						f_code={selectedReview.f_code}
+
+				{selectdFurnitureInfo !== null && (
+					<div className="shopping-mall-review-product">
+						<div className="shopping-mall-review-product-thumb">
+							<img
+								src={selectdFurnitureInfo?.thumbnail}
+								alt={selectdFurnitureInfo?.f_name}
+							/>
+						</div>
+						<div>
+							<strong>{selectdFurnitureInfo?.f_name}</strong>
+							<span>{selectdFurnitureInfo?.c_name}</span>
+						</div>
+					</div>
+				)}
+
+				<div className="shopping-mall-review-table">
+					<TableMui
+						rowData={displayReviewList}
+						col={["id", "fr_star", "fr_subject", "f_name", "c_id", "f_code"]}
+						columns={["작성자", "별점", "리뷰 제목", "상품명", "업체 ID", "상품 코드"]}
+						selectedRow={selectedReview}
+						setSelectedRow={setSelectedReview}
+						defaultRowPerPage={5}
+						resetPageKey={selectFurniture}
+						pagination
 					/>
 				</div>
-			)}
+			</section>
+
 			{selectedReview.fr_idx !== 0 && (
-				<div>
-					<div>
-						<TextFieldMui
-							name="fr_subject"
-							label="답변 제목"
-							value={selectedReply.fr_subject}
-							onChange={onChageReplyText}
+				<section className="shopping-mall-review-detail">
+					<div className="shopping-mall-review-detail-head">
+						<div>
+							<h4>선택한 리뷰</h4>
+							<p>고객 리뷰 내용을 확인하고 답글을 작성하세요.</p>
+						</div>
+						<Chip label={`${selectedReview.fr_star || 0}점`} color="primary" variant="outlined" />
+					</div>
+
+					<div className="shopping-mall-review-preview">
+						<FurnitureReview
+							key={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
+							fr_idx={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
+							f_code={selectedReview.f_code}
 						/>
 					</div>
-					<div>
+
+					<div className="shopping-mall-review-reply">
+						<TextFieldMui
+							name="fr_subject"
+							label="답글 제목"
+							value={selectedReply.fr_subject}
+							onChange={onChageReplyText}
+							width="100%"
+						/>
 						<TextFieldMui
 							name="fr_content"
-							label="답변 내용"
+							label="답글 내용"
 							multiline={true}
 							minRows={4}
 							maxRows={4}
 							value={selectedReply.fr_content}
 							onChange={onChageReplyText}
+							width="100%"
 						/>
 					</div>
-					<div>
+
+					<div className="shopping-mall-review-actions">
 						<Button variant="contained" color="error" onClick={cancelWriteReply}>
 							작성 취소
 						</Button>
@@ -329,18 +345,20 @@ const ShoppingMallReviewControl = () => {
 							color="primary"
 							onClick={() => {
 								setConfirmOpen(!confirmOpen);
-							}}>
-							{selectedReply.fr_idx !== 0 ? "답변 수정" : "답변 달기"}
+							}}
+						>
+							{selectedReply.fr_idx !== 0 ? "답글 수정" : "답글 쓰기"}
 						</Button>
 					</div>
-				</div>
+				</section>
 			)}
+
 			{confirmOpen && (
 				<DialogMui
 					open={confirmOpen}
 					onClose={() => setConfirmOpen(!confirmOpen)}
-					title="리뷰 답변"
-					text="답변을 저장하시겠습니까?"
+					title="리뷰 답글"
+					text="답글을 저장하시겠습니까?"
 					buttons={dialogUpdateConfirmButtonList}
 				/>
 			)}

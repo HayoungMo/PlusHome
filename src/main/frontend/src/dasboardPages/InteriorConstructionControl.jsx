@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import TableMui from "../components/TableMui";
-import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import { Button, Chip, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AlertMui from "../components/AlertMui";
 import SelectMui from "../components/SelectMui";
 import InteriorService from "../service/interiorService";
+import "../css/DashboardInterior.css";
 
 const InteriorConstructionControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
-
-	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
+	const { id } = userData;
 
 	const dialogInfoInit = {
 		title: "",
 		text: "",
 		row: null,
+		type: "",
 	};
 
 	const [alertOpen, setAlertOpen] = useState(false);
@@ -63,21 +63,21 @@ const InteriorConstructionControl = () => {
 		if (type === "cancel") {
 			setWorkStateChangeDialogInfo({
 				title: "시공 취소",
-				text: "시공이 중단 또는 취소된 경우에만 해당하는 상태인 시공 취소 상태로 변경합니다. 변경하시겠습니까?",
+				text: "선택한 시공 건을 취소 상태로 변경합니다. 진행하시겠습니까?",
 				row: row,
 				type: "cancel",
 			});
 		} else if (type === "done") {
 			setWorkStateChangeDialogInfo({
 				title: "시공 완료",
-				text: "시공이 완료된 경우에만 해당하는 상태인 시공 취소 상태로 변경합니다. 변경하시겠습니까?",
+				text: "선택한 시공 건을 완료 상태로 변경합니다. 진행하시겠습니까?",
 				row: row,
 				type: "done",
 			});
 		} else if (type === "working") {
 			setWorkStateChangeDialogInfo({
 				title: "시공 상태 변경",
-				text: "해당 시공을 선택한 상태로 변경합니다. 변경하시겠습니까?",
+				text: "선택한 시공 건을 지정한 상태로 변경합니다. 진행하시겠습니까?",
 				row: row,
 				type: "working",
 			});
@@ -145,6 +145,7 @@ const InteriorConstructionControl = () => {
 			onClick: (row) => handleViewInvoicePDF(row),
 		},
 	];
+
 	const stateChangeSelectOption = [
 		{ value: "pending", title: "pending" },
 		{ value: "quoting", title: "quoting" },
@@ -153,115 +154,150 @@ const InteriorConstructionControl = () => {
 		{ value: "done", title: "done" },
 	];
 
-	const stateChangeDialogButtonList = [
-		{
-			title: "취소",
-			color: "error",
-			variant: "contained",
-			onClick: () => setWorkStateChangeDialogOpen(!workStateChangeDialogOpen),
-		},
-		{
-			title: "저장",
-			color: "primary",
-			variant: "contained",
-			onClick: () => handleWorkStateChange(),
-		},
-	];
+	const tableCol = ["id", "b_date", "c_name", "b_long", "b_status", "button"];
+	const tableColumns = ["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"];
 
 	useEffect(() => {
 		reloadData();
 	}, []);
 
 	return (
-		<div>
-			<h3>진행중인 시공 목록</h3>
-			{workingList.length !== 0 ? (
-				<TableMui
-					rowData={workingList}
-					col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
-					columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
-					buttonData={buttonData}
-					buttonCol={["button1", "button2", "button3"]}
-					buttonColumns={["취소", "변경", "견적서 조회"]}
-				/>
-			) : (
-				<div>No Data</div>
-			)}
-			<hr />
-			<h3>시공 완료 목록</h3>
-			{doneList.length !== 0 ? (
-				<TableMui
-					rowData={doneList}
-					col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
-					columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
-					buttonData={buttonDataCancelOrDone}
-					buttonCol={["button2", "button3"]}
-					buttonColumns={["변경", "견적서 조회"]}
-				/>
-			) : (
-				<div>No Data</div>
-			)}
-			<hr />
-			<h3>취소된 시공 목록</h3>
-			{cancelList.length !== 0 ? (
-				<TableMui
-					rowData={cancelList}
-					col={["id", "b_date", "c_name", "b_long", "b_status", "button"]}
-					columns={["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"]}
-					buttonData={buttonDataCancelOrDone}
-					buttonCol={["button2", "button3"]}
-					buttonColumns={["변경", "견적서 조회"]}
-				/>
-			) : (
-				<div>No Data</div>
-			)}
+		<div className="interior-construction-page">
+			<div className="interior-construction-header">
+				<div>
+					<h3>시공 진행 관리</h3>
+					<p>진행 중, 완료, 취소된 시공 건을 확인하고 상태 변경과 견적서 조회를 처리합니다.</p>
+				</div>
+				<div className="interior-construction-summary">
+					<Chip label={`전체 ${allList.length}건`} variant="outlined" />
+					<Chip label={`진행중 ${workingList.length}건`} color="primary" variant="outlined" />
+					<Chip label={`완료 ${doneList.length}건`} color="success" variant="outlined" />
+					<Chip label={`취소 ${cancelList.length}건`} color="error" variant="outlined" />
+				</div>
+			</div>
+
+			<section className="interior-construction-card">
+				<div className="interior-construction-card-head">
+					<div>
+						<strong>진행 중인 시공 목록</strong>
+						<span>현재 시공 중인 건의 완료/취소 처리와 견적서 조회를 진행합니다.</span>
+					</div>
+					<Chip label={`${workingList.length}건`} color="primary" variant="outlined" />
+				</div>
+
+				{workingList.length !== 0 ? (
+					<div className="interior-construction-table">
+						<TableMui
+							rowData={workingList}
+							col={tableCol}
+							columns={tableColumns}
+							buttonData={buttonData}
+							buttonCol={["button1", "button2", "button3"]}
+							buttonColumns={["취소", "완료", "견적서 조회"]}
+						/>
+					</div>
+				) : (
+					<div className="interior-construction-guide">진행 중인 시공 건이 없습니다.</div>
+				)}
+			</section>
+
+			<section className="interior-construction-card">
+				<div className="interior-construction-card-head">
+					<div>
+						<strong>시공 완료 목록</strong>
+						<span>완료 처리된 시공 건을 확인하고 필요 시 상태를 변경합니다.</span>
+					</div>
+					<Chip label={`${doneList.length}건`} color="success" variant="outlined" />
+				</div>
+
+				{doneList.length !== 0 ? (
+					<div className="interior-construction-table">
+						<TableMui
+							rowData={doneList}
+							col={tableCol}
+							columns={tableColumns}
+							buttonData={buttonDataCancelOrDone}
+							buttonCol={["button2", "button3"]}
+							buttonColumns={["상태 변경", "견적서 조회"]}
+						/>
+					</div>
+				) : (
+					<div className="interior-construction-guide">완료된 시공 건이 없습니다.</div>
+				)}
+			</section>
+
+			<section className="interior-construction-card">
+				<div className="interior-construction-card-head">
+					<div>
+						<strong>취소된 시공 목록</strong>
+						<span>취소 처리된 시공 건을 확인하고 필요 시 상태를 되돌립니다.</span>
+					</div>
+					<Chip label={`${cancelList.length}건`} color="error" variant="outlined" />
+				</div>
+
+				{cancelList.length !== 0 ? (
+					<div className="interior-construction-table">
+						<TableMui
+							rowData={cancelList}
+							col={tableCol}
+							columns={tableColumns}
+							buttonData={buttonDataCancelOrDone}
+							buttonCol={["button2", "button3"]}
+							buttonColumns={["상태 변경", "견적서 조회"]}
+						/>
+					</div>
+				) : (
+					<div className="interior-construction-guide">취소된 시공 건이 없습니다.</div>
+				)}
+			</section>
+
 			{workStateChangeDialogOpen && (
 				<Dialog
 					open={workStateChangeDialogOpen}
 					onClose={() => setWorkStateChangeDialogOpen(false)}
-					maxWidth="md"
-					fullWidth>
+					maxWidth="sm"
+					fullWidth
+				>
 					<DialogTitle>{workStateChangeDialogInfo.title}</DialogTitle>
 
 					<DialogContent>
-						{workStateChangeDialogInfo.text}
+						<div className="interior-construction-dialog">
+							<p>{workStateChangeDialogInfo.text}</p>
 
-						{(workStateChangeDialogInfo.row.b_status === "cancel" || workStateChangeDialogInfo.row.b_status === "done") && (
-							<SelectMui
-								label="배송 상태"
-								value={workStateChangeDialogInfo.type}
-								onChange={(e) => {
-									setWorkStateChangeDialogInfo({
-										...workStateChangeDialogInfo,
-										type: e.target.value,
-									});
-								}}
-								option={stateChangeSelectOption}
-								width="180px"
-							/>
-						)}
-						<Button
-							variant="outlined"
-							color="error"
-							onClick={() => setWorkStateChangeDialogOpen(false)}>
-							취소
-						</Button>
-						<Button
-							variant="outlined"
-							color="primary"
-							onClick={() => handleWorkStateChange()}>
-							저장
-						</Button>
+							{(workStateChangeDialogInfo.row?.b_status === "cancel" ||
+								workStateChangeDialogInfo.row?.b_status === "done") && (
+								<SelectMui
+									label="진행 상태"
+									value={workStateChangeDialogInfo.type}
+									onChange={(e) => {
+										setWorkStateChangeDialogInfo({
+											...workStateChangeDialogInfo,
+											type: e.target.value,
+										});
+									}}
+									option={stateChangeSelectOption}
+									width="180px"
+								/>
+							)}
+							<div className="interior-construction-dialog-actions">
+								<Button
+									variant="outlined"
+									color="error"
+									onClick={() => setWorkStateChangeDialogOpen(false)}
+								>
+									취소
+								</Button>
+								<Button
+									variant="contained"
+									color="primary"
+									onClick={() => handleWorkStateChange()}
+								>
+									저장
+								</Button>
+							</div>
+						</div>
 					</DialogContent>
 				</Dialog>
-
-				// <DialogMui
-				// 	open={workStateChangeDialogOpen}
-				// 	onClose={() => setWorkStateChangeDialogOpen(!workStateChangeDialogOpen)}
-				// 	title={workStateChangeDialogInfo.title}
-				// 	text={workStateChangeDialogInfo.text}
-				// 	buttons={stateChangeDialogButtonList}
-				// />
 			)}
 			{alertOpen && (
 				<AlertMui

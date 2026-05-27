@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
-import InteriorService from "../service/interiorService";
 import InteriorUserService from "../service/interiorUserService";
 import TableMui from "./../components/TableMui";
 import TextFieldMui from "../components/TextFieldMui";
 import AlertMui from "../components/AlertMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
+import { Chip } from "@mui/material";
+import "../css/DashboardInterior.css";
 
 const InteriorReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
+	const { id } = userData;
 
 	const [intreiorReviewList, setIntreiorReviewList] = useState([]);
 	const [selectedIntreiorReview, setSelectedIntreiorReview] = useState(null);
@@ -34,7 +35,7 @@ const InteriorReviewControl = () => {
 
 		let resultList = [];
 
-		intreiorReviewList?.map((record, index) => {
+		intreiorReviewList?.forEach((record, index) => {
 			if (record.image.length !== 0) {
 				record.image.forEach((element) => {
 					resultList.push({ ...element, index });
@@ -62,7 +63,6 @@ const InteriorReviewControl = () => {
 					img_dir: getImgDirSimple({ kind: img.img_kind, name: img.img_name }),
 				})),
 			}));
-			console.log(reviewData);
 			setSelectedIntreiorReviewImage([]);
 			setSelectedIntreiorReview(null);
 			setIntreiorReviewList(reviewData);
@@ -86,34 +86,108 @@ const InteriorReviewControl = () => {
 		const imageList = onlyImageList?.filter(
 			(data) => data.index === selectedIntreiorReview.index,
 		);
-		console.log(imageList);
 		setSelectedIntreiorReviewImage(imageList || []);
-	}, [selectedIntreiorReview]);
+	}, [selectedIntreiorReview, onlyImageList]);
 
 	return (
-		<div>
-			<h2>리뷰</h2>
-			<TableMui
-				rowData={intreiorMuiDisplayList}
-				col={["index", "id", "invoice_no", "ir_createdDate", "c_content"]}
-				selectedRow={selectedIntreiorReview}
-				setSelectedRow={setSelectedIntreiorReview}
-			/>
+		<div className="interior-review-page">
+			<div className="interior-review-header">
+				<div>
+					<h3>인테리어 리뷰 관리</h3>
+					<p>고객이 남긴 인테리어 시공 리뷰와 첨부 이미지를 확인합니다.</p>
+				</div>
+				<div className="interior-review-summary">
+					<Chip label={`리뷰 ${intreiorMuiDisplayList.length}건`} color="primary" variant="outlined" />
+					<Chip label={`이미지 ${onlyImageList.length}장`} variant="outlined" />
+					<Chip
+						label={selectedIntreiorReview ? "리뷰 선택됨" : "리뷰 미선택"}
+						color={selectedIntreiorReview ? "success" : "default"}
+						variant="outlined"
+					/>
+				</div>
+			</div>
 
-			{Array.isArray(selectedIntreiorReviewImage) &&
-				selectedIntreiorReviewImage.length !== 0 &&
-				selectedIntreiorReviewImage.map((record) => {
-					return <img width={200} src={record.img_dir} alt="" />;
-				})}
-			{selectedIntreiorReview && (
-				<TextFieldMui
-					name="ir_content"
-					value={selectedIntreiorReview.ir_content}
-					multiline={true}
-					minRows={4}
-					maxRows={4}
-				/>
-			)}
+			<section className="interior-review-grid">
+				<div className="interior-review-card">
+					<div className="interior-review-card-head">
+						<div>
+							<strong>리뷰 목록</strong>
+							<span>리뷰를 선택하면 본문과 첨부 이미지를 확인할 수 있습니다.</span>
+						</div>
+					</div>
+
+					{intreiorMuiDisplayList.length > 0 ? (
+						<div className="interior-review-table">
+							<TableMui
+								rowData={intreiorMuiDisplayList}
+								col={["index", "id", "invoice_no", "ir_createdDate", "c_content"]}
+								columns={["번호", "고객 ID", "견적 번호", "작성일", "상담 내용"]}
+								selectedRow={selectedIntreiorReview}
+								setSelectedRow={setSelectedIntreiorReview}
+							/>
+						</div>
+					) : (
+						<div className="interior-review-guide">등록된 리뷰가 없습니다.</div>
+					)}
+				</div>
+
+				<div className="interior-review-card">
+					<div className="interior-review-card-head">
+						<div>
+							<strong>리뷰 상세</strong>
+							<span>선택한 고객 리뷰의 내용을 확인합니다.</span>
+						</div>
+						<Chip label={`${selectedIntreiorReviewImage.length}장`} variant="outlined" />
+					</div>
+
+					{selectedIntreiorReview ? (
+						<div className="interior-review-detail">
+							<div className="interior-review-meta">
+								<span>견적 번호 {selectedIntreiorReview.invoice_no ?? "-"}</span>
+								<span>작성일 {selectedIntreiorReview.ir_createdDate ?? "-"}</span>
+							</div>
+							<TextFieldMui
+								name="ir_content"
+								value={selectedIntreiorReview.ir_content}
+								multiline={true}
+								minRows={4}
+								maxRows={4}
+							/>
+						</div>
+					) : (
+						<div className="interior-review-guide">목록에서 리뷰를 선택하세요.</div>
+					)}
+				</div>
+			</section>
+
+			<section className="interior-review-card">
+				<div className="interior-review-card-head">
+					<div>
+						<strong>리뷰 이미지</strong>
+						<span>선택한 리뷰에 첨부된 시공 이미지입니다.</span>
+					</div>
+				</div>
+
+				{Array.isArray(selectedIntreiorReviewImage) &&
+				selectedIntreiorReviewImage.length !== 0 ? (
+					<div className="interior-review-image-grid">
+						{selectedIntreiorReviewImage.map((record) => {
+							return (
+								<img
+									key={`${record.img_name}-${record.img_idx ?? record.index}`}
+									src={record.img_dir}
+									alt={record.img_name || "리뷰 이미지"}
+								/>
+							);
+						})}
+					</div>
+				) : (
+					<div className="interior-review-guide">
+						선택한 리뷰에 표시할 이미지가 없습니다.
+					</div>
+				)}
+			</section>
+
 			{alertOpen && (
 				<AlertMui
 					severity={alertInfo?.severity}

@@ -6,65 +6,16 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const localizer = dayjsLocalizer(dayjs);
 
-const neonColors = [
-	"#ff1744",
-	"#ff3d00",
-	"#ffea00",
-	"#76ff03",
-	"#00e676",
-	"#00e5ff",
-	"#2979ff",
-	"#651fff",
-	"#d500f9",
-	"#ff4081",
-];
+const statusColorMap = {
+	working: { background: "#dbeafe", border: "#60a5fa", color: "#1e3a8a" },
+	done: { background: "#dcfce7", border: "#86efac", color: "#166534" },
+	cancel: { background: "#fee2e2", border: "#fca5a5", color: "#991b1b" },
+	canceled: { background: "#fee2e2", border: "#fca5a5", color: "#991b1b" },
+	pending: { background: "#fef3c7", border: "#facc15", color: "#854d0e" },
+	quoting: { background: "#ede9fe", border: "#c4b5fd", color: "#5b21b6" },
+};
 
-const selectedGradientColors = [
-	"#ff1744",
-	"#ff2d2d",
-	"#ff3d00",
-	"#ff6d00",
-	"#ff9100",
-	"#ffab00",
-	"#ffd600",
-	"#ffff00",
-	"#c6ff00",
-	"#aeea00",
-	"#76ff03",
-	"#64dd17",
-	"#00e676",
-	"#00c853",
-	"#1de9b6",
-	"#00bfa5",
-	"#00e5ff",
-	"#00b8d4",
-	"#18ffff",
-	"#40c4ff",
-	"#00b0ff",
-	"#2979ff",
-	"#2962ff",
-	"#304ffe",
-	"#3d5afe",
-	"#536dfe",
-	"#651fff",
-	"#6200ea",
-	"#7c4dff",
-	"#b388ff",
-	"#d500f9",
-	"#aa00ff",
-	"#e040fb",
-	"#ea80fc",
-	"#ff00ff",
-	"#ff4081",
-	"#f50057",
-	"#c51162",
-	"#ff80ab",
-	"#ff8a80",
-	"#ff5252",
-	"#ff1744",
-];
-
-const selectedGradient = `linear-gradient(90deg, ${selectedGradientColors.join(", ")})`;
+const defaultStatusColor = { background: "#f1f5f9", border: "#cbd5e1", color: "#334155" };
 
 const getScheduleValue = (schedule, keys) => {
 	const foundKey = keys.find((key) => schedule[key] !== undefined && schedule[key] !== null);
@@ -144,33 +95,22 @@ const CalendarMui = ({ scheduleList = [], selectedSchedule = null, onSelectSched
 
 	const eventPropGetter = (event) => {
 		const isSelected = selectedSchedule?.rowIndex === event.resource?.rowIndex;
-		const color = neonColors[event.resource?.rowIndex % neonColors.length] ?? neonColors[0];
+		const statusColor = statusColorMap[event.resource?.b_status] ?? defaultStatusColor;
 
 		return {
+			className: isSelected ? "calendar-mui-event-selected" : "",
 			style: {
-				background: isSelected
-					? selectedGradient
-					: `linear-gradient(135deg, ${color}, #ffffff 52%, ${color})`,
-				border: isSelected ? "1px solid #ffffff" : `1px solid ${color}`,
-				color: "#111",
-				fontWeight: 700,
-				textShadow: isSelected
-					? "0 0 6px #ffffff, 0 0 12px #ffffff"
-					: "0 0 5px #ffffff",
-				boxShadow: isSelected
-					? "0 0 8px #ffffff, 0 0 18px #ff00ff, 0 0 28px #00e5ff"
-					: `0 0 8px ${color}, 0 0 16px ${color}`,
+				background: isSelected ? "#1d4ed8" : statusColor.background,
+				border: isSelected ? "1px solid #1e40af" : `1px solid ${statusColor.border}`,
+				color: isSelected ? "#ffffff" : statusColor.color,
+				fontWeight: 800,
+				boxShadow: isSelected ? "0 8px 18px rgba(29, 78, 216, 0.25)" : "none",
 			},
 		};
 	};
 
 	return (
-		<div
-			style={{
-				height: "800px",
-				padding: "20px",
-				backgroundColor: "#fff",
-			}}>
+		<div className="calendar-mui">
 			<Calendar
 				localizer={localizer}
 				events={events}

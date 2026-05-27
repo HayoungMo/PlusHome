@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Button, Paper, Typography } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import TableMui from "./../components/TableMui";
 import InteriorService from "../service/interiorService";
 import CalendarMui from "../components/CalendarMui";
@@ -10,6 +10,9 @@ import isBetween from "dayjs/plugin/isBetween";
 import DatePickerMui from "./../components/DatePickerMui";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
+import "../css/DashboardInterior.css";
+
+dayjs.extend(isBetween);
 
 const InteriorScheduleControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -51,11 +54,11 @@ const InteriorScheduleControl = () => {
 	const toggleButtonList = [
 		{ title: "전체보기", value: "all" },
 		{ title: "진행중", value: "working" },
-		{ title: "완료됨", value: "done" },
+		{ title: "완료", value: "done" },
 		{ title: "시작 예정", value: "prepared" },
 		{ title: "만료 예정", value: "soon" },
-		{ title: "만료됨", value: "expired" },
-		{ title: "취소됨", value: "canceled" },
+		{ title: "만료", value: "expired" },
+		{ title: "취소", value: "canceled" },
 	];
 
 	const endDateUpdateDialogButtonList = [
@@ -173,6 +176,9 @@ const InteriorScheduleControl = () => {
 		([key]) => key !== "rowIndex",
 	);
 
+	const workingCount = interiorScheduleList.filter((data) => data.b_status === "working").length;
+	const doneCount = interiorScheduleList.filter((data) => data.b_status === "done").length;
+
 	const handleViewType = (event, newAlignment) => {
 		setViewDataType(newAlignment);
 	};
@@ -183,15 +189,15 @@ const InteriorScheduleControl = () => {
 		if (name === "update_enddate")
 			setConfirmDialogInfo({
 				open: true,
-				title: "완공일 수정",
-				text: "시공 완료일을 선택한 날짜로 변경합니다. 진행하시겠습니까?",
+				title: "시공 일정 수정",
+				text: "시공 시작일과 종료일을 선택한 날짜로 변경합니다. 진행하시겠습니까?",
 				buttonList: endDateUpdateDialogButtonList,
 			});
 		else if (name === "update_b_state")
 			setConfirmDialogInfo({
 				open: true,
 				title: "완료 처리",
-				text: "선택한 시공이 시공 완료처리 됩니다. 진행하시겠습니까?",
+				text: "선택한 시공 일정을 완료 처리합니다. 진행하시겠습니까?",
 				buttonList: stateUpdateDialogButtonList,
 			});
 	};
@@ -206,7 +212,7 @@ const InteriorScheduleControl = () => {
 
 		setAlertInfo({
 			severity: updateResult.success ? "success" : "error",
-			title: updateResult.success ? "등록 성공" : "등록 실패",
+			title: updateResult.success ? "수정 성공" : "수정 실패",
 			text: updateResult.message,
 			open: true,
 		});
@@ -224,7 +230,7 @@ const InteriorScheduleControl = () => {
 
 		setAlertInfo({
 			severity: updateResult.success ? "success" : "error",
-			title: updateResult.success ? "등록 성공" : "등록 실패",
+			title: updateResult.success ? "처리 성공" : "처리 실패",
 			text: updateResult.message,
 			open: true,
 		});
@@ -233,126 +239,159 @@ const InteriorScheduleControl = () => {
 	};
 
 	return (
-		<div>
-			<div
-				style={{
-					display: "flex",
-					margin: "0px 0px 20px",
-				}}>
-				<ToggleButtonMui
-					value={viewDataType}
-					exclusive={true}
-					onChange={handleViewType}
-					ButtonList={toggleButtonList}
-				/>
+		<div className="interior-schedule-page">
+			<div className="interior-schedule-header">
+				<div>
+					<h3>시공 일정 관리</h3>
+					<p>진행 중인 시공 일정과 마감 예정 건을 확인하고 날짜와 완료 상태를 관리합니다.</p>
+				</div>
+				<div className="interior-schedule-summary">
+					<Chip label={`전체 ${interiorScheduleList.length}건`} variant="outlined" />
+					<Chip label={`진행중 ${workingCount}건`} color="primary" variant="outlined" />
+					<Chip label={`완료 ${doneCount}건`} color="success" variant="outlined" />
+				</div>
 			</div>
-			<div>
-				{displayScheduleList.length !== 0 ? (
-					<TableMui
-						rowData={displayScheduleList}
-						selectedRow={selectedSchedule}
-						setSelectedRow={setSelectedSchedule}
-						defaultRowPerPage={5}
-						pagination
-						col={[
-							"id",
-							"b_createdDate",
-							"c_name",
-							"b_long",
-							"b_status",
-							"b_content",
-							"is_startdate",
-							"is_enddate",
-						]}
+
+			<section className="interior-schedule-card">
+				<div className="interior-schedule-card-head">
+					<div>
+						<strong>일정 필터</strong>
+						<span>상태별로 시공 일정을 빠르게 분류해서 확인합니다.</span>
+					</div>
+					<Chip label={`표시 ${displayScheduleList.length}건`} variant="outlined" />
+				</div>
+				<div className="interior-schedule-filter">
+					<ToggleButtonMui
+						value={viewDataType}
+						exclusive={true}
+						onChange={handleViewType}
+						ButtonList={toggleButtonList}
 					/>
-				) : (
-					<div>NO DATA</div>
-				)}
-			</div>
-			<div
-				style={{
-					display: "flex",
-					margin: "20px 0px",
-					alignItems: "center",
-					width: "700px",
-					justifyContent: "space-between",
-				}}>
-				<DatePickerMui
-					value={changeDate.is_startdate}
-					onChange={(e) => completeDateChange(e, "is_startdate")}
-					label="시작 날짜 수정"
-				/>
-				<DatePickerMui
-					value={changeDate.is_enddate}
-					onChange={(e) => completeDateChange(e, "is_enddate")}
-					label="완료 날짜 수정"
-				/>
-				<Button
-					variant="contained"
-					color="primary"
-					name="update_enddate"
-					onClick={onClickScheduleUpdateButton}>
-					수정하기
-				</Button>
-				<Button
-					variant="contained"
-					color="success"
-					name="update_b_state"
-					onClick={onClickScheduleUpdateButton}>
-					완료처리
-				</Button>
-			</div>
-			<div>
-				<CalendarMui
-					scheduleList={displayScheduleList}
-					selectedSchedule={selectedSchedule}
-					onSelectSchedule={setSelectedSchedule}
-				/>
-			</div>
-			<Paper
-				elevation={2}
-				sx={{
-					mt: 2,
-					p: 2,
-					borderRadius: 1,
-					backgroundColor: "#fff",
-				}}>
-				<Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-					Selected Schedule
-				</Typography>
-				{selectedSchedule ? (
-					<Box
-						sx={{
-							display: "grid",
-							gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-							gap: 1.5,
-						}}>
-						{selectedScheduleEntries.map(([key, value]) => (
-							<Box
-								key={key}
-								sx={{
-									border: "1px solid #e0e0e0",
-									borderRadius: 1,
-									p: 1.5,
-									minWidth: 0,
-								}}>
-								<Typography
-									variant="caption"
-									sx={{ color: "#607d8b", fontWeight: 700 }}>
-									{key}
-								</Typography>
-								<Typography variant="body2" sx={{ wordBreak: "break-word" }}>
-									{String(value ?? "")}
-								</Typography>
-							</Box>
-						))}
-					</Box>
-				) : (
-					<Typography variant="body2" sx={{ color: "#607d8b" }}>
-						Select a row or calendar event.
-					</Typography>
-				)}
-			</Paper>
+				</div>
+			</section>
+
+			<section className="interior-schedule-grid">
+				<div className="interior-schedule-card">
+					<div className="interior-schedule-card-head">
+						<div>
+							<strong>시공 일정 목록</strong>
+							<span>행을 선택하면 상세 정보와 일정 변경 영역이 활성화됩니다.</span>
+						</div>
+					</div>
+
+					{displayScheduleList.length !== 0 ? (
+						<div className="interior-schedule-table">
+							<TableMui
+								rowData={displayScheduleList}
+								selectedRow={selectedSchedule}
+								setSelectedRow={setSelectedSchedule}
+								defaultRowPerPage={5}
+								pagination
+								col={[
+									"id",
+									"b_createdDate",
+									"c_name",
+									"b_long",
+									"b_status",
+									"b_content",
+									"is_startdate",
+									"is_enddate",
+								]}
+								columns={[
+									"ID",
+									"예약일",
+									"업체명",
+									"기간",
+									"상태",
+									"내용",
+									"시작일",
+									"종료일",
+								]}
+							/>
+						</div>
+					) : (
+						<div className="interior-schedule-guide">선택한 조건에 해당하는 일정이 없습니다.</div>
+					)}
+				</div>
+
+				<div className="interior-schedule-card interior-schedule-detail-card">
+					<div className="interior-schedule-card-head">
+						<div>
+							<strong>선택 일정 상세</strong>
+							<span>선택한 일정의 주요 정보를 확인합니다.</span>
+						</div>
+					</div>
+
+					{selectedSchedule ? (
+						<div className="interior-schedule-detail-grid">
+							{selectedScheduleEntries.map(([key, value]) => (
+								<div className="interior-schedule-detail-item" key={key}>
+									<span>{key}</span>
+									<strong>{String(value ?? "")}</strong>
+								</div>
+							))}
+						</div>
+					) : (
+						<div className="interior-schedule-guide">목록이나 캘린더에서 일정을 선택하세요.</div>
+					)}
+				</div>
+			</section>
+
+			<section className="interior-schedule-card">
+				<div className="interior-schedule-card-head">
+					<div>
+						<strong>일정 변경</strong>
+						<span>선택한 시공의 시작일과 종료일을 조정하거나 완료 처리합니다.</span>
+					</div>
+				</div>
+				<div className="interior-schedule-actions">
+					<DatePickerMui
+						value={changeDate.is_startdate}
+						onChange={(e) => completeDateChange(e, "is_startdate")}
+						label="시작 날짜 수정"
+					/>
+					<DatePickerMui
+						value={changeDate.is_enddate}
+						onChange={(e) => completeDateChange(e, "is_enddate")}
+						label="종료 날짜 수정"
+					/>
+					<Button
+						variant="contained"
+						color="primary"
+						name="update_enddate"
+						disabled={!selectedSchedule}
+						onClick={onClickScheduleUpdateButton}
+					>
+						수정하기
+					</Button>
+					<Button
+						variant="contained"
+						color="success"
+						name="update_b_state"
+						disabled={!selectedSchedule}
+						onClick={onClickScheduleUpdateButton}
+					>
+						완료처리
+					</Button>
+				</div>
+			</section>
+
+			<section className="interior-schedule-card">
+				<div className="interior-schedule-card-head">
+					<div>
+						<strong>캘린더</strong>
+						<span>일정 기간을 달력에서 한눈에 확인합니다.</span>
+					</div>
+				</div>
+				<div className="interior-schedule-calendar">
+					<CalendarMui
+						scheduleList={displayScheduleList}
+						selectedSchedule={selectedSchedule}
+						onSelectSchedule={setSelectedSchedule}
+					/>
+				</div>
+			</section>
+
 			{confirmDialogInfo.open && (
 				<DialogMui
 					open={confirmDialogInfo.open}

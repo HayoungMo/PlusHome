@@ -6,12 +6,13 @@ import InteriorExAdd from "../components/InteriorExAdd";
 import AlertMui from "../components/AlertMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
 import InteriorModelViewer from "../components/InteriorModelViewer";
-import { Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import InteriorExUpdate from "../components/InteriorExUpdate";
 import SelectMui from "./../components/SelectMui";
 import InteriorExModelAdd from "./../components/InteriorExModelAdd";
 import InteriorExModelUpdate from "../components/InteriorExModelUpdate";
 import ToggleButtonMui from "./../components/ToggleButtonMui";
+import "../css/DashboardInterior.css";
 
 const ExampleIsEmpty = (props) => {
 	const {
@@ -34,11 +35,15 @@ const ExampleIsEmpty = (props) => {
 	}
 
 	return (
-		<div>
-			<div>등록된 시공 사례가 없습니다</div>
+		<div className="interior-example-empty">
+			<strong>{viewType === "example" ? "등록된 시공 사례가 없습니다." : "등록된 3D 모델이 없습니다."}</strong>
+			<span>
+				{tabValue === "all"
+					? "업체를 선택한 뒤 새 자료를 등록할 수 있습니다."
+					: "선택한 업체에 표시할 자료를 등록하세요."}
+			</span>
 			{interiorList.length !== 0 && (
-				<div>
-					<div>사례를 등록할 회사를 선택해 주세요</div>
+				<div className="interior-example-empty-select">
 					<SelectMui
 						option={interiorList}
 						onChange={(e) => {
@@ -48,16 +53,20 @@ const ExampleIsEmpty = (props) => {
 				</div>
 			)}
 			{interiorList.length === 0 && viewType === "example" && (
-				<InteriorExAdd company={tabCompany} onReload={onReload} />
+				<div className="interior-example-form">
+					<InteriorExAdd company={tabCompany} onReload={onReload} />
+				</div>
 			)}
 
 			{interiorList.length === 0 && viewType === "model" && (
-				<InteriorExModelAdd
-					company={tabCompany}
-					setAlertInfo={setAlertInfo}
-					setAlertOpen={setAlertOpen}
-					onReload={onReload}
-				/>
+				<div className="interior-example-form">
+					<InteriorExModelAdd
+						company={tabCompany}
+						setAlertInfo={setAlertInfo}
+						setAlertOpen={setAlertOpen}
+						onReload={onReload}
+					/>
+				</div>
 			)}
 		</div>
 	);
@@ -66,7 +75,7 @@ const ExampleIsEmpty = (props) => {
 const InteriorExampleControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
+	const { id, companyList } = userData;
 
 	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
 
@@ -78,7 +87,7 @@ const InteriorExampleControl = () => {
 
 	const [interiorExampleList, setInteriorExampleList] = useState([]);
 	const [selectedInteriorExample, setSelectedInteriorExample] = useState({});
-	const [selectedInteriorExampleImage, setSelectedInteriorExampleImage] = useState({});
+	const [selectedInteriorExampleImage, setSelectedInteriorExampleImage] = useState([]);
 
 	const [model3DImageList, setModel3DImageList] = useState([]);
 	const [selectedModel3DImage, setSelectedModel3DImage] = useState({});
@@ -93,7 +102,7 @@ const InteriorExampleControl = () => {
 		const shopList = companyList.filter((data) => data.c_kind === "interior");
 
 		return [{ c_id: id, c_name: "all" }, ...shopList];
-	}, [companyList]);
+	}, [companyList, id]);
 
 	const exampleMuiDisplayList = useMemo(() => {
 		if (!interiorExampleList || interiorExampleList.length === 0) return emptyList;
@@ -115,7 +124,7 @@ const InteriorExampleControl = () => {
 
 		let resultList = [];
 
-		interiorExampleList?.map((record, index) => {
+		interiorExampleList?.forEach((record, index) => {
 			if (record.image.length !== 0) {
 				record.image.forEach((element) => {
 					resultList.push({ ...element, index });
@@ -160,6 +169,9 @@ const InteriorExampleControl = () => {
 		return resultList;
 	}, [model3DImageList, emptyList, tabValue, modelReloadKey]);
 
+	const selectedCompanyName = tabValue === "all" ? "전체 업체" : tabValue;
+	const selectedImageCount = selectedInteriorExampleImage?.length ?? 0;
+
 	const handleTabChange = (event, newValue) => {
 		setTabValue(newValue);
 		if (newValue === "all") {
@@ -172,13 +184,11 @@ const InteriorExampleControl = () => {
 
 	const handleViewType = (event, newAlignment) => {
 		setViewType(newAlignment);
-		// Example
 		setSelectedInteriorExample({});
 		setSelectedInteriorExampleImage([]);
 		setUpdateAvailable(false);
 		setAddAvailable(false);
 
-		//Model
 		setSelectedModel3DImage({});
 	};
 
@@ -218,7 +228,7 @@ const InteriorExampleControl = () => {
 	const onClickPostUpdate = () => {
 		if (viewType === "example") {
 			if (!selectedInteriorExample.c_id) {
-				setAlertInfo({ severity: "error", text: "수정할 데이터를 선택하세요." });
+				setAlertInfo({ severity: "error", text: "수정할 시공 사례를 선택하세요." });
 				setAlertOpen(true);
 				return;
 			}
@@ -226,7 +236,7 @@ const InteriorExampleControl = () => {
 			setAddAvailable(false);
 		} else if (viewType === "model") {
 			if (!selectedModel3DImage?.dir_d) {
-				setAlertInfo({ severity: "error", text: "수정할 데이터를 선택하세요." });
+				setAlertInfo({ severity: "error", text: "수정할 3D 모델을 선택하세요." });
 				setAlertOpen(true);
 				return;
 			}
@@ -248,64 +258,76 @@ const InteriorExampleControl = () => {
 			(data) => data.index === selectedInteriorExample.index,
 		);
 		setSelectedInteriorExampleImage(imageList || []);
-	}, [selectedInteriorExample]);
+	}, [selectedInteriorExample, onlyImageList]);
 
 	useEffect(() => {
-		// Example
 		setSelectedInteriorExample({});
 		setSelectedInteriorExampleImage([]);
 		setUpdateAvailable(false);
 		setAddAvailable(false);
 
-		//Model
 		setSelectedModel3DImage({});
 	}, [tabValue]);
 
-	useEffect(() => {
-		console.log(selectedModel3DImage);
-	}, [selectedModel3DImage]);
-
 	return (
-		<div>
-			<ToggleButtonMui
-				value={viewType}
-				exclusive={true}
-				onChange={handleViewType}
-				ButtonList={[
-					{ title: "Example", value: "example" },
-					{ title: "Model", value: "model" },
-				]}
-			/>
-
-			<TabsMui
-				tabValue={tabValue}
-				handleTabChange={handleTabChange}
-				tabList={interiorListState}
-				tabKey="c_id"
-				label="c_name"
-				value="c_name"
-			/>
-			<div
-				style={{
-					margin: "15px 15px 15px 0px",
-					display: "flex",
-					width: "200px",
-					justifyContent: "space-between",
-				}}>
-				{tabValue !== "all" && (
-					<Button variant="contained" color="success" onClick={onClickNewPost}>
-						새로쓰기
-					</Button>
-				)}
-				{(selectedInteriorExample?.c_id || selectedModel3DImage?.dir_d) && (
-					<Button variant="contained" color="primary" onClick={onClickPostUpdate}>
-						수정하기
-					</Button>
-				)}
+		<div className="interior-example-page">
+			<div className="interior-example-header">
+				<div>
+					<h3>시공 사례 관리</h3>
+					<p>인테리어 업체별 포트폴리오 이미지와 3D 모델 자료를 관리합니다.</p>
+				</div>
+				<div className="interior-example-summary">
+					<Chip label={`업체 ${interior.length}개`} variant="outlined" />
+					<Chip label={`사례 ${exampleMuiDisplayList.length}건`} color="primary" variant="outlined" />
+					<Chip label={`모델 ${model3DViewImageList.length}건`} color="secondary" variant="outlined" />
+				</div>
 			</div>
+
+			<section className="interior-example-card">
+				<div className="interior-example-card-head">
+					<div>
+						<strong>자료 유형</strong>
+						<span>시공 사례 이미지와 3D 모델을 전환해서 관리합니다.</span>
+					</div>
+					<Chip label={selectedCompanyName} variant="outlined" />
+				</div>
+				<div className="interior-example-toolbar">
+					<ToggleButtonMui
+						value={viewType}
+						exclusive={true}
+						onChange={handleViewType}
+						ButtonList={[
+							{ title: "시공 사례", value: "example" },
+							{ title: "3D 모델", value: "model" },
+						]}
+					/>
+
+					<TabsMui
+						tabValue={tabValue}
+						handleTabChange={handleTabChange}
+						tabList={interiorListState}
+						tabKey="c_id"
+						label="c_name"
+						value="c_name"
+					/>
+				</div>
+				<div className="interior-example-actions">
+					{tabValue !== "all" && (
+						<Button variant="contained" color="success" onClick={onClickNewPost}>
+							새로 등록
+						</Button>
+					)}
+					{(selectedInteriorExample?.c_id || selectedModel3DImage?.dir_d) && (
+						<Button variant="contained" color="primary" onClick={onClickPostUpdate}>
+							수정하기
+						</Button>
+					)}
+				</div>
+			</section>
+
 			{viewType === "example" &&
 				(exampleMuiDisplayList.length === 0 ? (
-					<div>
+					<section className="interior-example-card">
 						<ExampleIsEmpty
 							tabValue={tabValue}
 							setTabValue={setTabValue}
@@ -314,33 +336,88 @@ const InteriorExampleControl = () => {
 							onReload={reLoadData}
 							viewType={viewType}
 						/>
-					</div>
+					</section>
 				) : (
-					<div>
-						<TableMui
-							col={["ie_tag", "ie_tag2", "ie_content"]}
-							rowData={exampleMuiDisplayList}
-							selectedRow={selectedInteriorExample}
-							setSelectedRow={setSelectedInteriorExample}
-						/>
+					<section className="interior-example-grid">
+						<div className="interior-example-card">
+							<div className="interior-example-card-head">
+								<div>
+									<strong>시공 사례 목록</strong>
+									<span>목록에서 사례를 선택하면 등록된 이미지를 확인할 수 있습니다.</span>
+								</div>
+							</div>
+							<div className="interior-example-table">
+								<TableMui
+									col={["ie_tag", "ie_tag2", "ie_content"]}
+									columns={["분류", "세부 분류", "내용"]}
+									rowData={exampleMuiDisplayList}
+									selectedRow={selectedInteriorExample}
+									setSelectedRow={setSelectedInteriorExample}
+								/>
+							</div>
+						</div>
+
+						<div className="interior-example-card">
+							<div className="interior-example-card-head">
+								<div>
+									<strong>사례 이미지</strong>
+									<span>선택한 사례에 연결된 이미지입니다.</span>
+								</div>
+								<Chip label={`${selectedImageCount}장`} variant="outlined" />
+							</div>
+							{selectedInteriorExampleImage?.length > 0 ? (
+								<div className="interior-example-image-grid">
+									{selectedInteriorExampleImage.map((record) => (
+										<img
+											key={`${record.img_name}-${record.img_idx ?? record.index}`}
+											src={record.img_dir}
+											alt={record.img_name || record.img_dir}
+										/>
+									))}
+								</div>
+							) : (
+								<div className="interior-example-guide">
+									시공 사례를 선택하면 이미지가 표시됩니다.
+								</div>
+							)}
+						</div>
+
 						{isUpdateAvailable && (
-							<InteriorExUpdate
-								selectedExample={selectedInteriorExample}
-								imageList={selectedInteriorExampleImage}
-								onReload={reLoadData}
-							/>
+							<div className="interior-example-card interior-example-wide">
+								<div className="interior-example-card-head">
+									<div>
+										<strong>시공 사례 수정</strong>
+										<span>선택한 사례의 정보와 이미지를 수정합니다.</span>
+									</div>
+								</div>
+								<div className="interior-example-form">
+									<InteriorExUpdate
+										selectedExample={selectedInteriorExample}
+										imageList={selectedInteriorExampleImage}
+										onReload={reLoadData}
+									/>
+								</div>
+							</div>
 						)}
-						{selectedInteriorExampleImage?.map((record) => (
-							<img src={record.img_dir} alt={record.img_dir} />
-						))}
 						{tabValue !== "all" && isAddAvailable && (
-							<InteriorExAdd company={tabCompany} onReload={reLoadData} />
+							<div className="interior-example-card interior-example-wide">
+								<div className="interior-example-card-head">
+									<div>
+										<strong>시공 사례 등록</strong>
+										<span>선택한 업체에 새로운 포트폴리오 사례를 추가합니다.</span>
+									</div>
+								</div>
+								<div className="interior-example-form">
+									<InteriorExAdd company={tabCompany} onReload={reLoadData} />
+								</div>
+							</div>
 						)}
-					</div>
+					</section>
 				))}
+
 			{viewType === "model" &&
 				(model3DViewImageList.length === 0 ? (
-					<div>
+					<section className="interior-example-card">
 						<ExampleIsEmpty
 							tabValue={tabValue}
 							setTabValue={setTabValue}
@@ -351,42 +428,82 @@ const InteriorExampleControl = () => {
 							setAlertInfo={setAlertInfo}
 							setAlertOpen={setAlertOpen}
 						/>
-					</div>
+					</section>
 				) : (
-					<div>
-						<div
-							style={{
-								margin: "15px 15px 15px 0px",
-								display: "flex",
-								width: "200px",
-								justifyContent: "space-between",
-							}}></div>
-						<TableMui
-							rowData={model3DViewImageList}
-							col={["index", "img_CreatedDate"]}
-							selectedRow={selectedModel3DImage}
-							setSelectedRow={setSelectedModel3DImage}
-						/>
-						{selectedModel3DImage?.img_dir && (
-							<InteriorModelViewer src={selectedModel3DImage.img_dir} />
-						)}
+					<section className="interior-example-grid">
+						<div className="interior-example-card">
+							<div className="interior-example-card-head">
+								<div>
+									<strong>3D 모델 목록</strong>
+									<span>모델 파일을 선택하면 미리보기가 표시됩니다.</span>
+								</div>
+							</div>
+							<div className="interior-example-table">
+								<TableMui
+									rowData={model3DViewImageList}
+									col={["index", "img_CreatedDate"]}
+									columns={["번호", "등록일"]}
+									selectedRow={selectedModel3DImage}
+									setSelectedRow={setSelectedModel3DImage}
+								/>
+							</div>
+						</div>
+
+						<div className="interior-example-card">
+							<div className="interior-example-card-head">
+								<div>
+									<strong>3D 모델 미리보기</strong>
+									<span>선택한 모델을 확인합니다.</span>
+								</div>
+							</div>
+							{selectedModel3DImage?.img_dir ? (
+								<div className="interior-example-model-viewer">
+									<InteriorModelViewer src={selectedModel3DImage.img_dir} />
+								</div>
+							) : (
+								<div className="interior-example-guide">
+									3D 모델을 선택하면 미리보기가 표시됩니다.
+								</div>
+							)}
+						</div>
+
 						{isUpdateAvailable && (
-							<InteriorExModelUpdate
-								model={selectedModel3DImage}
-								setAlertInfo={setAlertInfo}
-								setAlertOpen={setAlertOpen}
-								onReload={reLoadData}
-							/>
+							<div className="interior-example-card interior-example-wide">
+								<div className="interior-example-card-head">
+									<div>
+										<strong>3D 모델 수정</strong>
+										<span>선택한 모델 자료를 수정합니다.</span>
+									</div>
+								</div>
+								<div className="interior-example-form">
+									<InteriorExModelUpdate
+										model={selectedModel3DImage}
+										setAlertInfo={setAlertInfo}
+										setAlertOpen={setAlertOpen}
+										onReload={reLoadData}
+									/>
+								</div>
+							</div>
 						)}
 						{tabValue !== "all" && isAddAvailable && (
-							<InteriorExModelAdd
-								company={tabCompany}
-								setAlertInfo={setAlertInfo}
-								setAlertOpen={setAlertOpen}
-								onReload={reLoadData}
-							/>
+							<div className="interior-example-card interior-example-wide">
+								<div className="interior-example-card-head">
+									<div>
+										<strong>3D 모델 등록</strong>
+										<span>선택한 업체에 새로운 3D 모델을 추가합니다.</span>
+									</div>
+								</div>
+								<div className="interior-example-form">
+									<InteriorExModelAdd
+										company={tabCompany}
+										setAlertInfo={setAlertInfo}
+										setAlertOpen={setAlertOpen}
+										onReload={reLoadData}
+									/>
+								</div>
+							</div>
 						)}
-					</div>
+					</section>
 				))}
 
 			{alertOpen && (

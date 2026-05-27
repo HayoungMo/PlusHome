@@ -1,0 +1,311 @@
+.dashboard-company-page {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	color: #1f2937;
+}
+
+.dashboard-company-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 18px;
+	padding-bottom: 14px;
+	border-bottom: 1px solid #d8dee8;
+}
+
+.dashboard-company-header h3 {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 800;
+	line-height: 1.3;
+	color: #111827;
+}
+
+.dashboard-company-header p {
+	margin: 6px 0 0;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: #64748b;
+}
+
+.dashboard-company-summary {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.dashboard-company-summary .MuiChip-root {
+	border-radius: 6px;
+	background-color: #ffffff;
+	font-weight: 800;
+}
+
+.dashboard-company-card {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 18px 20px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+	box-sizing: border-box;
+}
+
+.dashboard-company-card-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.dashboard-company-card-head strong {
+	display: block;
+	font-size: 16px;
+	font-weight: 800;
+	line-height: 1.35;
+	color: #111827;
+}
+
+.dashboard-company-card-head span {
+	display: block;
+	margin-top: 3px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #64748b;
+	text-align: right;
+}
+
+.dashboard-company-account-grid,
+.dashboard-company-form-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(180px, 1fr));
+	gap: 14px;
+	align-items: start;
+}
+
+.dashboard-company-account-grid .MuiFormControl-root,
+.dashboard-company-form-grid .MuiFormControl-root {
+	width: 100%;
+}
+
+.dashboard-company-toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.dashboard-company-toolbar .MuiButton-root,
+.dashboard-company-actions .MuiButton-root,
+.dashboard-company-empty .MuiButton-root,
+.dashboard-company-form-grid .MuiButton-root {
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+	white-space: nowrap;
+}
+
+.dashboard-company-toolbar .MuiButton-root:hover,
+.dashboard-company-actions .MuiButton-root:hover,
+.dashboard-company-empty .MuiButton-root:hover,
+.dashboard-company-form-grid .MuiButton-root:hover {
+	box-shadow: none;
+}
+
+.dashboard-company-table {
+	width: 100%;
+	overflow-x: auto;
+}
+
+.dashboard-company-table .MuiPaper-root {
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+.dashboard-company-table .MuiTableCell-head {
+	background-color: #1d4ed8;
+	border-bottom-color: #1e3a8a;
+	white-space: nowrap;
+}
+
+.dashboard-company-table .MuiTableCell-body {
+	color: #334155;
+}
+
+.dashboard-company-empty,
+.dashboard-company-guide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 88px;
+	padding: 16px 18px;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #f8fafc;
+	font-size: 14px;
+	font-weight: 800;
+	color: #475569;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.dashboard-company-empty {
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.dashboard-company-empty p,
+.dashboard-company-guide {
+	margin: 0;
+}
+
+.dashboard-company-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.dashboard-company-profile {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 16px;
+	padding: 14px;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.dashboard-company-profile img,
+.dashboard-company-logo-empty,
+.dashboard-company-preview {
+	width: 120px;
+	height: 120px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #ffffff;
+	object-fit: cover;
+	box-sizing: border-box;
+}
+
+.dashboard-company-logo-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 13px;
+	font-weight: 800;
+	color: #94a3b8;
+}
+
+.dashboard-company-profile-text {
+	min-width: 0;
+}
+
+.dashboard-company-profile-text strong {
+	display: block;
+	font-size: 18px;
+	font-weight: 800;
+	line-height: 1.35;
+	color: #111827;
+	overflow-wrap: anywhere;
+}
+
+.dashboard-company-profile-text div {
+	margin-top: 5px;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.45;
+	color: #64748b;
+	overflow-wrap: anywhere;
+}
+
+.dashboard-company-actions {
+	display: flex;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.dashboard-company-preview {
+	display: block;
+	margin-top: 2px;
+}
+
+.dashboard-company-create .dashboard-company-form-grid .MuiButton-root {
+	align-self: center;
+	min-height: 40px;
+}
+
+.dashboard-company-page .MuiInputBase-input.Mui-disabled,
+.dashboard-company-page .MuiInputBase-root.Mui-disabled {
+	-webkit-text-fill-color: #334155;
+	background-color: #f8fafc;
+}
+
+@media (max-width: 1024px) {
+	.dashboard-company-account-grid,
+	.dashboard-company-form-grid {
+		grid-template-columns: repeat(2, minmax(180px, 1fr));
+	}
+}
+
+@media (max-width: 960px) {
+	.dashboard-company-header,
+	.dashboard-company-card-head {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.dashboard-company-summary {
+		justify-content: flex-start;
+	}
+
+	.dashboard-company-card-head span {
+		text-align: left;
+	}
+}
+
+@media (max-width: 760px) {
+	.dashboard-company-card {
+		padding: 16px;
+	}
+
+	.dashboard-company-account-grid,
+	.dashboard-company-form-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.dashboard-company-empty {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.dashboard-company-actions,
+	.dashboard-company-toolbar {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.dashboard-company-actions .MuiButton-root,
+	.dashboard-company-toolbar .MuiButton-root,
+	.dashboard-company-empty .MuiButton-root,
+	.dashboard-company-form-grid .MuiButton-root {
+		width: 100%;
+	}
+
+	.dashboard-company-profile img,
+	.dashboard-company-logo-empty,
+	.dashboard-company-preview {
+		width: 100%;
+		height: auto;
+		aspect-ratio: 1 / 1;
+	}
+}

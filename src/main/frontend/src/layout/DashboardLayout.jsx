@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardLeftbar from "./DashboardLeftbar";
-import DashboardHome from "../dasboardPages/DashboardHome";
 import CompanyInfo from "../dasboardPages/CompanyInfo";
 import ShoppingMallFurnitureInfo from "../dasboardPages/ShoppingMallFurnitureInfo";
 import InteriorInfo from "../dasboardPages/InteriorInfo";
@@ -14,13 +13,12 @@ import InteriorDashboard from "../dasboardPages/InteriorDashboard";
 import InteriorReviewControl from "../dasboardPages/InteriorReviewControl";
 import InteriorScheduleControl from "../dasboardPages/InteriorScheduleControl";
 import EmptyCompanyGuide from "../dasboardPages/EmptyCompanyGuide";
-
-import "../css/Dashboard.css";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useNavigate } from "react-router-dom";
 import ShoppingMallCouponControl from "../dasboardPages/ShoppingMallCouponControl";
 import InteriorExampleControl from "../dasboardPages/InteriorExampleControl";
 import InteriorConstructionControl from "../dasboardPages/InteriorConstructionControl";
+
+import "../css/Dashboard.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const DashboardLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -32,11 +30,7 @@ const DashboardLayout = () => {
 	};
 
 	const [userData, setUserData] = useState(getUserDataFromLocalStorage);
-
-	const [companyAddInfo, setCompanyAddInfo] = useState({
-		open: false,
-		type: "",
-	});
+	const [companyAddInfo, setCompanyAddInfo] = useState({ open: false, type: "" });
 
 	const { companyList = [] } = userData;
 
@@ -44,11 +38,8 @@ const DashboardLayout = () => {
 		setUserData(getUserDataFromLocalStorage());
 	};
 
-	const navigate = useNavigate();
-
 	if (userData?.type === "user") {
-		alert("권한없음");
-		// navigate("/login");
+		alert("권한이 없습니다.");
 	}
 
 	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
@@ -95,7 +86,7 @@ const DashboardLayout = () => {
 						label: "쇼핑몰 통계",
 						component: <ShoppingMallDashboard />,
 					},
-				]
+			  ]
 			: [],
 		interior: hasInterior
 			? [
@@ -110,7 +101,7 @@ const DashboardLayout = () => {
 						label: "인테리어 통계",
 						component: <InteriorDashboard />,
 					},
-				]
+			  ]
 			: [],
 	};
 
@@ -128,17 +119,13 @@ const DashboardLayout = () => {
 
 	const currentMenus = menuMap[activeTab] || [];
 
-	let currentContent = null;
-
 	const moveToCompanyAddPage = (type) => {
 		setActiveTab("user");
 		setActiveMenu("userInfo");
-
-		setCompanyAddInfo({
-			open: true,
-			type,
-		});
+		setCompanyAddInfo({ open: true, type });
 	};
+
+	let currentContent = null;
 
 	if (activeTab === "shop" && !hasShoppingMall) {
 		currentContent = (

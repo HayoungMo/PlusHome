@@ -2,30 +2,35 @@ import React, { useEffect, useState } from "react";
 import InteriorUpdate from "../components/InteriorUpdate";
 import InteriorAdd from "../components/InteriorAdd";
 import InteriorService from "../service/interiorService";
-import { Box, Button, Dialog, DialogContent, DialogTitle, Tab, Tabs } from "@mui/material";
+import { Button, Chip, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import ButtonGroupMui from "./../components/ButtonGroupMui";
 import TableMui from "./../components/TableMui";
-import TableChkMui from "../components/TableChkMui";
-import TableCheckBoxMui from "../components/TableCheckBoxMui";
+import "../css/DashboardInterior.css";
 
 const InteriorInfo = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
+	const { id, companyList = [] } = userData;
 
 	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
 
-	//state
 	const [tabValue, setTabValue] = useState("info");
 	const [interiorCompanyList, setInteriorCompanyList] = useState([]);
 	const [interiorList, setInteriorList] = useState([]);
 	const [interiorDisplayList, setInteriorDisplayList] = useState([]);
-	const [checkedList, setCheckedList] = useState([]);
 	const [selectedCompany, setSelectedCompany] = useState(null);
 	const [selectedInterior, setSelectedInterior] = useState(null);
 
 	const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
 	const [openAddDialog, setOpenAddDialog] = useState(false);
+
+	const makeCheckKey = (row) => {
+		return `${row.c_name}__${row.i_tag}__${row.i_text}`;
+	};
+
+	const makeCompanyKey = (row) => {
+		return `${row.c_id}__${row.c_name}__${row.c_kind}`;
+	};
 
 	const reLoadData = async () => {
 		const interiorList = await InteriorService.fetchArticle({ c_id: id });
@@ -47,16 +52,6 @@ const InteriorInfo = () => {
 			if (!selectedInterior) return;
 			setOpenUpdateDialog(!openUpdateDialog);
 		}
-
-		// const selectedCompany = tabStateList.find((record) => record.value === newValue);
-	};
-
-	const makeCheckKey = (row) => {
-		return `${row.c_name}__${row.i_tag}__${row.i_text}`;
-	};
-
-	const makeCompanyKey = (row) => {
-		return `${row.c_id}__${row.c_name}__${row.c_kind}`;
 	};
 
 	const interiorControlButtonGroupList = [
@@ -68,7 +63,7 @@ const InteriorInfo = () => {
 			},
 		},
 		{
-			title: "수정 - 삭제",
+			title: "수정 / 삭제",
 			onClick: () => {
 				handleTabChange("update");
 			},
@@ -96,51 +91,102 @@ const InteriorInfo = () => {
 	const interiorListCheck = selectedCompany && interiorDisplayList.length > 0;
 
 	return (
-		<div>
-			{companyCheck && <div>등록된 정보가 없어요. 정보를 등록 해 주세요</div>}
-
-			<TableMui
-				selectedRow={selectedCompany}
-				setSelectedRow={setSelectedCompany}
-				rowData={interiorCompanyList}
-			/>
-			{interiorListCheck ? (
-				<TableMui
-					selectedRow={selectedInterior}
-					setSelectedRow={setSelectedInterior}
-					rowData={interiorDisplayList}
-					// col={["c_id", "c_kind", "c_name", "i_tag", "i_text"]}
-					// columns={["주문자", "주문품목", "판매처", "물품금액", "주문수량", "결제금액", "ID"]}
-				/>
-			) : selectedCompany ? (
+		<div className="interior-info-page">
+			<div className="interior-info-header">
 				<div>
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={() => handleTabChange("add")}>
-						등록
-					</Button>
+					<h3>인테리어 정보 관리</h3>
+					<p>인테리어 업체별 상담 조건과 서비스 상세 정보를 관리합니다.</p>
 				</div>
-			) : (
-				<div>먼저 선택해 주세요</div>
+				<div className="interior-info-summary">
+					<Chip label={`업체 ${interiorCompanyList.length}개`} variant="outlined" />
+					<Chip label={`등록 정보 ${interiorList.length}개`} color="primary" variant="outlined" />
+					<Chip
+						label={selectedCompany ? "업체 선택됨" : "업체 미선택"}
+						color={selectedCompany ? "success" : "default"}
+						variant="outlined"
+					/>
+				</div>
+			</div>
+
+			{companyCheck && (
+				<div className="interior-info-empty">
+					등록된 정보가 없습니다. 먼저 정보를 등록해 주세요.
+				</div>
 			)}
-			{interiorListCheck ? (
-				<ButtonGroupMui
-					button={interiorControlButtonGroupList}
-					color="primary"
-					variant="contained"
-				/>
-			) : (
-				<div></div>
-			)}
+
+			<section className="interior-info-card">
+				<div className="interior-info-card-head">
+					<div>
+						<strong>인테리어 업체 목록</strong>
+						<span>정보를 관리할 업체를 선택하세요.</span>
+					</div>
+				</div>
+
+				<div className="interior-info-table">
+					<TableMui
+						selectedRow={selectedCompany}
+						setSelectedRow={setSelectedCompany}
+						rowData={interiorCompanyList}
+						col={["c_name", "c_tel", "c_addr", "c_boss"]}
+						columns={["업체명", "연락처", "주소", "대표자"]}
+					/>
+				</div>
+			</section>
+
+			<section className="interior-info-card">
+				<div className="interior-info-card-head">
+					<div>
+						<strong>{selectedCompany?.c_name || "상세 정보"}</strong>
+						<span>선택한 업체의 인테리어 상담 조건입니다.</span>
+					</div>
+				</div>
+
+				{interiorListCheck ? (
+					<div className="interior-info-table">
+						<TableMui
+							selectedRow={selectedInterior}
+							setSelectedRow={setSelectedInterior}
+							rowData={interiorDisplayList}
+							col={["c_name", "i_tag", "i_text"]}
+							columns={["업체명", "정보 항목", "정보 내용"]}
+						/>
+					</div>
+				) : selectedCompany ? (
+					<div className="interior-info-guide">
+						<p>아직 등록된 상세 정보가 없습니다.</p>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={() => handleTabChange("add")}
+						>
+							등록
+						</Button>
+					</div>
+				) : (
+					<div className="interior-info-guide">
+						<p>먼저 업체를 선택해 주세요.</p>
+					</div>
+				)}
+
+				{interiorListCheck ? (
+					<div className="interior-info-actions">
+						<ButtonGroupMui
+							button={interiorControlButtonGroupList}
+							color="primary"
+							variant="contained"
+						/>
+					</div>
+				) : null}
+			</section>
 
 			{tabValue === "add" && (
 				<Dialog
 					open={openAddDialog}
 					onClose={() => setOpenAddDialog(!openAddDialog)}
 					maxWidth="md"
-					fullWidth>
-					<DialogTitle>상품 등록</DialogTitle>
+					fullWidth
+				>
+					<DialogTitle>인테리어 정보 등록</DialogTitle>
 
 					<DialogContent>
 						<InteriorAdd
@@ -159,8 +205,9 @@ const InteriorInfo = () => {
 					open={openUpdateDialog}
 					onClose={() => setOpenAddDialog(!openUpdateDialog)}
 					maxWidth="md"
-					fullWidth>
-					<DialogTitle>상품 수정</DialogTitle>
+					fullWidth
+				>
+					<DialogTitle>인테리어 정보 수정</DialogTitle>
 
 					<DialogContent>
 						<InteriorUpdate
@@ -174,9 +221,6 @@ const InteriorInfo = () => {
 					</DialogContent>
 				</Dialog>
 			)}
-
-			{/* <InteriorExAdd company={company}/> */}
-			{/* <InteriorUpdate company={interior[0]}/> */}
 		</div>
 	);
 };
