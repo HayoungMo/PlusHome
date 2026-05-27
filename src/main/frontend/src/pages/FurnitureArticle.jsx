@@ -9,6 +9,7 @@ import Question from "./Question";
 import Loading from "../components/Loading";
 import CouponArticleDownload from "../components/CouponArticleDownload";
 import DialogInside from "../components/DialogInside";
+import { getFurnitureCategoryCode } from "../components/FurnitureCategorySelect";
 
 const FurnitureArticle = () => {
     const called = useRef(false);
@@ -534,7 +535,7 @@ const FurnitureArticle = () => {
         >
           <CouponArticleDownload
             c_id={furniture.c_id}
-            catagory={furniture.f_catagory1}
+            catagory={getFurnitureCategoryCode(furniture.f_catagory1)}
           />
         </DialogInside>
 

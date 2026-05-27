@@ -30,6 +30,10 @@ import CartService from "../service/cartService";
 import WalletChargeMui from "../components/WalletChargeMui";
 import TextFieldMui from "../components/TextFieldMui";
 import Address from "../maps/Address";
+import {
+    getFurnitureCategoryCode,
+    getFurnitureCategoryTitle,
+} from "../components/FurnitureCategorySelect";
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -144,9 +148,11 @@ const PaymentPage = () => {
         item.furniture?.f_catagory3,
         item.furniture?.f_catagory4,
         item.furniture?.f_catagory5,
-      ].filter(Boolean);
+      ]
+      .filter(Boolean)
+      .map(getFurnitureCategoryCode);
 
-      return itemCategories.includes(couponCatagory);
+  return itemCategories.includes(getFurnitureCategoryCode(couponCatagory));
     }
 
     return false;
@@ -394,7 +400,7 @@ const PaymentPage = () => {
     }
 
     if (couponType === "catagory"){
-      return `카테고리 적용: ${couponCatagory}`
+      return `카테고리 적용: ${getFurnitureCategoryTitle(couponCatagory)}`
     }
 
     return "적용 범위 확인 필요"
