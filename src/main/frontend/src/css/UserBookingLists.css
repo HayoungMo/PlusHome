@@ -8,7 +8,7 @@
 
 .user-booking-card {
   min-width: 0;
-  border: 1px solid #eaedef;
+  border: 1px solid #c8edff;
   border-radius: 8px;
   background: #ffffff;
   box-shadow: none;
@@ -21,7 +21,7 @@
   align-items: flex-start;
   gap: 18px;
   padding: 18px;
-  border-bottom: 1px solid #eaedef;
+  border-bottom: 1px solid #d8f1ff;
   text-align: left;
 }
 
@@ -58,6 +58,56 @@
   text-align: center;
 }
 
+.user-booking-table {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.user-booking-table .MuiPaper-root {
+  border-radius: 0;
+  box-shadow: none;
+  background: #fbfdff;
+}
+
+.user-booking-table .MuiTable-root {
+  min-width: 720px;
+}
+
+.user-booking-table .MuiTableHead-root .MuiTableCell-root {
+  background: #eaf8ff;
+  color: #0078c2;
+  font-weight: 800;
+  border-bottom: 1px solid #bdeeff;
+}
+
+.user-booking-table .MuiTableCell-root {
+  border-bottom-color: #d8f1ff;
+  color: #2f3438;
+}
+
+.user-booking-table .MuiTableBody-root .MuiTableRow-root:nth-of-type(even) {
+  background: #fbfdff;
+}
+
+.user-booking-table .MuiTableRow-root:hover {
+  background: #f0faff;
+}
+
+.user-booking-detail-table.MuiTable-root {
+  min-width: 0;
+  border: 1px solid #c8edff;
+  border-radius: 8px;
+  background: #fbfdff;
+  overflow: hidden;
+}
+
+.user-booking-detail-table .MuiTableCell-root:first-of-type {
+  width: 160px;
+  background: #eaf8ff;
+  color: #0078c2;
+  font-weight: 800;
+}
+
 .user-booking-empty {
   min-height: 140px;
   display: flex;
@@ -70,16 +120,6 @@
   color: #828c94;
   font-size: 14px;
   font-weight: 700;
-}
-
-.user-booking-table {
-  min-width: 0;
-  overflow-x: auto;
-}
-
-.user-booking-table .MuiPaper-root {
-  border-radius: 0;
-  box-shadow: none;
 }
 
 .user-booking-invoice {
@@ -99,10 +139,17 @@
 }
 
 .user-booking-invoice .MuiPaper-root {
-  border: 1px solid #eaedef;
+  border: 1px solid #c8edff;
   border-radius: 8px;
   box-shadow: none;
   overflow: hidden;
+}
+
+.user-booking-invoice .MuiTableHead-root .MuiTableCell-root {
+  background: #eaf8ff;
+  color: #0078c2;
+  font-weight: 800;
+  border-bottom: 1px solid #bdeeff;
 }
 
 .user-booking-invoice .MuiButton-root {
