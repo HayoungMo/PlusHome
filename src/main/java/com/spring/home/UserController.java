@@ -197,7 +197,7 @@ public class UserController {
 				 String token = jwtUtil.createJwt(
 						 user.getId(),
 						 user.getType(),
-						 1000 * 60 * 60L);
+						 1000 * 60 * 60 * 24L);
 				 
 				 System.out.println("생성토큰:" + token);
 				
