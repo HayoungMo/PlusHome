@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import questionService from "../service/questionService";
 import { TextField,Button,Snackbar } from "@mui/material";
 import AlertMui from "../components/AlertMui";
@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import DialogMui from "../components/DialogMui";
 import ImageViewer from "../components/ImageViewer";
 import FurnitureService from "../service/furnitureService";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const UserQuestionPage = ({ user }) => {
     const [questions, setQuestions] = useState([]);
@@ -254,11 +255,19 @@ const UserQuestionPage = ({ user }) => {
 
     const cancelEdit = () => {
         setEditIdx(null);
-        setEditForm({
-            q_title: "",
-            q_content: "",
-            q_secret: "N",
+        setTimeout(()=>{
+            setEditForm({
+                q_title: "",
+                q_content: "",
+                q_secret: "N",
         });
+        setAddImageFiles({});
+        setDeletedQuestionImages({});
+        setEditImageFiles({});
+        setEditImagePreview({});
+
+        }, 200)
+
     };
 
     const onEditChange = (evt) => {
@@ -574,7 +583,15 @@ const UserQuestionPage = ({ user }) => {
             <DialogMui
                 open={Boolean(editingQuestion)}
                 onClose={cancelEdit}
-                title={<strong className="user-question-edit-dialog-title">문의 수정</strong>}
+                title={
+                    <div className="user-question-edit-dialog-title">
+                        <strong>문의 수정</strong>
+
+                        <button type="button" onClick={cancelEdit}>
+                            ×
+                        </button>
+                    </div>
+                }
                 maxWidth="sm"
                 fullWidth={true}
                 text={
@@ -686,6 +703,8 @@ const UserQuestionPage = ({ user }) => {
                                             alt="추가 이미지 미리보기"
                                         />
 
+                                        <span className="user-question-new-badge">추가</span>
+
                                         <button
                                             type="button"
                                             className="user-question-edit-image-delete"
@@ -708,12 +727,13 @@ const UserQuestionPage = ({ user }) => {
                         <br/>
                                 
                                 <div className="user-question-add-image-form">
-                                    새 이미지 추가
+                                <p>문의 이미지 추가</p>
                                 <Button
                                     component="label"
                                     variant="contained"
                                     size="small"
                                     className="user-question-primary-btn"
+                                    startIcon={<CloudUploadIcon />}
                                 >
                                     파일 선택
                                     <input
@@ -728,11 +748,6 @@ const UserQuestionPage = ({ user }) => {
                                     />
                                 </Button>
 
-                                {addImageFiles[editingQuestion.q_idx]?.length > 0 && (
-                                    <p className="user-question-add-image-count">
-                                        {addImageFiles[editingQuestion.q_idx].length}장의 이미지가 추가됩니다.
-                                    </p>
-                                )}
                             </div>
                             </div>
                         </div>

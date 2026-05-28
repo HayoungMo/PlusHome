@@ -220,16 +220,7 @@ public class CartService {
 	    }
 
 	    CartDTO cart = cartMapper.getReadData(c_code);
-
-	    System.out.println("===== updateCartCount debug =====");
-	    System.out.println("request id = [" + id + "]");
-	    System.out.println("cart id = [" + cart.getId() + "]");
-	    System.out.println("cart f_status = [" + cart.getF_status() + "]");
-	    System.out.println("cart f_status trim = [" + String.valueOf(cart.getF_status()).trim() + "]");
-	    System.out.println("id equals = " + id.equals(cart.getId()));
-	    System.out.println("status equals = " + "N".equals(String.valueOf(cart.getF_status()).trim()));
-	    System.out.println("=================================");
-	    
+ 
 	    if (!isEditableCart(cart, id)) {
 	        throw new RuntimeException("수정 가능한 장바구니 상품이 아닙니다.");
 	    }

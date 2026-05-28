@@ -1,4 +1,4 @@
-.user-mypage {
+﻿.user-mypage {
   display: grid;
   grid-template-columns: 270px minmax(0, 1fr);
   gap: 40px;
@@ -1197,7 +1197,7 @@
 
 .user-review-edit-field {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   align-items: flex-start;
   gap: 10px;
 }
@@ -1280,16 +1280,7 @@
 }
 
 .user-review-edit-image-new::after {
-  content: "�߰�";
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(0, 140, 255, 0.92);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
+  content: none;
 }
 
 .user-review-add-image-form {
@@ -1928,26 +1919,20 @@
   white-space: nowrap;
 }
 
-.user-question-edit-image {
-  position: relative;
-}
-
-.user-question-edit-image-delete {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-}
 /* User question edit dialog: mirror review edit dialog */
 .user-question-edit-form {
   display: grid;
   gap: 16px;
   min-width: 0;
   text-align: left;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .user-question-edit-field {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   align-items: flex-start;
   gap: 10px;
 }
@@ -2033,16 +2018,7 @@
 }
 
 .user-question-edit-image-new::after {
-  content: "추가";
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(0, 140, 255, 0.92);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
+  content: none;
 }
 
 .user-question-add-image-form {
@@ -2073,6 +2049,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  justify-self: flex-end;
+  margin: 0 0 -4px;
   color: #374151;
   font-size: 14px;
   font-weight: 700;
@@ -2082,14 +2060,44 @@
   color: #8a8f98;
   font-size: 14px;
 }
-/* User question edit dialog refinement */
+/* User question edit dialog title: same structure as review edit dialog */
 .user-question-edit-dialog-title {
+  position: relative;
+  width: 100%;
+  min-height: 34px;
+  padding-right: 42px;
   color: #111827;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   line-height: 1.35;
+  box-sizing: border-box;
 }
 
+.user-question-edit-dialog-title strong {
+  display: block;
+  font-weight: 800;
+}
+
+.user-question-edit-dialog-title button {
+  position: absolute;
+  right: -6px;
+  top: -4px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 30px;
+  line-height: 30px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-question-edit-dialog-title button:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
 .user-question-edit-product-area {
   display: flex;
   align-items: flex-start;
@@ -2115,21 +2123,8 @@
   gap: 12px;
 }
 
-.user-question-edit-image-tools {
-  padding-top: 2px;
-  border-top: 1px solid #edf0f3;
-}
-
 .user-question-edit-images {
   align-items: flex-start;
-}
-
-.user-question-add-image-form {
-  display: contents;
-}
-
-.user-question-add-image-form > p {
-  display: none;
 }
 
 .user-question-edit-add-tile.MuiButton-root {
@@ -2152,18 +2147,60 @@
   box-shadow: none;
 }
 
-.user-question-secret-check {
-  order: -1;
-  justify-self: flex-start;
-  margin-bottom: -4px;
-}
-/* User question edit dialog minor placement */
-.user-question-edit-image-tools {
-  border-top: 0;
-  padding-top: 0;
+.user-question-edit-form,
+.user-question-edit-form * {
+  box-sizing: border-box;
 }
 
-.user-question-secret-check {
-  justify-self: flex-end;
-  margin: 0 0 -4px;
+.user-question-add-image-form,
+.user-question-add-image-form .MuiButton-root.user-question-primary-btn {
+  max-width: 100%;
+}
+
+.user-question-edit-field .MuiFormControl-root {
+  min-width: 0;
+}
+
+
+.user-question-add-image-count {
+  display: none;
+}
+
+.user-question-new-badge,
+.user-review-new-badge {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #0078ff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.user-wishlist-like-btn {
+    position: absolute;
+    top: 6px;
+    right: 4px;
+    width: auto;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #9b9da1;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-wishlist-like-btn:hover {
+    color: #111827;
+    background: transparent;
 }
