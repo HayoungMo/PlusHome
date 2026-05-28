@@ -18,7 +18,7 @@ import dayjs from "dayjs";
 import {
 	formatInteriorAnswerLabel,
 	formatInteriorAnswerValue,
-} from "../utils/interiorAnswerFormat";
+} from "../resources/function/interiorAnswerFormat";
 
 const BookingUpdate = ({
 	company,

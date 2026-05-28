@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import InteriorService from "../service/interiorService";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
-import SelectMui from "./SelectMui";
-import { Button, Chip, Stack } from "@mui/material";
-import TextFieldMui from "./TextFieldMui";
 import InteriorAnswerAi from "./InteriorAnswerAi";
 import "../css/InteriorRecommend.css";
 
@@ -13,77 +10,7 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [tags, setTags] = useState([]);
-  const [search, setSearch] = useState();
-  const [filterType, setFilterType] = useState("");
-  const [filterValue, setFilterValue] = useState("");
 
-  const valueOptionMap = {
-    housingType: [
-      { value: "apt", title: "아파트" },
-      { value: "villa", title: "빌라" },
-      { value: "house", title: "주택" },
-      { value: "officetel", title: "오피스텔" },
-    ],
-
-    purpose: [
-      { value: "purchase", title: "집 구매 후" },
-      { value: "existing", title: "기존 집 리모델링" },
-      { value: "new_house", title: "새 집 입주" },
-    ],
-
-    spaces: [
-      { value: "livingroom", title: "거실" },
-      { value: "bath", title: "욕실" },
-      { value: "kitchen", title: "주방" },
-      { value: "storage", title: "수납" },
-      { value: "door", title: "중문/문" },
-      { value: "window", title: "창문" },
-      { value: "wallpaper", title: "벽지" },
-      { value: "lighting", title: "조명" },
-      { value: "tile", title: "타일" },
-      { value: "floor", title: "마루" },
-    ],
-
-    budget: [
-      { value: "1000", title: "1000만원 이하" },
-      { value: "2000", title: "1000~2000만원" },
-      { value: "3000", title: "2000~3000만원" },
-      { value: "5000", title: "3000~5000만원" },
-      { value: "10000", title: "5000만원 이상" },
-    ],
-
-    areaSize: [
-      { value: "10_20", title: "10~20평" },
-      { value: "30", title: "30평대" },
-      { value: "40", title: "40평대" },
-      { value: "50", title: "50평 이상" },
-    ],
-  };
-
-  //태그 표시용 함수 추가
-  const getAnswerTitle = (key, value) => {
-    const option = valueOptionMap[key]?.find((item) => item.value === value);
-    return option?.title || value;
-  };
-
-  const selectedAnswerTags = Object.entries(answers || {}).flatMap(([key, value]) => {
-    if(!value) return [];
-
-    if(Array.isArray(value)) {
-      return value.map((item) => ({
-        key,
-        value: item,
-        title: getAnswerTitle(key, item),
-      }));
-    }
-
-    return [{
-      key,
-      value,
-      title: getAnswerTitle(key, value),
-    }]
-
-  })
 
   useEffect(() => {
     const fetchData = async () => {

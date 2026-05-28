@@ -7,7 +7,7 @@ import "../css/UserBookingLists.css";
 import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
-} from "../utils/interiorAnswerFormat";
+} from "../resources/function/interiorAnswerFormat";
 
 const UserBookingLists = ({ id }) => {
   const [booking, setBooking] = useState();
