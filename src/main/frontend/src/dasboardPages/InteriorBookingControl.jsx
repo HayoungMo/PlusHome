@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BookingUpdate from "../components/BookingUpdate";
 import TableMui from "../components/TableMui";
 import { Chip } from "@mui/material";
@@ -8,10 +8,13 @@ import "../css/DashboardInterior.css";
 
 const InteriorBookingControl = () => {
 	const localUserData = localStorage.getItem("user");
-	const userData = JSON.parse(localUserData);
+	const userData = useMemo(() => JSON.parse(localUserData), [localUserData]);
 	const { id, companyList } = userData;
 
-	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
+	const interior = useMemo(
+		() => companyList.filter((data) => data.c_kind === "interior") ?? [],
+		[companyList],
+	);
 	const [selectedCompany, setSelectedCompany] = useState(null);
 	const [interiorCompanyList, setInteriorCompanyList] = useState([]);
 
@@ -23,12 +26,12 @@ const InteriorBookingControl = () => {
 	const [transferListMuiLeft, setTransferListMuiLeft] = useState([]);
 	const [transferListMuiRight, setTransferListMuiRight] = useState([]);
 
-	const reLoadData = async () => {
+	const reLoadData = useCallback(async () => {
 		const setIndexToCompanyList = interior.map((record, index) => ({ ...record, id: index }));
 
 		setSelectedCompany(null);
 		setInteriorCompanyList(setIndexToCompanyList);
-	};
+	}, [interior]);
 
 	const refreshBookingList = () => {
 		setBookingRefreshKey((prev) => prev + 1);
@@ -91,7 +94,7 @@ const InteriorBookingControl = () => {
 
 	useEffect(() => {
 		reLoadData();
-	}, [id]);
+	}, [id, reLoadData]);
 
 	useEffect(() => {
 		setSelectedInvoice(null);
@@ -108,7 +111,9 @@ const InteriorBookingControl = () => {
 			<div className="interior-booking-header">
 				<div>
 					<h3>상담 예약 관리</h3>
-					<p>인테리어 상담 요청부터 견적서 작성과 시공 전환까지 한 화면에서 관리합니다.</p>
+					<p>
+						인테리어 상담 요청부터 견적서 작성과 시공 전환까지 한 화면에서 관리합니다.
+					</p>
 				</div>
 				<div className="interior-booking-summary">
 					<Chip label={`업체 ${interiorCompanyList.length}개`} variant="outlined" />
@@ -137,13 +142,19 @@ const InteriorBookingControl = () => {
 				</div>
 
 				<div className="interior-booking-table">
-					<TableMui
-						selectedRow={selectedCompany}
-						setSelectedRow={setSelectedCompany}
-						rowData={interiorCompanyList}
-						col={["c_name", "c_tel", "c_addr", "c_boss"]}
-						columns={["업체명", "연락처", "주소", "대표자"]}
-					/>
+					{interiorCompanyList?.length > 0 ? (
+						<TableMui
+							selectedRow={selectedCompany}
+							setSelectedRow={setSelectedCompany}
+							rowData={interiorCompanyList}
+							col={["c_name", "c_tel", "c_addr", "c_boss"]}
+							columns={["업체명", "연락처", "주소", "대표자"]}
+						/>
+					) : (
+						<div className="interior-booking-guide">
+							등록된 업체 데이터가 없습니다.
+						</div>
+					)}
 				</div>
 			</section>
 
@@ -151,7 +162,9 @@ const InteriorBookingControl = () => {
 				<div className="interior-booking-card-head">
 					<div>
 						<strong>{selectedCompany?.c_name || "상담 예약 목록"}</strong>
-						<span>확정 전 상담 예약을 확인하고, 상태 변경과 견적 작업을 진행합니다.</span>
+						<span>
+							확정 전 상담 예약을 확인하고, 상태 변경과 견적 작업을 진행합니다.
+						</span>
 					</div>
 					{selectedBooking && (
 						<Chip
@@ -177,7 +190,7 @@ const InteriorBookingControl = () => {
 					</div>
 				) : (
 					<div className="interior-booking-guide">
-						먼저 업체를 선택하면 상담 예약 목록이 표시됩니다.
+						업체를 선택하면 상담 예약 목록이 표시됩니다.
 					</div>
 				)}
 			</section>

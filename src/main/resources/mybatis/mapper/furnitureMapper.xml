@@ -263,10 +263,10 @@
 	SELECT TF.*,
 		NVL(RS.r_count, 0) AS r_count,
 		NVL(RS.a_count, 0) AS a_count,
-		NVL(RS.star_avg, 0)     AS star_avg,
+		NVL(ROUND(RS.star_avg, 2), 0)     AS star_avg,
 		NVL(CS.cart_total_f_count, 0)  AS cart_total_f_count,
 		NVL(CS.cart_total_f_price, 0)  AS cart_total_f_price,
-		NVL(CS.cart_avg_f_count, 0)    AS cart_avg_f_count,
+		NVL(ROUND(CS.cart_avg_f_count, 2), 0)    AS cart_avg_f_count,
 		NVL(CS.cart_total_buy, 0)    AS cart_total_buy
 	FROM TARGET_FURNITURE TF
 		LEFT JOIN REVIEW_SUMMARY RS

@@ -52,26 +52,36 @@ const EventPage = () => {
   const visibleEvents = useMemo(() => {
     const now = new Date();
 
+    // 오늘 00:00
+    now.setHours(0, 0, 0, 0);
+
     if (tab === 0) {
-      return events.filter(
-        (item) =>
-          item.e_type === "event" &&
-          new Date(item.e_startDate) <= now &&
-          new Date(item.e_endDate) >= now,
-      );
+      return events.filter((item) => {
+        const start = new Date(item.e_startDate);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date(item.e_endDate);
+        end.setHours(0, 0, 0, 0);
+        
+        return item.e_type === "event" && start <= now && end >= now;
+      });
     }
 
     if (tab === 1) {
-      return events.filter(
-        (item) => item.e_type === "event" && new Date(item.e_endDate) < now,
-      );
+      return events.filter((item) => {
+        const end = new Date(item.e_endDate);
+        return item.e_type === "event" && end < now;
+      });
     }
 
     return events.filter((item) => item.e_type === "notice");
   }, [events, tab]);
 
   const totalPage = Math.ceil(visibleEvents.length / pageSize);
-  const pagedEvents = visibleEvents.slice((page - 1) * pageSize, page * pageSize);
+  const pagedEvents = visibleEvents.slice(
+    (page - 1) * pageSize,
+    page * pageSize,
+  );
 
   const getThumbnail = (record) => {
     return record.logo?.result?.find((item) => item.img_tag === "THUMBNAIL")
@@ -108,7 +118,7 @@ const EventPage = () => {
 
             return (
               <button
-                className="event-card"
+                className={`event-card ${isNotice ? "event-card-notice" : "event-card-event"}`}
                 key={record.e_id}
                 type="button"
                 onClick={() => handleNext(record.e_id)}
@@ -117,10 +127,7 @@ const EventPage = () => {
                   <img src={thumbnail} alt={record.e_title} />
                 ) : (
                   <div className="event-card-fallback">
-                    <Chip
-                      label={isNotice ? "공지" : "이벤트"}
-                      size="small"
-                    />
+                    <Chip label={isNotice ? "공지" : "이벤트"} size="small" />
                     <strong>{record.e_title}</strong>
                   </div>
                 )}

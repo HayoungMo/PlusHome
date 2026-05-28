@@ -14,6 +14,9 @@ function InteriorLists() {
   const answers = location.state?.answers;
   const tag = location.state?.tag;
   const value = location.state?.value;
+  //챗봇 검색 연결용 - 0528 모하영
+  const fromChatbot = location.state?.fromChatbot || false;
+
   if (!answers) {
     console.log("answer 데이터 없음");
   } else {
@@ -49,7 +52,7 @@ function InteriorLists() {
         <Tab label="업체 목록" />
         <Tab label="시공 사례 목록" />
         <Tab label="시공 후기 목록" />
-        <Tab label="상담 신청" />
+        <Tab label={answers ? "추천 업체" : "상담 신청"}/> {/*조건이 있을때 더 자연스럽게 바꾸려고 추가 0528 모하영*/}
       </Tabs>
 
       <Box className="interior-lists-content">
@@ -61,7 +64,8 @@ function InteriorLists() {
 
         {tab === 3 &&
           (answers ? (
-            <InteriorRecommend answers={answers} tag={tag} value={value} />
+            // prop 넘기기 0528 모하영
+            <InteriorRecommend answers={answers} tag={tag} value={value} fromChatbot={fromChatbot} />
           ) : (
             <InteriorQuestion />
           ))}

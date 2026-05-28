@@ -19,6 +19,7 @@ import ImageService from "../service/imageService";
 import GetImgDir from "../resources/function/GetImgDir";
 import FloatingActionButtonMui from "./FloatingActionButtonMui";
 import "../css/EventForm.css";
+import CheckboxMui from "./CheckboxMui";
 
 const EventUpdate = () => {
   const navigate = useNavigate();
@@ -219,6 +220,23 @@ const EventUpdate = () => {
     });
   };
 
+  const newImageDelete = (index) => {
+    setPreview((prev) => {
+      if (prev[index]) {
+        URL.revokeObjectURL(prev[index]);
+      }
+
+      return prev.filter((_, i) => i !== index);
+    });
+
+    setSendList((prev) => prev.filter((_, i) => i !== index));
+    showAlert({
+      severity: "success",
+      title: "?대?吏 ??젣 ?꾨즺",
+      text: "?대?吏媛 ??젣?섏뿀?듬땲??",
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -248,6 +266,10 @@ const EventUpdate = () => {
       title: "수정 성공",
       text: "이벤트가 수정되었습니다.",
     });
+
+    setTimeout(() => {
+      navigate("../event");
+    }, 1500);
   };
 
   return (
@@ -297,12 +319,15 @@ const EventUpdate = () => {
         onSubmit={handleSubmit}
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 320px" },
+          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 360px" },
           gap: 4,
           alignItems: "start",
         }}
       >
-        <Box className="event-form-main" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box
+          className="event-form-main"
+          sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+        >
           <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               기본 정보
@@ -310,18 +335,10 @@ const EventUpdate = () => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "220px 1fr" },
+                gridTemplateColumns: "1fr",
                 gap: 2,
               }}
             >
-              <SelectMui
-                name="e_type"
-                label="이벤트/공지사항"
-                option={option}
-                value={form.e_type || ""}
-                onChange={handleChange}
-                width="100%"
-              />
               <TextFieldMui
                 name="e_title"
                 label="제목"
@@ -498,7 +515,10 @@ const EventUpdate = () => {
               </Button>
             </Box>
             {preview.length > 0 && (
-              <Box className="event-form-preview-grid" sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
+              <Box
+                className="event-form-preview-grid"
+                sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}
+              >
                 {preview.map((item, index) => (
                   <Box
                     className="event-form-preview-card"
@@ -531,6 +551,11 @@ const EventUpdate = () => {
                           ? "배너 이미지 "
                           : "본문 이미지"}
                     </Typography>
+                    <FloatingActionButtonMui
+                      icon={<DeleteIcon />}
+                      color="error"
+                      onClick={() => newImageDelete(index)}
+                    />
                   </Box>
                 ))}
               </Box>
@@ -549,8 +574,30 @@ const EventUpdate = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            수정 작업
+            노출 설정
           </Typography>
+          <Box className="event-form-side-controls">
+            <SelectMui
+              name="e_type"
+              label="이벤트/공지사항"
+              option={option}
+              value={form.e_type || ""}
+              onChange={handleChange}
+              width="100%"
+            />
+            <CheckboxMui
+              label="팝업 여부"
+              checked={form.e_popup === "Y"}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  e_popup: e.target.checked ? "Y" : "N",
+                }))
+              }
+              width="200px"
+            />
+          </Box>
+          <Divider sx={{ my: 2 }} />
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             변경 내용을 확인한 뒤 저장하세요.
           </Typography>

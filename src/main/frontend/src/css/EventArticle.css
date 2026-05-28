@@ -1,0 +1,84 @@
+.event-article-page {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 40px 24px 56px;
+  color: #2f3438;
+  box-sizing: border-box;
+}
+
+.event-article-loading,
+.event-article-error {
+  width: min(100%, 900px);
+  margin: 0 auto;
+  padding: 56px 24px;
+  box-sizing: border-box;
+}
+
+.event-article-loading {
+  display: flex;
+  justify-content: center;
+}
+
+.event-article-error {
+  display: grid;
+  gap: 16px;
+}
+
+.event-article-error .MuiTypography-h6 {
+  color: #2f3438;
+  font-weight: 800;
+}
+
+.event-article-title.MuiTypography-root {
+  margin: 0 0 24px;
+  color: #2f3438;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.event-article-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 28px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #f7f9fa;
+}
+
+.event-article-content.MuiTypography-root {
+  margin: 0 0 32px;
+  color: #2f3438;
+  font-size: 16px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.event-article-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.event-article-actions .MuiButton-root {
+  min-width: 96px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .event-article-page {
+    padding: 30px 16px 44px;
+  }
+
+  .event-article-title.MuiTypography-root {
+    font-size: 24px;
+  }
+
+  .event-article-actions .MuiButton-root {
+    flex: 1 1 100%;
+  }
+}

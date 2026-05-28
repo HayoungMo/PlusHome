@@ -1,46 +1,12 @@
-import { styled } from "@mui/material/styles";
-
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: "#1e89be",
-		color: "#fff",
-		fontSize: 15,
-		fontWeight: 700,
-		padding: "14px 16px",
-		borderBottom: "2px solid #1b5069",
-	},
-
-	[`&.${tableCellClasses.body}`]: {
-		fontSize: 14,
-		padding: "12px 16px",
-		color: "#333",
-		borderBottom: "1px solid #e0e0e0",
-	},
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-	"&:nth-of-type(odd)": {
-		backgroundColor: "#fafafa",
-	},
-
-	"&:hover": {
-		backgroundColor: "#f1f8ff",
-	},
-
-	"&:last-child td, &:last-child th": {
-		border: 0,
-	},
-}));
+import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
 const TableChkMui = (props) => {
     const {
 		rowData = [],
@@ -48,7 +14,8 @@ const TableChkMui = (props) => {
 		selectedKeys = [],
 		setSelectedKeys,
 		editableOnChange,
-		editable = false
+		editable = false,
+		onRowClick,
 	} = props;
 	
 
@@ -112,10 +79,7 @@ const TableChkMui = (props) => {
 	return (
 		<TableContainer
 			component={Paper}
-			sx={{
-				boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-				overflow: "hidden",
-			}}>
+			sx={tableContainerSx}>
 			<Table sx={{ minWidth: 650 }} aria-label="simple table">
 				<TableHead>
 					<TableRow>
@@ -124,12 +88,6 @@ const TableChkMui = (props) => {
 							<Checkbox
 								checked={isAllSelected}
 								onChange={handleSelectAll}
-								sx={{
-									color: "#fff",
-									"&.Mui-checked": {
-										color: "#fff",
-									},
-								}}
 							/>
 						</StyledTableCell>
 
@@ -149,7 +107,13 @@ const TableChkMui = (props) => {
 						const isSelected = selectedKeys.includes(rowId);
 
 						return (
-							<StyledTableRow key={`${rowId}-${rowIndex}`}>
+							<StyledTableRow key={`${rowId}-${rowIndex}`}
+								onClick={()=>{
+									if(onRowClick){
+										onRowClick(row)
+									}
+								}}
+							>
 								{/* row 체크박스 */}
 								<StyledTableCell padding="checkbox">
 									<Checkbox

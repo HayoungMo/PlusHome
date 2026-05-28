@@ -9,52 +9,18 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
-	tableCellClasses,
 	Paper,
 	Typography,
 	Button,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import SelectMui from "../components/SelectMui";
-import { styled } from "@mui/material/styles";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: "#1e89be",
-		color: "#fff",
-		fontSize: 15,
-		fontWeight: 700,
-		padding: "14px 16px",
-		borderBottom: "2px solid #1b5069",
-	},
-
-	[`&.${tableCellClasses.body}`]: {
-		fontSize: 14,
-		padding: "12px 16px",
-		color: "#333",
-		borderBottom: "1px solid #e0e0e0",
-	},
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-	"&:nth-of-type(odd)": {
-		backgroundColor: "#fafafa",
-	},
-
-	"&:hover": {
-		backgroundColor: "#f1f8ff",
-		// cursor: "pointer",
-	},
-
-	"&:last-child td, &:last-child th": {
-		border: 0,
-	},
-}));
+import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
 
 const TableMuiCollapse = ({
 	rowData = [],
 	hiddenColumns = [],
+	columns = [],
 	collapseKey = null,
 	collapseTitle = "상세 정보",
 	renderCell,
@@ -62,6 +28,8 @@ const TableMuiCollapse = ({
 	selectedRow,
 	setSelectedRow,
 	buttonData = [],
+	collapseColumns,
+	collapseColumnLabels = [],
 }) => {
 	const rows = Array.isArray(rowData) ? rowData : [rowData];
 
@@ -71,14 +39,14 @@ const TableMuiCollapse = ({
 			: [];
 
 	return (
-		<TableContainer component={Paper}>
+		<TableContainer component={Paper} sx={tableContainerSx}>
 			<Table>
 				<TableHead>
 					<TableRow>
 						<TableCell />
-						{tableColumns.map((column) => (
+						{tableColumns.map((column, index) => (
 							<StyledTableCell key={column} align="right">
-								{column}
+								{columns[index] || column}
 							</StyledTableCell>
 						))}
 						{buttonData.map((data) => (
@@ -101,6 +69,8 @@ const TableMuiCollapse = ({
 								collapseTitle={collapseTitle}
 								renderCell={renderCell}
 								renderCollapse={renderCollapse}
+								collapseColumns={collapseColumns}
+								collapseColumnLabels={collapseColumnLabels}
 								onClickCollapseRow={() => {
 									if (!setSelectedRow || setSelectedRow === null) return;
 									setSelectedRow({ ...row, rowIndex: index });
@@ -117,7 +87,11 @@ const TableMuiCollapse = ({
 	);
 };
 
-const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
+const DefaultCollapseTable = ({
+	data,
+	visibleColumns = [],
+	columnLabels = [],
+}) => {
 	if (!data) return null;
 
 	const rows = Array.isArray(data) ? data : [data];
@@ -126,8 +100,8 @@ const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
 		<Table size="small">
 			<TableHead>
 				<TableRow>
-					{visibleColumns.map((column) => {
-						return <TableCell key={column}>{column}</TableCell>;
+					{visibleColumns.map((column, index) => {
+						return <TableCell key={column}>{columnLabels[index] || column}</TableCell>;
 					})}
 				</TableRow>
 			</TableHead>
@@ -137,7 +111,7 @@ const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
 					return (
 						<TableRow key={index} onClick={() => {}}>
 							{visibleColumns.map((column) => (
-								<TableCell key={column}>{row[column]}</TableCell>
+								<StyledTableCell key={column}>{row[column]}</StyledTableCell>
 							))}
 						</TableRow>
 					);
@@ -154,6 +128,8 @@ const CollapseRow = ({
 	collapseTitle,
 	renderCell,
 	renderCollapse,
+	collapseColumns,
+	collapseColumnLabels,
 	onClickCollapseRow,
 	isSelected,
 	setSelectedRow,
@@ -162,6 +138,12 @@ const CollapseRow = ({
 	const [open, setOpen] = useState(false);
 
 	const collapseData = collapseKey ? row[collapseKey] : null;
+	const visibleCollapseColumns = collapseColumns || [
+		"invoice_text",
+		"invoice_qty",
+		"invoice_price",
+		"line_total",
+	];
 
 	const renderValue = (value) => {
 		if (value == null) return "";
@@ -182,7 +164,7 @@ const CollapseRow = ({
 	return (
 		<>
 			<StyledTableRow>
-				<TableCell
+				<StyledTableCell
 					sx={{
 						backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
 						cursor: setSelectedRow ? "pointer" : "default",
@@ -190,7 +172,7 @@ const CollapseRow = ({
 					<IconButton size="small" onClick={() => setOpen(!open)}>
 						{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 					</IconButton>
-				</TableCell>
+				</StyledTableCell>
 
 				{tableColumns.map((column) => {
 					return (
@@ -238,12 +220,8 @@ const CollapseRow = ({
 							) : (
 								<DefaultCollapseTable
 									data={collapseData}
-									visibleColumns={[
-										"invoice_text",
-										"invoice_qty",
-										"invoice_price",
-										"line_total",
-									]}
+									visibleColumns={visibleCollapseColumns}
+									columnLabels={collapseColumnLabels}
 								/>
 							)}
 						</Box>

@@ -11,10 +11,11 @@ const EventPopup = () => {
   const handleNext = (data) => {
     navigate(`/event/article/${data}`);
   };
+ 
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await EventService.selectPopupList();
+      const data = await EventService.selectPopupList();      
 
       const dataList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
@@ -22,8 +23,10 @@ const EventPopup = () => {
           ?.filter((record) => record.e_type === "event")
           .filter(
             (item) =>
-              new Date(item.e_endDate) >= new Date() &&
-              new Date(item.e_startDate) < new Date(),
+              new Date(item.e_endDate).setHours(0, 0, 0, 0) >=
+                new Date().setHours(0, 0, 0, 0) &&
+              new Date(item.e_startDate).setHours(0, 0, 0, 0) <=
+                new Date().setHours(0, 0, 0, 0),
           )
           .map(async (item) => {
             console.log("아이템" + item);

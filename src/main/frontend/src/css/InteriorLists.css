@@ -163,6 +163,124 @@
   white-space: nowrap;
 }
 
+.interior-company-list-section {
+  gap: 18px;
+}
+
+.interior-company-list-section .interior-list-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.35fr) auto;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 0;
+  padding: 18px;
+  border: 1px solid #e5eef7;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(38, 92, 135, 0.06);
+}
+
+.interior-company-list-section .interior-list-toolbar > :first-child {
+  min-width: 0;
+}
+
+.interior-company-list-section .interior-list-toolbar .MuiFormControl-root,
+.interior-company-list-section .interior-list-toolbar .MuiTextField-root {
+  min-width: 0;
+  margin: 0;
+}
+
+.interior-company-list-section .interior-list-toolbar .MuiInputBase-root {
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.interior-company-list-section .interior-list-toolbar .MuiButton-root {
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.interior-company-list-count.MuiTypography-root {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eef9ff;
+  color: #008be8;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.interior-company-list-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.interior-company-list-card {
+  overflow: hidden;
+  padding: 14px;
+  border: 1px solid #dfeaf3;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(38, 92, 135, 0.07);
+}
+
+.interior-company-list-card:hover {
+  border-color: #89cef7;
+  box-shadow: 0 14px 30px rgba(0, 139, 232, 0.13);
+}
+
+.interior-company-list-card .interior-company-image {
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1 / 0.64;
+  border-radius: 8px;
+  background: #f4f9fc;
+  object-fit: contain;
+  padding: 18px;
+}
+
+.interior-company-list-card:hover .interior-company-image {
+  filter: none;
+  transform: none;
+}
+
+.interior-company-list-card .interior-company-info {
+  gap: 6px;
+  padding-top: 14px;
+}
+
+.interior-company-list-card .interior-company-name {
+  font-size: 18px;
+}
+
+.interior-company-list-card .interior-company-info span {
+  color: #60727f;
+}
+
+.interior-company-list-empty.MuiTypography-root {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 1px dashed #b9daf0;
+  border-radius: 8px;
+  background: #f6fbff;
+  color: #60727f;
+  font-weight: 800;
+}
+
+.interior-company-list-pagination.MuiPagination-root {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
 .interior-recommend-grid {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
@@ -236,6 +354,15 @@
   }
 
   .interior-recommend-card {
+    padding: 14px;
+  }
+
+  .interior-company-list-section .interior-list-toolbar,
+  .interior-company-list-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .interior-company-list-card {
     padding: 14px;
   }
 }

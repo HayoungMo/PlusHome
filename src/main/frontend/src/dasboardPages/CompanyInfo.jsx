@@ -75,7 +75,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	const [imageVersion, setImageVersion] = useState(0);
 
 	const [tabValue, setTabValue] = useState("all");
-	const [selectedCompany, setSelectedCompany] = useState(initialCompanyList[0] || null);
+	const [selectedCompany, setSelectedCompany] = useState(null);
 	const [editForm, setEditForm] = useState(initCompanyInfo);
 	const [isEditing, setIsEditing] = useState(false);
 
@@ -104,13 +104,13 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 
 		setCompanyList(fallbackCompanyList);
 		setSelectedCompany((prev) => {
-			if (!prev) return fallbackCompanyList[0] || null;
+			if (!prev) return null;
 
 			const refreshedSelected = fallbackCompanyList.find(
 				(row) => makeCompanyKey(row) === makeCompanyKey(prev),
 			);
 
-			return refreshedSelected || fallbackCompanyList[0] || null;
+			return refreshedSelected || null;
 		});
 
 		return fallbackCompanyList;
@@ -155,13 +155,13 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 				refreshUserData?.();
 
 				setSelectedCompany((prev) => {
-					if (!prev) return serverCompanyList[0] || null;
+					if (!prev) return null;
 
 					const refreshedSelected = serverCompanyList.find(
 						(row) => makeCompanyKey(row) === makeCompanyKey(prev),
 					);
 
-					return refreshedSelected || serverCompanyList[0] || null;
+					return refreshedSelected || null;
 				});
 
 				return { success: true, companyList: serverCompanyList };
@@ -217,13 +217,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 		setTabValue(kind);
 		setIsEditing(false);
 		resetUpdateLogo();
-
-		const nextSelected =
-			kind === "all"
-				? companyList[0] || null
-				: companyList.find((company) => company.c_kind === kind) || null;
-
-		setSelectedCompany(nextSelected);
+		setSelectedCompany(null);
 	};
 
 	const handleSelectCompany = (row) => {
@@ -604,7 +598,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 					</div>
 				) : (
 					<div className="dashboard-company-empty">
-						<p>등록된 사업체가 없습니다.</p>
+						<p>등록된 사업체 데이터가 없습니다.</p>
 						<Button variant="contained" onClick={() => openAddPanel(tabValue === "all" ? "" : tabValue)}>
 							등록하기
 						</Button>
@@ -694,7 +688,11 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 						</div>
 					</div>
 				) : (
-					<p className="dashboard-company-guide">사업체를 선택하세요.</p>
+					<p className="dashboard-company-guide">
+						{companyList.length > 0
+							? "회사를 선택하면 상세 정보가 표시됩니다."
+							: "등록된 사업체 데이터가 없습니다."}
+					</p>
 				)}
 			</section>
 

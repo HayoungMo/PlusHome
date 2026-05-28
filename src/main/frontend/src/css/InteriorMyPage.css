@@ -1,0 +1,135 @@
+.interior-my-page {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.interior-my-tabs {
+  min-height: 48px;
+  padding: 6px;
+  border: 1px solid #e5eef7;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(38, 92, 135, 0.06);
+}
+
+.interior-my-tabs .MuiTabs-flexContainer {
+  gap: 6px;
+}
+
+.interior-my-tabs .MuiTab-root {
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #52616b;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.interior-my-tabs .MuiTab-root.Mui-selected {
+  color: #008be8;
+  background: #eef9ff;
+}
+
+.interior-my-tabs .MuiTabs-indicator {
+  display: none;
+}
+
+.interior-my-content {
+  min-width: 0;
+}
+
+.interior-my-page .interior-wishlist-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #e5eef7;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(38, 92, 135, 0.06);
+}
+
+.interior-my-page .interior-wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.interior-my-page .interior-wishlist-card {
+  overflow: hidden;
+  min-width: 0;
+  border-color: #d8e8f5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.interior-my-page .interior-wishlist-card:hover {
+  border-color: #88cdf7;
+  box-shadow: 0 12px 24px rgba(0, 139, 232, 0.12);
+}
+
+.interior-my-page .interior-wishlist-thumb {
+  height: 138px;
+  border-radius: 8px;
+  background: #f4f9fc;
+}
+
+.interior-my-page .interior-wishlist-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+}
+
+.interior-my-page .interior-wishlist-info {
+  min-width: 0;
+  padding-top: 12px;
+}
+
+.interior-my-page .interior-wishlist-info strong,
+.interior-my-page .interior-wishlist-info span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interior-my-page .interior-wishlist-info strong {
+  color: #1f2f3a;
+}
+
+.interior-my-page .interior-wishlist-info span {
+  color: #008be8;
+}
+
+.interior-my-page .interior-wishlist-empty {
+  margin: 0;
+  padding: 42px 16px;
+  border: 1px dashed #b9daf0;
+  border-radius: 8px;
+  background: #f6fbff;
+  color: #60727f;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .interior-my-page .interior-wishlist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .interior-my-tabs .MuiTabs-flexContainer {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .interior-my-tabs .MuiTab-root {
+    min-width: 0;
+    padding: 8px 6px;
+  }
+
+  .interior-my-page .interior-wishlist-grid {
+    grid-template-columns: 1fr;
+  }
+}

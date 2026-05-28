@@ -5,15 +5,14 @@ import { Button } from "@mui/material";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
-import FloatingActionButtonMui from "./FloatingActionButtonMui";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { regionData } from "../resources/function/RegionData";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../resources/function/interiorAnswerFormat";
 
 const InteriorUpdate = (props) => {
   const { interiorInfo, setOpenUpdateDialog, onSuccess } = props;
-
-  console.log(interiorInfo);
 
   const initInterior = {
     c_id: "",
@@ -25,10 +24,11 @@ const InteriorUpdate = (props) => {
 
   const [interior, setInterior] = useState(initInterior);
 
-  const { c_id, c_kind, c_name, i_tag, i_text, textRegion, textRegionDetail } = interior;
+  const { c_id, c_kind, c_name, i_tag, i_text, textRegion, textRegionDetail } =
+    interior;
 
-  const [updateOpen, setUpdateO] = useState(false);
-  const [deleteOpen, setdeleteOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const [alert, setAlert] = useState({
     open: false,
@@ -38,11 +38,11 @@ const InteriorUpdate = (props) => {
   });
 
   const handleUpdateConfirm = () => {
-    setUpdateO(!updateOpen);
+    setUpdateOpen((prev) => !prev);
   };
 
   const handleCloseConfirm = () => {
-    setdeleteOpen(!deleteOpen);
+    setDeleteOpen((prev) => !prev);
   };
 
   const sidoOption = useMemo(() => {
@@ -52,7 +52,6 @@ const InteriorUpdate = (props) => {
     }));
   }, []);
 
-  // 시/군/구 option
   const sigunguOption = useMemo(() => {
     if (!interior.textRegion) return [];
 
@@ -62,56 +61,72 @@ const InteriorUpdate = (props) => {
     }));
   }, [interior.textRegion]);
 
+  const toOptions = (values) =>
+    values.map((value) => ({
+      value,
+      title: formatInteriorAnswerValue(value),
+    }));
+
   const questionOptions = {
-    q1: [
-      { value: "apt", title: "아파트" },
-      { value: "villa", title: "빌라" },
-      { value: "house", title: "단독주택" },
-      { value: "officetel", title: "오피스텔" },
-    ],
-    q2: [
-      { value: "10_20", title: "10~20평" },
-      { value: "30", title: "30평대" },
-      { value: "40", title: "40평대" },
-      { value: "50", title: "50평 이상" },
-    ],
-    q3: [
-      { value: "kitchen", title: "키친" },
-      { value: "bath", title: "바스" },
-      { value: "storage", title: "수납" },
-      { value: "door", title: "중문/문" },
-      { value: "window", title: "창문" },
-      { value: "wallpaper", title: "벽지" },
-      { value: "lighting", title: "조명" },
-      { value: "tile", title: "타일" },
-      { value: "floor", title: "마루" },
-    ],
+    housingType: toOptions(["apt", "villa", "house", "officetel"]),
+    areaSize: toOptions(["10_20", "30", "40", "50"]),
+    spaces: toOptions([
+      "kitchen",
+      "bath",
+      "storage",
+      "door",
+      "window",
+      "wallpaper",
+      "lighting",
+      "tile",
+      "floor",
+    ]),
+    budget: toOptions(["1000", "2000", "3000", "5000", "10000"]),
+    schedule: toOptions(["1m", "3m", "6m", "flex"]),
   };
 
   const questions = [
     {
       value: "housingType",
-      title: "주택 종류",
-      options: questionOptions.q1,
+      title: formatInteriorAnswerLabel("housingType"),
+      options: questionOptions.housingType,
     },
     {
       value: "areaSize",
-      title: "평수",
-      options: questionOptions.q2,
+      title: formatInteriorAnswerLabel("areaSize"),
+      options: questionOptions.areaSize,
     },
     {
       value: "spaces",
-      title: "필요한 공간",
-      options: questionOptions.q3,
-      multi: true,
+      title: formatInteriorAnswerLabel("spaces"),
+      options: questionOptions.spaces,
+    },
+    {
+      value: "budget",
+      title: formatInteriorAnswerLabel("budget"),
+      options: questionOptions.budget,
+    },
+    {
+      value: "schedule",
+      title: formatInteriorAnswerLabel("schedule"),
+      options: questionOptions.schedule,
     },
     {
       value: "location",
-      title: "출장 장소",
-      options: questionOptions.q3,
-      multi: true,
+      title: formatInteriorAnswerLabel("location"),
     },
   ];
+
+  const selectedQuestion = questions.find((q) => q.value === i_tag);
+
+  const showAlert = (severity, title, text) => {
+    setAlert({
+      open: true,
+      severity,
+      title,
+      text,
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,18 +134,25 @@ const InteriorUpdate = (props) => {
     setInterior((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "tag" ? { text: "" } : {}),
     }));
   };
+
   const handleSubmit = async () => {
     const sendForm =
       i_tag === "location"
         ? {
             ...interior,
-            i_text: `${interior.textRegion} ${interior.textRegionDetail}`,
+            i_text: [interior.textRegion, interior.textRegionDetail]
+              .filter(Boolean)
+              .join(" "),
             i_text_before: interiorInfo.i_text,
           }
         : { ...interior, i_text_before: interiorInfo.i_text };
+
+    if (!sendForm.i_text) {
+      showAlert("warning", "선택 필요", "수정할 값을 선택해주세요.");
+      return;
+    }
 
     const result = await InteriorService.UpdateInterior({
       c_id: sendForm.c_id,
@@ -143,27 +165,21 @@ const InteriorUpdate = (props) => {
 
     if (result.success) {
       onSuccess();
-      setAlert({
-        open: true,
-        severity: "success",
-        title: "등록 성공",
-        text: "등록되었습니다.",
-      });
+      showAlert("success", "수정 성공", "수정되었습니다.");
     } else {
-      setAlert({
-        open: true,
-        severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
-      });
+      showAlert(
+        "error",
+        `에러 (${result.status || ""})`,
+        result.message || "오류가 발생했습니다.",
+      );
     }
   };
 
   const handleDelete = async () => {
     await InteriorService.DeleteInterior({
-      c_id: c_id,
-      c_kind: c_kind,
-      c_name: c_name,
+      c_id,
+      c_kind,
+      c_name,
       tag: i_tag,
       text: i_text,
     });
@@ -191,14 +207,17 @@ const InteriorUpdate = (props) => {
         />
       )}
       <div>
-        <TextFieldMui name="i_tag" value={i_tag} />
+        <TextFieldMui
+          name="i_tag"
+          value={formatInteriorAnswerLabel(i_tag)}
+        />
         {i_tag !== "location" ? (
           <SelectMui
-            label="세부 선택"
+            label="항목 선택"
             name="i_text"
             value={i_text}
-            onChange={(e) => handleChange(e)}
-            option={questions.find((q) => q.value === i_tag)?.options || []}
+            onChange={handleChange}
+            option={selectedQuestion?.options || []}
             required
           />
         ) : (
@@ -221,7 +240,7 @@ const InteriorUpdate = (props) => {
             />
           </>
         )}
-        <Button onClick={() => handleUpdateConfirm()} variant="contained">
+        <Button onClick={handleUpdateConfirm} variant="contained">
           제출
         </Button>
         <DialogMui
@@ -233,13 +252,12 @@ const InteriorUpdate = (props) => {
             {
               title: "취소",
               color: "inherit",
-              onClick: () => handleUpdateConfirm(),
+              onClick: handleUpdateConfirm,
             },
             {
               title: "제출",
               variant: "contained",
               onClick: () => {
-                console.log("제출 실행");
                 handleSubmit();
                 handleUpdateConfirm();
               },
@@ -258,14 +276,13 @@ const InteriorUpdate = (props) => {
             {
               title: "취소",
               color: "inherit",
-              onClick: () => handleCloseConfirm(),
+              onClick: handleCloseConfirm,
             },
             {
               title: "삭제",
               color: "error",
               variant: "contained",
               onClick: () => {
-                console.log("삭제 실행");
                 handleDelete();
                 handleCloseConfirm();
               },

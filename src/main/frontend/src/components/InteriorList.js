@@ -5,6 +5,10 @@ import InteriorService from "../service/interiorService";
 import GetImgDlr from "../resources/function/GetImgDir";
 import TextFieldMui from "./TextFieldMui";
 import FilterBar from "./FilterBar";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../resources/function/interiorAnswerFormat";
 
 const PAGE_SIZE = 9;
 const MULTI_FILTER_KEYS = ["housingType", "spaces"];
@@ -74,36 +78,42 @@ const InteriorList = ({ tag, value }) => {
     location: [],
   };
 
+  const formatOptions = (options = []) =>
+    options.map((option) => ({
+      ...option,
+      title: formatInteriorAnswerValue(option.value),
+    }));
+
   const filterList = [
     {
       key: "housingType",
-      title: "주거 형태",
+      title: formatInteriorAnswerLabel("housingType"),
       type: "multi",
-      options: valueOptionMap.housingType || [],
+      options: formatOptions(valueOptionMap.housingType || []),
     },
     {
       key: "areaSize",
-      title: "면적",
+      title: formatInteriorAnswerLabel("areaSize"),
       type: "single",
-      options: valueOptionMap.areaSize || [],
+      options: formatOptions(valueOptionMap.areaSize || []),
     },
     {
       key: "purpose",
-      title: "목적",
+      title: formatInteriorAnswerLabel("purpose"),
       type: "single",
-      options: valueOptionMap.purpose || [],
+      options: formatOptions(valueOptionMap.purpose || []),
     },
     {
       key: "spaces",
-      title: "공간",
+      title: formatInteriorAnswerLabel("spaces"),
       type: "multi",
-      options: valueOptionMap.spaces || [],
+      options: formatOptions(valueOptionMap.spaces || []),
     },
     {
       key: "budget",
-      title: "예산",
+      title: formatInteriorAnswerLabel("budget"),
       type: "single",
-      options: valueOptionMap.budget || [],
+      options: formatOptions(valueOptionMap.budget || []),
     },
   ];
 
@@ -251,7 +261,7 @@ const InteriorList = ({ tag, value }) => {
   };
 
   return (
-    <div className="interior-list-section">
+    <div className="interior-list-section interior-company-list-section">
       <div className="interior-list-toolbar">
         <FilterBar
           filterList={filterList}
@@ -275,14 +285,14 @@ const InteriorList = ({ tag, value }) => {
         <Button onClick={handleReset}>초기화</Button>
       </div>
 
-      <Typography color="text.secondary" sx={{ mb: 2 }}>
+      <Typography className="interior-company-list-count" color="text.secondary">
         총 {pageInfo.totalCount}개 업체
       </Typography>
 
-      <div className="interior-company-grid">
+      <div className="interior-company-grid interior-company-list-grid">
         {list.map((item) => (
           <div
-            className="interior-company-card"
+            className="interior-company-card interior-company-list-card"
             key={`${item.c_id}-${item.c_kind}-${item.c_name}`}
             onClick={() => handleNext(item)}
           >
@@ -308,7 +318,7 @@ const InteriorList = ({ tag, value }) => {
       </div>
 
       {list.length === 0 && (
-        <Typography color="text.secondary" sx={{ mt: 3 }}>
+        <Typography className="interior-company-list-empty" color="text.secondary">
           검색 결과가 없습니다.
         </Typography>
       )}
@@ -319,7 +329,7 @@ const InteriorList = ({ tag, value }) => {
           page={pageNum}
           onChange={(e, page) => setPageNum(page)}
           color="primary"
-          sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+          className="interior-company-list-pagination"
         />
       )}
     </div>

@@ -34,7 +34,7 @@ const FurnitureList = () => {
     //state 초기값을 수정 - 0522 모하영(sort까지),0527 모하영 추가
     const [searchKey, setSearchKey] = useState(urlSearchKey);
     const [searchValue, setSearchValue] = useState(
-        urlSearchValue === "f_catagory1"
+        urlSearchKey === "f_catagory1"
             ? getFurnitureCategoryTitle(urlSearchValue)
             : urlSearchValue
     );
@@ -87,10 +87,14 @@ const FurnitureList = () => {
 
     //URL이 바뀌면 state 동기화 해줌 - 0522 모하영, 0527 모하영 수정
     useEffect(() => {
-    setSearchKey(urlSearchKey);
-    setSearchValue(urlSearchValue);
-    setSort(urlSort);
-    setCategoryFilters(urlCategoryFilters);
+        setSearchKey(urlSearchKey);
+        setSearchValue(
+            urlSearchKey === "f_catagory1"
+            ? getFurnitureCategoryTitle(urlSearchValue)
+            : urlSearchValue
+        );
+        setSort(urlSort);
+        setCategoryFilters(urlCategoryFilters);
     }, [
         urlSearchKey,
         urlSearchValue,
@@ -308,7 +312,6 @@ const FurnitureList = () => {
         {feedback}
         <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "24px" }}>
             <form
-                onSubmit={onSearch}
                 style={{
                     display: "flex",
                     gap: "8px",
@@ -330,7 +333,8 @@ const FurnitureList = () => {
 
             </form>
         
-            <div
+            <form
+                onSubmit={onSearch}
                 style={{
                     display: "flex",
                     gap: "8px",
@@ -383,7 +387,7 @@ const FurnitureList = () => {
                 >
                     검색
                 </button>
-            </div>
+            </form>
 
             <div
                 style={{

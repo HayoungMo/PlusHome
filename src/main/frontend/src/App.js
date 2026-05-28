@@ -181,11 +181,8 @@ function App() {
             {/* 인테리어 */}
             <Route path="/interior/list" element={<InteriorLists />} />
             <Route path="/interior/article" element={<InteriorArticle />} />
-            <Route path="/interior/created" element={<InteriorCreated />} />
-            <Route path="/interior/updated" element={<InteriorUpdateAll />} />
             <Route path="/interior/question" element={<InteriorQuestion />} />
             <Route path="/interior/review" element={<InteriorReview />} />
-            <Route path="/interior/chart" element={<InteriorChart />} />
 
             {/* 자유게시판 */}
             <Route path="/freeboard/list" element={<FreeBoardListPage />} />

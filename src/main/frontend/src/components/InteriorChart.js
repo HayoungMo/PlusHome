@@ -12,6 +12,7 @@ import {
   ArcElement,
 } from "chart.js";
 import InteriorService from "../service/interiorService";
+import { formatInteriorAnswerValue } from "../resources/function/interiorAnswerFormat";
 
 ChartJS.register(
   BarElement,
@@ -93,7 +94,7 @@ const InteriorChart = ({ company }) => {
     });
 
     return Object.entries(countMap).map(([name, count]) => ({
-      name,
+      name: formatInteriorAnswerValue(name),
       count,
     }));
   };
@@ -112,7 +113,7 @@ const InteriorChart = ({ company }) => {
     });
 
     return Object.entries(countMap).map(([name, count]) => ({
-      name,
+      name: formatInteriorAnswerValue(name),
       count,
     }));
   };
@@ -124,12 +125,11 @@ const InteriorChart = ({ company }) => {
       const answer = parseAnswer(booking.b_answer);
       if (!answer) return;
 
-      const key =
-        answer.housingType +
-        "_" +
-        answer.areaSize +
-        "_" +
-        answer.houseCondition;
+      const key = [
+        formatInteriorAnswerValue(answer.housingType),
+        formatInteriorAnswerValue(answer.areaSize),
+        formatInteriorAnswerValue(answer.houseCondition),
+      ].join(" / ");
 
       countMap[key] = (countMap[key] || 0) + 1;
     });

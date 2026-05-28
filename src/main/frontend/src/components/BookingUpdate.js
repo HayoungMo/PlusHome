@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import InteriorService from "../service/interiorService";
-import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
 import {
 	Button,
@@ -13,10 +12,13 @@ import {
 	TableRow,
 } from "@mui/material";
 import DialogMui from "./DialogMui";
-import SelectMui from "./SelectMui";
 import AlertMui from "./AlertMui";
 import DatePickerMui from "./DatePickerMui";
 import dayjs from "dayjs";
+import {
+	formatInteriorAnswerLabel,
+	formatInteriorAnswerValue,
+} from "../resources/function/interiorAnswerFormat";
 
 const BookingUpdate = ({
 	company,
@@ -204,27 +206,35 @@ const BookingUpdate = ({
 					setSelectedRow={setSelectedBooking}
 					rowData={booking}
 					hiddenColumns={["b_answer"]}
+					columns={[
+						"예약자 ID",
+						"신청일",
+						"업체 ID",
+						"업체 구분",
+						"업체명",
+						"상담 종류",
+						"희망 기간",
+						"예약일",
+						"진행 상태",
+						"상담 내용",
+					]}
 					collapseTitle="상담 상세 정보"
 					renderCollapse={(row) => {
 						let answer = {};
 
-						try {
-							answer = row.b_answer ? JSON.parse(row.b_answer) : {};
-						} catch (e) {
-							answer = {};
-						}
+							try {
+								answer = row.b_answer ? JSON.parse(row.b_answer) : {};
+							} catch (e) {
+								answer = {};
+							}
 
 						return (
 							<Table size="small">
 								<TableBody>
 									{Object.keys(answer).map((key) => (
 										<TableRow key={key}>
-											<TableCell>{key}</TableCell>
-											<TableCell>
-												{Array.isArray(answer[key])
-													? answer[key].join(", ")
-													: answer[key]}
-											</TableCell>
+											<TableCell>{formatInteriorAnswerLabel(key)}</TableCell>
+											<TableCell>{formatInteriorAnswerValue(answer[key])}</TableCell>
 										</TableRow>
 									))}
 								</TableBody>

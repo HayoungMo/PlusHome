@@ -1,15 +1,14 @@
 import React, { useMemo, useState } from "react";
-import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
-import ImageService from "../service/imageService";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import AlertMui from "./AlertMui";
-import FloatingActionButtonMui from "./FloatingActionButtonMui";
-import AddIcon from "@mui/icons-material/Add";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
-import {regionData} from "../resources/function/RegionData";
+import { regionData } from "../resources/function/RegionData";
 import CheckboxMui from "./CheckboxMui";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../resources/function/interiorAnswerFormat";
 
 const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
   const [sendList, setSendList] = useState([]);
@@ -29,12 +28,6 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
     text: "",
   });
 
-  const [region, setRegion] = useState({
-    sido: "",
-    sigungu: "",
-  });
-
-  // 시/도 option
   const sidoOption = useMemo(() => {
     return Object.keys(regionData).map((item) => ({
       value: item,
@@ -42,7 +35,6 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
     }));
   }, []);
 
-  // 시/군/구 option
   const sigunguOption = useMemo(() => {
     if (!form.textRegion) return [];
 
@@ -52,72 +44,94 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
     }));
   }, [form.textRegion]);
 
+  const toOptions = (values) =>
+    values.map((value) => ({
+      value,
+      title: formatInteriorAnswerValue(value),
+    }));
+
   const questionOptions = {
-    q1: [
-      { value: "apt", title: "아파트" },
-      { value: "villa", title: "빌라" },
-      { value: "house", title: "단독주택" },
-      { value: "officetel", title: "오피스텔" },
-    ],
-    q2: [
-      { value: "10_20", title: "10~20평" },
-      { value: "30", title: "30평대" },
-      { value: "40", title: "40평대" },
-      { value: "50", title: "50평 이상" },
-    ],
-    q3: [
-      { value: "kitchen", title: "키친" },
-      { value: "bath", title: "바스" },
-      { value: "storage", title: "수납" },
-      { value: "door", title: "중문/문" },
-      { value: "window", title: "창문" },
-      { value: "wallpaper", title: "벽지" },
-      { value: "lighting", title: "조명" },
-      { value: "tile", title: "타일" },
-      { value: "floor", title: "마루" },
-    ],
+    housingType: toOptions(["apt", "villa", "house", "officetel"]),
+    areaSize: toOptions(["10_20", "30", "40", "50"]),
+    spaces: toOptions([
+      "kitchen",
+      "bath",
+      "storage",
+      "door",
+      "window",
+      "wallpaper",
+      "lighting",
+      "tile",
+      "floor",
+    ]),
+    budget: toOptions(["1000", "2000", "3000", "5000", "10000"]),
+    schedule: toOptions(["1m", "3m", "6m", "flex"]),
   };
 
   const questions = [
     {
       value: "housingType",
-      title: "주택 종류",
-      options: questionOptions.q1,
+      title: formatInteriorAnswerLabel("housingType"),
+      options: questionOptions.housingType,
     },
     {
       value: "areaSize",
-      title: "평수",
-      options: questionOptions.q2,
+      title: formatInteriorAnswerLabel("areaSize"),
+      options: questionOptions.areaSize,
     },
     {
       value: "spaces",
-      title: "필요한 공간",
-      options: questionOptions.q3,
+      title: formatInteriorAnswerLabel("spaces"),
+      options: questionOptions.spaces,
       multi: true,
     },
     {
+      value: "budget",
+      title: formatInteriorAnswerLabel("budget"),
+      options: questionOptions.budget,
+    },
+    {
+      value: "schedule",
+      title: formatInteriorAnswerLabel("schedule"),
+      options: questionOptions.schedule,
+    },
+    {
       value: "location",
-      title: "출장 장소",
+      title: formatInteriorAnswerLabel("location"),
     },
   ];
 
-  const [preview, setPreview] = useState([]);
+  const showAlert = (severity, title, text) => {
+    setAlert({
+      open: true,
+      severity,
+      title,
+      text,
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-	
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "tag" ? { text: "" } : {}),
+      ...(name === "tag"
+        ? {
+            text: "",
+            textRegion: "",
+            textRegionDetail: "",
+          }
+        : {}),
     }));
 
     if (name === "tag") {
       setSelectedSpaces([]);
     }
   };
+
   const selectedQuestion = questions.find((q) => q.value === form.tag);
-  const spaceOptions = questionOptions.q3;
+  const spaceOptions = questionOptions.spaces;
   const allSpacesSelected = selectedSpaces.length === spaceOptions.length;
 
   const handleSpaceChange = (value, checked) => {
@@ -130,27 +144,29 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
     setSelectedSpaces(checked ? spaceOptions.map((option) => option.value) : []);
   };
 
+  const getExistingInterior = async () => {
+    const existingInterior = await InteriorService.fetchArticle({
+      c_id: form.c_id,
+      c_kind: form.c_kind,
+      c_name: form.c_name,
+    });
+
+    return Array.isArray(existingInterior) ? existingInterior : [];
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 🔥 페이지 새로고침 막기
+    e.preventDefault();
+
+    const existingList = await getExistingInterior();
+
     if (form.tag === "spaces") {
       if (selectedSpaces.length === 0) {
-        setAlert({
-          open: true,
-          severity: "warning",
-          title: "선택 필요",
-          text: "공간을 하나 이상 선택해 주세요.",
-        });
+        showAlert("warning", "선택 필요", "공간을 하나 이상 선택해주세요.");
         return;
       }
 
-      const existingInterior = await InteriorService.fetchArticle({
-        c_id: form.c_id,
-        c_kind: form.c_kind,
-        c_name: form.c_name,
-      });
-
       const existingSpaces = new Set(
-        (Array.isArray(existingInterior) ? existingInterior : [])
+        existingList
           .filter((item) => item.i_tag === "spaces")
           .map((item) => item.i_text),
       );
@@ -160,12 +176,11 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
       );
 
       if (spacesToAdd.length === 0) {
-        setAlert({
-          open: true,
-          severity: "info",
-          title: "추가할 공간 없음",
-          text: "선택한 공간이 모두 이미 등록되어 있습니다.",
-        });
+        showAlert(
+          "info",
+          "추가할 공간 없음",
+          "선택한 공간이 모두 이미 등록되어 있습니다.",
+        );
         return;
       }
 
@@ -180,22 +195,19 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
 
       if (results.every((result) => result.success)) {
         onSuccess();
-        setAlert({
-          open: true,
-          severity: "success",
-          title: "등록 성공",
-          text:
-            spacesToAdd.length === selectedSpaces.length
-              ? "인테리어 공간 정보가 등록되었습니다."
-              : "이미 등록된 공간을 제외하고 새 공간만 등록했습니다.",
-        });
+        showAlert(
+          "success",
+          "등록 성공",
+          spacesToAdd.length === selectedSpaces.length
+            ? "인테리어 공간 정보가 등록되었습니다."
+            : "이미 등록된 공간을 제외하고 새 공간만 등록했습니다.",
+        );
       } else {
-        setAlert({
-          open: true,
-          severity: "error",
-          title: "등록 실패",
-          text: "공간 정보 등록 중 오류가 발생했습니다.",
-        });
+        showAlert(
+          "error",
+          "등록 실패",
+          "공간 정보 등록 중 오류가 발생했습니다.",
+        );
       }
 
       setSendList([]);
@@ -206,26 +218,36 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
       form.tag === "location"
         ? {
             ...form,
-            text: `${form.textRegion} ${form.textRegionDetail}`,
+            text: [form.textRegion, form.textRegionDetail]
+              .filter(Boolean)
+              .join(" "),
           }
         : form;
+
+    if (!sendForm.tag || !sendForm.text) {
+      showAlert("warning", "선택 필요", "항목과 값을 선택해주세요.");
+      return;
+    }
+
+    const alreadyExists = existingList.some(
+      (item) => item.i_tag === sendForm.tag && item.i_text === sendForm.text,
+    );
+
+    if (alreadyExists) {
+      showAlert("info", "추가할 정보 없음", "선택한 정보가 이미 등록되어 있습니다.");
+      return;
+    }
 
     const result = await InteriorService.AddInterior(sendForm);
     if (result.success) {
       onSuccess();
-      setAlert({
-        open: true,
-        severity: "success",
-        title: "등록 성공",
-        text: "인테리어 상세 정보가 등록되었습니다.",
-      });
+      showAlert("success", "등록 성공", "인테리어 상세 정보가 등록되었습니다.");
     } else {
-      setAlert({
-        open: true,
-        severity: "error",
-        title: `에러 (${result.status})`,
-        text: result.message || "오류가 발생했습니다.",
-      });
+      showAlert(
+        "error",
+        `에러 (${result.status || ""})`,
+        result.message || "오류가 발생했습니다.",
+      );
     }
     setSendList([]);
   };
@@ -246,7 +268,7 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
           }
         />
       )}
-      <p>인테리어 업체 추가</p>
+      <p>인테리어 업체 정보 추가</p>
       <form name="article" onSubmit={handleSubmit}>
         <div>
           <SelectMui
@@ -281,7 +303,7 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
                 </div>
               ) : (
                 <SelectMui
-                  label="세부 선택"
+                  label="항목 선택"
                   name="text"
                   value={form.text}
                   onChange={handleChange}

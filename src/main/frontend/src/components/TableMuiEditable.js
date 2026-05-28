@@ -1,46 +1,12 @@
 import { useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-import { Checkbox } from "@mui/material";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: "#1e89be",
-		color: "#fff",
-		fontSize: 15,
-		fontWeight: 700,
-		padding: "14px 16px",
-		borderBottom: "2px solid #1b5069",
-	},
-
-	[`&.${tableCellClasses.body}`]: {
-		fontSize: 14,
-		padding: "12px 16px",
-		color: "#333",
-		borderBottom: "1px solid #e0e0e0",
-	},
-}));
-
-const StyledTableRow = styled(TableRow)(() => ({
-	"&:nth-of-type(odd)": {
-		backgroundColor: "#fafafa",
-	},
-
-	"&:hover": {
-		backgroundColor: "#f1f8ff",
-	},
-
-	"&:last-child td, &:last-child th": {
-		border: 0,
-	},
-}));
+import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
 
 const TableMuiEditable = ({
   rowData = [],
@@ -50,13 +16,10 @@ const TableMuiEditable = ({
   onChange,
   updateAvailable = true,
   readOnlyColumns = [],
-  defaultRowPerPage = 10,
 }) => {
   const [rows, setRows] = useState(rowData);
   const [editingCell, setEditingCell] = useState(null);
   const [editValue, setEditValue] = useState("");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(defaultRowPerPage);
 
   const tableColumns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
@@ -110,10 +73,7 @@ const TableMuiEditable = ({
   return (
     <TableContainer
       component={Paper}
-      sx={{
-        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-        overflow: "hidden",
-      }}
+      sx={tableContainerSx}
     >
       <Table sx={{ minWidth: 650 }} aria-label="editable table">
         <TableHead>
@@ -128,12 +88,11 @@ const TableMuiEditable = ({
 
         <TableBody>
           {rows.map((row, rowIndex) => {
-            const realRowIndex = page * rowsPerPage + rowIndex;
+            const realRowIndex = rowIndex;
             const isSelected = selectedRow?.rowIndex === realRowIndex;
 
             return (
               <StyledTableRow
-                key={row.id || rowIndex}
                 onClick={() => {
                   const selectedRowData = { ...row, rowIndex: realRowIndex };
                   if (setSelectedRow) setSelectedRow(selectedRowData);
