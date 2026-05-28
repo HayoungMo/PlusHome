@@ -3,11 +3,11 @@ import InteriorService from "../service/interiorService";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
 import SelectMui from "./SelectMui";
-import { Button } from "@mui/material";
+import { Button, Chip, Stack } from "@mui/material";
 import TextFieldMui from "./TextFieldMui";
 import InteriorAnswerAi from "./InteriorAnswerAi";
 
-const InteriorRecommend = ({ answers }) => {
+const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   //알고리즘 적용시 리스트 컴포넌트
   const navigate = useNavigate();
   const [list, setList] = useState([]);
@@ -33,6 +33,7 @@ const InteriorRecommend = ({ answers }) => {
 
     spaces: [
       { value: "livingroom", title: "거실" },
+      { value: "bath", title: "욕실" },
       { value: "kitchen", title: "주방" },
       { value: "storage", title: "수납" },
       { value: "door", title: "중문/문" },
@@ -58,6 +59,31 @@ const InteriorRecommend = ({ answers }) => {
       { value: "50", title: "50평 이상" },
     ],
   };
+
+  //태그 표시용 함수 추가
+  const getAnswerTitle = (key, value) => {
+    const option = valueOptionMap[key]?.find((item) => item.value === value);
+    return option?.title || value;
+  };
+
+  const selectedAnswerTags = Object.entries(answers || {}).flatMap(([key, value]) => {
+    if(!value) return [];
+
+    if(Array.isArray(value)) {
+      return value.map((item) => ({
+        key,
+        value: item,
+        title: getAnswerTitle(key, item),
+      }));
+    }
+
+    return [{
+      key,
+      value,
+      title: getAnswerTitle(key, value),
+    }]
+
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -195,6 +221,28 @@ const InteriorRecommend = ({ answers }) => {
 
   return (
     <div className="interior-list-section interior-recommend-section">
+      {/* 검색 toolbar를 챗봇일때 숨김 - 0528 모하영 */}
+      {fromChatbot ? (
+        <div style={{ marginBottom: "18px" }}>
+          <h3 style={{ margin: "0 0 8px" }}>선택한 조건과 가까운 업체</h3>
+
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            {selectedAnswerTags.map((tag) => (
+              <Chip
+                key={`${tag.key}-${tag.value}`}
+                label={tag.title}
+                size="small"
+                variant="outlined"
+                sx={{ mb: 1 }}
+              />
+            ))}
+          </Stack>
+
+          <p style={{ marginTop: "10px", color: "#666" }}>
+            완벽하게 일치하는 업체가 아니더라도, 선택한 조건과 가까운 업체를 우선으로 보여드릴게요.
+          </p>
+        </div>
+      ) : (
       <div className="interior-list-toolbar">
         <h3>결과</h3>
         <TextFieldMui
@@ -239,9 +287,14 @@ const InteriorRecommend = ({ answers }) => {
 
         <Button onClick={handleReset}>초기화</Button>
       </div>
+      )}
 
       <div className="interior-company-grid interior-recommend-grid">
-        {list.slice(0, 3).map((item, idx) => (
+        {/* 결과 없을때 메세지 보여줌 - 0528 모하영 */}
+        {list.length === 0 ?(
+          <p>선택한 조건과 가까운 업체를 찾지 못했습니다.</p>
+        ) : (
+        list.slice(0, 3).map((item, idx) => (
           <div
             className="interior-company-card interior-recommend-card"
             key={idx}
@@ -277,8 +330,10 @@ const InteriorRecommend = ({ answers }) => {
                 /> */}
               </div>
             </div>
+
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
