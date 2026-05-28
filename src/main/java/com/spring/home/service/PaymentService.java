@@ -305,7 +305,7 @@ public class PaymentService {
 		for (String c_code : dto.getC_codeList()) {
 			CartDTO cart = cartMapper.getReadData(c_code);
 
-			if (cart == null || !id.equals(cart.getId()) || !"N".equals(cart.getF_status())) {
+			if (!isEditableCart(cart, id)) {
 				throw new RuntimeException("결제 가능한 장바구니 상품이 아닙니다.");
 			}
 
@@ -611,6 +611,11 @@ public class PaymentService {
 		}
 	}
 	
+	private boolean isEditableCart(CartDTO cart, String id) {
+	    return cart != null
+	        && id.equals(cart.getId());
+	}
+	
 	public Map<String, Object> checkStock(String id, List<String> c_codes) throws Exception {
 		List<StockCheckDTO> shortageItems = new ArrayList<>();
 		
@@ -621,7 +626,7 @@ public class PaymentService {
 		for(String c_code : c_codes) {
 			CartDTO cart = cartMapper.getReadData(c_code);
 
-			if (cart == null || !id.equals(cart.getId()) || !"N".equals(cart.getF_status())) {
+			if (!isEditableCart(cart, id)) {
 			    throw new RuntimeException("확인할 수 없는 장바구니 상품입니다.");
 			}
 			
