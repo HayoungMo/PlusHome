@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import questionService from "../service/questionService";
-import { TextField,Button } from "@mui/material";
+import { TextField,Button,Snackbar } from "@mui/material";
+import AlertMui from "../components/AlertMui";
 import GetImgDir from "../resources/function/GetImgDir";
 import ImageService from "../service/imageService";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
-import SnackbarAlert from '../components/SnackbarAlert';
 import DialogMui from "../components/DialogMui";
 import ImageViewer from "../components/ImageViewer";
 import FurnitureService from "../service/furnitureService";
@@ -32,6 +32,9 @@ const UserQuestionPage = ({ user }) => {
     const [addImageFiles, setAddImageFiles] = useState({});
     //Loading 할래욧
     const [loading, setLoading] = useState(true)
+    
+    const [deletedQuestionImages, setDeletedQuestionImages] = useState({});
+    const [addImagePreview, setAddImagePreview] = useState({});
 
     //Viewer사용
     const [viewerOpen, setViewerOpen] = useState(false);
@@ -45,23 +48,25 @@ const UserQuestionPage = ({ user }) => {
         reply: null,
     });
 
-    //snackBar 사용
-    const [snackbar, setSnackbar] = useState({
+    //alert
+    const [alert, setAlert] = useState({
         open: false,
-        message: "",
         severity: "info",
+        title: "",
+        text: "",
     });
 
-    const showSnackbar = (message, severity = "info") => {
-            setSnackbar({
+    const showAlert = ({severity = "info", title = "", text = ""}) => {
+            setAlert({
                 open: true,
-                message,
                 severity,
+                title,
+                text,
             });
         };
 
-    const closeSnackbar = () => {
-        setSnackbar((prev) => ({
+    const closeAlert = () => {
+        setAlert((prev) => ({
             ...prev,
             open: false,
         }));
@@ -223,7 +228,11 @@ const UserQuestionPage = ({ user }) => {
             setQuestionFurniture(Object.fromEntries(furnitureEntries));
         } catch (error) {
             console.error("문의 내역 조회 실패", error)
-            showSnackbar("문의 내역을 불러오지 못했습니다.")
+            showAlert({
+                severity: "error",
+                title: "조회 실패",
+                text: "문의 내역을 불러오지 못했습니다.",
+            });
         
         } finally{
             setLoading(false)
@@ -261,23 +270,23 @@ const UserQuestionPage = ({ user }) => {
         }));
     };
     
-    //이미지 수정
-    const onEditImageChange = (q_idx, imgName, file) => {
-        if (!file) return;
+    //이미지 수정 -> 주석 처리
+    // const onEditImageChange = (q_idx, imgName, file) => {
+    //     if (!file) return;
 
-        setEditImageFiles((prev) => ({
-            ...prev,
-            [q_idx]: {
-                file,
-                name: imgName,
-            },
-        }));
+    //     setEditImageFiles((prev) => ({
+    //         ...prev,
+    //         [q_idx]: {
+    //             file,
+    //             name: imgName,
+    //         },
+    //     }));
 
-        setEditImagePreview((prev) => ({
-            ...prev,
-            [q_idx]: URL.createObjectURL(file),
-        }));
-    };
+    //     setEditImagePreview((prev) => ({
+    //         ...prev,
+    //         [q_idx]: URL.createObjectURL(file),
+    //     }));
+    // };
 
     //파일 중복체크 함수 추가
     const makeFileKey = (file) => {
@@ -314,6 +323,34 @@ const UserQuestionPage = ({ user }) => {
         }));
     };
 
+    const getImageOriginalName = (img) => {
+        return img.img_originalName || img.img_name?.split("/").pop();
+    };
+
+    const deleteEditImage = (q_idx, img) => {
+        const imageName = getImageOriginalName(img);
+
+        if (!imageName) {
+            showAlert({
+                severity: "error",
+                title: "이미지 삭제 실패",
+                text: "이미지 정보를 찾을 수 없습니다.",
+            });
+            return;
+        }
+
+        setDeletedQuestionImages((prev) => ({
+            ...prev,
+            [q_idx]: Array.from(new Set([...(prev[q_idx] || []), imageName])),
+        }));
+
+        setQuestionImages((prev) => ({
+            ...prev,
+            [q_idx]: (prev[q_idx] || []).filter(
+                (item) => getImageOriginalName(item) !== imageName
+            ),
+        }));
+    };
 
     //문의 수정
     const updateQuestion = async (q_idx) => {
@@ -323,6 +360,10 @@ const UserQuestionPage = ({ user }) => {
             q_content: editForm.q_content,
             q_secret: editForm.q_secret,
         });
+
+        if (deletedQuestionImages[q_idx]?.length > 0) {
+            await ImageService.deleteImage(deletedQuestionImages[q_idx]);
+        }
 
         if (editImageFiles[q_idx]) {
             await ImageService.updateImage([editImageFiles[q_idx]]);
@@ -362,7 +403,17 @@ const UserQuestionPage = ({ user }) => {
             return next;
         });
 
-        showSnackbar("문의가 수정되었습니다.");
+        setDeletedQuestionImages((prev) => {
+            const next = { ...prev };
+            delete next[q_idx];
+            return next;
+        });
+
+        showAlert({
+            severity: "success",
+            title: "수정 완료",
+            text: "문의가 수정되었습니다.",
+        });
         cancelEdit();
         getMyQuestions();
     };
@@ -383,7 +434,11 @@ const UserQuestionPage = ({ user }) => {
 
         await questionService.deleteQuestion(deleteTargetIdx);
 
-        showSnackbar("문의가 삭제되었습니다.", "success");
+        showAlert({
+            severity: "success",
+            title: "삭제 완료",
+            text: "문의가 삭제되었습니다.",
+        });
         closeDeleteQuestionDialog();
         getMyQuestions();
     };
@@ -400,7 +455,11 @@ const UserQuestionPage = ({ user }) => {
         const q_answer = answerForms[q_idx];
 
         if(!q_answer || !q_answer.trim()) {
-            showSnackbar("답변 내용을 입력해주세요");
+            showAlert({
+                severity: "warning",
+                title: "입력 필요",
+                text: "답변 내용을 입력해주세요.",
+            });
             return;
         }
 
@@ -408,7 +467,11 @@ const UserQuestionPage = ({ user }) => {
             q_idx,
             q_answer,
         });
-        showSnackbar("답변이 저장되었습니다.");
+        showAlert({
+            severity: "success",
+            title: "저장 완료",
+            text: "답변이 저장되었습니다.",
+        });
 
         setAnswerEditIdx(null);
 
@@ -445,7 +508,11 @@ const UserQuestionPage = ({ user }) => {
 
         await questionService.deleteAnswer(q_idx);
 
-        showSnackbar("답변이 삭제되었습니다.");
+        showAlert({
+            severity: "success",
+            title: "삭제 완료",
+            text: "답변이 삭제되었습니다.",
+        });
 
         setAnswerForms((prev) => ({
             ...prev,
@@ -459,14 +526,30 @@ const UserQuestionPage = ({ user }) => {
         return <Loading message="문의 내역을 불러오는 중입니다."/>
     }
 
+    const editingQuestion = editIdx
+        ? questions.find((item) => item.q_idx === editIdx)
+        : null;
+
     return (
         <div>
-            <SnackbarAlert
-                open={snackbar.open}
-                message={snackbar.message}
-                severity={snackbar.severity}
-                onClose={closeSnackbar}
-            />
+            <Snackbar
+                key={`${alert.title}-${alert.text}`}
+                open={alert.open}
+                autoHideDuration={3000}
+                onClose={closeAlert}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <div>
+                    <AlertMui
+                        severity={alert.severity}
+                        title={alert.title}
+                        text={alert.text}
+                        onClose={closeAlert}
+                        autoHideDuration={3000}
+                    />
+                </div>
+            </Snackbar>
+
             <DialogMui
                 open={deleteConfirmOpen}
                 onClose={closeDeleteQuestionDialog}
@@ -487,296 +570,320 @@ const UserQuestionPage = ({ user }) => {
                     },
                 ]}
             />
+
+            <DialogMui
+                open={Boolean(editingQuestion)}
+                onClose={cancelEdit}
+                title={<strong className="user-question-edit-dialog-title">문의 수정</strong>}
+                maxWidth="sm"
+                fullWidth={true}
+                text={
+                    editingQuestion && (
+                        <div className="user-question-edit-form">
+                        {(() => {
+                        const furniture = questionFurniture[editingQuestion.q_idx];
+
+                        return (
+                            <div className="user-question-edit-product-area">
+                                <div className="user-question-product-thumb">
+                                    <img
+                                        src={
+                                            furniture?.thumbnail
+                                                ? `http://localhost:8080/api/images/FURNITURE/${furniture.thumbnail}`
+                                                : "/no-image.png"
+                                        }
+                                        alt={furniture?.f_name || editingQuestion.f_name || "상품 이미지"}
+                                    />
+                                </div>
+
+                                <div className="user-question-product-info">
+                                    <p className="user-question-company">
+                                        {furniture?.c_name || editingQuestion.c_name || "업체명 없음"}
+                                    </p>
+
+                                    <h4>
+                                        {furniture?.f_name || editingQuestion.f_name || "상품명 없음"}
+                                    </h4>
+
+                                    <div className="user-question-options">
+                                        <span>옵션: -</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    <div className="user-question-edit-section">
+                        <label className="user-question-secret-check">
+                            <input
+                                type="checkbox"
+                                name="q_secret"
+                                checked={editForm.q_secret === "Y"}
+                                onChange={onEditChange}
+                            />
+                            비밀글
+                        </label>
+                    </div>
+
+                            <div className="user-question-edit-field">
+                                <span>제목</span>
+                                <TextField
+                                    name="q_title"
+                                    value={editForm.q_title}
+                                    onChange={onEditChange}
+                                    fullWidth
+                                    size="small"
+                                />
+                            </div>
+
+                            <div className="user-question-edit-field">
+                                <span>내용</span>
+                                <TextField
+                                    name="q_content"
+                                    value={editForm.q_content}
+                                    onChange={onEditChange}
+                                    multiline
+                                    rows={4}
+                                    fullWidth
+                                />
+                            </div>
+
+                          <div className="user-question-edit-image-tools">
+                            <p>기존 이미지</p>
+
+                            <div className="user-question-edit-images">
+                                {(questionImages[editingQuestion.q_idx] || []).length > 0 ? (
+                                    questionImages[editingQuestion.q_idx].map((img) => (
+                                        <div
+                                            className="user-question-edit-image"
+                                            key={getImageOriginalName(img) || img.img_name}
+                                        >
+                                            <img
+                                                src={`${img.img_name}?t=${imageRefresh}`}
+                                                alt="문의 이미지"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                className="user-question-edit-image-delete"
+                                                onClick={() => deleteEditImage(editingQuestion.q_idx, img)}
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <span className="user-question-muted">이미지 없음</span>
+                                )}
+
+                                {addImageFiles[editingQuestion.q_idx]?.map((file) => (
+                                    <div
+                                        className="user-question-edit-image user-question-edit-image-new"
+                                        key={makeFileKey(file)}
+                                    >
+                                        <img
+                                            src={URL.createObjectURL(file)}
+                                            alt="추가 이미지 미리보기"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="user-question-edit-image-delete"
+                                            onClick={() =>
+                                                removeAddImageFile(
+                                                    editingQuestion.q_idx,
+                                                    makeFileKey(file)
+                                                )
+                                            }
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+
+                                
+
+                        </div>
+
+                        <br/>
+                                
+                                <div className="user-question-add-image-form">
+                                    새 이미지 추가
+                                <Button
+                                    component="label"
+                                    variant="contained"
+                                    size="small"
+                                    className="user-question-primary-btn"
+                                >
+                                    파일 선택
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        hidden
+                                        onChange={(evt) => {
+                                            onAddImageChange(editingQuestion.q_idx, evt.target.files);
+                                            evt.target.value = "";
+                                        }}
+                                    />
+                                </Button>
+
+                                {addImageFiles[editingQuestion.q_idx]?.length > 0 && (
+                                    <p className="user-question-add-image-count">
+                                        {addImageFiles[editingQuestion.q_idx].length}장의 이미지가 추가됩니다.
+                                    </p>
+                                )}
+                            </div>
+                            </div>
+                        </div>
+                    )
+                }
+                buttons={[
+                    {
+                        title: "수정 완료",
+                        color: "primary",
+                        variant: "contained",
+                        onClick: () => {
+                            if (editingQuestion) {
+                                updateQuestion(editingQuestion.q_idx);
+                            }
+                        },
+                    },
+                    {
+                        title: "취소",
+                        color: "inherit",
+                        variant: "outlined",
+                        onClick: cancelEdit,
+                    },
+                ]}
+            />
             
             {questions.length === 0 ? (
                 <p className="user-question-empty">작성한 문의가 없습니다.</p>
             ) : (
-                <div className="user-question-list">
-                    {questions.map((item) => (
-                        <article className="user-question-card" key={item.q_idx}>
-                            {editIdx === item.q_idx ? (
-                                <div className="user-question-edit-form">
-                                    <div className="user-question-edit-field">
-                                        <span>제목</span>
-                                        <TextField
-                                            name="q_title"
-                                            value={editForm.q_title}
-                                            onChange={onEditChange}
-                                            fullWidth
-                                            size="small"
+        <div className="user-question-list">
+        {questions.map((item) => (
+            <article className="user-question-card" key={item.q_idx}>
+                <>
+                    {(() => {
+                        const furniture = questionFurniture[item.q_idx];
+
+                        return (
+                            <div className="user-question-product-area">
+                                <div className="user-question-product-thumb">
+                                    <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
+                                        <img
+                                            src={
+                                                furniture?.thumbnail
+                                                    ? `http://localhost:8080/api/images/FURNITURE/${furniture.thumbnail}`
+                                                    : "/no-image.png"
+                                            }
+                                            alt={furniture?.f_name || item.f_name || "상품 이미지"}
                                         />
-                                    </div>
+                                    </Link>
+                                </div>
 
-                                    <div className="user-question-edit-field">
-                                        <span>내용</span>
-                                        <TextField
-                                            name="q_content"
-                                            value={editForm.q_content}
-                                            onChange={onEditChange}
-                                            multiline
-                                            rows={4}
-                                            fullWidth
-                                        />
-                                    </div>
+                                <div className="user-question-product-info">
+                                    <p className="user-question-company">
+                                        {furniture?.c_name || item.c_name || "업체명 없음"}
+                                    </p>
 
-                                    <div className="user-question-edit-image-tools">
-                                        <p>기존 이미지</p>
+                                    <h4>
+                                        <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
+                                            {furniture?.f_name || item.f_name || "상품명 없음"}
+                                        </Link>
+                                    </h4>
 
-                                        <div className="user-question-edit-images">
-                                            {(questionImages[item.q_idx] || []).length > 0 ? (
-                                                questionImages[item.q_idx].map((img) => (
-                                                    <div
-                                                        className="user-question-edit-image"
-                                                        key={img.img_name}
-                                                    >
-                                                        <img
-                                                            src={
-                                                                editImagePreview[item.q_idx] ||
-                                                                `${img.img_name}?t=${imageRefresh}`
-                                                            }
-                                                            alt="문의 이미지"
-                                                        />
-
-                                                        <Button
-                                                            component="label"
-                                                            variant="outlined"
-                                                            size="small"
-                                                            className="user-question-secondary-btn"
-                                                        >
-                                                            변경
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                hidden
-                                                                onChange={(evt) =>
-                                                                    onEditImageChange(
-                                                                        item.q_idx,
-                                                                        img.img_originalName,
-                                                                        evt.target.files[0]
-                                                                    )
-                                                                }
-                                                            />
-                                                        </Button>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <span className="user-question-muted">
-                                                    이미지 없음
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="user-question-add-image-form">
-                                        <p>이미지 추가</p>
-
-                                        <Button
-                                            component="label"
-                                            variant="contained"
-                                            size="small"
-                                            className="user-question-primary-btn"
-                                        >
-                                            파일 선택
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                hidden
-                                                onChange={(evt) => {
-                                                    onAddImageChange(item.q_idx, evt.target.files);
-                                                    evt.target.value = "";
-                                                }}
-                                            />
-                                        </Button>
-
-                                        {addImageFiles[item.q_idx]?.length > 0 && (
-                                            <div className="user-question-add-image-list">
-                                                <p>
-                                                    {addImageFiles[item.q_idx].length}장의 이미지가 추가됩니다.
-                                                </p>
-
-                                                {addImageFiles[item.q_idx].map((file) => (
-                                                    <div
-                                                        className="user-question-add-image-item"
-                                                        key={makeFileKey(file)}
-                                                    >
-                                                        <span>{file.name}</span>
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                removeAddImageFile(
-                                                                    item.q_idx,
-                                                                    makeFileKey(file)
-                                                                )
-                                                            }
-                                                        >
-                                                            선택 취소
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <label className="user-question-secret-check">
-                                        <input
-                                            type="checkbox"
-                                            name="q_secret"
-                                            checked={editForm.q_secret === "Y"}
-                                            onChange={onEditChange}
-                                        />
-                                        비밀글
-                                    </label>
-
-                                    <div className="user-question-action-buttons">
-                                        <Button
-                                            type="button"
-                                            variant="contained"
-                                            className="user-question-primary-btn"
-                                            onClick={() => updateQuestion(item.q_idx)}
-                                        >
-                                            저장
-                                        </Button>
-
-                                        <Button
-                                            type="button"
-                                            variant="outlined"
-                                            className="user-question-secondary-btn"
-                                            onClick={cancelEdit}
-                                        >
-                                            취소
-                                        </Button>
+                                    <div className="user-question-options">
+                                        <span>옵션: -</span>
                                     </div>
                                 </div>
-                            ) : (
-                                <>
-                                    {(() => {
-                                    const furniture = questionFurniture[item.q_idx];
+                            </div>
+                        );
+                    })()}
 
-                                    return (
-                                        <div className="user-question-product-area">
-                                            <div className="user-question-product-thumb">
-                                                <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
-                                                    <img
-                                                        src={
-                                                            furniture?.thumbnail
-                                                                ? `http://localhost:8080/api/images/FURNITURE/${furniture.thumbnail}`
-                                                                : "/no-image.png"
-                                                        }
-                                                        alt={furniture?.f_name || item.f_name || "상품 이미지"}
-                                                    />
-                                                </Link>
-                                            </div>
+                    <div className="user-question-body">
+                        <div className="user-question-question-row">
+                            <h4>{item.q_title || "제목 없음"}</h4>
 
-                                            <div className="user-question-product-info">
-                                                <p className="user-question-company">
-                                                    {furniture?.c_name || item.c_name || "업체명 없음"}
-                                                </p>
-
-                                                <h4>
-                                                    <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
-                                                        {furniture?.f_name || item.f_name || "상품명 없음"}
-                                                    </Link>
-                                                </h4>
-
-                                                <div className="user-question-options">
-                                                    <span>옵션: -</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })()}
-
-                                    <div className="user-question-body">
-                                        <div className="user-question-question-row">
-                                            <h4>{item.q_title || "제목 없음"}</h4>
-
-                                            <div className="user-question-status-column">
-                                                <span
-                                                    className={
-                                                        isAnswered(item)
-                                                            ? "user-question-answer-badge answered"
-                                                            : "user-question-answer-badge"
-                                                    }
-                                                >
-                                                    {isAnswered(item) ? "답변 완료" : "답변 대기"}
-                                                </span>
-
-                                                <span className="user-question-date">
-                                                    {formatDate(
-                                                        item.q_createddate ||
-                                                        item.q_createdDate ||
-                                                        item.createdAt
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <p className="user-question-content">
-                                            {item.q_content || "내용 없음"}
-                                        </p>
-
-                                        <div className="user-question-images">
-                                            {(questionImages[item.q_idx] || []).length > 0 ? (
-                                                questionImages[item.q_idx].map((img, imageIdx) => (
-                                                    <img
-                                                        key={img.img_name}
-                                                        src={`${img.img_name}?t=${imageRefresh}`}
-                                                        alt={item.q_title || "문의 이미지"}
-                                                        onClick={() =>
-                                                            openQuestionImageViewer(item, imageIdx)
-                                                        }
-                                                    />
-                                                ))
-                                            ) : (
-                                                <div className="user-question-no-image">
-                                                    문의 이미지 없음
-                                                </div>
-                                            )}
-                                        </div>
-
-                                    {isAnswered(item) ? (
-                                        <div className="user-question-answer-area">
-                                            <hr />
-                                            <strong>업체 답변</strong>
-                                            <p>{getQuestionAnswer(item)}</p>
-                                        </div>
-                                    ) : (
-                                        <p className="user-question-answer-empty">
-                                            아직 답변이 없습니다.
-                                        </p>
+                            <div className="user-question-status-column">
+                                <div className="user-question-badge-slot">
+                                    {isAnswered(item) && (
+                                        <span className="user-question-answer-badge answered">
+                                            답변 완료
+                                        </span>
                                     )}
-                                    </div>
+                                </div>
 
-                                    <div className="user-question-action-buttons">
-                                        {!isCompanyUser && !isAnswered(item) && (
-                                            <Button
-                                                type="button"
-                                                variant="contained"
-                                                className="user-question-primary-btn"
-                                                onClick={() => startEdit(item)}
-                                            >
-                                                수정
-                                            </Button>
-                                        )}
+                                <span className="user-question-date">
+                                    {formatDate(
+                                        item.q_createddate ||
+                                        item.q_createdDate ||
+                                        item.createdAt
+                                    )}
+                                </span>
+                            </div>
+                        </div>
 
-                                        {!isCompanyUser && (
-                                            <Button
-                                                type="button"
-                                                variant="outlined"
-                                                className="user-question-secondary-btn"
-                                                onClick={() => openDeleteQuestionDialog(item.q_idx)}
-                                            >
-                                                삭제
-                                            </Button>
-                                        )}
-                                    </div>
-                                </>
+                        <p className="user-question-content">
+                            {item.q_content || "내용 없음"}
+                        </p>
+
+                        <div className="user-question-images">
+                            {(questionImages[item.q_idx] || []).length > 0 ? (
+                                questionImages[item.q_idx].map((img, imageIdx) => (
+                                    <img
+                                        key={img.img_name}
+                                        src={`${img.img_name}?t=${imageRefresh}`}
+                                        alt={item.q_title || "문의 이미지"}
+                                        onClick={() => openQuestionImageViewer(item, imageIdx)}
+                                    />
+                                ))
+                            ) : (
+                                <div className="user-question-no-image">
+                                    문의 이미지 없음
+                                </div>
                             )}
-                        </article>
-                    ))}
-                </div>
+                        </div>
+
+                        <div className="user-question-answer-area">
+                            <hr />
+                            <strong>업체 답변</strong>
+                            <p className={!isAnswered(item) ? "user-question-answer-empty" : ""}>
+                                {isAnswered(item)
+                                    ? getQuestionAnswer(item)
+                                    : "아직 답변이 없습니다."}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="user-question-action-buttons">
+                        {!isCompanyUser && !isAnswered(item) && (
+                            <Button
+                                type="button"
+                                variant="contained"
+                                className="user-question-primary-btn"
+                                onClick={() => startEdit(item)}
+                            >
+                                수정
+                            </Button>
+                        )}
+
+                        {!isCompanyUser && (
+                            <Button
+                                type="button"
+                                variant="outlined"
+                                className="user-question-secondary-btn"
+                                onClick={() => openDeleteQuestionDialog(item.q_idx)}
+                            >
+                                삭제
+                            </Button>
+                        )}
+                    </div>
+                </>
+            </article>
+        ))}
+    </div>
             )}
 
             <ImageViewer
