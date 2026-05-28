@@ -1,0 +1,178 @@
+.event-form-page {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 40px 24px 56px;
+  color: #2f3438;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.event-form-page > .MuiTypography-h4 {
+  margin-bottom: 6px;
+  color: #2f3438;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.event-form-page > .MuiTypography-body1 {
+  color: #828c94;
+}
+
+.event-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.event-form-main {
+  min-width: 0;
+}
+
+.event-form-section {
+  padding: 18px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.event-form-section > .MuiTypography-h6 {
+  margin-bottom: 16px;
+  color: #2f3438;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.event-form-section .MuiInputBase-root {
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.event-form-upload-row {
+  padding: 14px;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+}
+
+.event-form-preview-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+
+.event-form-preview-card {
+  width: auto !important;
+  border: 1px solid #eaedef !important;
+  border-radius: 8px !important;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.event-form-preview-card img,
+.event-form-preview-card .MuiBox-root[component="img"] {
+  width: 100%;
+  aspect-ratio: 1 / 0.78;
+  object-fit: cover;
+}
+
+.event-form-preview-card .MuiTypography-caption {
+  color: #2f3438;
+  font-weight: 800;
+}
+
+.event-form-existing-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.event-form-existing-card {
+  border: 1px solid #eaedef !important;
+  border-radius: 8px !important;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.event-form-existing-card img {
+  width: 100%;
+  aspect-ratio: 1 / 0.68;
+  object-fit: cover;
+}
+
+.event-form-existing-card .MuiTypography-caption {
+  color: #2f3438;
+  font-weight: 800;
+}
+
+.event-form-side-panel {
+  position: sticky;
+  top: 24px;
+  padding: 18px !important;
+  border: 1px solid #eaedef !important;
+  border-radius: 8px !important;
+  background: #ffffff;
+}
+
+.event-form-side-panel > .MuiTypography-h6 {
+  margin-bottom: 14px;
+  color: #2f3438;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.event-form-side-panel .MuiPaper-root {
+  box-shadow: none;
+}
+
+.event-form-side-controls {
+  display: grid;
+  gap: 14px;
+}
+
+.event-form-coupon-dialog form {
+  display: grid;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.event-form-coupon-dialog .MuiFormControl-root {
+  width: 100%;
+}
+
+.event-form-page .MuiDivider-root {
+  border-color: transparent;
+}
+
+.event-form-page .MuiButton-root {
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .event-form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .event-form-side-panel {
+    position: static;
+  }
+
+  .event-form-existing-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .event-form-page {
+    padding: 30px 16px 44px;
+  }
+
+  .event-form-section,
+  .event-form-side-panel {
+    padding: 14px !important;
+  }
+}

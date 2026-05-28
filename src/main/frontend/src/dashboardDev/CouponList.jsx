@@ -160,6 +160,8 @@ const CouponList = () => {
             <CouponDownDev
                 selectedUserKeys={selectedUserKeys}
                 selectedCouponKeys={selectedCouponKeys}
+                setSelectedCouponKeys={setSelectedCouponKeys}
+                setSelectedUserKeys={setSelectedUserKeys}
             />
             <TableChkMui
 

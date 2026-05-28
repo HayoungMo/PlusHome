@@ -12,6 +12,7 @@ import {
 import CouponService from "../service/couponService";
 import TextFieldMui from "../components/TextFieldMui";
 import TableMui from "../components/TableMui";
+import "../css/UserCouponPage.css";
 
 const UserCouponPage = ({ user }) => {
   const [form, setForm] = useState({ id: user.id });
@@ -105,8 +106,15 @@ const UserCouponPage = ({ user }) => {
   const usedCoupons = coupon.filter((item) => item.coupon_used === "Y")
   
   return (
-    <Box>
-      <Tabs value={tab} onChange={handleChangeTab}>
+    <Box className="user-coupon-page">
+      <div className="user-coupon-header">
+        <div>
+          <p>COUPON</p>
+          <h3>쿠폰함</h3>
+        </div>
+      </div>
+
+      <Tabs className="user-coupon-tabs" value={tab} onChange={handleChangeTab}>
         <Tab label="쿠폰 등록" />
         <Tab label="사용 가능 쿠폰" />
         <Tab label="이미 사용한 쿠폰" />
@@ -143,9 +151,9 @@ const UserCouponPage = ({ user }) => {
         </Alert>
       </Snackbar>
 
-      <Box sx={{ mt: 2 }}>
+      <Box className="user-coupon-content">
         {tab === 0 && (
-          <form>
+          <form className="user-coupon-register-form">
             <TextFieldMui
               name="coupon_code"
               label="코드 등록"
@@ -154,17 +162,7 @@ const UserCouponPage = ({ user }) => {
             <Button onClick={() => handleSubmit()}>등록 </Button>
 
             {successMessage && (
-              <Box
-                sx={{
-                  mt: 1,
-                  color: "#1976d2",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  borderBottom: "2px solid #1976d2",
-                  display: "inline-block",
-                  pb: 0.3,
-                }}
-              >
+              <Box className="user-coupon-success-message">
                 {successMessage}
               </Box>
             )}
@@ -174,16 +172,8 @@ const UserCouponPage = ({ user }) => {
         {tab === 1 && (
           <>
             {availableCoupons.length === 0 ? (
-              <Box
-                sx={{
-                  py: 6,
-                  textAlign: "center",
-                  border: "1px solid #ddd",
-                  borderRadius: 1,
-                  color: "text.secondary",
-                }}
-              >
-                <Box sx={{ mb: 2, fontWeight: 700 }}>
+              <Box className="user-coupon-empty">
+                <Box>
                   사용 가능한 쿠폰이 없습니다.
                 </Box>
 
@@ -196,16 +186,18 @@ const UserCouponPage = ({ user }) => {
                 </Button>
               </Box>
             ) : (
-              <TableMui
-                rowData={availableCoupons}
-                col={[
-                  "coupon_code",
-                  "discount",
-                  "coupon_end",
-                  "coupon_max",
-                  "coupon_info",
-                ]}
-              />
+              <div className="user-coupon-table">
+                <TableMui
+                  rowData={availableCoupons}
+                  col={[
+                    "coupon_code",
+                    "discount",
+                    "coupon_end",
+                    "coupon_max",
+                    "coupon_info",
+                  ]}
+                />
+              </div>
             )}
           </>
         )}
@@ -213,28 +205,22 @@ const UserCouponPage = ({ user }) => {
         {tab === 2 && (
           <>
             {usedCoupons.length === 0 ? (
-              <Box
-                sx={{
-                  py: 6,
-                  textAlign: "center",
-                  border: "1px solid #ddd",
-                  borderRadius: 1,
-                  color: "text.secondary",
-                }}
-              >
+              <Box className="user-coupon-empty">
                 사용한 쿠폰이 없습니다.
               </Box>
             ) : (
-              <TableMui
-                rowData={usedCoupons}
-                col={[
-                  "coupon_code",
-                  "discount",
-                  "coupon_used",
-                  "coupon_max",
-                  "coupon_info",
-                ]}
-              />
+              <div className="user-coupon-table user-coupon-table-used">
+                <TableMui
+                  rowData={usedCoupons}
+                  col={[
+                    "coupon_code",
+                    "discount",
+                    "coupon_used",
+                    "coupon_max",
+                    "coupon_info",
+                  ]}
+                />
+              </div>
             )}
           </>
         )}

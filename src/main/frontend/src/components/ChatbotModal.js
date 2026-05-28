@@ -14,7 +14,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import React, { useState } from 'react';
-import InteriorRecommend from './InteriorRecommend';
 import { useNavigate } from 'react-router-dom';
 import {
     customCategoryValue,
@@ -202,6 +201,18 @@ const ChatbotModal = ({ onClose }) => {
 
         onClose();
         navigate(`/furniture/list?${params.toString()}`);
+    };
+
+    //인테리어 이동 함수를 추가해줍니다, 기존에는 추천을 끌어왔기 때문에.
+    const goInteriorRecommend = () => {
+        onClose();
+
+        navigate("/interior/list", {
+            state: {
+                answers,
+                fromChatbot: true,
+            },
+        });
     };
 
     //이전 화면
@@ -392,17 +403,25 @@ return (
                             인테리어 추천 결과
                         </Typography>
 
-                        <Typography variant="body2" color="text.secondary" mb={2}>
-                            선택하신 조건과 어울리는 업체를 확인해보세요.
+                        <Typography variant="body2" color="text.secondary" mb={3}>
+                            선택하신 조건과 어울리는 업체를 찾아드릴게요.
                         </Typography>
 
-                        <InteriorRecommend answers={answers} />
-
-                        <Button
+                        <Button 
                             fullWidth
                             variant="contained"
                             size="large"
-                            sx={{ mt: 2, borderRadius: 2, py: 1.4 }}
+                            onClick={goInteriorRecommend}
+                            sx={{ borderRadius: 2, py: 1.4}}
+                        >
+                            추천 업체 보러가기
+                        </Button>
+
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            size="large"
+                            sx={{ mt:1.2,borderRadius: 2, py: 1.4 }}
                             onClick={() => {
                                 onClose();
                                 navigate("/interior/question", {
@@ -410,7 +429,7 @@ return (
                                 });
                             }}
                         >
-                            상담 신청하러 가기
+                            바로 상담 신청하러 가기
                         </Button>
                     </Box>
                 )}

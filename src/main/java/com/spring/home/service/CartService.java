@@ -99,6 +99,11 @@ public class CartService {
 	    return getOptionKey(savedOptions).equals(getOptionKey(newOptions));
 	}
 	
+	private boolean isEditableCart (CartDTO dto, String id) {
+		return dto != null
+	            && id.equals(dto.getId());
+	}
+	
 	@Transactional
 	public String insertData(CartDTO cartDTO, List<CartOptionDTO> optionsList, boolean mergeCart) throws Exception {
 	    cartDTO.setF_status("N");
@@ -191,7 +196,7 @@ public class CartService {
 	private CartDTO validateCartOwner(String id, String c_code) throws Exception{
 		CartDTO cart = cartMapper.getReadData(c_code);
 		
-		if(cart == null || !id.equals(cart.getId()) || !"N".equals(cart.getF_status())) {
+		if(!isEditableCart(cart, id)) {
 			throw new RuntimeException("요청할 수 없는 장바구니 상품입니다.");
 		}
 		
@@ -208,22 +213,25 @@ public class CartService {
 	    return cart;
 	}
 	
+	@Transactional
 	public void updateCartCount(String id, String c_code, int f_count) throws Exception {
-		if (f_count <= 0) {
-			throw new RuntimeException("수량이 올바르지 않습니다.");
-		}
+	    if (f_count <= 0) {
+	        throw new RuntimeException("수량이 올바르지 않습니다.");
+	    }
 
-		CartDTO cart = cartMapper.getReadData(c_code);
+	    CartDTO cart = cartMapper.getReadData(c_code);
+ 
+	    if (!isEditableCart(cart, id)) {
+	        throw new RuntimeException("수정 가능한 장바구니 상품이 아닙니다.");
+	    }
 
-		if (cart == null || !id.equals(cart.getId()) || !"N".equals(cart.getF_status())) {
-			throw new RuntimeException("수정 가능한 장바구니 상품이 아닙니다.");
-		}
+	    int result = cartMapper.updateCartCount(c_code, id, f_count);
 
-		int result = cartMapper.updateCartCount(c_code, id, f_count);
+	    cartOptionMapper.updateCountByCartCode(c_code, f_count);
 
-		if (result != 1) {
-			throw new RuntimeException("수량 변경에 실패했습니다.");
-		}
+	    if (result != 1) {
+	        throw new RuntimeException("수량 변경에 실패했습니다.");
+	    }
 	}
 	
 	

@@ -24,5 +24,5 @@ public class EventDTO {
 	private int e_id;
 	
 	private String e_type;
-
+	private String e_popup;
 }

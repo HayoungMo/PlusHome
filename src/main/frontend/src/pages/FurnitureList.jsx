@@ -5,7 +5,7 @@ import LikeService from "../service/likeService";
 import Loading from "../components/Loading";
 import { Snackbar } from "@mui/material";
 import AlertMui from "../components/AlertMui";
-import { getFurnitureCategorySelectOptions } from "../components/FurnitureCategorySelect";
+import { getFurnitureCategoryCode,getFurnitureCategoryTitle  } from "../components/FurnitureCategorySelect";
 
 const FurnitureList = () => {
     const location = useLocation();
@@ -33,7 +33,11 @@ const FurnitureList = () => {
 
     //state 초기값을 수정 - 0522 모하영(sort까지),0527 모하영 추가
     const [searchKey, setSearchKey] = useState(urlSearchKey);
-    const [searchValue, setSearchValue] = useState(urlSearchValue);
+    const [searchValue, setSearchValue] = useState(
+        urlSearchKey === "f_catagory1"
+            ? getFurnitureCategoryTitle(urlSearchValue)
+            : urlSearchValue
+    );
     const [categoryFilters, setCategoryFilters] = useState(urlCategoryFilters);
 
     const [startPage, setStartPage] = useState(1);
@@ -83,10 +87,14 @@ const FurnitureList = () => {
 
     //URL이 바뀌면 state 동기화 해줌 - 0522 모하영, 0527 모하영 수정
     useEffect(() => {
-    setSearchKey(urlSearchKey);
-    setSearchValue(urlSearchValue);
-    setSort(urlSort);
-    setCategoryFilters(urlCategoryFilters);
+        setSearchKey(urlSearchKey);
+        setSearchValue(
+            urlSearchKey === "f_catagory1"
+            ? getFurnitureCategoryTitle(urlSearchValue)
+            : urlSearchValue
+        );
+        setSort(urlSort);
+        setCategoryFilters(urlCategoryFilters);
     }, [
         urlSearchKey,
         urlSearchValue,
@@ -103,14 +111,14 @@ const FurnitureList = () => {
     getList(pageNum);
     }, [
         pageNum,
-        searchKey,
-        searchValue,
-        sort,
-        categoryFilters.f_catagory1,
-        categoryFilters.f_catagory2,
-        categoryFilters.f_catagory3,
-        categoryFilters.f_catagory4,
-        categoryFilters.f_catagory5,
+        urlSearchKey,
+        urlSearchValue,
+        urlSort,
+        urlCategoryFilters.f_catagory1,
+        urlCategoryFilters.f_catagory2,
+        urlCategoryFilters.f_catagory3,
+        urlCategoryFilters.f_catagory4,
+        urlCategoryFilters.f_catagory5,
     ]);
 
     useEffect(() => {
@@ -147,10 +155,10 @@ const FurnitureList = () => {
 
             const data = await FurnitureService.getFurniture({
                 pageNum: page,
-                searchKey,
-                searchValue,
-                sort,
-                ...categoryFilters,
+                searchKey: urlSearchKey,
+                searchValue: urlSearchValue,
+                sort: urlSort,
+                ...urlCategoryFilters,
             });
 
             setList(data.list);
@@ -177,16 +185,22 @@ const FurnitureList = () => {
     };
 
     //쇼핑 검색 버튼에도 URL검색값을 실어줌 - 0522 모하영
-    const onSearch = () => {
-        navigate(makeListUrl(1));
+    const onSearch = (evt) => {
+        evt.preventDefault();
+        const submitSearchValue =
+            searchKey === "f_catagory1"
+                ? getFurnitureCategoryCode(searchValue)
+                : searchValue;
+
+        navigate(makeListUrl(1, submitSearchValue));
     };
 
     //근데 그 URL 문자열이 길어서 축약함수 - 0522 모하영, 0527 모하영
-    const makeListUrl = (page) => {
+    const makeListUrl = (page, nextSearchValue = searchValue) => {
         const params = new URLSearchParams({
             page: String(page),
             searchKey,
-            searchValue,
+            searchValue: nextSearchValue,
             sort,
         });
 
@@ -297,12 +311,12 @@ const FurnitureList = () => {
         <>
         {feedback}
         <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "24px" }}>
-            <div
+            <form
                 style={{
                     display: "flex",
+                    gap: "8px",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "18px",
+                    marginBottom: "16px",
                 }}
             >
                 <h3 style={{ margin: 0 }}>
@@ -317,9 +331,10 @@ const FurnitureList = () => {
                     </a>
                 </h3>
 
-            </div>
-
-            <div
+            </form>
+        
+            <form
+                onSubmit={onSearch}
                 style={{
                     display: "flex",
                     gap: "8px",
@@ -346,39 +361,20 @@ const FurnitureList = () => {
                     <option value="c_name">업체명</option>
                 </select>
 
-                {searchKey === "f_catagory1" ? (
-                    <select
-                        value={searchValue}
-                        onChange={(evt) => setSearchValue(evt.target.value)}
-                        style={{
-                            height: "36px",
-                            border: "1px solid #ddd",
-                            borderRadius: "4px",
-                            padding: "0 8px",
-                        }}
-                    >
-                        {getFurnitureCategorySelectOptions("f_catagory1").map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.title}
-                            </option>
-                        ))}
-                    </select>
-                ) : (
-                    <input
-                        value={searchValue}
-                        onChange={(evt) => setSearchValue(evt.target.value)}
-                        placeholder="검색어"
-                        style={{
-                            height: "36px",
-                            border: "1px solid #ddd",
-                            borderRadius: "4px",
-                            padding: "0 10px",
-                        }}
-                    />
-                )}
+                <input
+                    value={searchValue}
+                    onChange={(evt) => setSearchValue(evt.target.value)}
+                    placeholder="검색어"
+                    style={{
+                        height: "36px",
+                        border: "1px solid #ddd",
+                        borderRadius: "4px",
+                        padding: "0 10px",
+                    }}
+                />
 
                 <button
-                    onClick={onSearch}
+                    type="submit"
                     style={{
                         height: "36px",
                         border: "1px solid #1976d2",
@@ -391,7 +387,7 @@ const FurnitureList = () => {
                 >
                     검색
                 </button>
-            </div>
+            </form>
 
             <div
                 style={{

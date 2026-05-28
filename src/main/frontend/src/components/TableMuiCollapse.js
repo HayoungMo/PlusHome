@@ -20,6 +20,7 @@ import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiSty
 const TableMuiCollapse = ({
 	rowData = [],
 	hiddenColumns = [],
+	columns = [],
 	collapseKey = null,
 	collapseTitle = "상세 정보",
 	renderCell,
@@ -27,6 +28,8 @@ const TableMuiCollapse = ({
 	selectedRow,
 	setSelectedRow,
 	buttonData = [],
+	collapseColumns,
+	collapseColumnLabels = [],
 }) => {
 	const rows = Array.isArray(rowData) ? rowData : [rowData];
 
@@ -40,10 +43,10 @@ const TableMuiCollapse = ({
 			<Table>
 				<TableHead>
 					<TableRow>
-						<StyledTableCell align="center" sx={{ width: 60 }} />
-						{tableColumns.map((column) => (
+						<TableCell />
+						{tableColumns.map((column, index) => (
 							<StyledTableCell key={column} align="right">
-								{column}
+								{columns[index] || column}
 							</StyledTableCell>
 						))}
 						{buttonData.map((data) => (
@@ -66,6 +69,8 @@ const TableMuiCollapse = ({
 								collapseTitle={collapseTitle}
 								renderCell={renderCell}
 								renderCollapse={renderCollapse}
+								collapseColumns={collapseColumns}
+								collapseColumnLabels={collapseColumnLabels}
 								onClickCollapseRow={() => {
 									if (!setSelectedRow || setSelectedRow === null) return;
 									setSelectedRow({ ...row, rowIndex: index });
@@ -82,7 +87,11 @@ const TableMuiCollapse = ({
 	);
 };
 
-const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
+const DefaultCollapseTable = ({
+	data,
+	visibleColumns = [],
+	columnLabels = [],
+}) => {
 	if (!data) return null;
 
 	const rows = Array.isArray(data) ? data : [data];
@@ -91,8 +100,8 @@ const DefaultCollapseTable = ({ data, visibleColumns = [] }) => {
 		<Table size="small">
 			<TableHead>
 				<TableRow>
-					{visibleColumns.map((column) => {
-						return <StyledTableCell key={column}>{column}</StyledTableCell>;
+					{visibleColumns.map((column, index) => {
+						return <TableCell key={column}>{columnLabels[index] || column}</TableCell>;
 					})}
 				</TableRow>
 			</TableHead>
@@ -119,6 +128,8 @@ const CollapseRow = ({
 	collapseTitle,
 	renderCell,
 	renderCollapse,
+	collapseColumns,
+	collapseColumnLabels,
 	onClickCollapseRow,
 	isSelected,
 	setSelectedRow,
@@ -127,6 +138,12 @@ const CollapseRow = ({
 	const [open, setOpen] = useState(false);
 
 	const collapseData = collapseKey ? row[collapseKey] : null;
+	const visibleCollapseColumns = collapseColumns || [
+		"invoice_text",
+		"invoice_qty",
+		"invoice_price",
+		"line_total",
+	];
 
 	const renderValue = (value) => {
 		if (value == null) return "";
@@ -203,12 +220,8 @@ const CollapseRow = ({
 							) : (
 								<DefaultCollapseTable
 									data={collapseData}
-									visibleColumns={[
-										"invoice_text",
-										"invoice_qty",
-										"invoice_price",
-										"line_total",
-									]}
+									visibleColumns={visibleCollapseColumns}
+									columnLabels={collapseColumnLabels}
 								/>
 							)}
 						</Box>

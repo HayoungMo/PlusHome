@@ -9,6 +9,7 @@ const insertEvent = async (data) => {
       e_startDate: data.e_startDate || null,
       e_endDate: data.e_endDate || null,
       e_type: data.e_type,
+      e_popup: data.e_popup,
     });
 
     return {
@@ -73,6 +74,7 @@ const updateEvent = async (data) => {
       e_startDate: data.e_startDate || null,
       e_endDate: data.e_endDate || null,
       e_type: data.e_type,
+      e_popup: data.e_popup,
     });
     return {
       success: true,

@@ -43,6 +43,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         title: "",
         text: "",
     })
+    const [mode, setMode] = useState("view")
 
     const showAlert = ({ severity = "info", title = "", text = "" }) => {
         setAlert({
@@ -74,10 +75,16 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
 
     const isCompanyUser =
         user?.type === "company" || (user?.companyList || []).length > 0
-    
+
+    const isAdminUser = user?.type === "admin";
+
     const goCompanyDashboard = () => {
         navigate("/CompanyDashboard")
     }
+
+    const goAdminDashboard = () => {
+        navigate("/DevDashboard");
+    };
 
     const [activeSection, setActiveSection] = useState(
         getSectionByMenu(queryMenu || "info")
@@ -306,7 +313,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         />
 
         <div className={`user-mypage ${activeSection !== "info" ? "wide" : ""}`}>
-        {activeSection === "info" && (
+        {activeSection === "info" && mode !== "edit" && (
             <aside className="user-mypage-menu">
             <UserProfileCard
             user={user}
@@ -318,9 +325,11 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             onChangeProfileImage={onChangeProfileImage}
             changeMenu={changeMenu}
             />
-            {isCompanyUser && (
+            {(isCompanyUser || isAdminUser) && (
                 <div className="user-company-dashboard-menu">
-                    <button type="button" onClick={goCompanyDashboard}>
+                    <button 
+                    type="button" 
+                    onClick={isAdminUser ? goAdminDashboard: goCompanyDashboard}>
                     대시보드
                     </button>
                 </div>
@@ -378,6 +387,8 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     onDeleteClick={() => changeMenu("delete")}
                     isCompanyUser={isCompanyUser}
                     goCompanyDashboard={goCompanyDashboard}
+                    mode={mode}
+                    setMode={setMode} 
                 />
                 )}
 

@@ -1,0 +1,147 @@
+.interior-list-section.interior-recommend-section {
+  gap: 20px;
+}
+
+.interior-list-section.interior-recommend-section .interior-list-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.55fr) minmax(160px, 0.55fr) auto auto auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  padding: 18px;
+  border: 1px solid #e5eef7;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(38, 92, 135, 0.06);
+}
+
+.interior-list-section.interior-recommend-section .interior-list-toolbar h3 {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.interior-list-section.interior-recommend-section .interior-list-toolbar h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #edf3f7;
+}
+
+.interior-list-section.interior-recommend-section .interior-list-toolbar .MuiFormControl-root,
+.interior-list-section.interior-recommend-section .interior-list-toolbar .MuiTextField-root {
+  min-width: 0;
+  margin: 0;
+}
+
+.interior-list-section.interior-recommend-section .interior-list-toolbar .MuiInputBase-root {
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.interior-list-section.interior-recommend-section .interior-list-toolbar .MuiButton-root {
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-grid {
+  order: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-card {
+  position: relative;
+  overflow: hidden;
+  padding: 14px;
+  border: 1px solid #dfeaf3;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(38, 92, 135, 0.07);
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-card:hover {
+  border-color: #89cef7;
+  box-shadow: 0 14px 30px rgba(0, 139, 232, 0.13);
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-card .interior-company-image {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1 / 0.64;
+  border-radius: 8px;
+  background: #f4f9fc;
+  object-fit: contain;
+  padding: 18px;
+  box-shadow: inset 0 0 0 1px #e5eef7;
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-score {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  max-width: calc(100% - 48px);
+  padding: 5px 9px;
+  border: 1px solid rgba(0, 139, 232, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #008be8;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(38, 92, 135, 0.12);
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-card .interior-company-info {
+  gap: 6px;
+  padding-top: 14px;
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-card .interior-company-name {
+  font-size: 18px;
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-card .interior-company-info span {
+  color: #60727f;
+}
+
+.interior-list-section.interior-recommend-section .interior-recommend-empty {
+  order: 2;
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #b9daf0;
+  border-radius: 8px;
+  background: #f6fbff;
+  color: #60727f;
+  font-weight: 800;
+}
+
+@media (max-width: 1080px) {
+  .interior-list-section.interior-recommend-section .interior-list-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .interior-list-section.interior-recommend-section .interior-list-toolbar .MuiButton-root {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .interior-list-section.interior-recommend-section .interior-recommend-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .interior-list-section.interior-recommend-section .interior-list-toolbar,
+  .interior-list-section.interior-recommend-section .interior-recommend-grid {
+    grid-template-columns: 1fr;
+  }
+}
