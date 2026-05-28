@@ -14,7 +14,8 @@ const TableChkMui = (props) => {
 		selectedKeys = [],
 		setSelectedKeys,
 		editableOnChange,
-		editable = false
+		editable = false,
+		onRowClick,
 	} = props;
 	
 
@@ -106,7 +107,13 @@ const TableChkMui = (props) => {
 						const isSelected = selectedKeys.includes(rowId);
 
 						return (
-							<StyledTableRow key={`${rowId}-${rowIndex}`}>
+							<StyledTableRow key={`${rowId}-${rowIndex}`}
+								onClick={()=>{
+									if(onRowClick){
+										onRowClick(row)
+									}
+								}}
+							>
 								{/* row 체크박스 */}
 								<StyledTableCell padding="checkbox">
 									<Checkbox

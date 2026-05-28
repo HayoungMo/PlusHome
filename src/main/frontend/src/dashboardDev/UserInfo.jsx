@@ -488,6 +488,7 @@ const companyColumns = [
         }
 
         const userSearchFunction = () => {
+            setRelatedCompanyList([])
             if(!searchInfo || !searchInfo.searchKey){
                 return;
             }
@@ -536,6 +537,13 @@ const companyColumns = [
 
             }
 
+            if(searchKey ==='c_boss'){
+                return( data.c_boss
+                ?.toLowerCase()
+                .includes(searchValue)
+                )
+            }
+
 
 
             // 검색어가 포함되어 있으면 true 반환
@@ -563,9 +571,34 @@ const companyColumns = [
         },[editedUserList])
         
         const handleTabChange = (evt,newValue) =>{
+            setRelatedCompanyList([]);
+            setSearchInfo({})
             setTabValue(newValue)
             setUserType(newValue)
         }
+
+        const [relatedCompanyList,setRelatedCompanyList] = useState([])
+
+        const getRelatedCompanyList = (row) =>{
+            return userList.filter((data)=>{
+                return (
+                    data.code === row.code
+
+                )
+            })
+        }
+
+        const handleRowClick = (row) =>{
+            const relatedList = getRelatedCompanyList(row)
+
+            setRelatedCompanyList(
+                relatedList
+            )
+        }
+
+       
+
+        
        
 
     return (
@@ -599,6 +632,7 @@ const companyColumns = [
                 {title:'이름',value:'name'},
                 {title:'쇼핑몰',value:'shop'},
                 {title:'인테리어',value:'interior'},
+                {title:'사업주명',value:'c_boss'},
             ]
         }
             onChange={onChangeSearchState}
@@ -723,6 +757,7 @@ const companyColumns = [
                     editableOnChange={tableMuiEditableOnChange}
                     setSelectedKeys={setSelectedUserKeys}
                     selectedKeys={selectedUserKeys}
+                    onRowClick={handleRowClick}
                     
                     
                 />
@@ -732,6 +767,52 @@ const companyColumns = [
                 <div>등록된 회원이 없습니다.</div>
 
             )}
+
+            {relatedCompanyList.length > 0 && 
+            (
+            <div style={{marginTop:"20px"}}>
+                <h3>동일 대표 회사 목록</h3>
+                <TableMui
+                    rowData={relatedCompanyList}
+
+    col={
+        userType === "user"
+        ? userColumns
+        : companyColumns
+    }
+
+    columns={
+        userType === "user"
+
+        ? [
+            "아이디",
+            "타입",
+            "코드",
+            "이름",
+            "이메일",
+            "전화번호",
+            "성별",
+            "주소",
+            "가입상태"
+        ]
+
+        : [
+            "아이디",
+            "타입",
+            "코드",
+            "이름",
+            "이메일",
+            "회사명",
+            "기업종류",
+            "회사정보",
+            "대표자",
+            "가입상태"
+        ]
+    }
+    pagination={true}
+    defaultRowPerPage={5}
+                    />
+            </div>)}
 
         </div>
 
