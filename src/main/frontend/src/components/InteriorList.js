@@ -5,6 +5,10 @@ import InteriorService from "../service/interiorService";
 import GetImgDlr from "../resources/function/GetImgDir";
 import TextFieldMui from "./TextFieldMui";
 import FilterBar from "./FilterBar";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../utils/interiorAnswerFormat";
 
 const PAGE_SIZE = 9;
 const MULTI_FILTER_KEYS = ["housingType", "spaces"];
@@ -74,36 +78,42 @@ const InteriorList = ({ tag, value }) => {
     location: [],
   };
 
+  const formatOptions = (options = []) =>
+    options.map((option) => ({
+      ...option,
+      title: formatInteriorAnswerValue(option.value),
+    }));
+
   const filterList = [
     {
       key: "housingType",
-      title: "주거 형태",
+      title: formatInteriorAnswerLabel("housingType"),
       type: "multi",
-      options: valueOptionMap.housingType || [],
+      options: formatOptions(valueOptionMap.housingType || []),
     },
     {
       key: "areaSize",
-      title: "면적",
+      title: formatInteriorAnswerLabel("areaSize"),
       type: "single",
-      options: valueOptionMap.areaSize || [],
+      options: formatOptions(valueOptionMap.areaSize || []),
     },
     {
       key: "purpose",
-      title: "목적",
+      title: formatInteriorAnswerLabel("purpose"),
       type: "single",
-      options: valueOptionMap.purpose || [],
+      options: formatOptions(valueOptionMap.purpose || []),
     },
     {
       key: "spaces",
-      title: "공간",
+      title: formatInteriorAnswerLabel("spaces"),
       type: "multi",
-      options: valueOptionMap.spaces || [],
+      options: formatOptions(valueOptionMap.spaces || []),
     },
     {
       key: "budget",
-      title: "예산",
+      title: formatInteriorAnswerLabel("budget"),
       type: "single",
-      options: valueOptionMap.budget || [],
+      options: formatOptions(valueOptionMap.budget || []),
     },
   ];
 

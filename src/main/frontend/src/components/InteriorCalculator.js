@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { formatInteriorAnswerValue } from "../utils/interiorAnswerFormat";
 
 const InteriorCalculator = ({ answer }) => {
   const [estimate, setEstimate] = useState();
@@ -66,6 +67,8 @@ const InteriorCalculator = ({ answer }) => {
       minPrice: Math.round(rawPrice * 0.9),
       maxPrice: Math.round(rawPrice * 1.15),
       rawPrice: Math.round(rawPrice),
+      base,
+      spacesTotal,
     };
   };
 
@@ -77,12 +80,46 @@ const InteriorCalculator = ({ answer }) => {
   }, [answer]);
 
   return (
-    <div>
+    <div className="interior-estimate-card">
       {estimate && (
-        <div>
-          예상 견적
-          {estimate.minPrice.toLocaleString()}만원 ~{" "}
-          {estimate.maxPrice.toLocaleString()}만원
+        <div className="interior-estimate">
+          <p className="interior-estimate-eyebrow">ESTIMATE</p>
+          <h3>예상 견적</h3>
+
+          <div className="interior-estimate-total">
+            <span>약</span>
+            <strong>
+              {estimate.minPrice.toLocaleString()}~{estimate.maxPrice.toLocaleString()}
+            </strong>
+            <span>만원</span>
+          </div>
+
+          <dl className="interior-estimate-breakdown">
+            <div>
+              <dt>면적 기준</dt>
+              <dd>{estimate.base.toLocaleString()}만원</dd>
+            </div>
+            <div>
+              <dt>공간 추가</dt>
+              <dd>{estimate.spacesTotal.toLocaleString()}만원</dd>
+            </div>
+            <div>
+              <dt>조건 반영</dt>
+              <dd>{estimate.rawPrice.toLocaleString()}만원</dd>
+            </div>
+          </dl>
+
+          {(answer?.spaces || []).length > 0 && (
+            <div className="interior-estimate-tags">
+              {answer.spaces.map((space) => (
+                <span key={space}>{formatInteriorAnswerValue(space)}</span>
+              ))}
+            </div>
+          )}
+
+          <p className="interior-estimate-note">
+            실제 견적은 현장 상황과 자재 선택에 따라 달라질 수 있습니다.
+          </p>
         </div>
       )}
     </div>

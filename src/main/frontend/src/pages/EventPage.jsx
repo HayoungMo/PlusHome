@@ -118,7 +118,7 @@ const EventPage = () => {
 
             return (
               <button
-                className="event-card"
+                className={`event-card ${isNotice ? "event-card-notice" : "event-card-event"}`}
                 key={record.e_id}
                 type="button"
                 onClick={() => handleNext(record.e_id)}

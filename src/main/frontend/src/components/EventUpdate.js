@@ -220,6 +220,23 @@ const EventUpdate = () => {
     });
   };
 
+  const newImageDelete = (index) => {
+    setPreview((prev) => {
+      if (prev[index]) {
+        URL.revokeObjectURL(prev[index]);
+      }
+
+      return prev.filter((_, i) => i !== index);
+    });
+
+    setSendList((prev) => prev.filter((_, i) => i !== index));
+    showAlert({
+      severity: "success",
+      title: "?대?吏 ??젣 ?꾨즺",
+      text: "?대?吏媛 ??젣?섏뿀?듬땲??",
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -302,7 +319,7 @@ const EventUpdate = () => {
         onSubmit={handleSubmit}
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 320px" },
+          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 360px" },
           gap: 4,
           alignItems: "start",
         }}
@@ -318,18 +335,10 @@ const EventUpdate = () => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "220px 1fr" },
+                gridTemplateColumns: "1fr",
                 gap: 2,
               }}
             >
-              <SelectMui
-                name="e_type"
-                label="이벤트/공지사항"
-                option={option}
-                value={form.e_type || ""}
-                onChange={handleChange}
-                width="100%"
-              />
               <TextFieldMui
                 name="e_title"
                 label="제목"
@@ -542,6 +551,11 @@ const EventUpdate = () => {
                           ? "배너 이미지 "
                           : "본문 이미지"}
                     </Typography>
+                    <FloatingActionButtonMui
+                      icon={<DeleteIcon />}
+                      color="error"
+                      onClick={() => newImageDelete(index)}
+                    />
                   </Box>
                 ))}
               </Box>
@@ -560,19 +574,30 @@ const EventUpdate = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            수정 작업
+            노출 설정
           </Typography>
-          <CheckboxMui
-            label="팝업 여부"
-            checked={form.e_popup === "Y"}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                e_popup: e.target.checked ? "Y" : "N",
-              }))
-            }
-            width="200px"
-          />
+          <Box className="event-form-side-controls">
+            <SelectMui
+              name="e_type"
+              label="이벤트/공지사항"
+              option={option}
+              value={form.e_type || ""}
+              onChange={handleChange}
+              width="100%"
+            />
+            <CheckboxMui
+              label="팝업 여부"
+              checked={form.e_popup === "Y"}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  e_popup: e.target.checked ? "Y" : "N",
+                }))
+              }
+              width="200px"
+            />
+          </Box>
+          <Divider sx={{ my: 2 }} />
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             변경 내용을 확인한 뒤 저장하세요.
           </Typography>

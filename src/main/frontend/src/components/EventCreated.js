@@ -390,7 +390,14 @@ const EventCreated = () => {
               />
             </Box>
             {form.e_type === "event" && (
-              <Box sx={{ mt: 2 }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  gap: 2,
+                }}
+              >
                 <DatePickerMui
                   name="e_startDate"
                   label="시작일"

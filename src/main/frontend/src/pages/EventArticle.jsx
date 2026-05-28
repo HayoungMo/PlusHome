@@ -12,6 +12,7 @@ import {
 import EventService from "../service/eventService";
 import GetImgDir from "../resources/function/GetImgDir";
 import CouponDownload from "../components/CouponDownload";
+import "../css/EventArticle.css";
 import "../css/CouponArticleDownload.css";
 
 const EventArticle = () => {
@@ -136,9 +137,36 @@ const EventArticle = () => {
       ?.img_name;
   };
 
+  const isEventEnded = (eventData) => {
+    if (!eventData?.e_endDate) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(eventData.e_endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    return endDate < today;
+  };
+
+  const isCouponExpired = (coupon) => {
+    if (!coupon?.coupon_end) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(coupon.coupon_end);
+    if (Number.isNaN(endDate.getTime())) return false;
+
+    endDate.setHours(0, 0, 0, 0);
+    return endDate < today;
+  };
+
+  const eventEnded = isEventEnded(event);
+
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+      <Box className="event-article-loading">
         <CircularProgress />
       </Box>
     );
@@ -146,8 +174,8 @@ const EventArticle = () => {
 
   if (error) {
     return (
-      <Box sx={{ maxWidth: 900, mx: "auto", px: 3, py: 6 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+      <Box className="event-article-error">
+        <Typography variant="h6">
           {error}
         </Typography>
         <Button variant="outlined" onClick={() => navigate("/event")}>
@@ -158,7 +186,7 @@ const EventArticle = () => {
   }
 
   return (
-    <Box>
+    <Box className="event-article-page">
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -190,7 +218,7 @@ const EventArticle = () => {
         </Alert>
       </Snackbar>
 
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+      <Typography className="event-article-title" variant="h4">
         {event?.e_title}
       </Typography>
 
@@ -202,18 +230,11 @@ const EventArticle = () => {
             component="img"
             src={item.img_name}
             alt={event?.e_title || "이벤트 이미지"}
-            sx={{
-              width: "100%",
-              height: "auto",
-              objectFit: "contain",
-              borderRadius: 2,
-              mb: 4,
-              display: "block",
-            }}
+            className="event-article-image"
           />
         ))}
 
-      <Typography sx={{ whiteSpace: "pre-line", mb: 4 }}>
+      <Typography className="event-article-content">
         {event?.e_content || "등록된 내용이 없습니다."}
       </Typography>
 
@@ -223,6 +244,11 @@ const EventArticle = () => {
             <div>
               <p className="coupon-article-download-eyebrow">COUPON</p>
               <h3>이벤트 쿠폰</h3>
+              {eventEnded && (
+                <p className="coupon-article-download-ended">
+                  종료된 이벤트라 쿠폰을 받을 수 없습니다.
+                </p>
+              )}
             </div>
             <span>{couponList.length}개</span>
           </div>
@@ -230,7 +256,7 @@ const EventArticle = () => {
           <div className="coupon-article-download-list">
             {couponList.map((coupon) => (
               <article
-                className="coupon-article-download-card coupon-event-download-card"
+                className={`coupon-article-download-card coupon-event-download-card ${eventEnded || isCouponExpired(coupon) ? "coupon-article-download-card-disabled" : "coupon-article-download-card-available"}`}
                 key={`${coupon.coupon_code}-${coupon.id}`}
               >
                 <div className="coupon-article-download-badge">할인</div>
@@ -262,21 +288,28 @@ const EventArticle = () => {
                 <CouponDownload
                   coupon={coupon}
                   className="coupon-event-download-button"
+                  disabled={eventEnded || isCouponExpired(coupon)}
                 />
               </article>
             ))}
           </div>
         </section>
       )}
-      <Button variant="contained" onClick={() => navigate("/event")}>
-        목록으로
-      </Button>
-      {canUpdate && (
-        <>
-          <Button onClick={() => handleUpdate(e_id)}>수정</Button>
-          <Button onClick={() => handleDelete(e_id)}>삭제</Button>
-        </>
-      )}
+      <div className="event-article-actions">
+        <Button variant="contained" onClick={() => navigate("/event")}>
+          목록으로
+        </Button>
+        {canUpdate && (
+          <>
+            <Button variant="outlined" onClick={() => handleUpdate(e_id)}>
+              수정
+            </Button>
+            <Button variant="outlined" color="error" onClick={() => handleDelete(e_id)}>
+              삭제
+            </Button>
+          </>
+        )}
+      </div>
     </Box>
   );
 };

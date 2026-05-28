@@ -29,6 +29,21 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
       ?.img_name;
   };
 
+  const isCouponExpired = (coupon) => {
+    if (!coupon?.coupon_end) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(coupon.coupon_end);
+    if (Number.isNaN(endDate.getTime())) return false;
+
+    endDate.setHours(0, 0, 0, 0);
+    return endDate < today;
+  };
+
+  const availableCoupons = couponForm.filter((coupon) => !isCouponExpired(coupon));
+
   const handleSubmit = async () => {
     if (!id) {
       showAlert({
@@ -39,7 +54,7 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
       return;
     }
 
-    if (!couponForm.length) {
+    if (!availableCoupons.length) {
       showAlert({
         severity: "warning",
         title: "쿠폰 없음",
@@ -49,7 +64,7 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
     }
 
     const duplicateResults = await Promise.all(
-      couponForm.map((item) =>
+      availableCoupons.map((item) =>
         CouponService.checkCouponDuplicate({
           coupon_code: item.coupon_code,
           id,
@@ -57,7 +72,7 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
       ),
     );
 
-    const newCoupons = couponForm.filter(
+    const newCoupons = availableCoupons.filter(
       (_, index) => duplicateResults[index].success,
     );
 
@@ -158,7 +173,7 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
           <div className="coupon-article-download-list">
             {couponForm.map((item) => (
               <article
-                className="coupon-article-download-card coupon-article-download-card-has-logo"
+                className={`coupon-article-download-card coupon-article-download-card-has-logo ${isCouponExpired(item) ? "coupon-article-download-card-expired" : "coupon-article-download-card-available"}`}
                 key={item.coupon_code}
               >
                 <div className="coupon-article-download-badge">할인</div>
@@ -198,7 +213,7 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
         <Button
           className="coupon-article-download-button"
           variant="contained"
-          disabled={!couponForm.length}
+          disabled={!availableCoupons.length}
           onClick={handleSubmit}
         >
           쿠폰 모두 받기

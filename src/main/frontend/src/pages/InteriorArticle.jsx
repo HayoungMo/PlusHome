@@ -16,6 +16,10 @@ import { Button, Chip, Stack } from "@mui/material";
 import InteriorArticleAI from "../components/InteriorArticleAI";
 import DialogInside from "../components/DialogInside";
 import LikeService from "../service/likeService";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../utils/interiorAnswerFormat";
 
 function InteriorArticle() {
 
@@ -35,17 +39,6 @@ function InteriorArticle() {
 
   const [bookingPossible, setBookingPossible] = useState(answers ? true : false);
   const [examplePossible, setExamplePossible] = useState(false);
-
-  const tagNameMap = {
-    housingType: "주거 유형",
-    areaSize: "면적",
-    location: "지역",
-    spaces: "희망 공간",
-    budget: "예산",
-    schedule: "일정",
-    houseCondition: "주택 상태",
-    purpose: "목적",
-  };
 
   const groupInteriorTags = (list) => {
     const result = {};
@@ -320,13 +313,13 @@ function InteriorArticle() {
 
         {Object.entries(groupedTags).map(([tag, values]) => (
           <div className="tag-group" key={tag}>
-            <div className="tag-group-title">{tagNameMap[tag] || tag}</div>
+            <div className="tag-group-title">{formatInteriorAnswerLabel(tag)}</div>
 
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               {values.map((value) => (
                 <Chip
                   key={value}
-                  label={value}
+                  label={formatInteriorAnswerValue(value)}
                   onClick={() => handleFilter(tag, value)}
                 />
               ))}

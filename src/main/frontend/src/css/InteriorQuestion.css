@@ -61,7 +61,7 @@
 .question-options label {
   display: flex;
   align-items: center;
-  min-height: 48px;
+  min-height: 42px;
 }
 
 .question-options label > div,
@@ -72,6 +72,17 @@
 .question-options .MuiFormControl-root,
 .confirm-checkbox-list .MuiFormControl-root {
   width: 100%;
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
 }
 
 .question-options .MuiFormLabel-root,
@@ -79,26 +90,38 @@
   color: #2f3438;
   font-size: 14px;
   font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+  white-space: normal;
 }
 
 .question-options .MuiFormGroup-root,
 .confirm-checkbox-list .MuiFormGroup-root {
-  min-height: 44px;
-  border: 1px solid #eaedef;
-  border-radius: 8px;
-  background: #fff;
-  transition: border-color 0.16s ease, background-color 0.16s ease;
+  min-height: 0;
+  justify-self: end;
 }
 
-.question-options .MuiFormGroup-root:hover,
-.confirm-checkbox-list .MuiFormGroup-root:hover {
+.question-options .MuiFormControl-root:hover,
+.confirm-checkbox-list .MuiFormControl-root:hover {
   border-color: #00a1ff;
   background: #f0faff;
 }
 
 .question-options .MuiCheckbox-root,
 .confirm-checkbox-list .MuiCheckbox-root {
+  padding: 2px;
   color: #b8c2c9;
+}
+
+.question-options .MuiCheckbox-root .MuiSvgIcon-root,
+.confirm-checkbox-list .MuiCheckbox-root .MuiSvgIcon-root {
+  width: 19px;
+  height: 19px;
+}
+
+.question-options .MuiFormControlLabel-root,
+.confirm-checkbox-list .MuiFormControlLabel-root {
+  margin: 0;
 }
 
 .question-options .MuiCheckbox-root.Mui-checked,
@@ -134,11 +157,11 @@
 
 .confirm-list {
   display: grid;
-  gap: 20px;
+  gap: 12px;
 }
 
 .confirm-question {
-  padding-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #eaedef;
 }
 
@@ -148,10 +171,41 @@
 }
 
 .confirm-question p {
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   font-size: 15px;
   font-weight: 800;
   color: #2f3438;
+}
+
+.confirm-question > div {
+  width: 100% !important;
+}
+
+.confirm-question .MuiFormControl-root {
+  width: 100%;
+  margin: 0;
+}
+
+.confirm-question .MuiOutlinedInput-root {
+  height: 40px;
+  min-height: 40px;
+  border-radius: 8px;
+}
+
+.confirm-question .MuiSelect-select {
+  min-height: 0 !important;
+  padding: 9px 32px 9px 12px !important;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.confirm-question .MuiInputLabel-root {
+  font-size: 14px;
+  transform: translate(12px, 9px) scale(1);
+}
+
+.confirm-question .MuiInputLabel-shrink {
+  transform: translate(12px, -8px) scale(0.75);
 }
 
 .confirm-checkbox-list {
@@ -168,6 +222,112 @@
 .calculator-card,
 .confirm-card {
   box-shadow: none;
+}
+
+.interior-estimate-card {
+  color: #2f3438;
+}
+
+.interior-estimate {
+  display: grid;
+  gap: 16px;
+}
+
+.interior-estimate-eyebrow {
+  margin: 0;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.interior-estimate h3 {
+  margin: -10px 0 0;
+  color: #2f3438;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.interior-estimate-total {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 8px;
+  background: #f0faff;
+}
+
+.interior-estimate-total span {
+  color: #4f5f68;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.interior-estimate-total strong {
+  color: #00a1ff;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.interior-estimate-breakdown {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.interior-estimate-breakdown div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaedef;
+}
+
+.interior-estimate-breakdown div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.interior-estimate-breakdown dt {
+  color: #828c94;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.interior-estimate-breakdown dd {
+  margin: 0;
+  color: #2f3438;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.interior-estimate-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.interior-estimate-tags span {
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: #f7f9fa;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.interior-estimate-note {
+  margin: 0;
+  padding-top: 4px;
+  color: #828c94;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
 }
 
 @media (max-width: 900px) {

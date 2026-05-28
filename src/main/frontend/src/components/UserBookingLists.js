@@ -4,6 +4,10 @@ import TableMuiCollapse from "./TableMuiCollapse";
 import InteriorMyInvoice from "./InteriorMyInvoice";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import "../css/UserBookingLists.css";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../utils/interiorAnswerFormat";
 
 const UserBookingLists = ({ id }) => {
   const [booking, setBooking] = useState();
@@ -66,12 +70,8 @@ const UserBookingLists = ({ id }) => {
                     <TableBody>
                       {Object.keys(answer).map((key) => (
                         <TableRow key={key}>
-                          <TableCell>{key}</TableCell>
-                          <TableCell>
-                            {Array.isArray(answer[key])
-                              ? answer[key].join(", ")
-                              : answer[key]}
-                          </TableCell>
+                          <TableCell>{formatInteriorAnswerLabel(key)}</TableCell>
+                          <TableCell>{formatInteriorAnswerValue(answer[key])}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

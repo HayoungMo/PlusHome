@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
+import { Alert, AlertTitle, Button, Portal, Snackbar } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import CouponService from "../service/couponService";
 
@@ -7,6 +7,7 @@ const CouponDownload = ({
   coupon = null,
   buttonText = "쿠폰 받기",
   className = "",
+  disabled = false,
 }) => {
   const { coupon_code } = useParams();
   const navigate = useNavigate();
@@ -20,6 +21,14 @@ const CouponDownload = ({
   const localUserData = localStorage.getItem("user");
   const userData = JSON.parse(localUserData || "{}");
   const { id } = userData;
+  const buttonClassName = [
+    "coupon-download-button",
+    className,
+    loading ? "coupon-download-button-loading" : "",
+    disabled ? "coupon-download-button-disabled" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const showAlert = ({ severity, title, text }) => {
     setAlert({
@@ -104,37 +113,47 @@ const CouponDownload = ({
   return (
     <>
       <Button
-        className={className}
+        className={buttonClassName}
         variant="contained"
-        disabled={loading}
+        disabled={loading || disabled}
         onClick={handleDownload}
       >
         {loading ? "발급 중..." : buttonText}
       </Button>
-      <Snackbar
-        open={alert.open}
-        autoHideDuration={3000}
-        onClose={() =>
-          setAlert((prev) => ({
-            ...prev,
-            open: false,
-          }))
-        }
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={alert.severity}
+      <Portal>
+        <Snackbar
+          open={alert.open}
+          autoHideDuration={3000}
           onClose={() =>
             setAlert((prev) => ({
               ...prev,
               open: false,
             }))
           }
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          sx={{
+            position: "fixed",
+            top: 24,
+            left: "50%",
+            right: "auto",
+            transform: "translateX(-50%)",
+            zIndex: 2000,
+          }}
         >
-          <AlertTitle>{alert.title}</AlertTitle>
-          {alert.text}
-        </Alert>
-      </Snackbar>
+          <Alert
+            severity={alert.severity}
+            onClose={() =>
+              setAlert((prev) => ({
+                ...prev,
+                open: false,
+              }))
+            }
+          >
+            <AlertTitle>{alert.title}</AlertTitle>
+            {alert.text}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </>
   );
 };

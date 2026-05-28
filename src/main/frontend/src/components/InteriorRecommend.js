@@ -2,17 +2,21 @@ import React, { useEffect, useState } from "react";
 import InteriorService from "../service/interiorService";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
+<<<<<<< Updated upstream
 import SelectMui from "./SelectMui";
 import { Button, Chip, Stack } from "@mui/material";
 import TextFieldMui from "./TextFieldMui";
+=======
+>>>>>>> Stashed changes
 import InteriorAnswerAi from "./InteriorAnswerAi";
+import "../css/InteriorRecommend.css";
 
 const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   //알고리즘 적용시 리스트 컴포넌트
   const navigate = useNavigate();
   const [list, setList] = useState([]);
-  const [originList, setOriginList] = useState([]);
   const [tags, setTags] = useState([]);
+<<<<<<< Updated upstream
   const [search, setSearch] = useState();
   const [filterType, setFilterType] = useState("");
   const [filterValue, setFilterValue] = useState("");
@@ -59,6 +63,8 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
       { value: "50", title: "50평 이상" },
     ],
   };
+=======
+>>>>>>> Stashed changes
 
   //태그 표시용 함수 추가
   const getAnswerTitle = (key, value) => {
@@ -118,7 +124,6 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
       );
 
       setList(resultWithImages);
-      setOriginList(resultWithImages);
     };
 
     if (answers) {
@@ -182,44 +187,8 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
       .sort((a, b) => b.score - a.score);
   };
 
-  const handleSearchFilter = () => {
-    let result = [...originList];
-
-    // 검색
-    if (search && search.trim() !== "") {
-      result = result.filter(
-        (item) =>
-          item.c_name?.includes(search) ||
-          item.c_addr?.includes(search) ||
-          item.c_tel?.includes(search),
-      );
-    }
-
-    // 필터
-    if (filterType && filterValue) {
-      result = result.filter((company) => {
-        return tags.some(
-          (tag) =>
-            tag.c_id === company.c_id &&
-            tag.c_kind === company.c_kind &&
-            tag.c_name === company.c_name &&
-            tag.i_tag === filterType &&
-            tag.i_text === filterValue,
-        );
-      });
-    }
-
-    setList(result);
-  };
-
-  const handleReset = () => {
-    setSearch("");
-    setFilterType("");
-    setFilterValue("");
-    setList(originList);
-  };
-
   return (
+<<<<<<< Updated upstream
     <div className="interior-list-section interior-recommend-section">
       {/* 검색 toolbar를 챗봇일때 숨김 - 0528 모하영 */}
       {fromChatbot ? (
@@ -289,6 +258,9 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
       </div>
       )}
 
+=======
+    <div className="interior-list-section interior-recommend-section">  
+>>>>>>> Stashed changes
       <div className="interior-company-grid interior-recommend-grid">
         {/* 결과 없을때 메세지 보여줌 - 0528 모하영 */}
         {list.length === 0 ?(
@@ -310,6 +282,9 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
               alt={`${item.c_name} 로고`}
             />
             )}
+            <span className="interior-recommend-score">
+              match {item.score}
+            </span>
             <div className="interior-company-info">
               <strong className="interior-company-name">{item.c_name}</strong>
               <span>id: {item.c_id}</span>
@@ -317,7 +292,7 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
               <span>tel: {item.c_tel}</span>
               <span>addr: {item.c_addr}</span>
               <div className="interior-recommend-ai">
-                {/* <InteriorAnswerAi
+                <InteriorAnswerAi
                   answers={answers}
                   company={item}
                   tags={tags.filter(
@@ -327,7 +302,7 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
                       tag.c_name === item.c_name,
                   )}
                   score={item.score}
-                /> */}
+                />
               </div>
             </div>
 
@@ -335,6 +310,12 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
           ))
         )}
       </div>
+
+      {list.length === 0 && (
+        <div className="interior-recommend-empty">
+          추천 조건에 맞는 업체가 없습니다.
+        </div>
+      )}
     </div>
   );
 };
