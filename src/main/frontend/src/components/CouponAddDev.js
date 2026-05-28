@@ -94,6 +94,18 @@ const CouponAddDev= (data) => {
         title: "등록 성공",
         text: "등록되었습니다.",
       });
+
+      setForm({
+        coupon_type:"all",
+        coupon_catagory:"",
+        discount:null,
+        coupon_max:null,
+        coupon_info:"",
+        coupon_end:"",
+
+      })
+
+
     } else {
       setAlert({
         open: true,
@@ -138,6 +150,7 @@ const CouponAddDev= (data) => {
       <form name="coupon">
         <NumberField
           name="discount"
+          value={form.discount || null}
           label="할인률"
           min={0}
           max={100}
@@ -146,6 +159,7 @@ const CouponAddDev= (data) => {
         <NumberField
           name="coupon_max"
           label="최대 할인 금액"
+          value={form.coupon_max || null}
           min={0}
           onValueChange={(value) =>
             handleChange(makeEvent("coupon_max", value))
@@ -162,6 +176,7 @@ const CouponAddDev= (data) => {
         <TextFieldMui
           name="coupon_info"
           label="쿠폰 정보"
+          value={form.coupon_info || ""}
           onChange={handleChange}
         />
         <SelectMui
