@@ -120,14 +120,19 @@
   color: #00a1ff;
 }
 
-.interior-example-grid {
+.interior-all-example-page .interior-example-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 28px 18px;
+  align-items: start;
 }
 
-.interior-example-card {
+.interior-all-example-page .interior-example-card {
   appearance: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: block;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -137,13 +142,14 @@
   transition: transform 0.18s ease;
 }
 
-.interior-example-card:hover {
+.interior-all-example-page .interior-example-card:hover {
   transform: translateY(-2px);
 }
 
-.interior-example-thumb {
+.interior-all-example-page .interior-example-thumb {
   width: 100%;
   aspect-ratio: 1 / 0.72;
+  min-height: 0;
   background: #f7f9fa;
   border-radius: 8px;
   box-shadow: inset 0 0 0 1px #eaedef;
@@ -155,7 +161,7 @@
   overflow: hidden;
 }
 
-.interior-example-thumb img {
+.interior-all-example-page .interior-example-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -163,7 +169,7 @@
   transition: transform 0.22s ease, filter 0.22s ease;
 }
 
-.interior-example-card:hover .interior-example-thumb img {
+.interior-all-example-page .interior-example-card:hover .interior-example-thumb img {
   filter: brightness(0.97);
   transform: scale(1.025);
 }
@@ -297,11 +303,6 @@
 
   .interior-all-example-toolbar .MuiFormControl-root {
     min-width: 100%;
-  }
-
-  .interior-example-grid {
-    grid-template-columns: 1fr;
-    gap: 22px;
   }
 
   .all-example-dialog {

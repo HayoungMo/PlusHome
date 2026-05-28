@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, Tab, Box } from "@mui/material";
 import LikeService from "../service/likeService";
 import GetImgDir from "../resources/function/GetImgDir";
+import "../css/InteriorMyPage.css";
 
 const InteriorMyPage = ({ user }) => {
   const navigate = useNavigate();
@@ -77,14 +78,14 @@ const InteriorMyPage = ({ user }) => {
     setTab(newValue);
   };
   return (
-    <Box>
-      <Tabs value={tab} onChange={handleChange}>
+    <Box className="interior-my-page">
+      <Tabs className="interior-my-tabs" value={tab} onChange={handleChange}>
         <Tab label="예약 내역" />
         <Tab label="리뷰" />
         <Tab label="찜 목록" />
       </Tabs>
 
-      <Box sx={{ mt: 2 }}>
+      <Box className="interior-my-content">
         {tab === 0 && <UserBookingLists id={id} />}
 
         {tab === 1 && <InteriorMyReview id={id} />}

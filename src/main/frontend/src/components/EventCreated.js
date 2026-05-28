@@ -4,6 +4,10 @@ import {
   AlertTitle,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Snackbar,
   Typography,
@@ -19,6 +23,9 @@ import CouponService from "../service/couponService";
 import TableCheckBoxMui from "./TableCheckBoxMui";
 import { useNavigate } from "react-router-dom";
 import "../css/EventForm.css";
+import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckboxMui from "./CheckboxMui";
 
 const EventCreated = () => {
   const navigate = useNavigate();
@@ -30,6 +37,7 @@ const EventCreated = () => {
   const [couponList, setCouponList] = useState([]);
   const [selectedCouponCodes, setSelectedCouponCodes] = useState([]);
   const [imageTag, setImageTag] = useState("THUMBNAIL");
+  const [couponDialogOpen, setCouponDialogOpen] = useState(false);
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -69,33 +77,36 @@ const EventCreated = () => {
   );
 
   useEffect(() => {
-      user?.type !== "admin" && navigate(-1);
-    },[user])
+    user?.type !== "admin" && navigate(-1);
+  }, [user]);
 
-  const getCouponListWithUsage = useCallback((coupons, usages) => {
-    const usageMap = (usages || []).reduce((acc, usage) => {
-      const key = `${usage.coupon_code}_${usage.id}`;
-      acc[key] = acc[key] || [];
-      acc[key].push(usage);
-      return acc;
-    }, {});
+  const getCouponListWithUsage = useCallback(
+    (coupons, usages) => {
+      const usageMap = (usages || []).reduce((acc, usage) => {
+        const key = `${usage.coupon_code}_${usage.id}`;
+        acc[key] = acc[key] || [];
+        acc[key].push(usage);
+        return acc;
+      }, {});
 
-    return (coupons || []).map((coupon) => {
-      const couponUsage = usageMap[getUsageKey(coupon)] || [];
-      const usageText = couponUsage.length
-        ? couponUsage
-            .map((usage) => usage.e_title || `event ${usage.e_id}`)
-            .join(", ")
-        : "미사용";
+      return (coupons || []).map((coupon) => {
+        const couponUsage = usageMap[getUsageKey(coupon)] || [];
+        const usageText = couponUsage.length
+          ? couponUsage
+              .map((usage) => usage.e_title || `event ${usage.e_id}`)
+              .join(", ")
+          : "미사용";
 
-      return {
-        ...coupon,
-        event_usage_status: couponUsage.length ? "사용중" : "미사용",
-        event_usage: usageText,
-        event_usage_count: couponUsage.length,
-      };
-    });
-  }, [getUsageKey]);
+        return {
+          ...coupon,
+          event_usage_status: couponUsage.length ? "사용중" : "미사용",
+          event_usage: usageText,
+          event_usage_count: couponUsage.length,
+        };
+      });
+    },
+    [getUsageKey],
+  );
 
   const makeEvent = (name, value) => ({
     target: {
@@ -123,6 +134,24 @@ const EventCreated = () => {
         value !== "event" && {
           e_long: null,
         }),
+    });
+  };
+
+  const imageDelete = async (index) => {
+    setPreview((prev) => {
+      if (prev[index]) {
+        URL.revokeObjectURL(prev[index]);
+      }
+
+      return prev.filter((_, i) => i !== index);
+    });
+
+    setSendList((prev) => prev.filter((_, i) => i !== index));
+
+    showAlert({
+      severity: "success",
+      title: "이미지 삭제 완료",
+      text: "이미지가 삭제되었습니다.",
     });
   };
 
@@ -163,6 +192,7 @@ const EventCreated = () => {
       ...prev,
     ]);
     setSelectedCouponCodes((prev) => [...prev, newCoupon.coupon_code]);
+    setCouponDialogOpen(false);
   };
 
   const onClickAdd = (e) => {
@@ -278,6 +308,10 @@ const EventCreated = () => {
           ? `이벤트가 등록되었습니다. 선택한 쿠폰 중 ${usedCouponCount}개는 다른 이벤트에서도 사용중입니다.`
           : "이벤트가 등록되었습니다.",
     });
+
+    setTimeout(() => {
+      navigate("../event");
+    }, 1000);
   };
 
   return (
@@ -332,7 +366,10 @@ const EventCreated = () => {
           alignItems: "start",
         }}
       >
-        <Box className="event-form-main" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box
+          className="event-form-main"
+          sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+        >
           <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               기본 정보
@@ -340,18 +377,10 @@ const EventCreated = () => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "220px 1fr" },
+                gridTemplateColumns: "1fr",
                 gap: 2,
               }}
             >
-              <SelectMui
-                name="e_type"
-                label="이벤트/공지사항"
-                option={option}
-                value={form.e_type || ""}
-                onChange={handleChange}
-                width="100%"
-              />
               <TextFieldMui
                 name="e_title"
                 label="제목"
@@ -361,7 +390,14 @@ const EventCreated = () => {
               />
             </Box>
             {form.e_type === "event" && (
-              <Box sx={{ mt: 2 }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  gap: 2,
+                }}
+              >
                 <DatePickerMui
                   name="e_startDate"
                   label="시작일"
@@ -436,7 +472,10 @@ const EventCreated = () => {
               </Button>
             </Box>
             {preview.length > 0 && (
-              <Box className="event-form-preview-grid" sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
+              <Box
+                className="event-form-preview-grid"
+                sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}
+              >
                 {preview.map((item, index) => (
                   <Box
                     className="event-form-preview-card"
@@ -467,8 +506,14 @@ const EventCreated = () => {
                         ? "썸네일"
                         : sendList[index]?.img_tag === "BANNER"
                           ? "배너 이미지 "
-                          : "본문 이미지"}
+                          : "본문 이미지"}{" "}
                     </Typography>
+
+                    <FloatingActionButtonMui
+                      icon={<DeleteIcon />}
+                      color="error"
+                      onClick={() => imageDelete(index)}
+                    />
                   </Box>
                 ))}
               </Box>
@@ -521,18 +566,64 @@ const EventCreated = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            쿠폰 생성
+            노출 설정
           </Typography>
-          <CouponAdd onCreated={handleCouponCreated} />
+          <Box className="event-form-side-controls">
+            <SelectMui
+              name="e_type"
+              label="이벤트/공지사항"
+              option={option}
+              value={form.e_type || ""}
+              onChange={handleChange}
+              width="100%"
+            />
+            <CheckboxMui
+              label="팝업 여부"
+              checked={form.e_popup === "Y"}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  e_popup: e.target.checked ? "Y" : "N",
+                }))
+              }
+              width="200px"
+            />
+          </Box>
           <Divider sx={{ my: 2 }} />
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             선택된 쿠폰 {selectedCouponCodes.length}개
           </Typography>
+          <Button
+            type="button"
+            variant="outlined"
+            fullWidth
+            sx={{ mb: 1.5 }}
+            onClick={() => setCouponDialogOpen(true)}
+          >
+            쿠폰 등록
+          </Button>
           <Button type="submit" variant="contained" fullWidth size="large">
             등록
           </Button>
         </Box>
       </Box>
+
+      <Dialog
+        open={couponDialogOpen}
+        onClose={() => setCouponDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>쿠폰 등록</DialogTitle>
+        <DialogContent dividers className="event-form-coupon-dialog">
+          <CouponAdd onCreated={handleCouponCreated} />
+        </DialogContent>
+        <DialogActions>
+          <Button type="button" variant="outlined" color="error" onClick={() => setCouponDialogOpen(false)}>
+            닫기
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

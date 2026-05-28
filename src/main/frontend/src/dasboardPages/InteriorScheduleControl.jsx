@@ -11,6 +11,10 @@ import DatePickerMui from "./../components/DatePickerMui";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
 import "../css/DashboardInterior.css";
+import {
+	formatInteriorAnswerLabel,
+	formatInteriorAnswerValue,
+} from "../resources/function/interiorAnswerFormat";
 
 dayjs.extend(isBetween);
 
@@ -172,9 +176,41 @@ const InteriorScheduleControl = () => {
 		return filterdList;
 	}, [interiorScheduleList, viewDataType, today]);
 
-	const selectedScheduleEntries = Object.entries(selectedSchedule ?? {}).filter(
-		([key]) => key !== "rowIndex",
-	);
+	const scheduleLabelMap = {
+		id: "예약자 ID",
+		b_createdDate: "신청일",
+		c_id: "업체 ID",
+		c_kind: "업체 구분",
+		c_name: "업체명",
+		b_kind: "상담 종류",
+		b_long: "희망 기간",
+		b_date: "예약일",
+		b_status: "진행 상태",
+		b_content: "상담 내용",
+		is_index: "일정 번호",
+		is_startdate: "시작일",
+		is_enddate: "종료일",
+	};
+
+	const formatScheduleEntry = ([key, value]) => {
+		if (key === "b_answer") {
+			try {
+				const answer = value ? JSON.parse(value) : {};
+				return Object.entries(answer).map(([answerKey, answerValue]) => [
+					formatInteriorAnswerLabel(answerKey),
+					formatInteriorAnswerValue(answerValue),
+				]);
+			} catch (e) {
+				return [["상담 답변", value]];
+			}
+		}
+
+		return [[scheduleLabelMap[key] || key, value]];
+	};
+
+	const selectedScheduleEntries = Object.entries(selectedSchedule ?? {})
+		.filter(([key]) => key !== "rowIndex")
+		.flatMap(formatScheduleEntry);
 
 	const workingCount = interiorScheduleList.filter((data) => data.b_status === "working").length;
 	const doneCount = interiorScheduleList.filter((data) => data.b_status === "done").length;

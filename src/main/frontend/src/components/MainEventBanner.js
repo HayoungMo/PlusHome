@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
 import EventService from "../service/eventService";
@@ -13,7 +13,24 @@ const MainEventBanner = () => {
     navigate(`/event/article/${data}`);
   };
 
-  const currentEvent = events[sideSlideIndex];
+  const visibleEvents = useMemo(() => {
+    const now = new Date();
+
+    // 오늘 00:00
+    now.setHours(0, 0, 0, 0);
+
+    return events.filter((item) => {
+      const start = new Date(item.e_startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(item.e_endDate);
+      end.setHours(0, 0, 0, 0);
+
+      return item.e_type === "event" && start <= now && end >= now;
+    });
+  }, [events]);
+
+  const currentEvent = visibleEvents[sideSlideIndex];
 
   const getBanner = (record) => {
     return record.logo?.result?.find((item) => item.img_tag === "BANNER")
@@ -23,13 +40,13 @@ const MainEventBanner = () => {
 
   const moveSideSlide = (direction) => {
     setSideSlideIndex((prev) => {
-      if (events.length === 0) return 0;
+      if (visibleEvents.length === 0) return 0;
 
       if (direction === "next") {
-        return prev >= events.length - 1 ? 0 : prev + 1;
+        return prev >= visibleEvents.length - 1 ? 0 : prev + 1;
       }
 
-      return prev <= 0 ? events.length - 1 : prev - 1;
+      return prev <= 0 ? visibleEvents.length - 1 : prev - 1;
     });
   };
 
@@ -79,7 +96,7 @@ const MainEventBanner = () => {
         textAlign: "center",
       }}
     >
-      {currentBanner && (
+      {currentBanner ? (
         <img
           src={currentBanner}
           alt={currentEvent?.e_title || "이벤트 배너"}
@@ -91,6 +108,8 @@ const MainEventBanner = () => {
             cursor: "pointer",
           }}
         />
+      ) : (
+        <p>이벤트가 없습니다</p>
       )}
 
       <Button
@@ -149,7 +168,7 @@ const MainEventBanner = () => {
           gap: "6px",
         }}
       >
-        {events.map((slide, index) => (
+        {visibleEvents.map((slide, index) => (
           <button
             key={slide.title}
             type="button"

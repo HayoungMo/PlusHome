@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import InteriorUserService from "../service/interiorUserService";
-import TableMui from "./TableMui";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import InteriorBooking from "./InteriorBooking";
@@ -70,10 +69,26 @@ const InteriorMyInvoice = ({ booking }) => {
         <div>
           <TableMuiCollapse
             rowData={invoiceWithDetails}
-            hiddenColumns={["detail", "details"]}
+            hiddenColumns={[
+              "detail",
+              "details",
+              "c_id",
+              "c_kind",
+              "c_boss",
+              "c_info",
+              "name",
+            ]}
+            columns={[
+              "업체명",
+              "업체 ID",
+              "상담 신청일",
+              "견적서 순서",
+              "완료 여부"
+            ]}
             collapseKey="detail"
             collapseTitle="견적 상세 내역"
             collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
+            collapseColumnLabels={["항목", "수량", "금액"]}
           />
           {invoice.map((invoiceItem, invoiceIdx) => (
             <div key={invoiceIdx}>

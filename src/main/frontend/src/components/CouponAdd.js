@@ -182,7 +182,7 @@ const CouponAdd = ({ onCreated }) => {
 					/>
 				)}
 
-				<Button onClick={(e) => handleSubmit(e)}>발급</Button>
+				<Button variant="contained" onClick={(e) => handleSubmit(e)}>발급</Button>
 			</form>
 		</div>
 	);

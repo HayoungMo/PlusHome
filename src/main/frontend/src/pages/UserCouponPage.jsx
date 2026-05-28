@@ -112,7 +112,6 @@ const UserCouponPage = ({ user }) => {
           <p>COUPON</p>
           <h3>쿠폰함</h3>
         </div>
-        <span>{coupon.length}개</span>
       </div>
 
       <Tabs className="user-coupon-tabs" value={tab} onChange={handleChangeTab}>

@@ -4,6 +4,10 @@ import TableMuiCollapse from "./TableMuiCollapse";
 import InteriorMyInvoice from "./InteriorMyInvoice";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import "../css/UserBookingLists.css";
+import {
+  formatInteriorAnswerLabel,
+  formatInteriorAnswerValue,
+} from "../resources/function/interiorAnswerFormat";
 
 const UserBookingLists = ({ id }) => {
   const [booking, setBooking] = useState();
@@ -37,6 +41,18 @@ const UserBookingLists = ({ id }) => {
             <TableMuiCollapse
               rowData={booking}
               hiddenColumns={["b_answer"]}
+              columns={[
+                "예약자 ID",
+                "신청일",
+                "업체 ID",
+                "업체 구분",
+                "업체명",
+                "상담 종류",
+                "희망 기간",
+                "예약일",
+                "진행 상태",
+                "상담 내용",
+              ]}
               collapseTitle="상담 상세 정보"
               selectedRow={selectedRow}
               setSelectedRow={setSelectedRow}
@@ -54,12 +70,8 @@ const UserBookingLists = ({ id }) => {
                     <TableBody>
                       {Object.keys(answer).map((key) => (
                         <TableRow key={key}>
-                          <TableCell>{key}</TableCell>
-                          <TableCell>
-                            {Array.isArray(answer[key])
-                              ? answer[key].join(", ")
-                              : answer[key]}
-                          </TableCell>
+                          <TableCell>{formatInteriorAnswerLabel(key)}</TableCell>
+                          <TableCell>{formatInteriorAnswerValue(answer[key])}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
