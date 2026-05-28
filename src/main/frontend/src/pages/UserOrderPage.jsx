@@ -324,7 +324,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             case 2:
                 return "출고 내역이 없습니다.";
             case 3:
-                return "배송중 내역이 없습니다.";
+                return "배송 내역이 없습니다.";
             case 4:
                 return "배송완료 내역이 없습니다.";
             case 5:

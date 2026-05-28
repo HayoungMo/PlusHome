@@ -4,12 +4,24 @@ import GetImgDir from "../resources/function/GetImgDir";
 import RatingMui from "./RatingMui";
 import Loading from "../components/Loading";
 import "../css/FurnitureReview.css";
+import ImageViewer from "./ImageViewer";
 
 const FurnitureReview = ({ f_code, fr_idx = 0 }) => {
   const [reviews, setReviews] = useState([]);
   const [selectedItem, setSelectedItem] = useState();
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerImages, setViewerImages] = useState([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerInfo, setViewerInfo] = useState({
+    title: "",
+    content: "",
+    writer: "",
+    star: 0,
+    reply: null,
+  });
 
   useEffect(() => {
     const fetchReview = async () => {
@@ -24,10 +36,25 @@ const FurnitureReview = ({ f_code, fr_idx = 0 }) => {
           fr_idx: fr_idx,
           f_code: f_code,
         });
+        
         const List = Array.isArray(result.data) ? result.data : [];
 
+        const reviewRows = List.filter((item) => Number(item.fr_idx) > 0);
+        const replyRows = List.filter((item) => Number(item.fr_idx) < 0);
+
+        const normalizedList = reviewRows.map((review) => {
+          const reply = replyRows.find(
+            (item) => Number(item.fr_idx) === Number(review.fr_idx) * -1
+          );
+
+          return {
+            ...review,
+            reply: reply || null,
+          };
+        });
+
         const listWithImages = await Promise.all(
-          List.map(async (item) => {
+          normalizedList.map(async (item) => {
             const logo = await GetImgDir({
               kind: "F_REVIEW",
               returnType: "list",
@@ -68,6 +95,28 @@ const FurnitureReview = ({ f_code, fr_idx = 0 }) => {
     );
   }
 
+  const openReviewViewer = (item, imageIdx = 0) => {
+    const images = (item?.logo?.result || []).map((img) => ({
+      src: img.img_name,
+      alt: item.fr_subject || "리뷰 이미지",
+    }));
+
+    setViewerImages(
+      images.length > 0
+        ? images
+        : [{ src: "/no-image.png", alt: "리뷰 이미지 없음" }]
+    );
+    setViewerIndex(images.length > 0 ? imageIdx : 0);
+    setViewerInfo({
+      title: item.fr_subject || "리뷰",
+      content: item.fr_content || "",
+      writer: item.id || "",
+      star: item.fr_star || 0,
+      reply: item.reply || null,
+    });
+    setViewerOpen(true);
+  };
+
   return (
     <section className="furniture-review">
       <div className="furniture-review-header">
@@ -95,6 +144,7 @@ const FurnitureReview = ({ f_code, fr_idx = 0 }) => {
                 setSelectedItem(selectedItem === item ? null : item);
                 setSelectedImage(selectedImage === idx ? null : idx);
               }}
+              onDoubleClick={() => openReviewViewer(item, 0)}
             >
               {thumbnail ? (
                 <img src={thumbnail.img_name} alt={`${item.c_name} 리뷰`} />
@@ -114,6 +164,7 @@ const FurnitureReview = ({ f_code, fr_idx = 0 }) => {
                 key={`${record.img_name}-${i}`}
                 src={record.img_name}
                 alt={`${selectedItem.c_name} 리뷰`}
+                onClick={() => openReviewViewer(selectedItem, i)}
               />
             ))}
           </div>
@@ -131,9 +182,40 @@ const FurnitureReview = ({ f_code, fr_idx = 0 }) => {
               작성자 <strong>{selectedItem?.id}</strong>
             </p>
             <p className="furniture-review-text">{selectedItem?.fr_content}</p>
+
+            {String(selectedItem?.fr_content || "").length > 120 && (
+              <button
+                type="button"
+                className="furniture-review-more-btn"
+                onClick={() => openReviewViewer(selectedItem, 0)}
+              >
+                더보기
+              </button>
+            )}
+          
+            {selectedItem?.reply && (
+              <div className="furniture-review-reply">
+                <strong>업체 답변</strong>
+                <p>{selectedItem.reply.fr_content}</p>
+              </div>
+            )}
+
           </div>
         </article>
       )}
+
+      <ImageViewer
+        open={viewerOpen}
+        images={viewerImages}
+        startIndex={viewerIndex}
+        title={viewerInfo.title}
+        content={viewerInfo.content}
+        writer={viewerInfo.writer}
+        star={viewerInfo.star}
+        reply={viewerInfo.reply}
+        onClose={() => setViewerOpen(false)}
+      />
+
     </section>
   );
 };

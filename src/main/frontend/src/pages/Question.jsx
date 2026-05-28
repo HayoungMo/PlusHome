@@ -5,6 +5,7 @@ import CheckboxMui from '../components/CheckboxMui';
 import ImageService from '../service/imageService';
 import GetImgDir from '../resources/function/GetImgDir';
 import SnackbarAlert from '../components/SnackbarAlert';
+import ImageViewer from '../components/ImageViewer';
 
 const Question = ({ f_code,furniture }) => {
     const [questions, setQuestions] = useState([]);
@@ -19,6 +20,16 @@ const Question = ({ f_code,furniture }) => {
     const [questionFiles,setQuestionFiles] = useState([]);
     const [questionImages, setQuestionImages] = useState({}); 
 
+    const [viewerOpen, setViewerOpen] = useState(false);
+    const [viewerImages, setViewerImages] = useState([]);
+    const [viewerIndex, setViewerIndex] = useState(0);
+    const [viewerInfo, setViewerInfo] = useState({
+        title: "",
+        content: "",
+        writer: "",
+        reply: null,
+    });
+        
     const loginUser = JSON.parse(localStorage.getItem("user") || "null");
 
     const userType = String(loginUser?.type || "").toLowerCase();
@@ -112,6 +123,35 @@ const Question = ({ f_code,furniture }) => {
         }
 
         return "비회원";
+    };
+
+    const openQuestionViewer = (item, imageIdx = 0) => {
+        const images = (questionImages[item.q_idx] || []).map((img) => ({
+            src: img.img_name,
+            alt: item.q_title || "문의 이미지",
+        }));
+
+        setViewerImages(
+            images.length > 0
+                ? images
+                : [{ src: "/no-image.png", alt: "문의 이미지 없음" }]
+        );
+
+        setViewerIndex(images.length > 0 ? imageIdx : 0);
+
+        setViewerInfo({
+            title: item.q_title || "문의",
+            content: item.q_content || "",
+            writer: maskWriter(item),
+            reply: item.q_answer
+                ? {
+                    fr_subject: "답변",
+                    fr_content: item.q_answer,
+                }
+                : null,
+        });
+
+        setViewerOpen(true);
     };
 
     //5월 13일 이미지 파일 올리는 작업 하다 퇴근 5월 14일에 마저 할 예정(완)
@@ -353,16 +393,18 @@ const Question = ({ f_code,furniture }) => {
                         ) : (
                             <p>작성자와 관리자만 확인할 수 있습니다.</p>
                         )}
-                        {canReadQuestion(item) && questionImages[item.q_idx]?.map((img) => (
+                       {canReadQuestion(item) && questionImages[item.q_idx]?.map((img, imageIdx) => (
                             <img
                                 key={img.img_name}
                                 src={img.img_name}
                                 alt="문의 이미지"
+                                onClick={() => openQuestionViewer(item, imageIdx)}
                                 style={{
                                     width: "120px",
                                     height: "120px",
                                     objectFit: "cover",
-                                    marginRight: "8px"
+                                    marginRight: "8px",
+                                    cursor: "pointer",
                                 }}
                             />
                         ))}
@@ -397,6 +439,18 @@ const Question = ({ f_code,furniture }) => {
                     </div>
                 ))
             )}
+
+            <ImageViewer
+                open={viewerOpen}
+                images={viewerImages}
+                startIndex={viewerIndex}
+                title={viewerInfo.title}
+                content={viewerInfo.content}
+                writer={viewerInfo.writer}
+                reply={viewerInfo.reply}
+                onClose={() => setViewerOpen(false)}
+            />
+            
         </section>
     );
 };

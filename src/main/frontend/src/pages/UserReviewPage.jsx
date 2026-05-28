@@ -16,6 +16,9 @@ import CartService from "../service/cartService";
 import { useNavigate } from "react-router-dom";
 
 const UserReviewPage = ({ user }) => {
+  const REVIEW_TITLE_MAX = 50;
+  const REVIEW_CONTENT_MAX_BYTES = 500;
+
   const navigate = useNavigate();
   const [reviews, setReviews] = useState();
   const [refresh, setRefresh] = useState(0);
@@ -39,6 +42,29 @@ const UserReviewPage = ({ user }) => {
     star: 0,
     reply: null,
   });
+
+  const getByteLength = (value) => {
+    return new TextEncoder().encode(String(value || "")).length;
+  };
+
+  const sliceByByte = (value, maxBytes) => {
+    const chars = Array.from(String(value || ""));
+    let bytes = 0;
+    let result = "";
+
+    for (const char of chars) {
+      const charBytes = getByteLength(char);
+
+      if (bytes + charBytes > maxBytes) {
+        break;
+      }
+
+      bytes += charBytes;
+      result += char;
+    }
+
+    return result;
+  };
 
   const goFurniture = (item) => {
     const fCode = item.f_code || item.furniture?.f_code;
@@ -227,9 +253,19 @@ const UserReviewPage = ({ user }) => {
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
+    let nextValue = value;
+
+    if (name === "fr_subject") {
+      nextValue = nextValue.slice(0, REVIEW_TITLE_MAX);
+    }
+
+    if (name === "fr_content") {
+      nextValue = sliceByByte(nextValue, REVIEW_CONTENT_MAX_BYTES);
+    }
+
     setEditItem((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
@@ -254,6 +290,26 @@ const UserReviewPage = ({ user }) => {
         severity: "warning",
         title: "수정 불가",
         text: "내용을 입력해주세요.",
+      });
+      return;
+    }
+
+    if (String(item.fr_subject || "").length > REVIEW_TITLE_MAX) {
+      setAlert({
+        open: true,
+        severity: "warning",
+        title: "수정 불가",
+        text: `리뷰 제목은 ${REVIEW_TITLE_MAX}자 이하로 입력해주세요.`,
+      });
+      return;
+    }
+
+    if (getByteLength(item.fr_content) > REVIEW_CONTENT_MAX_BYTES) {
+      setAlert({
+        open: true,
+        severity: "warning",
+        title: "수정 불가",
+        text: `리뷰 내용은 ${REVIEW_CONTENT_MAX_BYTES}byte 이하로 입력해주세요.`,
       });
       return;
     }
@@ -661,6 +717,8 @@ const UserReviewPage = ({ user }) => {
                   value={editItem.fr_subject || ""}
                   onChange={handleEditChange}
                   width="100%"
+                  inputProps={{ maxLength: REVIEW_TITLE_MAX }}
+                  helperText={`${(editItem.fr_subject || "").length}/${REVIEW_TITLE_MAX}`}
                 />
               </div>
 
@@ -674,6 +732,7 @@ const UserReviewPage = ({ user }) => {
                   width="100%"
                   multiline={true}
                   minRows={5}
+                  helperText={`${getByteLength(editItem.fr_content)}/${REVIEW_CONTENT_MAX_BYTES}byte`}
                 />
               </div>
 

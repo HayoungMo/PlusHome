@@ -7,6 +7,11 @@ import FurnitureCategorySelect, {
     getFurnitureCategorySaveValue,
 } from "../components/FurnitureCategorySelect";
 
+import { Button, Checkbox, FormControlLabel, Snackbar } from "@mui/material";
+import AlertMui from "../components/AlertMui";
+import TextFieldMui from "../components/TextFieldMui";
+import SelectMui from "../components/SelectMui";
+
 const FurnitureAddPage = ({ onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
 	const userData = localUserData ? JSON.parse(localUserData) : {};
@@ -19,6 +24,20 @@ const FurnitureAddPage = ({ onSuccess }) => {
 
 	const navigate = useNavigate();
 
+	const [alert, setAlert] = useState({
+		open: false,
+		severity: "info",
+		title: "",
+		text: "",
+	});
+
+	const showAlert = ({ severity = "info", title = "", text = "" }) => {
+		setAlert({ open: true, severity, title, text });
+	};
+
+	const closeAlert = () => {
+		setAlert((prev) => ({ ...prev, open: false }));
+	};
 
 	const [data, setData] = useState({
 		c_id: company?.c_id || id || "",
@@ -35,7 +54,7 @@ const FurnitureAddPage = ({ onSuccess }) => {
 		f_discount: "0",
 		f_point: "0",
 		f_count: "0",
-		f_deliveryprice: "0"
+		f_deliveryPrice: "0"
 	});
 
 	//카테고리 - 0515 모하영 
@@ -58,6 +77,12 @@ const FurnitureAddPage = ({ onSuccess }) => {
 	]);
 	
 	const [useOptions, setUseOptions] = useState(true)
+
+	const formatNumber = (value) => {
+		const number = Number(String(value || "").replace(/[^0-9]/g, ""));
+		if (!number) return "0";
+		return number.toLocaleString();
+	};
 
 	useEffect(() => {
 		const price = Number(data.f_price);
@@ -117,7 +142,7 @@ const FurnitureAddPage = ({ onSuccess }) => {
 			"f_discount",
 			"f_point",
 			"f_count",
-			"f_deliveryprice"
+			"f_deliveryPrice"
 		];
 
 		if (numberFields.includes(name)) {
@@ -155,9 +180,9 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				updatedData.f_count = String(num);
 			}
 
-			if (name === "f_deliveryprice") {
+			if (name === "f_deliveryPrice") {
 				if (num < 0) num = 0;
-				updatedData.f_deliveryprice = String(num);
+				updatedData.f_deliveryPrice = String(num);
 			}
 
 			setData(updatedData);
@@ -220,26 +245,42 @@ const FurnitureAddPage = ({ onSuccess }) => {
 	const onSubmit = async () => {
 		try {
 			if (!data.c_name) {
-				alert("업체명을 찾지 못했습니다. 다시 로그인해주세요.");
+				showAlert({
+					severity: "error",
+					title: "등록 불가",
+					text: "업체명을 찾지 못했습니다. 다시 로그인해주세요.",
+				});
 				console.log("userData", userData);
 				return;
 			}
 
 			if (!thumbnail) {
-				alert("썸네일 이미지를 선택해주세요.");
+				showAlert({
+					severity: "warning",
+					title: "등록 불가",
+					text: "썸네일 이미지를 선택해주세요.",
+				});
 				return;
 			}
 
 			if (!data.f_name) {
-				alert("가구 이름을 입력해주세요.");
+				showAlert({
+					severity: "warning",
+					title: "등록 불가",
+					text: "가구 이름을 입력해주세요.",
+				});
 				return;
 			}
 			// 0515 모하영 
 
 			for(const field of furnitureCategoryFields) {
 				if(!getCategoryValue(field)){
-					alert(`${furnitureCategoryLabels[field]}을(를) 선택하거나 입력해주세요.`);
-					return;
+					showAlert({
+					severity: "warning",
+					title: "등록 불가",
+					text: `${furnitureCategoryLabels[field]}을(를) 선택하거나 입력해주세요.`,
+				});
+				return;
 				}
 			}
 
@@ -265,14 +306,22 @@ const FurnitureAddPage = ({ onSuccess }) => {
 			)
 			: Number(data.f_count || 0);
 
-			if(useOptions && optionList.length === 0){
-				alert("옵션을 사용하려면 옵션을 하나 이상 입력해주세요.")
-				return
+			if (useOptions && optionList.length === 0) {
+				showAlert({
+					severity: "warning",
+					title: "등록 불가",
+					text: "옵션을 사용하려면 옵션을 하나 이상 입력해주세요.",
+				});
+				return;
 			}
 
-			if(!useOptions && Number(data.f_count || 0) <= 0){
-				alert("재고 수량을 입력해주세요.")
-				return
+			if (!useOptions && Number(data.f_count || 0) <= 0) {
+				showAlert({
+					severity: "warning",
+					title: "등록 불가",
+					text: "재고 수량을 입력해주세요.",
+				});
+				return;
 			}
 
 			const dto = {
@@ -289,7 +338,7 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				f_dprice: Number(data.f_dprice),
 				f_discount: Number(data.f_discount),
 				f_point: Number(data.f_point),
-				f_deliveryPrice: Number(data.f_deliveryprice || 0),
+				f_deliveryPrice: Number(data.f_deliveryPrice || 0),
 				f_count: totalOptionCount
 			};
 
@@ -303,7 +352,12 @@ const FurnitureAddPage = ({ onSuccess }) => {
 
 			await FurnitureService.insertFurniture(sendData);
 
-			alert("가구가 등록되었습니다.");
+			showAlert({
+				severity: "success",
+				title: "등록 완료",
+				text: "가구가 등록되었습니다.",
+			});
+
 			if (onSuccess) {
 				await onSuccess();
 			} else {
@@ -311,28 +365,60 @@ const FurnitureAddPage = ({ onSuccess }) => {
 			}
 		} catch (error) {
 			console.error("에러:", error);
-			alert("가구 등록에 실패했습니다.");
+			showAlert({
+				severity: "error",
+				title: "등록 실패",
+				text: "가구 등록에 실패했습니다.",
+			});
 		}
 	};
 
 	return (
 		<div>
+			<Snackbar
+				open={alert.open}
+				autoHideDuration={3000}
+				onClose={closeAlert}
+				anchorOrigin={{ vertical: "top", horizontal: "center" }}
+			>
+				<div>
+					<AlertMui
+						severity={alert.severity}
+						title={alert.title}
+						text={alert.text}
+						onClose={closeAlert}
+						autoHideDuration={3000}
+					/>
+				</div>
+			</Snackbar>
 
 			<h3>가구 등록 페이지</h3>
 
-			<label>가구 이름:</label>
-			<input name="f_name" value={data.f_name} onChange={changeInput} />
-			<br />
+			<TextFieldMui
+				name="f_name"
+				label="가구 이름"
+				value={data.f_name}
+				onChange={changeInput}
+				width="320px"
+			/>
 
-			<label>가구 가격:</label>
-			<input name="f_price" value={data.f_price} onChange={changeInput} />
-			<br />
+			<TextFieldMui
+				name="f_price"
+				label="가구 가격"
+				value={formatNumber(data.f_price)}
+				onChange={changeInput}
+				width="220px"
+			/>
 
-			<p>할인가: {data.f_dprice}</p>
+			<p>할인가: {formatNumber(data.f_dprice)}원</p>
 
-			<label>할인율:</label>
-			<input name="f_discount" value={data.f_discount} onChange={changeInput} />
-			<br />
+			<TextFieldMui
+				name="f_discount"
+				label="할인율"
+				value={data.f_discount}
+				onChange={changeInput}
+				width="160px"
+			/>
 
 			<p>대표 이미지</p>
 			<input type="file" accept="image/*" onChange={onChangeThumbnail} />
@@ -345,7 +431,7 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				/>
 			)}
 
-			<p>상세 이미지</p>
+			<p>미리보기 이미지</p>
 			<input type="file" multiple onChange={onChangeInfo} />
 
 			<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
@@ -359,7 +445,7 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				))}
 			</div>
 
-			<p>이미지</p>
+			<p>상세 이미지</p>
 			<input type="file" multiple onChange={onChangeOthers} />
 
 			<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
@@ -393,18 +479,21 @@ const FurnitureAddPage = ({ onSuccess }) => {
 				/>
 			))}
 
-
-			<label>포인트:</label>
-			<input name="f_point" value={data.f_point} onChange={changeInput} />
-			<br />
-
-			<label>배송비:</label>
-			<input
-				name="f_deliveryprice"
-				value={data.f_deliveryprice}
+			<TextFieldMui
+				name="f_point"
+				label="포인트"
+				value={formatNumber(data.f_point)}
 				onChange={changeInput}
+				width="220px"
 			/>
-			<br />
+
+			<TextFieldMui
+				name="f_deliveryPrice"
+				label="배송비"
+				value={formatNumber(data.f_deliveryPrice)}
+				onChange={changeInput}
+				width="220px"
+			/>
 
 			<p>
 				전체 수량:{" "}
@@ -413,103 +502,111 @@ const FurnitureAddPage = ({ onSuccess }) => {
 					: Number(data.f_count || 0)}
 			</p>
 
-
 			<hr />
 
-			<label>
-				<input
-					type="checkbox"
-					checked={useOptions}
-					onChange={(evt) => setUseOptions(evt.target.checked)}
-				/>
-				옵션 사용
-			</label>
-
-			<br />
+			<FormControlLabel
+				control={
+					<Checkbox
+						checked={useOptions}
+						onChange={(evt) => setUseOptions(evt.target.checked)}
+					/>
+				}
+				label="옵션 사용"
+			/>
 
 			{!useOptions && (
-				<>
-					<label>재고 수량:</label>
-					<input
-						name="f_count"
-						value={data.f_count}
-						onChange={changeInput}
-					/>
-					<br />
-				</>
-			)}	
+				<TextFieldMui
+					name="f_count"
+					label="재고 수량"
+					value={formatNumber(data.f_count)}
+					onChange={changeInput}
+					width="180px"
+				/>
+			)}
 
 			{useOptions && (
-			<>
-			<h3>옵션 등록</h3>
+				<>
+					<h3>옵션 등록</h3>
 
-			{options.map((option, index) => (
-				<div
-					key={index}
-					style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "10px" }}
-				>
-					<label>옵션명:</label>
-					<input
-						name="o_select"
-						value={option.o_select}
-						onChange={(evt) => changeOption(index, evt)}
-						placeholder="예: 색상"
-					/>
-					<br />
+					{options.map((option, index) => (
+						<div
+							key={index}
+							style={{
+								border: "1px solid #ddd",
+								padding: "10px",
+								marginBottom: "10px",
+							}}
+						>
+							<TextFieldMui
+								name="o_select"
+								label="옵션명"
+								value={option.o_select}
+								onChange={(evt) => changeOption(index, evt)}
+								width="180px"
+							/>
 
-					<label>옵션값:</label>
-					<input
-						name="o_text"
-						value={option.o_text}
-						onChange={(evt) => changeOption(index, evt)}
-						placeholder="예: 화이트"
-					/>
-					<br />
+							<TextFieldMui
+								name="o_text"
+								label="옵션값"
+								value={option.o_text}
+								onChange={(evt) => changeOption(index, evt)}
+								width="180px"
+							/>
 
-					<label>옵션 재고:</label>
-					<input
-						name="o_count"
-						value={option.o_count}
-						onChange={(evt) => changeOption(index, evt)}
-					/>
-					<br />
+							<TextFieldMui
+								name="o_count"
+								label="옵션 재고"
+								value={formatNumber(option.o_count)}
+								onChange={(evt) => changeOption(index, evt)}
+								width="160px"
+							/>
 
-					<label>추가 금액:</label>
-					<input
-						name="o_price"
-						value={option.o_price}
-						onChange={(evt) => changeOption(index, evt)}
-					/>
-					<br />
+							<TextFieldMui
+								name="o_price"
+								label="추가 금액"
+								value={formatNumber(option.o_price)}
+								onChange={(evt) => changeOption(index, evt)}
+								width="180px"
+							/>
 
-					<label>필수 옵션:</label>
-					<select
-						name="o_important"
-						value={option.o_important}
-						onChange={(evt) => changeOption(index, evt)}
-					>
-						<option value="Y">필수</option>
-						<option value="N">선택</option>
-					</select>
+							<SelectMui
+								name="o_important"
+								label="필수 옵션"
+								value={option.o_important}
+								onChange={(evt) => changeOption(index, evt)}
+								width="160px"
+								option={[
+									{ title: "필수", value: "Y" },
+									{ title: "선택", value: "N" },
+								]}
+							/>
 
-					<br />
+							<br />
 
-					{options.length > 1 && (
-						<button type="button" onClick={() => removeOption(index)}>
-							옵션 삭제
-						</button>
-					)}
-				</div>
-			))}
+							{options.length > 1 && (
+								<Button
+									type="button"
+									variant="outlined"
+									color="error"
+									onClick={() => removeOption(index)}
+								>
+									옵션 삭제
+								</Button>
+							)}
+						</div>
+					))}
 
-			<button type="button" onClick={addOption}>
-				옵션 추가
-			</button>
-			</>
+					<Button type="button" variant="outlined" onClick={addOption}>
+						옵션 추가
+					</Button>
+				</>
 			)}
 
 			<br />
-			<button onClick={onSubmit}>등록</button>
+
+			<Button variant="contained" onClick={onSubmit}>
+				등록
+			</Button>
 		</div>
 	);
 };

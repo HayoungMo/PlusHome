@@ -192,3 +192,35 @@
     padding: 14px;
   }
 }
+
+.furniture-review-detail-images img {
+  cursor: pointer;
+}
+
+.furniture-review-more-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  border: 0;
+  background: transparent;
+  padding: 4px 0 0;
+  color: #008cff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.furniture-review-more-btn:hover {
+  color: #0077d9;
+  text-decoration: underline;
+}
+
+.furniture-review-detail-content {
+  text-align: left;
+}
+
+.furniture-review-more-btn {
+  align-self: flex-start;
+}

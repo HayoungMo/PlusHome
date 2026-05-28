@@ -12,6 +12,9 @@ import FurnitureService from "../service/furnitureService";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const UserQuestionPage = ({ user }) => {
+    const QUESTION_TITLE_MAX = 200;
+    const QUESTION_CONTENT_MAX = 500;
+
     const [questions, setQuestions] = useState([]);
     const [editIdx, setEditIdx] = useState(null);
     const [editForm, setEditForm] = useState({
@@ -273,9 +276,19 @@ const UserQuestionPage = ({ user }) => {
     const onEditChange = (evt) => {
         const { name, value, checked, type } = evt.target;
 
+        let nextValue = type === "checkbox" ? (checked ? "Y" : "N") : value;
+
+        if (name === "q_title") {
+            nextValue = nextValue.slice(0, QUESTION_TITLE_MAX);
+        }
+
+        if (name === "q_content") {
+            nextValue = nextValue.slice(0, QUESTION_CONTENT_MAX);
+        }
+
         setEditForm((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? (checked ? "Y" : "N") : value,
+            [name]: nextValue,
         }));
     };
     
@@ -363,10 +376,23 @@ const UserQuestionPage = ({ user }) => {
 
     //문의 수정
     const updateQuestion = async (q_idx) => {
+        const qTitle = String(editForm.q_title || "");
+        const qContent = String(editForm.q_content || "");
+
+        if (qTitle.length > QUESTION_TITLE_MAX) {
+            alert(`문의 제목은 ${QUESTION_TITLE_MAX}자 이하로 입력해주세요.`);
+            return;
+        }
+
+        if (qContent.length > QUESTION_CONTENT_MAX) {
+            alert(`문의 내용은 ${QUESTION_CONTENT_MAX}자 이하로 입력해주세요.`);
+            return;
+        }
+
         await questionService.updateQuestion({
             q_idx,
-            q_title: editForm.q_title,
-            q_content: editForm.q_content,
+            q_title: qTitle,
+            q_content: qContent,
             q_secret: editForm.q_secret,
         });
 
@@ -650,6 +676,8 @@ const UserQuestionPage = ({ user }) => {
                                     onChange={onEditChange}
                                     fullWidth
                                     size="small"
+                                    inputProps={{ maxLength: QUESTION_TITLE_MAX }}
+                                    helperText={`${editForm.q_title.length}/${QUESTION_TITLE_MAX}`}
                                 />
                             </div>
 
@@ -662,6 +690,8 @@ const UserQuestionPage = ({ user }) => {
                                     multiline
                                     rows={4}
                                     fullWidth
+                                    inputProps={{ maxLength: QUESTION_CONTENT_MAX  }}
+                                    helperText={`${editForm.q_content.length}/${QUESTION_CONTENT_MAX}`}
                                 />
                             </div>
 
@@ -723,8 +753,6 @@ const UserQuestionPage = ({ user }) => {
                                 
 
                         </div>
-
-                        <br/>
                                 
                                 <div className="user-question-add-image-form">
                                 <p>문의 이미지 추가</p>
@@ -818,31 +846,41 @@ const UserQuestionPage = ({ user }) => {
                     })()}
 
                     <div className="user-question-body">
-                        <div className="user-question-question-row">
-                            <h4>{item.q_title || "제목 없음"}</h4>
+                        <div className="user-question-summary">
+                <h4>{item.q_title || "제목 없음"}</h4>
 
-                            <div className="user-question-status-column">
-                                <div className="user-question-badge-slot">
-                                    {isAnswered(item) && (
-                                        <span className="user-question-answer-badge answered">
-                                            답변 완료
-                                        </span>
-                                    )}
-                                </div>
+                <div className="user-question-badge-slot">
+                    {isAnswered(item) && (
+                        <span className="user-question-answer-badge answered">
+                            답변 완료
+                        </span>
+                    )}
+                </div>
 
-                                <span className="user-question-date">
-                                    {formatDate(
-                                        item.q_createddate ||
-                                        item.q_createdDate ||
-                                        item.createdAt
-                                    )}
-                                </span>
-                            </div>
-                        </div>
+                <div className="user-question-content-wrap">
+                    <p className="user-question-content">
+                        {item.q_content || "내용 없음"}
+                    </p>
 
-                        <p className="user-question-content">
-                            {item.q_content || "내용 없음"}
-                        </p>
+                    {String(item.q_content || "").length > 120 && (
+                        <button
+                            type="button"
+                            className="user-question-more-btn"
+                            onClick={() => openQuestionImageViewer(item, 0)}
+                        >
+                            더보기
+                        </button>
+                    )}
+                </div>
+
+                <span className="user-question-date">
+                    {formatDate(
+                        item.q_createddate ||
+                        item.q_createdDate ||
+                        item.createdAt
+                    )}
+                </span>
+            </div>
 
                         <div className="user-question-images">
                             {(questionImages[item.q_idx] || []).length > 0 ? (

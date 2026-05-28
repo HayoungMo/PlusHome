@@ -20,7 +20,7 @@ import UserCouponPage from './UserCouponPage';
 import WalletChargeMui from '../components/WalletChargeMui';
 import InteriorMyPage from '../components/InteriorMyPage';
 import UserProfileCard from '../components/UserProfileCard';
-import { Snackbar } from "@mui/material";
+import { Snackbar, Tab, Tabs } from "@mui/material";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
 
@@ -43,7 +43,6 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         title: "",
         text: "",
     })
-    const [mode, setMode] = useState("view")
 
     const showAlert = ({ severity = "info", title = "", text = "" }) => {
         setAlert({
@@ -76,15 +75,9 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const isCompanyUser =
         user?.type === "company" || (user?.companyList || []).length > 0
 
-    const isAdminUser = user?.type === "admin";
-
     const goCompanyDashboard = () => {
         navigate("/CompanyDashboard")
     }
-
-    const goAdminDashboard = () => {
-        navigate("/DevDashboard");
-    };
 
     const [activeSection, setActiveSection] = useState(
         getSectionByMenu(queryMenu || "info")
@@ -106,7 +99,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
 
     }
 
-    const changeSection = (section) => {
+    const changeSection = (event, section) => {
         setActiveSection(section);
 
         const firstMenu = sectionMenus[section]?.[0]?.key;
@@ -146,6 +139,10 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         setActiveMenu(menu)
         navigate(`/userpage?menu=${menu}`)
     }
+
+    const changeSubMenu = (event, menu) => {
+        changeMenu(menu);
+    };  
 
     useEffect(()=>{
         const token = localStorage.getItem("token")
@@ -313,7 +310,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
         />
 
         <div className={`user-mypage ${activeSection !== "info" ? "wide" : ""}`}>
-        {activeSection === "info" && mode !== "edit" && (
+        {activeSection === "info" && (
             <aside className="user-mypage-menu">
             <UserProfileCard
             user={user}
@@ -325,52 +322,44 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             onChangeProfileImage={onChangeProfileImage}
             changeMenu={changeMenu}
             />
-            {(isCompanyUser || isAdminUser) && (
+            {(isCompanyUser && (
                 <div className="user-company-dashboard-menu">
                     <button 
                     type="button" 
-                    onClick={isAdminUser ? goAdminDashboard: goCompanyDashboard}>
+                    onClick={goCompanyDashboard}>
                     대시보드
                     </button>
                 </div>
-                )}
+                ))}
             </aside>
         )}
 
         <main className="user-mypage-main">
-        <div className="user-section-tabs">
-            <button
-            className={activeSection === "info" ? "active" : ""}
-            onClick={() => changeSection("info")}
-            >
-            프로필
-            </button>
-            <button
-            className={activeSection === "shopping" ? "active" : ""}
-            onClick={() => changeSection("shopping")}
-            >
-            쇼핑
-            </button>
-            <button
-            className={activeSection === "interior" ? "active" : ""}
-            onClick={() => changeSection("interior")}
-            >
-            인테리어
-            </button>
-        </div>
+        <Tabs
+            className="user-section-tabs"
+            value={activeSection}
+            onChange={changeSection}
+        >
+            <Tab label="프로필" value="info" />
+            <Tab label="쇼핑" value="shopping" />
+            <Tab label="인테리어" value="interior" />
+        
+        </Tabs>
 
             {sectionMenus[activeSection].length > 1 && (
-            <div className="user-sub-tabs">
+            <Tabs
+                className="user-sub-tabs"
+                value={activeMenu}
+                onChange={changeSubMenu}
+            >
                 {sectionMenus[activeSection].map((menu) => (
-                <button
-                    key={menu.key}
-                    className={activeMenu === menu.key ? "active" : ""}
-                    onClick={() => changeMenu(menu.key)}
-                >
-                    {menu.label}
-                </button>
+                    <Tab
+                        key={menu.key}
+                        label={menu.label}
+                        value={menu.key}
+                    />
                 ))}
-            </div>
+            </Tabs>
             )}
 
             <section
@@ -387,8 +376,6 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     onDeleteClick={() => changeMenu("delete")}
                     isCompanyUser={isCompanyUser}
                     goCompanyDashboard={goCompanyDashboard}
-                    mode={mode}
-                    setMode={setMode} 
                 />
                 )}
 
