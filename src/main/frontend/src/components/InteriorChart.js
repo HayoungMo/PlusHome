@@ -12,7 +12,7 @@ import {
   ArcElement,
 } from "chart.js";
 import InteriorService from "../service/interiorService";
-import { formatInteriorAnswerValue } from "../utils/interiorAnswerFormat";
+import { formatInteriorAnswerValue } from "../resources/function/interiorAnswerFormat";
 
 ChartJS.register(
   BarElement,

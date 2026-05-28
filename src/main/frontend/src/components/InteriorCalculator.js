@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { formatInteriorAnswerValue } from "../utils/interiorAnswerFormat";
+import { formatInteriorAnswerValue } from "../resources/function/interiorAnswerFormat";
 
 const InteriorCalculator = ({ answer }) => {
   const [estimate, setEstimate] = useState();

@@ -19,7 +19,7 @@ import LikeService from "../service/likeService";
 import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
-} from "../utils/interiorAnswerFormat";
+} from "../resources/function/interiorAnswerFormat";
 
 function InteriorArticle() {
 

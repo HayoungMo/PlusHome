@@ -2,6 +2,7 @@
   width: min(100%, 1120px);
   margin: 0 auto;
   padding: 40px 24px 56px;
+  background: #f7fbff;
   color: #2f3438;
   text-align: left;
   box-sizing: border-box;
@@ -17,6 +18,7 @@
 
 .event-form-page > .MuiTypography-body1 {
   color: #828c94;
+  line-height: 1.6;
 }
 
 .event-form-layout {
@@ -28,16 +30,22 @@
 
 .event-form-main {
   min-width: 0;
+  display: grid;
+  gap: 22px;
 }
 
 .event-form-section {
   padding: 18px;
-  border: 1px solid #eaedef;
+  border: 1px solid #e5eef7;
   border-radius: 8px;
   background: #ffffff;
+  box-shadow: 0 10px 24px rgba(38, 92, 135, 0.06);
 }
 
 .event-form-section > .MuiTypography-h6 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 16px;
   color: #2f3438;
   font-size: 18px;
@@ -45,16 +53,35 @@
   line-height: 1.35;
 }
 
+.event-form-section > .MuiTypography-h6::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #edf3f7;
+}
+
 .event-form-section .MuiInputBase-root {
   border-radius: 8px;
-  background: #ffffff;
+  background: #fbfdff;
+}
+
+.event-form-section textarea {
+  line-height: 1.6;
 }
 
 .event-form-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 14px;
-  border: 1px dashed #d8e0e6;
+  border: 1px dashed #b9daf0;
   border-radius: 8px;
-  background: #f7f9fa;
+  background: #f6fbff;
+}
+
+.event-form-upload-row .MuiFormControl-root {
+  min-width: 190px;
+  margin: 0;
 }
 
 .event-form-preview-grid {
@@ -66,9 +93,11 @@
 
 .event-form-preview-card {
   width: auto !important;
-  border: 1px solid #eaedef !important;
+  position: relative;
+  border: 1px solid #dfeaf3 !important;
   border-radius: 8px !important;
   background: #ffffff;
+  box-shadow: 0 8px 18px rgba(38, 92, 135, 0.06);
   overflow: hidden;
 }
 
@@ -80,8 +109,12 @@
 }
 
 .event-form-preview-card .MuiTypography-caption {
+  display: block;
+  min-height: 32px;
+  padding: 8px 10px;
   color: #2f3438;
   font-weight: 800;
+  background: #ffffff;
 }
 
 .event-form-existing-grid {
@@ -91,9 +124,11 @@
 }
 
 .event-form-existing-card {
-  border: 1px solid #eaedef !important;
+  position: relative;
+  border: 1px solid #dfeaf3 !important;
   border-radius: 8px !important;
   background: #ffffff;
+  box-shadow: 0 8px 18px rgba(38, 92, 135, 0.06);
   overflow: hidden;
 }
 
@@ -104,24 +139,39 @@
 }
 
 .event-form-existing-card .MuiTypography-caption {
+  min-width: 0;
   color: #2f3438;
   font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .event-form-side-panel {
   position: sticky;
   top: 24px;
   padding: 18px !important;
-  border: 1px solid #eaedef !important;
+  border: 1px solid #d8e8f5 !important;
   border-radius: 8px !important;
   background: #ffffff;
+  box-shadow: 0 14px 30px rgba(38, 92, 135, 0.08);
 }
 
 .event-form-side-panel > .MuiTypography-h6 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 14px;
   color: #2f3438;
   font-size: 18px;
   font-weight: 800;
+}
+
+.event-form-side-panel > .MuiTypography-h6::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #edf3f7;
 }
 
 .event-form-side-panel .MuiPaper-root {
@@ -133,23 +183,59 @@
   gap: 14px;
 }
 
+.event-form-side-controls .MuiFormControl-root {
+  width: 100%;
+  margin: 0;
+}
+
+.event-form-side-panel .MuiTypography-body1,
+.event-form-side-panel .MuiTypography-body2 {
+  line-height: 1.6;
+}
+
 .event-form-coupon-dialog form {
   display: grid;
   gap: 14px;
   padding-top: 4px;
 }
 
+.event-form-coupon-dialog {
+  background: #fbfdff;
+}
+
 .event-form-coupon-dialog .MuiFormControl-root {
   width: 100%;
+  margin: 0;
+}
+
+.event-form-coupon-dialog .MuiInputBase-root {
+  border-radius: 8px;
+  background: #ffffff;
 }
 
 .event-form-page .MuiDivider-root {
   border-color: transparent;
+  margin: 0;
 }
 
 .event-form-page .MuiButton-root {
   border-radius: 6px;
   font-weight: 800;
+}
+
+.event-form-page .MuiTableContainer-root,
+.event-form-section .MuiPaper-root {
+  border-radius: 8px;
+}
+
+.event-form-section .MuiTableHead-root .MuiTableCell-root {
+  background: #f0f8ff;
+  color: #235a7d;
+  font-weight: 900;
+}
+
+.event-form-section .MuiTableBody-root .MuiTableRow-root:hover {
+  background: #f8fcff;
 }
 
 @media (max-width: 900px) {
@@ -164,6 +250,10 @@
   .event-form-existing-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .event-form-upload-row {
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 560px) {
@@ -174,5 +264,14 @@
   .event-form-section,
   .event-form-side-panel {
     padding: 14px !important;
+  }
+
+  .event-form-upload-row {
+    display: grid;
+  }
+
+  .event-form-upload-row .MuiButton-root,
+  .event-form-side-panel .MuiButton-root {
+    width: 100%;
   }
 }

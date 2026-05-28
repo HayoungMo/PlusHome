@@ -14,7 +14,7 @@ import "../css/DashboardInterior.css";
 import {
 	formatInteriorAnswerLabel,
 	formatInteriorAnswerValue,
-} from "../utils/interiorAnswerFormat";
+} from "../resources/function/interiorAnswerFormat";
 
 dayjs.extend(isBetween);
 
