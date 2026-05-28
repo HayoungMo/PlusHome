@@ -40,14 +40,19 @@
   color: #00a1ff;
 }
 
-.interior-review-grid {
+.interior-all-review-page .interior-review-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 28px 18px;
+  align-items: start;
 }
 
-.interior-review-card {
+.interior-all-review-page .interior-review-card {
   appearance: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: block;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -57,13 +62,14 @@
   transition: transform 0.18s ease;
 }
 
-.interior-review-card:hover {
+.interior-all-review-page .interior-review-card:hover {
   transform: translateY(-2px);
 }
 
-.interior-review-card-thumb {
+.interior-all-review-page .interior-review-card-thumb {
   width: 100%;
   aspect-ratio: 1 / 0.72;
+  min-height: 0;
   background: #f7f9fa;
   border-radius: 8px;
   box-shadow: inset 0 0 0 1px #eaedef;
@@ -75,7 +81,7 @@
   overflow: hidden;
 }
 
-.interior-review-card-thumb img {
+.interior-all-review-page .interior-review-card-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -83,7 +89,7 @@
   transition: transform 0.22s ease, filter 0.22s ease;
 }
 
-.interior-review-card:hover .interior-review-card-thumb img {
+.interior-all-review-page .interior-review-card:hover .interior-review-card-thumb img {
   filter: brightness(0.97);
   transform: scale(1.025);
 }
@@ -213,11 +219,6 @@
 @media (max-width: 640px) {
   .interior-all-review-page {
     padding: 0 0 36px;
-  }
-
-  .interior-review-grid {
-    grid-template-columns: 1fr;
-    gap: 22px;
   }
 
   .all-review-dialog {

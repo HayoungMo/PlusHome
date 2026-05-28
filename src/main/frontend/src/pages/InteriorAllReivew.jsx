@@ -120,11 +120,6 @@ const InteriorAllReivew = () => {
 
   return (
     <div className="interior-all-review-page">
-      <h2 className="interior-all-review-title">리뷰 조회 결과</h2>
-      <Typography color="text.secondary" sx={{ mb: 2 }}>
-        총 {pageInfo.totalCount}개 리뷰
-      </Typography>
-
       {Object.values(groupedReviews).map((group) => (
         <div
           className="interior-review-group"

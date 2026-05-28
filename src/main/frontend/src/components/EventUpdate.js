@@ -19,6 +19,7 @@ import ImageService from "../service/imageService";
 import GetImgDir from "../resources/function/GetImgDir";
 import FloatingActionButtonMui from "./FloatingActionButtonMui";
 import "../css/EventForm.css";
+import CheckboxMui from "./CheckboxMui";
 
 const EventUpdate = () => {
   const navigate = useNavigate();
@@ -248,6 +249,10 @@ const EventUpdate = () => {
       title: "수정 성공",
       text: "이벤트가 수정되었습니다.",
     });
+
+    setTimeout(() => {
+      navigate("../event");
+    }, 1500);
   };
 
   return (
@@ -302,7 +307,10 @@ const EventUpdate = () => {
           alignItems: "start",
         }}
       >
-        <Box className="event-form-main" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box
+          className="event-form-main"
+          sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+        >
           <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               기본 정보
@@ -498,7 +506,10 @@ const EventUpdate = () => {
               </Button>
             </Box>
             {preview.length > 0 && (
-              <Box className="event-form-preview-grid" sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
+              <Box
+                className="event-form-preview-grid"
+                sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}
+              >
                 {preview.map((item, index) => (
                   <Box
                     className="event-form-preview-card"
@@ -551,6 +562,17 @@ const EventUpdate = () => {
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
             수정 작업
           </Typography>
+          <CheckboxMui
+            label="팝업 여부"
+            checked={form.e_popup === "Y"}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                e_popup: e.target.checked ? "Y" : "N",
+              }))
+            }
+            width="200px"
+          />
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             변경 내용을 확인한 뒤 저장하세요.
           </Typography>

@@ -204,10 +204,11 @@ const EventArticle = () => {
             alt={event?.e_title || "이벤트 이미지"}
             sx={{
               width: "100%",
-              maxHeight: 420,
-              objectFit: "cover",
+              height: "auto",
+              objectFit: "contain",
               borderRadius: 2,
               mb: 4,
+              display: "block",
             }}
           />
         ))}

@@ -128,6 +128,21 @@
   box-shadow: none;
 }
 
+.event-form-side-controls {
+  display: grid;
+  gap: 14px;
+}
+
+.event-form-coupon-dialog form {
+  display: grid;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.event-form-coupon-dialog .MuiFormControl-root {
+  width: 100%;
+}
+
 .event-form-page .MuiDivider-root {
   border-color: transparent;
 }

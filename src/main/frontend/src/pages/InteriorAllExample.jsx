@@ -178,12 +178,14 @@ const InteriorAllExample = () => {
           onReset={handleReset}
         />
       </div>
-
-      <h2 className="interior-all-example-title">예시 조회 결과</h2>
-      <Typography color="text.secondary" sx={{ mb: 2 }}>
-        총 {pageInfo.totalCount}개 예시
-      </Typography>
-
+      {(filterType || filterValue) &&
+        <>
+          <h2 className="interior-all-example-title">예시 조회 결과</h2>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            총 {pageInfo.totalCount}개 예시
+          </Typography>
+        </>
+      }
       {Object.values(groupedExamples).map((group) => (
         <div
           className="interior-example-group"
