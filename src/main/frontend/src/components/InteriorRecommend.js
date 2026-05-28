@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import InteriorService from "../service/interiorService";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
-<<<<<<< Updated upstream
 import SelectMui from "./SelectMui";
 import { Button, Chip, Stack } from "@mui/material";
 import TextFieldMui from "./TextFieldMui";
-=======
->>>>>>> Stashed changes
 import InteriorAnswerAi from "./InteriorAnswerAi";
 import "../css/InteriorRecommend.css";
 
@@ -16,7 +13,6 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [tags, setTags] = useState([]);
-<<<<<<< Updated upstream
   const [search, setSearch] = useState();
   const [filterType, setFilterType] = useState("");
   const [filterValue, setFilterValue] = useState("");
@@ -63,8 +59,6 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
       { value: "50", title: "50평 이상" },
     ],
   };
-=======
->>>>>>> Stashed changes
 
   //태그 표시용 함수 추가
   const getAnswerTitle = (key, value) => {
@@ -188,79 +182,8 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   };
 
   return (
-<<<<<<< Updated upstream
-    <div className="interior-list-section interior-recommend-section">
-      {/* 검색 toolbar를 챗봇일때 숨김 - 0528 모하영 */}
-      {fromChatbot ? (
-        <div style={{ marginBottom: "18px" }}>
-          <h3 style={{ margin: "0 0 8px" }}>선택한 조건과 가까운 업체</h3>
+    <div className="interior-list-section interior-recommend-section">    
 
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {selectedAnswerTags.map((tag) => (
-              <Chip
-                key={`${tag.key}-${tag.value}`}
-                label={tag.title}
-                size="small"
-                variant="outlined"
-                sx={{ mb: 1 }}
-              />
-            ))}
-          </Stack>
-
-          <p style={{ marginTop: "10px", color: "#666" }}>
-            완벽하게 일치하는 업체가 아니더라도, 선택한 조건과 가까운 업체를 우선으로 보여드릴게요.
-          </p>
-        </div>
-      ) : (
-      <div className="interior-list-toolbar">
-        <h3>결과</h3>
-        <TextFieldMui
-          name="search"
-          label="검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearchFilter();
-            }
-          }}
-        />
-        <Button onClick={() => handleSearchFilter()}>검색</Button>
-
-        <SelectMui
-          label="필터 종류"
-          name="filterType"
-          value={filterType}
-          onChange={(e) => {
-            setFilterType(e.target.value);
-            setFilterValue("");
-          }}
-          option={[
-            { value: "housingType", title: "주거 형태" },
-            { value: "areaSize", title: "면적" },
-            { value: "purpose", title: "목적" },
-            { value: "spaces", title: "공간" },
-            { value: "budget", title: "예산" },
-          ]}
-        />
-        {filterType && (
-          <SelectMui
-            label="값"
-            name="filterValue"
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            option={valueOptionMap[filterType] || []}
-          />
-        )}
-        <Button onClick={() => handleSearchFilter()}>필터 적용</Button>
-
-        <Button onClick={handleReset}>초기화</Button>
-      </div>
-      )}
-
-=======
-    <div className="interior-list-section interior-recommend-section">  
->>>>>>> Stashed changes
       <div className="interior-company-grid interior-recommend-grid">
         {/* 결과 없을때 메세지 보여줌 - 0528 모하영 */}
         {list.length === 0 ?(
