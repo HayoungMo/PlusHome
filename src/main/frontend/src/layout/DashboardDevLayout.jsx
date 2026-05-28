@@ -9,10 +9,11 @@ import SalesList from "../dashboardDev/SalesList";
 import CouponList from "../dashboardDev/CouponList";
 import CouponListDev from "../components/CouponListDev";
 import Coupon from "../pages/Coupon";
+import DevDashboardHeader from "./DevDashBoardHeader";
 
 const DashboardDevLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
-	const [activeMenu, setActiveMenu] = useState("userInfo");
+	const [activeMenu, setActiveMenu] = useState("home");
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
 
@@ -25,6 +26,9 @@ const DashboardDevLayout = () => {
 					<DashboardDevHome/>
 				),
 			},
+		
+
+		
             {
 				key: "userInfo",
 				label: "계정 정보",
@@ -32,6 +36,10 @@ const DashboardDevLayout = () => {
 					<UserInfo/>
 				),
 			},
+
+			],
+
+			shop:[
 			{
 				key:"salesList",
 				label:"판매량 통계",
@@ -80,7 +88,7 @@ const DashboardDevLayout = () => {
 
 	return (
 		<div className="company-layout">
-			<DashboardHeader activeTab={activeTab} setActiveTab={handleTabChange} />
+			<DevDashboardHeader activeTab={activeTab} setActiveTab={handleTabChange} />
 
 			<div className="company-body">
 				{currentMenus.length > 0 && (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import userService from '../service/userService';
 import TableMui from '../components/TableMui';
-import { Button } from '@mui/material';
+import { Box, Button, Tab, Tabs } from '@mui/material';
 import TableChkMui from '../components/TableChkMui';
 import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
@@ -12,6 +12,22 @@ const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
     const userData= JSON.parse(localUserData) 
     const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
+
+   const tabTitle = [
+
+    {
+        label:"일반 유저",
+        value:"user"
+    },
+
+    {
+        label:"기업 유저",
+        value:"company"
+    }
+
+]
+
+    const [tabValue,setTabValue] = useState("user")
 
    
 
@@ -482,10 +498,45 @@ const companyColumns = [
                 getUserList();
                 return
             }
-            const searchUserList = editedUserList.filter((data) => {
+            const searchUserList = userList.filter((data) => {
             // 데이터가 없거나 속성이 없는 경우를 대비해 안전하게 문자열로 변환
             const targetValue = data[searchKey]?.toString().toLowerCase() || "";
             const searchValue = searchText.trim().toLowerCase();
+
+            //쇼핑몰 검색
+            if(searchKey === 'shop'){
+
+                return (
+
+                    data.c_kind === 'shop'
+
+                    &&
+
+                    data.c_name
+                        ?.toLowerCase()
+                        .includes(searchValue)
+
+                )
+
+            }
+            //인테리어 검색
+            if(searchKey === 'interior'){
+
+                return(
+
+                    data.c_kind === 'interior'
+
+                    &&
+
+                    data.c_name
+                        ?.toLowerCase()
+                        .includes(searchValue)
+
+                )
+
+            }
+
+
 
             // 검색어가 포함되어 있으면 true 반환
             return targetValue.includes(searchValue);
@@ -511,27 +562,25 @@ const companyColumns = [
             setSelectedUserKeys((prevKeys) => prevKeys.filter((key) => currentKeys.includes(key)))
         },[editedUserList])
         
-        
+        const handleTabChange = (evt,newValue) =>{
+            setTabValue(newValue)
+            setUserType(newValue)
+        }
        
 
     return (
     <div>
 
         <div>
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+                <Tabs value={tabValue} onChange={handleTabChange}>
+                   
+                    <Tab label="일반 유저" value="user" />
+                    <Tab label="기업 유저" value="company" />
+                </Tabs>
+            </Box>
 
-            <Button
-                color='primary'
-                variant='contained'
-                onClick={() => setUserType("user")}>
-                user
-            </Button>
-
-            <Button
-                color='primary'
-                variant='contained'
-                onClick={() => setUserType("company")}>
-                company
-            </Button>
+            <h2>{tabTitle.filter((item) => item.value === tabValue)[0].label}</h2>            
 
         </div>
 
@@ -539,10 +588,19 @@ const companyColumns = [
             <SelectMui
             label='검색 조건'
             name='searchKey'
-            option={[
+            option={
+                userType === "user"
+                ? [
                 {title:'아이디',value:'id'},
                 {title:'이름',value:'name'},
-            ]}
+            ]
+            :[
+                {title:'아이디',value:'id'},
+                {title:'이름',value:'name'},
+                {title:'쇼핑몰',value:'shop'},
+                {title:'인테리어',value:'interior'},
+            ]
+        }
             onChange={onChangeSearchState}
             value={searchInfo.searchKey}
             />
@@ -665,6 +723,8 @@ const companyColumns = [
                     editableOnChange={tableMuiEditableOnChange}
                     setSelectedKeys={setSelectedUserKeys}
                     selectedKeys={selectedUserKeys}
+                    
+                    
                 />
 
             ) : (

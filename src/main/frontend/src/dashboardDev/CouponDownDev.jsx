@@ -5,7 +5,7 @@ import CouponService from "../service/couponService";
 
 const CouponDownDev = (data) => {
 
-    const {selectedUserKeys, selectedCouponKeys} = data
+    const {selectedUserKeys, selectedCouponKeys, setSelectedUserKeys,setSelectedCouponKeys} = data
     
 
   const { coupon_code } = useParams();
@@ -63,6 +63,9 @@ const CouponDownDev = (data) => {
         title:"지급 성공",
         text:"쿠폰이 지급되었습니다."
       })
+
+      setSelectedUserKeys([])
+      setSelectedCouponKeys([])
 
     }catch(error){
       console.log(error)
