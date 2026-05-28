@@ -163,7 +163,7 @@ const ShoppingMallReviewControl = () => {
 				: await FurnitureReviewService.insertReplyOnDashboard(
 						selectedReply,
 						selectedReview,
-				  );
+					);
 			if (result.success) {
 				setAlertInfo({
 					severity: "success",
@@ -245,7 +245,11 @@ const ShoppingMallReviewControl = () => {
 				</div>
 				<div className="shopping-mall-review-summary">
 					<Chip label={`리뷰 ${displayReviewList.length}건`} variant="outlined" />
-					<Chip label={`평균 ${totalReviewInfo.star}점`} color="primary" variant="outlined" />
+					<Chip
+						label={`평균 ${totalReviewInfo.star}점`}
+						color="primary"
+						variant="outlined"
+					/>
 					<Chip label={`구매 ${totalReviewInfo.qty}건`} variant="outlined" />
 				</div>
 			</div>
@@ -285,16 +289,27 @@ const ShoppingMallReviewControl = () => {
 				)}
 
 				<div className="shopping-mall-review-table">
-					<TableMui
-						rowData={displayReviewList}
-						col={["id", "fr_star", "fr_subject", "f_name", "c_id", "f_code"]}
-						columns={["작성자", "별점", "리뷰 제목", "상품명", "업체 ID", "상품 코드"]}
-						selectedRow={selectedReview}
-						setSelectedRow={setSelectedReview}
-						defaultRowPerPage={5}
-						resetPageKey={selectFurniture}
-						pagination
-					/>
+					{displayReviewList?.length > 0 ? (
+						<TableMui
+							rowData={displayReviewList}
+							col={["id", "fr_star", "fr_subject", "f_name", "c_id", "f_code"]}
+							columns={[
+								"작성자",
+								"별점",
+								"리뷰 제목",
+								"상품명",
+								"업체 ID",
+								"상품 코드",
+							]}
+							selectedRow={selectedReview}
+							setSelectedRow={setSelectedReview}
+							defaultRowPerPage={5}
+							resetPageKey={selectFurniture}
+							pagination
+						/>
+					) : (
+						<div>데이터 없음</div>
+					)}
 				</div>
 			</section>
 
@@ -305,7 +320,11 @@ const ShoppingMallReviewControl = () => {
 							<h4>선택한 리뷰</h4>
 							<p>고객 리뷰 내용을 확인하고 답글을 작성하세요.</p>
 						</div>
-						<Chip label={`${selectedReview.fr_star || 0}점`} color="primary" variant="outlined" />
+						<Chip
+							label={`${selectedReview.fr_star || 0}점`}
+							color="primary"
+							variant="outlined"
+						/>
 					</div>
 
 					<div className="shopping-mall-review-preview">
@@ -345,8 +364,7 @@ const ShoppingMallReviewControl = () => {
 							color="primary"
 							onClick={() => {
 								setConfirmOpen(!confirmOpen);
-							}}
-						>
+							}}>
 							{selectedReply.fr_idx !== 0 ? "답글 수정" : "답글 쓰기"}
 						</Button>
 					</div>

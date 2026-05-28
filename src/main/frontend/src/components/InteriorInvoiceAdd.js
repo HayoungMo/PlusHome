@@ -3,7 +3,6 @@ import InteriorService from "../service/interiorService";
 import CheckboxMui from "./CheckboxMui";
 import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
-import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
 import AlertMui from "./AlertMui";
 import TransferListMui from "./TransferListMui";
@@ -268,16 +267,22 @@ const InteriorInvoiceAdd = ({
 				<p>인테리어 견적 추가</p>
 
 				{setSelectedInvoice && (
-					<TableMuiCollapse
-						rowData={invoiceWithDetails}
-						hiddenColumns={["detail", "details"]}
-						collapseKey="detail"
-						collapseTitle="견적 상세 내역"
-						collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
-						selectedRow={selectedInvoice}
-						setSelectedRow={setSelectedInvoice}
-						buttonData={buttonData}
-					/>
+					invoiceWithDetails.length > 0 ? (
+						<TableMuiCollapse
+							rowData={invoiceWithDetails}
+							hiddenColumns={["detail", "details"]}
+							collapseKey="detail"
+							collapseTitle="견적 상세 내역"
+							collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
+							selectedRow={selectedInvoice}
+							setSelectedRow={setSelectedInvoice}
+							buttonData={buttonData}
+						/>
+					) : (
+						<div className="interior-booking-guide">
+							등록된 견적서 데이터가 없습니다.
+						</div>
+					)
 				)}
 
 				{(booking?.b_status === "pending" || booking?.b_status === "quoting") && (

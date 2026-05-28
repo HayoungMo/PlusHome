@@ -1,0 +1,1170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.home.mapper.DashboardMapper">
+
+	<sql id="dashboardCompanyFilter">
+		<if test="c_id != null and c_id != ''">
+			AND f.C_ID = #{c_id}
+		</if>
+
+		<if test="c_kind != null and c_kind != ''">
+			AND f.C_KIND = #{c_kind}
+		</if>
+
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND f.C_NAME = #{c_name}
+		</if>
+	</sql>
+
+	<sql id="dashboardCategoryColumn">
+		<choose>
+			<when test="categoryLevel == 2 or categoryLevel == '2'">f.F_CATAGORY2</when>
+			<when test="categoryLevel == 3 or categoryLevel == '3'">f.F_CATAGORY3</when>
+			<when test="categoryLevel == 4 or categoryLevel == '4'">f.F_CATAGORY4</when>
+			<when test="categoryLevel == 5 or categoryLevel == '5'">f.F_CATAGORY5</when>
+			<otherwise>f.F_CATAGORY1</otherwise>
+		</choose>
+	</sql>
+
+	<sql id="dashboardPayDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND c.CART_PAYDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND c.CART_PAYDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND c.CART_PAYDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND c.CART_PAYDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND c.CART_PAYDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND c.CART_PAYDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND c.CART_PAYDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND c.CART_PAYDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND c.CART_PAYDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND c.CART_PAYDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardCartCreatedDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND c.CART_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND c.CART_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND c.CART_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND c.CART_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND c.CART_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND c.CART_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND c.CART_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND c.CART_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND c.CART_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND c.CART_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardStatusDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND c.CART_STATUSDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND c.CART_STATUSDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND c.CART_STATUSDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND c.CART_STATUSDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND c.CART_STATUSDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND c.CART_STATUSDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND c.CART_STATUSDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND c.CART_STATUSDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND c.CART_STATUSDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND c.CART_STATUSDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardQuestionDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND q.Q_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND q.Q_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND q.Q_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND q.Q_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND q.Q_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND q.Q_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND q.Q_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND q.Q_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND q.Q_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND q.Q_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardReviewDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND r.FR_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND r.FR_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND r.FR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND r.FR_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND r.FR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND r.FR_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND r.FR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND r.FR_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND r.FR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND r.FR_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardFurnitureCreatedDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND f.F_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND f.F_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND f.F_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND f.F_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND f.F_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND f.F_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND f.F_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND f.F_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND f.F_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND f.F_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardClaimDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="dashboardOrderFilter">
+		c.F_STATUS = 'Y'
+		AND NVL(c.F_DSTATUS, 0) != -1
+
+		<include refid="dashboardCompanyFilter" />
+		<include refid="dashboardPayDateFilter" />
+	</sql>
+
+	<select id="getOrderAgeGenderStats" parameterType="map" resultType="map">
+		WITH ORDER_AGE_BASE AS (
+			SELECT
+				u.GENDER,
+				TRUNC(MONTHS_BETWEEN(SYSDATE, u.BIRTH) / 12) AS AGE
+			FROM CART c
+				JOIN USERS u
+					ON c.ID = u.ID
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardOrderFilter" />
+			</where>
+		)
+		SELECT
+			COUNT(CASE WHEN GENDER = 'male' THEN 1 END)       AS "male",
+			COUNT(CASE WHEN GENDER = 'female' THEN 1 END)     AS "female",
+			COUNT(CASE WHEN AGE BETWEEN 10 AND 19 THEN 1 END) AS "age10",
+			COUNT(CASE WHEN AGE BETWEEN 20 AND 29 THEN 1 END) AS "age20",
+			COUNT(CASE WHEN AGE BETWEEN 30 AND 39 THEN 1 END) AS "age30",
+			COUNT(CASE WHEN AGE BETWEEN 40 AND 49 THEN 1 END) AS "age40",
+			COUNT(CASE WHEN AGE BETWEEN 50 AND 59 THEN 1 END) AS "age50",
+			COUNT(CASE WHEN AGE <![CDATA[>=]]> 60 THEN 1 END) AS "ageOver60",
+			COUNT(*)                                          AS "totalOrder"
+		FROM ORDER_AGE_BASE
+	</select>
+
+	<select id="getBuyerAgeGenderStats" parameterType="map" resultType="map">
+		WITH BUYER_BASE AS (
+			SELECT DISTINCT
+				u.ID,
+				u.GENDER,
+				u.BIRTH
+			FROM CART c
+				JOIN USERS u
+					ON c.ID = u.ID
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardOrderFilter" />
+			</where>
+		),
+		AGE_BASE AS (
+			SELECT
+				ID,
+				GENDER,
+				TRUNC(MONTHS_BETWEEN(SYSDATE, BIRTH) / 12) AS AGE
+			FROM BUYER_BASE
+		)
+		SELECT
+			COUNT(CASE WHEN GENDER = 'male' THEN 1 END)       AS "male",
+			COUNT(CASE WHEN GENDER = 'female' THEN 1 END)     AS "female",
+			COUNT(CASE WHEN AGE BETWEEN 10 AND 19 THEN 1 END) AS "age10",
+			COUNT(CASE WHEN AGE BETWEEN 20 AND 29 THEN 1 END) AS "age20",
+			COUNT(CASE WHEN AGE BETWEEN 30 AND 39 THEN 1 END) AS "age30",
+			COUNT(CASE WHEN AGE BETWEEN 40 AND 49 THEN 1 END) AS "age40",
+			COUNT(CASE WHEN AGE BETWEEN 50 AND 59 THEN 1 END) AS "age50",
+			COUNT(CASE WHEN AGE <![CDATA[>=]]> 60 THEN 1 END) AS "ageOver60",
+			COUNT(*)                                          AS "totalBuyer"
+		FROM AGE_BASE
+	</select>
+
+	<select id="getStatusHourlyStats" parameterType="map" resultType="map">
+		WITH HOURS AS (
+			SELECT LPAD(LEVEL - 1, 2, '0') AS HOUR
+			FROM DUAL
+			CONNECT BY LEVEL <![CDATA[<=]]> 24
+		),
+		STATUS_STATS AS (
+			SELECT
+				TO_CHAR(c.CART_STATUSDATE, 'HH24') AS HOUR,
+				COUNT(*) AS STATUS_COUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND c.CART_STATUSDATE IS NOT NULL
+				<choose>
+					<when test="f_dstatus != null">
+						AND c.F_DSTATUS = #{f_dstatus}
+					</when>
+					<when test="F_DSTATUS != null">
+						AND c.F_DSTATUS = #{F_DSTATUS}
+					</when>
+					<otherwise>
+						AND c.F_DSTATUS = 5
+					</otherwise>
+				</choose>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardStatusDateFilter" />
+			</where>
+			GROUP BY TO_CHAR(c.CART_STATUSDATE, 'HH24')
+		)
+		SELECT
+			h.HOUR AS "hour",
+			NVL(s.STATUS_COUNT, 0) AS "statusCount"
+		FROM HOURS h
+			LEFT JOIN STATUS_STATS s
+				ON h.HOUR = s.HOUR
+		ORDER BY h.HOUR
+	</select>
+
+	<select id="getCartHourlyStats" parameterType="map" resultType="map">
+		WITH HOURS AS (
+			SELECT LPAD(LEVEL - 1, 2, '0') AS HOUR
+			FROM DUAL
+			CONNECT BY LEVEL <![CDATA[<=]]> 24
+		),
+		CART_STATS AS (
+			SELECT
+				TO_CHAR(c.CART_CREATEDDATE, 'HH24') AS HOUR,
+				COUNT(*) AS CART_COUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.CART_CREATEDDATE IS NOT NULL
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardCartCreatedDateFilter" />
+			</where>
+			GROUP BY TO_CHAR(c.CART_CREATEDDATE, 'HH24')
+		)
+		SELECT
+			h.HOUR AS "hour",
+			NVL(s.CART_COUNT, 0) AS "cartCount"
+		FROM HOURS h
+			LEFT JOIN CART_STATS s
+				ON h.HOUR = s.HOUR
+		ORDER BY h.HOUR
+	</select>
+
+	<select id="getOrderElapsedTimeStats" parameterType="map" resultType="map">
+		WITH PAY_TO_CONFIRM AS (
+			SELECT
+				COUNT(*) AS TARGET_COUNT,
+				ROUND(AVG(c.CART_STATUSDATE - c.CART_PAYDATE), 2) AS AVG_DAYS,
+				ROUND(AVG((c.CART_STATUSDATE - c.CART_PAYDATE) * 24), 2) AS AVG_HOURS,
+				ROUND(AVG((c.CART_STATUSDATE - c.CART_PAYDATE) * 24 * 60), 2) AS AVG_MINUTES
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND c.F_DSTATUS = 5
+				AND c.CART_PAYDATE IS NOT NULL
+				AND c.CART_STATUSDATE IS NOT NULL
+				AND c.CART_STATUSDATE <![CDATA[>=]]> c.CART_PAYDATE
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardStatusDateFilter" />
+			</where>
+		),
+		CART_TO_PAY AS (
+			SELECT
+				COUNT(*) AS TARGET_COUNT,
+				ROUND(AVG(c.CART_PAYDATE - c.CART_CREATEDDATE), 2) AS AVG_DAYS,
+				ROUND(AVG((c.CART_PAYDATE - c.CART_CREATEDDATE) * 24), 2) AS AVG_HOURS,
+				ROUND(AVG((c.CART_PAYDATE - c.CART_CREATEDDATE) * 24 * 60), 2) AS AVG_MINUTES
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND c.CART_CREATEDDATE IS NOT NULL
+				AND c.CART_PAYDATE IS NOT NULL
+				AND c.CART_PAYDATE <![CDATA[>=]]> c.CART_CREATEDDATE
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+		)
+		SELECT
+			NVL(ptc.TARGET_COUNT, 0) AS "payToConfirmTargetCount",
+			NVL(ptc.AVG_DAYS, 0) AS "avgPayToConfirmDays",
+			NVL(ptc.AVG_HOURS, 0) AS "avgPayToConfirmHours",
+			NVL(ptc.AVG_MINUTES, 0) AS "avgPayToConfirmMinutes",
+			NVL(ctp.TARGET_COUNT, 0) AS "cartToPayTargetCount",
+			NVL(ctp.AVG_DAYS, 0) AS "avgCartToPayDays",
+			NVL(ctp.AVG_HOURS, 0) AS "avgCartToPayHours",
+			NVL(ctp.AVG_MINUTES, 0) AS "avgCartToPayMinutes"
+		FROM PAY_TO_CONFIRM ptc
+			CROSS JOIN CART_TO_PAY ctp
+	</select>
+
+	<select id="getProductOverviewStats" parameterType="map" resultType="map">
+		SELECT
+			COUNT(*) AS "totalProductCount",
+			COUNT(CASE WHEN f.F_COUNT <![CDATA[<=]]> 0 THEN 1 END) AS "soldOutCount",
+			COUNT(CASE WHEN f.F_COUNT > 0 AND f.F_COUNT <![CDATA[<=]]> 5 THEN 1 END) AS "lowStockCount",
+			COUNT(CASE WHEN f.F_COUNT > 0 THEN 1 END) AS "inStockCount",
+			NVL(ROUND(AVG(f.F_PRICE), 0), 0) AS "avgPrice",
+			NVL(MIN(f.F_PRICE), 0) AS "minPrice",
+			NVL(MAX(f.F_PRICE), 0) AS "maxPrice",
+			NVL(ROUND(AVG(NVL(f.F_DISCOUNT, 0)), 2), 0) AS "avgDiscount",
+			NVL(SUM(NVL(f.F_COUNT, 0)), 0) AS "totalStockCount",
+			NVL(SUM(NVL(f.F_VIEWCOUNT, 0)), 0) AS "totalViewCount"
+		FROM FURNITURE f
+		<where>
+			<include refid="dashboardCompanyFilter" />
+			<include refid="dashboardFurnitureCreatedDateFilter" />
+		</where>
+	</select>
+
+	<select id="getProductSalesStats" parameterType="map" resultType="map">
+		WITH CART_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(*) AS CART_COUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.CART_CREATEDDATE IS NOT NULL
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardCartCreatedDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		),
+		ORDER_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(CASE WHEN c.F_STATUS = 'Y' THEN 1 END) AS PAY_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 5 THEN 1 END) AS CONFIRM_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = -1 THEN 1 END) AS CANCEL_COUNT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.F_COUNT, 0) ELSE 0 END) AS SALE_QTY,
+				ROUND(AVG(CASE WHEN c.F_STATUS = 'Y' THEN c.F_COUNT END), 2) AS AVG_ORDER_QTY
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			f.F_PRICE AS "fPrice",
+			f.F_COUNT AS "stockCount",
+			NVL(cs.CART_COUNT, 0) AS "cartCount",
+			NVL(os.PAY_COUNT, 0) AS "payCount",
+			NVL(os.CONFIRM_COUNT, 0) AS "confirmCount",
+			NVL(os.CANCEL_COUNT, 0) AS "cancelCount",
+			NVL(os.SALE_QTY, 0) AS "saleQty",
+			NVL(os.AVG_ORDER_QTY, 0) AS "avgOrderQty"
+		FROM FURNITURE f
+			LEFT JOIN CART_SUMMARY cs
+				ON f.F_CODE = cs.F_CODE
+			LEFT JOIN ORDER_SUMMARY os
+				ON f.F_CODE = os.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "saleQty" DESC, "payCount" DESC
+	</select>
+
+	<select id="getProductRevenueStats" parameterType="map" resultType="map">
+		WITH SALES_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(CASE WHEN c.F_STATUS = 'Y' THEN 1 END) AS PAY_COUNT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.F_COUNT, 0) ELSE 0 END) AS SALE_QTY,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.PAY_TOTAL, 0) ELSE 0 END) AS TOTAL_PAY_AMOUNT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.F_PRICE, 0) ELSE 0 END) AS TOTAL_PRODUCT_AMOUNT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.USE_POINT, 0) ELSE 0 END) AS TOTAL_USE_POINT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.SAVE_POINT, 0) ELSE 0 END) AS TOTAL_SAVE_POINT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.COUPON_DISCOUNT, 0) ELSE 0 END) AS TOTAL_COUPON_DISCOUNT,
+				ROUND(AVG(CASE WHEN c.F_STATUS = 'Y' THEN c.PAY_TOTAL END), 0) AS AVG_PAY_AMOUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			NVL(ss.PAY_COUNT, 0) AS "payCount",
+			NVL(ss.SALE_QTY, 0) AS "saleQty",
+			NVL(ss.TOTAL_PAY_AMOUNT, 0) AS "totalPayAmount",
+			NVL(ss.TOTAL_PRODUCT_AMOUNT, 0) AS "totalProductAmount",
+			NVL(ss.TOTAL_USE_POINT, 0) AS "totalUsePoint",
+			NVL(ss.TOTAL_SAVE_POINT, 0) AS "totalSavePoint",
+			NVL(ss.TOTAL_COUPON_DISCOUNT, 0) AS "totalCouponDiscount",
+			NVL(ss.AVG_PAY_AMOUNT, 0) AS "avgPayAmount"
+		FROM FURNITURE f
+			LEFT JOIN SALES_SUMMARY ss
+				ON f.F_CODE = ss.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "totalPayAmount" DESC
+	</select>
+
+	<select id="getProductEngagementConversionStats" parameterType="map" resultType="map">
+		WITH CART_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(*) AS CART_COUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.CART_CREATEDDATE IS NOT NULL
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardCartCreatedDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		),
+		PAY_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(*) AS PAY_COUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		),
+		LIKE_SUMMARY AS (
+			SELECT
+				l.LIKE_CODE AS F_CODE,
+				COUNT(*) AS LIKE_COUNT
+			FROM "LIKE" l
+			WHERE l.LIKE_TAG = 'furniture'
+			GROUP BY l.LIKE_CODE
+		),
+		QUESTION_SUMMARY AS (
+			SELECT
+				q.F_CODE,
+				COUNT(*) AS QUESTION_COUNT
+			FROM QUESTION q
+				JOIN FURNITURE f
+					ON q.F_CODE = f.F_CODE
+			<where>
+				q.F_CODE IS NOT NULL
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardQuestionDateFilter" />
+			</where>
+			GROUP BY q.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			NVL(f.F_VIEWCOUNT, 0) AS "viewCount",
+			NVL(ls.LIKE_COUNT, 0) AS "likeCount",
+			NVL(qs.QUESTION_COUNT, 0) AS "questionCount",
+			NVL(cs.CART_COUNT, 0) AS "cartCount",
+			NVL(ps.PAY_COUNT, 0) AS "payCount",
+			CASE
+				WHEN NVL(f.F_VIEWCOUNT, 0) = 0 THEN 0
+				ELSE ROUND(NVL(cs.CART_COUNT, 0) / f.F_VIEWCOUNT * 100, 2)
+			END AS "cartConversionRate",
+			CASE
+				WHEN NVL(f.F_VIEWCOUNT, 0) = 0 THEN 0
+				ELSE ROUND(NVL(ps.PAY_COUNT, 0) / f.F_VIEWCOUNT * 100, 2)
+			END AS "payConversionRate",
+			CASE
+				WHEN NVL(ls.LIKE_COUNT, 0) = 0 THEN 0
+				ELSE ROUND(NVL(ps.PAY_COUNT, 0) / ls.LIKE_COUNT * 100, 2)
+			END AS "likeToPayRate"
+		FROM FURNITURE f
+			LEFT JOIN CART_SUMMARY cs
+				ON f.F_CODE = cs.F_CODE
+			LEFT JOIN PAY_SUMMARY ps
+				ON f.F_CODE = ps.F_CODE
+			LEFT JOIN LIKE_SUMMARY ls
+				ON f.F_CODE = ls.F_CODE
+			LEFT JOIN QUESTION_SUMMARY qs
+				ON f.F_CODE = qs.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "payConversionRate" DESC
+	</select>
+
+	<select id="getProductReviewStats" parameterType="map" resultType="map">
+		WITH REVIEW_SUMMARY AS (
+			SELECT
+				r.F_CODE,
+				COUNT(*) AS REVIEW_COUNT,
+				ROUND(AVG(TO_NUMBER(r.FR_STAR)), 2) AS AVG_STAR,
+				MAX(TO_NUMBER(r.FR_STAR)) AS MAX_STAR,
+				MIN(TO_NUMBER(r.FR_STAR)) AS MIN_STAR
+			FROM F_REVIEW r
+				JOIN FURNITURE f
+					ON r.F_CODE = f.F_CODE
+			<where>
+				r.FR_IDX > 0
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardReviewDateFilter" />
+			</where>
+			GROUP BY r.F_CODE
+		),
+		BUY_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(*) AS CONFIRM_COUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_DSTATUS = 5
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardStatusDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			NVL(rs.REVIEW_COUNT, 0) AS "reviewCount",
+			NVL(rs.AVG_STAR, 0) AS "avgStar",
+			NVL(rs.MAX_STAR, 0) AS "maxStar",
+			NVL(rs.MIN_STAR, 0) AS "minStar",
+			NVL(bs.CONFIRM_COUNT, 0) AS "confirmCount",
+			CASE
+				WHEN NVL(bs.CONFIRM_COUNT, 0) = 0 THEN 0
+				ELSE ROUND(NVL(rs.REVIEW_COUNT, 0) / bs.CONFIRM_COUNT * 100, 2)
+			END AS "reviewWriteRate"
+		FROM FURNITURE f
+			LEFT JOIN REVIEW_SUMMARY rs
+				ON f.F_CODE = rs.F_CODE
+			LEFT JOIN BUY_SUMMARY bs
+				ON f.F_CODE = bs.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "avgStar" DESC, "reviewCount" DESC
+	</select>
+
+	<select id="getProductQuestionStats" parameterType="map" resultType="map">
+		WITH QUESTION_SUMMARY AS (
+			SELECT
+				q.F_CODE,
+				COUNT(*) AS QUESTION_COUNT,
+				COUNT(CASE WHEN q.Q_STATUS = 'done' THEN 1 END) AS DONE_COUNT,
+				COUNT(CASE WHEN q.Q_STATUS IN ('received', 'answering') THEN 1 END) AS NOT_DONE_COUNT,
+				ROUND(AVG(CASE
+					WHEN q.Q_ANSWERDATE IS NOT NULL
+						AND q.Q_CREATEDDATE IS NOT NULL
+						AND q.Q_ANSWERDATE <![CDATA[>=]]> q.Q_CREATEDDATE
+					THEN (q.Q_ANSWERDATE - q.Q_CREATEDDATE) * 24
+				END), 2) AS AVG_ANSWER_HOURS
+			FROM QUESTION q
+				JOIN FURNITURE f
+					ON q.F_CODE = f.F_CODE
+			<where>
+				q.F_CODE IS NOT NULL
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardQuestionDateFilter" />
+			</where>
+			GROUP BY q.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			NVL(qs.QUESTION_COUNT, 0) AS "questionCount",
+			NVL(qs.DONE_COUNT, 0) AS "doneCount",
+			NVL(qs.NOT_DONE_COUNT, 0) AS "notDoneCount",
+			NVL(qs.AVG_ANSWER_HOURS, 0) AS "avgAnswerHours",
+			CASE
+				WHEN NVL(qs.QUESTION_COUNT, 0) = 0 THEN 0
+				ELSE ROUND(qs.DONE_COUNT / qs.QUESTION_COUNT * 100, 2)
+			END AS "answerRate"
+		FROM FURNITURE f
+			LEFT JOIN QUESTION_SUMMARY qs
+				ON f.F_CODE = qs.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "questionCount" DESC
+	</select>
+
+	<select id="getProductOptionStats" parameterType="map" resultType="map">
+		WITH OPTION_BASE AS (
+			SELECT
+				o.F_CODE,
+				COUNT(*) AS OPTION_COUNT,
+				COUNT(CASE WHEN o.O_IMPORTANT = 'Y' THEN 1 END) AS IMPORTANT_OPTION_COUNT,
+				SUM(NVL(o.O_COUNT, 0)) AS OPTION_STOCK_COUNT,
+				ROUND(AVG(NVL(o.O_PRICE, 0)), 0) AS AVG_OPTION_PRICE
+			FROM OPTIONS o
+				JOIN FURNITURE f
+					ON o.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+			</where>
+			GROUP BY o.F_CODE
+		),
+		OPTION_SALE AS (
+			SELECT
+				co.F_CODE,
+				COUNT(*) AS OPTION_SELECT_COUNT,
+				SUM(NVL(co.CO_COUNT, 0)) AS OPTION_SALE_QTY,
+				SUM(NVL(co.CO_PRICE, 0) * NVL(co.CO_COUNT, 0)) AS OPTION_EXTRA_AMOUNT
+			FROM CART_OPTION co
+				JOIN CART c
+					ON co.C_CODE = c.C_CODE
+				JOIN FURNITURE f
+					ON co.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY co.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			NVL(ob.OPTION_COUNT, 0) AS "optionCount",
+			NVL(ob.IMPORTANT_OPTION_COUNT, 0) AS "importantOptionCount",
+			NVL(ob.OPTION_STOCK_COUNT, 0) AS "optionStockCount",
+			NVL(ob.AVG_OPTION_PRICE, 0) AS "avgOptionPrice",
+			NVL(os.OPTION_SELECT_COUNT, 0) AS "optionSelectCount",
+			NVL(os.OPTION_SALE_QTY, 0) AS "optionSaleQty",
+			NVL(os.OPTION_EXTRA_AMOUNT, 0) AS "optionExtraAmount"
+		FROM FURNITURE f
+			LEFT JOIN OPTION_BASE ob
+				ON f.F_CODE = ob.F_CODE
+			LEFT JOIN OPTION_SALE os
+				ON f.F_CODE = os.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "optionSelectCount" DESC
+	</select>
+
+	<select id="getProductDeliveryClaimStats" parameterType="map" resultType="map">
+		WITH DELIVERY_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(CASE WHEN c.F_STATUS = 'Y' THEN 1 END) AS PAY_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = -1 THEN 1 END) AS CANCEL_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 0 THEN 1 END) AS ORDER_RECEIVED_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 1 THEN 1 END) AS WAIT_SHIPMENT_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 2 THEN 1 END) AS SHIPPED_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 3 THEN 1 END) AS IN_DELIVERY_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 4 THEN 1 END) AS DELIVERED_COUNT,
+				COUNT(CASE WHEN c.F_DSTATUS = 5 THEN 1 END) AS CONFIRM_COUNT,
+				ROUND(AVG(CASE
+					WHEN c.F_STATUS = 'Y'
+						AND c.F_DSTATUS = 5
+						AND c.CART_PAYDATE IS NOT NULL
+						AND c.CART_STATUSDATE IS NOT NULL
+						AND c.CART_STATUSDATE <![CDATA[>=]]> c.CART_PAYDATE
+					THEN (c.CART_STATUSDATE - c.CART_PAYDATE) * 24
+				END), 2) AS AVG_CONFIRM_HOURS
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		),
+		CLAIM_SUMMARY AS (
+			SELECT
+				oc.F_CODE,
+				COUNT(*) AS CLAIM_COUNT
+			FROM ORDER_CLAIM oc
+				JOIN FURNITURE f
+					ON oc.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardClaimDateFilter" />
+			</where>
+			GROUP BY oc.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			NVL(ds.PAY_COUNT, 0) AS "payCount",
+			NVL(ds.CANCEL_COUNT, 0) AS "cancelCount",
+			NVL(ds.ORDER_RECEIVED_COUNT, 0) AS "orderReceivedCount",
+			NVL(ds.WAIT_SHIPMENT_COUNT, 0) AS "waitShipmentCount",
+			NVL(ds.SHIPPED_COUNT, 0) AS "shippedCount",
+			NVL(ds.IN_DELIVERY_COUNT, 0) AS "inDeliveryCount",
+			NVL(ds.DELIVERED_COUNT, 0) AS "deliveredCount",
+			NVL(ds.CONFIRM_COUNT, 0) AS "confirmCount",
+			NVL(ds.AVG_CONFIRM_HOURS, 0) AS "avgConfirmHours",
+			NVL(cs.CLAIM_COUNT, 0) AS "claimCount",
+			CASE
+				WHEN NVL(ds.PAY_COUNT, 0) = 0 THEN 0
+				ELSE ROUND(NVL(cs.CLAIM_COUNT, 0) / ds.PAY_COUNT * 100, 2)
+			END AS "claimRate"
+		FROM FURNITURE f
+			LEFT JOIN DELIVERY_SUMMARY ds
+				ON f.F_CODE = ds.F_CODE
+			LEFT JOIN CLAIM_SUMMARY cs
+				ON f.F_CODE = cs.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "claimCount" DESC, "cancelCount" DESC
+	</select>
+
+	<select id="getCategoryProductStats" parameterType="map" resultType="map">
+		WITH SALES_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(CASE WHEN c.F_STATUS = 'Y' THEN 1 END) AS PAY_COUNT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.F_COUNT, 0) ELSE 0 END) AS SALE_QTY,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.PAY_TOTAL, 0) ELSE 0 END) AS TOTAL_PAY_AMOUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		),
+		REVIEW_SUMMARY AS (
+			SELECT
+				r.F_CODE,
+				COUNT(*) AS REVIEW_COUNT,
+				ROUND(AVG(TO_NUMBER(r.FR_STAR)), 2) AS AVG_STAR
+			FROM F_REVIEW r
+				JOIN FURNITURE f
+					ON r.F_CODE = f.F_CODE
+			<where>
+				r.FR_IDX > 0
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardReviewDateFilter" />
+			</where>
+			GROUP BY r.F_CODE
+		)
+		SELECT
+			NVL(<include refid="dashboardCategoryColumn" />, 'uncategorized') AS "categoryName",
+			COUNT(*) AS "productCount",
+			NVL(SUM(NVL(f.F_COUNT, 0)), 0) AS "stockCount",
+			NVL(SUM(NVL(ss.PAY_COUNT, 0)), 0) AS "payCount",
+			NVL(SUM(NVL(ss.SALE_QTY, 0)), 0) AS "saleQty",
+			NVL(SUM(NVL(ss.TOTAL_PAY_AMOUNT, 0)), 0) AS "totalPayAmount",
+			NVL(SUM(NVL(f.F_VIEWCOUNT, 0)), 0) AS "viewCount",
+			NVL(SUM(NVL(rs.REVIEW_COUNT, 0)), 0) AS "reviewCount",
+			NVL(ROUND(AVG(rs.AVG_STAR), 2), 0) AS "avgStar"
+		FROM FURNITURE f
+			LEFT JOIN SALES_SUMMARY ss
+				ON f.F_CODE = ss.F_CODE
+			LEFT JOIN REVIEW_SUMMARY rs
+				ON f.F_CODE = rs.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		GROUP BY NVL(<include refid="dashboardCategoryColumn" />, 'uncategorized')
+		ORDER BY "totalPayAmount" DESC, "saleQty" DESC
+	</select>
+
+	<select id="getProductDisplayStats" parameterType="map" resultType="map">
+		WITH HIDE_BASE AS (
+			SELECT
+				fh.F_CODE,
+				MIN(fh.FH_CREATEDDATE) AS HIDE_DATE
+			FROM FURNITUREHIDE fh
+			GROUP BY fh.F_CODE
+		),
+		SALES_SUMMARY AS (
+			SELECT
+				c.F_CODE,
+				COUNT(CASE WHEN c.F_STATUS = 'Y' THEN 1 END) AS PAY_COUNT,
+				SUM(CASE WHEN c.F_STATUS = 'Y' THEN NVL(c.PAY_TOTAL, 0) ELSE 0 END) AS TOTAL_PAY_AMOUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY c.F_CODE
+		)
+		SELECT
+			f.F_CODE AS "fCode",
+			f.F_NAME AS "fName",
+			f.F_PRICE AS "fPrice",
+			f.F_COUNT AS "stockCount",
+			CASE
+				WHEN hb.F_CODE IS NULL THEN 'visible'
+				ELSE 'hidden'
+			END AS "displayStatus",
+			hb.HIDE_DATE AS "hideDate",
+			NVL(ss.PAY_COUNT, 0) AS "payCount",
+			NVL(ss.TOTAL_PAY_AMOUNT, 0) AS "totalPayAmount"
+		FROM FURNITURE f
+			LEFT JOIN HIDE_BASE hb
+				ON f.F_CODE = hb.F_CODE
+			LEFT JOIN SALES_SUMMARY ss
+				ON f.F_CODE = ss.F_CODE
+		<where>
+			<include refid="dashboardCompanyFilter" />
+		</where>
+		ORDER BY "displayStatus", f.F_CREATEDDATE DESC
+	</select>
+
+	<select id="getBenefitUsageStats" parameterType="map" resultType="map">
+		WITH PAID_CART AS (
+			SELECT
+				c.C_CODE,
+				c.F_CODE,
+				c.PAY_TOTAL,
+				c.USE_POINT,
+				c.SAVE_POINT,
+				c.COUPON_DISCOUNT,
+				NVL(c.PAY_TOTAL, 0) + NVL(c.USE_POINT, 0) + NVL(c.COUPON_DISCOUNT, 0) AS BEFORE_DISCOUNT_AMOUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND NVL(c.F_DSTATUS, 0) != -1
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+		)
+		SELECT
+			COUNT(*) AS "totalPayCount",
+			COUNT(CASE WHEN NVL(COUPON_DISCOUNT, 0) > 0 THEN 1 END) AS "couponUseCount",
+			COUNT(CASE WHEN NVL(COUPON_DISCOUNT, 0) = 0 THEN 1 END) AS "couponNotUseCount",
+			CASE
+				WHEN COUNT(*) = 0 THEN 0
+				ELSE ROUND(COUNT(CASE WHEN NVL(COUPON_DISCOUNT, 0) > 0 THEN 1 END) / COUNT(*) * 100, 2)
+			END AS "couponUseRate",
+			NVL(SUM(NVL(COUPON_DISCOUNT, 0)), 0) AS "totalCouponDiscount",
+			NVL(ROUND(AVG(NVL(COUPON_DISCOUNT, 0)), 0), 0) AS "avgCouponDiscountAll",
+			NVL(ROUND(AVG(CASE WHEN NVL(COUPON_DISCOUNT, 0) > 0 THEN COUPON_DISCOUNT END), 0), 0) AS "avgCouponDiscountUsed",
+			NVL(MAX(NVL(COUPON_DISCOUNT, 0)), 0) AS "maxCouponDiscount",
+			NVL(SUM(BEFORE_DISCOUNT_AMOUNT), 0) AS "totalBeforeDiscountAmount",
+			CASE
+				WHEN NVL(SUM(BEFORE_DISCOUNT_AMOUNT), 0) = 0 THEN 0
+				ELSE ROUND(SUM(NVL(COUPON_DISCOUNT, 0)) / SUM(BEFORE_DISCOUNT_AMOUNT) * 100, 2)
+			END AS "couponDiscountRate",
+			COUNT(CASE WHEN NVL(USE_POINT, 0) > 0 THEN 1 END) AS "pointUseCount",
+			COUNT(CASE WHEN NVL(USE_POINT, 0) = 0 THEN 1 END) AS "pointNotUseCount",
+			CASE
+				WHEN COUNT(*) = 0 THEN 0
+				ELSE ROUND(COUNT(CASE WHEN NVL(USE_POINT, 0) > 0 THEN 1 END) / COUNT(*) * 100, 2)
+			END AS "pointUseRate",
+			NVL(SUM(NVL(USE_POINT, 0)), 0) AS "totalUsePoint",
+			NVL(ROUND(AVG(NVL(USE_POINT, 0)), 0), 0) AS "avgUsePointAll",
+			NVL(ROUND(AVG(CASE WHEN NVL(USE_POINT, 0) > 0 THEN USE_POINT END), 0), 0) AS "avgUsePointUsed",
+			NVL(MAX(NVL(USE_POINT, 0)), 0) AS "maxUsePoint",
+			NVL(SUM(NVL(SAVE_POINT, 0)), 0) AS "totalSavePoint",
+			NVL(ROUND(AVG(NVL(SAVE_POINT, 0)), 0), 0) AS "avgSavePoint",
+			CASE
+				WHEN NVL(SUM(NVL(PAY_TOTAL, 0)), 0) = 0 THEN 0
+				ELSE ROUND(SUM(NVL(SAVE_POINT, 0)) / SUM(NVL(PAY_TOTAL, 0)) * 100, 2)
+			END AS "savePointRate"
+		FROM PAID_CART
+	</select>
+
+	<select id="getBenefitUseTypeStats" parameterType="map" resultType="map">
+		WITH PAID_CART AS (
+			SELECT
+				c.C_CODE,
+				c.PAY_TOTAL,
+				c.USE_POINT,
+				c.COUPON_DISCOUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND NVL(c.F_DSTATUS, 0) != -1
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+		),
+		USE_TYPE_BASE AS (
+			SELECT
+				CASE
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) > 0 THEN 'couponPoint'
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) = 0 THEN 'couponOnly'
+					WHEN NVL(COUPON_DISCOUNT, 0) = 0 AND NVL(USE_POINT, 0) > 0 THEN 'pointOnly'
+					ELSE 'none'
+				END AS USE_TYPE,
+				CASE
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) > 0 THEN 1
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) = 0 THEN 2
+					WHEN NVL(COUPON_DISCOUNT, 0) = 0 AND NVL(USE_POINT, 0) > 0 THEN 3
+					ELSE 4
+				END AS SORT_NO,
+				PAY_TOTAL,
+				USE_POINT,
+				COUPON_DISCOUNT
+			FROM PAID_CART
+		)
+		SELECT
+			USE_TYPE AS "useType",
+			COUNT(*) AS "orderCount",
+			CASE
+				WHEN SUM(COUNT(*)) OVER () = 0 THEN 0
+				ELSE ROUND(COUNT(*) / SUM(COUNT(*)) OVER () * 100, 2)
+			END AS "orderRate",
+			NVL(SUM(NVL(PAY_TOTAL, 0)), 0) AS "totalPayAmount",
+			NVL(SUM(NVL(COUPON_DISCOUNT, 0)), 0) AS "totalCouponDiscount",
+			NVL(SUM(NVL(USE_POINT, 0)), 0) AS "totalUsePoint",
+			NVL(ROUND(AVG(NVL(PAY_TOTAL, 0)), 0), 0) AS "avgPayAmount"
+		FROM USE_TYPE_BASE
+		GROUP BY USE_TYPE, SORT_NO
+		ORDER BY SORT_NO
+	</select>
+
+	<select id="getProductBenefitTopStats" parameterType="map" resultType="map">
+		WITH PRODUCT_PAY_SUMMARY AS (
+			SELECT
+				f.F_CODE,
+				f.F_NAME,
+				COUNT(*) AS PAY_COUNT,
+				COUNT(CASE WHEN NVL(c.COUPON_DISCOUNT, 0) > 0 THEN 1 END) AS COUPON_USE_COUNT,
+				SUM(NVL(c.COUPON_DISCOUNT, 0)) AS TOTAL_COUPON_DISCOUNT,
+				COUNT(CASE WHEN NVL(c.USE_POINT, 0) > 0 THEN 1 END) AS POINT_USE_COUNT,
+				SUM(NVL(c.USE_POINT, 0)) AS TOTAL_USE_POINT,
+				SUM(NVL(c.PAY_TOTAL, 0)) AS TOTAL_PAY_AMOUNT,
+				ROUND(AVG(NVL(c.PAY_TOTAL, 0)), 0) AS AVG_PAY_AMOUNT
+			FROM FURNITURE f
+				JOIN CART c
+					ON f.F_CODE = c.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND NVL(c.F_DSTATUS, 0) != -1
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+			GROUP BY f.F_CODE, f.F_NAME
+		)
+		SELECT *
+		FROM (
+			SELECT
+				F_CODE AS "fCode",
+				F_NAME AS "fName",
+				PAY_COUNT AS "payCount",
+				COUPON_USE_COUNT AS "couponUseCount",
+				CASE
+					WHEN PAY_COUNT = 0 THEN 0
+					ELSE ROUND(COUPON_USE_COUNT / PAY_COUNT * 100, 2)
+				END AS "couponUseRate",
+				NVL(TOTAL_COUPON_DISCOUNT, 0) AS "totalCouponDiscount",
+				POINT_USE_COUNT AS "pointUseCount",
+				CASE
+					WHEN PAY_COUNT = 0 THEN 0
+					ELSE ROUND(POINT_USE_COUNT / PAY_COUNT * 100, 2)
+				END AS "pointUseRate",
+				NVL(TOTAL_USE_POINT, 0) AS "totalUsePoint",
+				NVL(TOTAL_PAY_AMOUNT, 0) AS "totalPayAmount",
+				NVL(AVG_PAY_AMOUNT, 0) AS "avgPayAmount"
+			FROM PRODUCT_PAY_SUMMARY
+			ORDER BY "couponUseRate" DESC, "pointUseRate" DESC, "payCount" DESC
+		)
+		WHERE ROWNUM <![CDATA[<=]]> 10
+	</select>
+
+	<select id="getBenefitRevenueImpactStats" parameterType="map" resultType="map">
+		WITH PAID_CART AS (
+			SELECT
+				c.C_CODE,
+				c.PAY_TOTAL,
+				c.USE_POINT,
+				c.COUPON_DISCOUNT,
+				NVL(c.PAY_TOTAL, 0) + NVL(c.USE_POINT, 0) + NVL(c.COUPON_DISCOUNT, 0) AS BEFORE_DISCOUNT_AMOUNT
+			FROM CART c
+				JOIN FURNITURE f
+					ON c.F_CODE = f.F_CODE
+			<where>
+				c.F_STATUS = 'Y'
+				AND NVL(c.F_DSTATUS, 0) != -1
+				<include refid="dashboardCompanyFilter" />
+				<include refid="dashboardPayDateFilter" />
+			</where>
+		),
+		COMPARE_BASE AS (
+			SELECT
+				CASE
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) > 0 THEN 'couponPoint'
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) = 0 THEN 'couponOnly'
+					WHEN NVL(COUPON_DISCOUNT, 0) = 0 AND NVL(USE_POINT, 0) > 0 THEN 'pointOnly'
+					ELSE 'none'
+				END AS USE_TYPE,
+				CASE
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) > 0 THEN 1
+					WHEN NVL(COUPON_DISCOUNT, 0) > 0 AND NVL(USE_POINT, 0) = 0 THEN 2
+					WHEN NVL(COUPON_DISCOUNT, 0) = 0 AND NVL(USE_POINT, 0) > 0 THEN 3
+					ELSE 4
+				END AS SORT_NO,
+				PAY_TOTAL,
+				USE_POINT,
+				COUPON_DISCOUNT,
+				BEFORE_DISCOUNT_AMOUNT
+			FROM PAID_CART
+		)
+		SELECT
+			USE_TYPE AS "useType",
+			COUNT(*) AS "orderCount",
+			NVL(SUM(NVL(PAY_TOTAL, 0)), 0) AS "totalPayAmount",
+			NVL(ROUND(AVG(NVL(PAY_TOTAL, 0)), 0), 0) AS "avgPayAmount",
+			NVL(SUM(NVL(BEFORE_DISCOUNT_AMOUNT, 0)), 0) AS "totalBeforeDiscountAmount",
+			NVL(ROUND(AVG(NVL(BEFORE_DISCOUNT_AMOUNT, 0)), 0), 0) AS "avgBeforeDiscountAmount",
+			NVL(SUM(NVL(COUPON_DISCOUNT, 0)), 0) AS "totalCouponDiscount",
+			NVL(ROUND(AVG(NVL(COUPON_DISCOUNT, 0)), 0), 0) AS "avgCouponDiscount",
+			NVL(SUM(NVL(USE_POINT, 0)), 0) AS "totalUsePoint",
+			NVL(ROUND(AVG(NVL(USE_POINT, 0)), 0), 0) AS "avgUsePoint",
+			CASE
+				WHEN NVL(SUM(NVL(BEFORE_DISCOUNT_AMOUNT, 0)), 0) = 0 THEN 0
+				ELSE ROUND((SUM(NVL(COUPON_DISCOUNT, 0)) + SUM(NVL(USE_POINT, 0))) / SUM(NVL(BEFORE_DISCOUNT_AMOUNT, 0)) * 100, 2)
+			END AS "discountAndPointRate"
+		FROM COMPARE_BASE
+		GROUP BY USE_TYPE, SORT_NO
+		ORDER BY SORT_NO
+	</select>
+
+
+</mapper>

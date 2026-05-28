@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import InteriorService from "../service/interiorService";
-import TableMui from "./TableMui";
 import TableMuiCollapse from "./TableMuiCollapse";
 import {
 	Button,
@@ -13,10 +12,8 @@ import {
 	TableRow,
 } from "@mui/material";
 import DialogMui from "./DialogMui";
-import SelectMui from "./SelectMui";
 import AlertMui from "./AlertMui";
 import DatePickerMui from "./DatePickerMui";
-import dayjs from "dayjs";
 
 const BookingUpdate = ({
 	company,
@@ -199,39 +196,45 @@ const BookingUpdate = ({
 	return (
 		<div>
 			<div>
-				<TableMuiCollapse
-					selectedRow={selectedBooking}
-					setSelectedRow={setSelectedBooking}
-					rowData={booking}
-					hiddenColumns={["b_answer"]}
-					collapseTitle="상담 상세 정보"
-					renderCollapse={(row) => {
-						let answer = {};
+				{booking.length > 0 ? (
+					<TableMuiCollapse
+						selectedRow={selectedBooking}
+						setSelectedRow={setSelectedBooking}
+						rowData={booking}
+						hiddenColumns={["b_answer"]}
+						collapseTitle="상담 상세 정보"
+						renderCollapse={(row) => {
+							let answer = {};
 
-						try {
-							answer = row.b_answer ? JSON.parse(row.b_answer) : {};
-						} catch (e) {
-							answer = {};
-						}
+							try {
+								answer = row.b_answer ? JSON.parse(row.b_answer) : {};
+							} catch (e) {
+								answer = {};
+							}
 
-						return (
-							<Table size="small">
-								<TableBody>
-									{Object.keys(answer).map((key) => (
-										<TableRow key={key}>
-											<TableCell>{key}</TableCell>
-											<TableCell>
-												{Array.isArray(answer[key])
-													? answer[key].join(", ")
-													: answer[key]}
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						);
-					}}
-				/>
+							return (
+								<Table size="small">
+									<TableBody>
+										{Object.keys(answer).map((key) => (
+											<TableRow key={key}>
+												<TableCell>{key}</TableCell>
+												<TableCell>
+													{Array.isArray(answer[key])
+														? answer[key].join(", ")
+														: answer[key]}
+												</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							);
+						}}
+					/>
+				) : (
+					<div className="interior-booking-guide">
+						등록된 상담 예약 데이터가 없습니다.
+					</div>
+				)}
 				{selectedBooking && (
 					<>
 						<Button variant="contained" color="secondary" onClick={onClickstartRemodel}>

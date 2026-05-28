@@ -1,7 +1,5 @@
-import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
@@ -9,48 +7,7 @@ import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import { useEffect, useState } from "react";
 import { TablePagination } from "@mui/material";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: "#f8fafc",
-		color: "#334155",
-		fontSize: 13,
-		fontWeight: 800,
-		lineHeight: 1.4,
-		padding: "14px 18px",
-		borderBottom: "1px solid #d8dee8",
-		whiteSpace: "nowrap",
-	},
-
-	[`&.${tableCellClasses.body}`]: {
-		fontSize: 14,
-		fontWeight: 600,
-		lineHeight: 1.45,
-		padding: "14px 18px",
-		color: "#475569",
-		borderBottom: "1px solid #e5eaf2",
-		verticalAlign: "middle",
-	},
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-	"&:nth-of-type(odd)": {
-		backgroundColor: "#ffffff",
-	},
-
-	"&:nth-of-type(even)": {
-		backgroundColor: "#fbfdff",
-	},
-
-	"&:hover": {
-		backgroundColor: "#eff6ff",
-		// cursor: "pointer",
-	},
-
-	"&:last-child td, &:last-child th": {
-		border: 0,
-	},
-}));
+import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
 
 const TableCheckBoxMui = (props) => {
 	const {
@@ -135,27 +92,7 @@ const TableCheckBoxMui = (props) => {
 	return (
 		<TableContainer
 			component={Paper}
-			sx={{
-				borderRadius: "8px",
-				border: "1px solid #d8dee8",
-				boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
-				overflow: "auto",
-				backgroundColor: "#ffffff",
-				"& .MuiCheckbox-root": {
-					color: "#94a3b8",
-				},
-				"& .MuiCheckbox-root.Mui-checked, & .MuiCheckbox-root.MuiCheckbox-indeterminate": {
-					color: "#1d4ed8",
-				},
-				"& .MuiTablePagination-root": {
-					borderTop: "1px solid #e5eaf2",
-					color: "#475569",
-				},
-				"& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-					fontSize: 13,
-					fontWeight: 700,
-				},
-			}}>
+			sx={tableContainerSx}>
 			<Table sx={{ minWidth: 650 }} aria-label="simple table">
 				<TableHead>
 					<TableRow>

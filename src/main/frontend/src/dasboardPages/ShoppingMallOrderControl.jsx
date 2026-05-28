@@ -205,7 +205,7 @@ const ShoppingMallOrderControl = () => {
 
 			return matchTab && matchFilter;
 		});
-		console.log(displayList)
+		console.log(displayList);
 		setTableDisplayDataList(displayList);
 		setCheckedList([]);
 	}, [orderFurnitureList, tabValue, filterBarState]);
@@ -232,50 +232,56 @@ const ShoppingMallOrderControl = () => {
 			</div>
 
 			<div className="shopping-mall-order-table">
-				<TableCheckBoxMui
-				rowData={tableDisplayDataList}
-				col={[
-					"cartbuyername",
-					"furnitureproductname",
-					"c_name",
-					"furnitureproductprice",
-					"cartqty",
-					"cartpayedprice",
-					"c_code",
-				]}
-				columns={[
-					"주문자",
-					"주문품목",
-					"판매처",
-					"물품금액",
-					"주문수량",
-					"결제금액",
-					"ID",
-				]}
-				checkedList={checkedList}
-				setCheckedList={setCheckedList}
-				defaultRowPerPage={5}
-					pagination
-				/>
+				{tableDisplayDataList?.length > 0 ? (
+					<TableCheckBoxMui
+						rowData={tableDisplayDataList}
+						col={[
+							"cartbuyername",
+							"furnitureproductname",
+							"c_name",
+							"furnitureproductprice",
+							"cartqty",
+							"cartpayedprice",
+							"c_code",
+						]}
+						columns={[
+							"주문자",
+							"주문품목",
+							"판매처",
+							"물품금액",
+							"주문수량",
+							"결제금액",
+							"ID",
+						]}
+						checkedList={checkedList}
+						setCheckedList={setCheckedList}
+						defaultRowPerPage={5}
+						pagination
+					/>
+				) : (
+					<div>데이터 없음</div>
+				)}
 			</div>
 
-			<div className="shopping-mall-order-bulk-actions">
-				<div>{checkedList.length}개 선택됨</div>
+			{tableDisplayDataList?.length > 0 && (
+				<div className="shopping-mall-order-bulk-actions">
+					<div>{checkedList.length}개 선택됨</div>
 
-				<SelectMui
-					label="배송 상태"
-					value={deliveryChangeState}
-					onChange={(e) => {
-						setDeliveryChangeState(e.target.value);
-					}}
-					option={orderState}
-					width="180px"
-				/>
+					<SelectMui
+						label="배송 상태"
+						value={deliveryChangeState}
+						onChange={(e) => {
+							setDeliveryChangeState(e.target.value);
+						}}
+						option={orderState}
+						width="180px"
+					/>
 
-				<Button color="primary" variant="contained" onClick={handleChangeDeliveryState}>
-					수정하기
-				</Button>
-			</div>
+					<Button color="primary" variant="contained" onClick={handleChangeDeliveryState}>
+						수정하기
+					</Button>
+				</div>
+			)}
 
 			{tabChangeConfirmOpen && (
 				<DialogMui

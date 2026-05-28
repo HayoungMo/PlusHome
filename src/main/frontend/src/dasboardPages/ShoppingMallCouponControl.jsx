@@ -38,7 +38,9 @@ const ShoppingMallCouponControl = () => {
 			const couponEnd = dayjs(record.coupon_end).startOf("day");
 			const matchViewType =
 				viewDataType === "all" ||
-				(viewDataType === "available" && couponEnd.isValid() && !couponEnd.isBefore(today)) ||
+				(viewDataType === "available" &&
+					couponEnd.isValid() &&
+					!couponEnd.isBefore(today)) ||
 				(viewDataType === "expired" && couponEnd.isValid() && couponEnd.isBefore(today));
 
 			return matchTab && matchViewType;
@@ -117,8 +119,16 @@ const ShoppingMallCouponControl = () => {
 				</div>
 				<div className="shopping-mall-coupon-summary">
 					<Chip label={`전체 ${couponStats.total}개`} variant="outlined" />
-					<Chip label={`사용 가능 ${couponStats.available}개`} color="primary" variant="outlined" />
-					<Chip label={`만료 ${couponStats.expired}개`} color="warning" variant="outlined" />
+					<Chip
+						label={`사용 가능 ${couponStats.available}개`}
+						color="primary"
+						variant="outlined"
+					/>
+					<Chip
+						label={`만료 ${couponStats.expired}개`}
+						color="warning"
+						variant="outlined"
+					/>
 				</div>
 			</div>
 
@@ -126,7 +136,9 @@ const ShoppingMallCouponControl = () => {
 				<div className="shopping-mall-coupon-card-head">
 					<div>
 						<strong>
-							{tabValue === "all" ? "전체 쇼핑몰" : selectedTabCompany?.c_name || tabValue}
+							{tabValue === "all"
+								? "전체 쇼핑몰"
+								: selectedTabCompany?.c_name || tabValue}
 						</strong>
 						<span>쿠폰 목록</span>
 					</div>
@@ -154,29 +166,33 @@ const ShoppingMallCouponControl = () => {
 				</div>
 
 				<div className="shopping-mall-coupon-table">
-					<TableMui
-						rowData={displayCouponList}
-						col={[
-							"id",
-							"coupon_code",
-							"discount",
-							"coupon_end",
-							"coupon_max",
-							"coupon_info",
-							"coupon_used",
-							"userIds",
-						]}
-						columns={[
-							"발급 대상",
-							"쿠폰 코드",
-							"할인율",
-							"만료일",
-							"최대 할인",
-							"쿠폰 정보",
-							"사용 여부",
-							"사용자",
-						]}
-					/>
+					{displayCouponList?.length > 0 ? (
+						<TableMui
+							rowData={displayCouponList}
+							col={[
+								"id",
+								"coupon_code",
+								"discount",
+								"coupon_end",
+								"coupon_max",
+								"coupon_info",
+								"coupon_used",
+								"userIds",
+							]}
+							columns={[
+								"발급 대상",
+								"쿠폰 코드",
+								"할인율",
+								"만료일",
+								"최대 할인",
+								"쿠폰 정보",
+								"사용 여부",
+								"사용자",
+							]}
+						/>
+					) : (
+						<div>데이터 없음</div>
+					)}
 				</div>
 			</section>
 

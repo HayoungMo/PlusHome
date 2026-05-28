@@ -60,7 +60,7 @@ const ShoppingMallQuestionControl = () => {
 		tabValue === "all" ? "전체 쇼핑몰" : selectedTabCompany?.c_name || tabValue;
 
 	const answeredCount = displayQuestionList.filter(
-		(record) => record.q_status === "Y" || record.q_status === "답변 완료" || record.q_answer
+		(record) => record.q_status === "Y" || record.q_status === "답변 완료" || record.q_answer,
 	).length;
 
 	const waitingCount = Math.max(displayQuestionList.length - answeredCount, 0);
@@ -148,8 +148,16 @@ const ShoppingMallQuestionControl = () => {
 				</div>
 				<div className="shopping-mall-question-summary">
 					<Chip label={`문의 ${displayQuestionList.length}건`} variant="outlined" />
-					<Chip label={`답변 대기 ${waitingCount}건`} color="warning" variant="outlined" />
-					<Chip label={`답변 완료 ${answeredCount}건`} color="primary" variant="outlined" />
+					<Chip
+						label={`답변 대기 ${waitingCount}건`}
+						color="warning"
+						variant="outlined"
+					/>
+					<Chip
+						label={`답변 완료 ${answeredCount}건`}
+						color="primary"
+						variant="outlined"
+					/>
 				</div>
 			</div>
 
@@ -171,16 +179,27 @@ const ShoppingMallQuestionControl = () => {
 				/>
 
 				<div className="shopping-mall-question-table">
-					<TableMui
-						col={["f_name", "c_name", "q_idx", "q_secret", "q_status", "id"]}
-						columns={["상품명", "업체명", "문의번호", "비밀글", "답변상태", "작성자"]}
-						rowData={displayQuestionList}
-						selectedRow={selectedRow}
-						setSelectedRow={setSelectedRow}
-						defaultRowPerPage={5}
-						resetPageKey={tabValue}
-						pagination
-					/>
+					{displayQuestionList?.length > 0 ? (
+						<TableMui
+							col={["f_name", "c_name", "q_idx", "q_secret", "q_status", "id"]}
+							columns={[
+								"상품명",
+								"업체명",
+								"문의번호",
+								"비밀글",
+								"답변상태",
+								"작성자",
+							]}
+							rowData={displayQuestionList}
+							selectedRow={selectedRow}
+							setSelectedRow={setSelectedRow}
+							defaultRowPerPage={5}
+							resetPageKey={tabValue}
+							pagination
+						/>
+					) : (
+						<div>데이터 없음</div>
+					)}
 				</div>
 			</section>
 
@@ -199,8 +218,16 @@ const ShoppingMallQuestionControl = () => {
 					</div>
 
 					<div className="shopping-mall-question-fields">
-						<TextFieldMui label="상품명" value={selectedRow.f_name || ""} width="100%" />
-						<TextFieldMui label="문의 제목" value={selectedRow.q_title || ""} width="100%" />
+						<TextFieldMui
+							label="상품명"
+							value={selectedRow.f_name || ""}
+							width="100%"
+						/>
+						<TextFieldMui
+							label="문의 제목"
+							value={selectedRow.q_title || ""}
+							width="100%"
+						/>
 						<TextFieldMui
 							label="문의 내용"
 							value={selectedRow.q_content || ""}
@@ -240,8 +267,7 @@ const ShoppingMallQuestionControl = () => {
 						<Button
 							variant="contained"
 							color="primary"
-							onClick={() => setAnswerDialogOpen(true)}
-						>
+							onClick={() => setAnswerDialogOpen(true)}>
 							답변 저장
 						</Button>
 					</div>
