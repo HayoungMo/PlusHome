@@ -2,7 +2,7 @@ import ImageService from "../../service/imageService";
 import SetImageInList from "./SetImageInList";
 import validateImageQuery from "./validateKind";
 
-const baseDIR = "http://localhost:8080/api/images";
+const baseDIR = "/api/images";
 
 const GetImgDir = async (props = {}) => {
 	if (!props || Object.keys(props).length === 0) {

@@ -520,7 +520,7 @@ const UserReviewPage = ({ user }) => {
                 <img
                   src={
                     item.thumbnail
-                      ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
+                      ? `/api/images/FURNITURE/${item.thumbnail}`
                       : "/no-image.png"
                   }
                   alt={item.furniture?.f_name || item.f_name || "상품 이미지"}
@@ -668,7 +668,7 @@ const UserReviewPage = ({ user }) => {
                   <img
                     src={
                       editItem.thumbnail
-                        ? `http://localhost:8080/api/images/FURNITURE/${editItem.thumbnail}`
+                        ? `/api/images/FURNITURE/${editItem.thumbnail}`
                         : "/no-image.png"
                     }
                     alt={editItem.furniture?.f_name || editItem.f_name || "상품 이미지"}

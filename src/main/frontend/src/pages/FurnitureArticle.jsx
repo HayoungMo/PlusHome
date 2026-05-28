@@ -731,7 +731,7 @@ const FurnitureArticle = () => {
                 {orderedThumbInfo.map((image, index) => (
                   <img
                     key={index}
-                    src={`http://localhost:8080/api/images/FURNITURE/${image.img_name}`}
+                    src={`/api/images/FURNITURE/${image.img_name}`}
                     style={{
                       width: "70px",
                       height: "70px",
@@ -751,7 +751,7 @@ const FurnitureArticle = () => {
               <img
                 src={
                   mainImage?.img_name
-                    ? `http://localhost:8080/api/images/FURNITURE/${mainImage.img_name}`
+                    ? `/api/images/FURNITURE/${mainImage.img_name}`
                     : "/no-image.png"
                 }
                 style={{
@@ -1023,7 +1023,7 @@ const FurnitureArticle = () => {
                 {othersImages.map((img, idx) => (
                   <img
                     key={idx}
-                    src={`http://localhost:8080/api/images/FURNITURE/${img.img_name}`}
+                    src={`/api/images/FURNITURE/${img.img_name}`}
                     style={{
                       width: "100%",
                       marginBottom: "20px",

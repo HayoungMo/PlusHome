@@ -71,7 +71,7 @@ const MainHomePage = ({ loginUser }) => {
 
     //백엔드 호출 (가구, 인테리어 업체) , 0519 백엔드 수정한것으로 새롭게 연결
     const getBestFurniture = () => {
-        axios.get("http://localhost:8080/api/main/best", {
+        axios.get("/api/main/best", {
             params: {
                 id: currentUser?.id || "",
             },
@@ -102,7 +102,7 @@ const MainHomePage = ({ loginUser }) => {
     useEffect(() => {
         if(!currentUser?.id) return;
         
-        axios.get("http://localhost:8080/api/main/recommend/hidden", {
+        axios.get("/api/main/recommend/hidden", {
             params: {
                 id: currentUser?.id ,
             },
@@ -165,7 +165,7 @@ const MainHomePage = ({ loginUser }) => {
     //실제로 저장되는 함수는 따로 뺐다. 다이얼로그를 써야해서!@!!!!
     const saveHiddenFurniture = () => {
 
-        axios.post("http://localhost:8080/api/main/recommend/hide", {
+        axios.post("/api/main/recommend/hide", {
             id: currentUser?.id,
             f_codes: pendingHiddenFurnitureCodes,
         })
@@ -380,7 +380,7 @@ const MainHomePage = ({ loginUser }) => {
                                 <img
                                     src={
                                         thumbnail
-                                            ? `http://localhost:8080/api/images/FURNITURE/${thumbnail.img_name}`
+                                            ? `/api/images/FURNITURE/${thumbnail.img_name}`
                                             : "/no-image.png"
                                     }
                                     alt={item.f_name}

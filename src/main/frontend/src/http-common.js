@@ -1,21 +1,20 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:8080/api";
-// const baseURL = 'http://192.168.0.82:8080/api';
+export const API_BASE_URL = "/api";
+export const IMAGE_BASE_URL = `${API_BASE_URL}/images`;
 
 const http = axios.create({
-	baseURL: baseURL,
-
-	headers: {
-		"Content-type": "application/json",
-		"Content-Disposition": "application/json",
-	},
-	withCredentials: true,
+    baseURL: API_BASE_URL,
+    headers: {
+        "Content-type": "application/json",
+        "Content-Disposition": "application/json",
+    },
+    withCredentials: true,
 });
 
 export const fileHttp = axios.create({
-	baseURL: baseURL,
-	withCredentials: true,
+    baseURL: API_BASE_URL,
+    withCredentials: true,
 });
 
 export default http;

@@ -53,7 +53,7 @@ const IMAGE_MATCH_RULES = {
 
 const SetImageInList = (props) => {
 	const { kind, orgList = [], view, imgData = [] } = props;
-	const baseDIR = "http://localhost:8080/api/images";
+	const baseDIR = "/api/images";
 	const rule = IMAGE_MATCH_RULES[kind === "Q&A" ? "QA" : kind];
 
 	if (!rule) {

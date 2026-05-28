@@ -306,7 +306,7 @@ const CompanyClaimManage = () => {
                                                     openedImages[item.claim_code].map(img => (
                                                         <img
                                                             key={img.img_name}
-                                                            src={`http://localhost:8080/api/images/CLAIM/${img.img_name}`}
+                                                            src={`/api/images/CLAIM/${img.img_name}`}
                                                             alt=""
                                                             style={{
                                                                 width: "100px",

@@ -601,7 +601,7 @@ const PaymentPage = () => {
                       component="img"
                       src={
                         item.thumbnail
-                          ? `http://localhost:8080/api/images/FURNITURE/${item.thumbnail}`
+                          ? `/api/images/FURNITURE/${item.thumbnail}`
                           : "/no-image.png"
                       }
                       alt={item.furniture?.f_name || item.f_code}

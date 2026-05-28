@@ -526,7 +526,7 @@ const SearchPage = () => {
             item.imageList?.[0];
 
         const thumbnailSrc = thumbnail
-            ? `http://localhost:8080/api/images/FURNITURE/${thumbnail.img_name}`
+            ? `/api/images/FURNITURE/${thumbnail.img_name}`
             : "/no-image.png";
         const productDeliveryPrice = Number(
             item.f_deliveryPrice ?? item.f_deliveryprice ?? 0
@@ -967,7 +967,7 @@ const SearchPage = () => {
                 <section style={{ marginTop: "24px", textAlign: "center"}}>
                     <Button
                         type="button"
-                        variant="outlined"
+                        variant="contained"
                         onClick={() => movePage(Math.max(1, page - 1))}
                         disabled={page === 1}
                     >
@@ -980,7 +980,7 @@ const SearchPage = () => {
 
                     <Button
                         type="button"
-                        variant="outlined"
+                        variant="contained"
                         onClick={() => movePage(Math.min(totalPages, page + 1))}
                         disabled={page === totalPages}
                     >

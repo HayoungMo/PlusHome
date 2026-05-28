@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import questionService from "../service/questionService";
 import { TextField,Button,Snackbar } from "@mui/material";
 import AlertMui from "../components/AlertMui";
@@ -632,7 +632,7 @@ const UserQuestionPage = ({ user }) => {
                                     <img
                                         src={
                                             furniture?.thumbnail
-                                                ? `http://localhost:8080/api/images/FURNITURE/${furniture.thumbnail}`
+                                                ? `/api/images/FURNITURE/${furniture.thumbnail}`
                                                 : "/no-image.png"
                                         }
                                         alt={furniture?.f_name || editingQuestion.f_name || "상품 이미지"}
@@ -818,7 +818,7 @@ const UserQuestionPage = ({ user }) => {
                                         <img
                                             src={
                                                 furniture?.thumbnail
-                                                    ? `http://localhost:8080/api/images/FURNITURE/${furniture.thumbnail}`
+                                                    ? `/api/images/FURNITURE/${furniture.thumbnail}`
                                                     : "/no-image.png"
                                             }
                                             alt={furniture?.f_name || item.f_name || "상품 이미지"}

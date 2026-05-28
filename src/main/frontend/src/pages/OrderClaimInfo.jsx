@@ -61,7 +61,7 @@ const OrderClaimInfo = ({ item, openedImages, onToggleImages }) => {
                         openedImages.map((img) => (
                             <img
                                 key={img.img_name}
-                                src={`http://localhost:8080/api/images/CLAIM/${img.img_name}`}
+                                src={`/api/images/CLAIM/${img.img_name}`}
                                 alt=""
                                 style={{
                                     width: "90px",

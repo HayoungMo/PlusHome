@@ -493,7 +493,7 @@ const FurnitureList = () => {
     <img
         src={
             thumbnail
-                ? `http://localhost:8080/api/images/FURNITURE/${thumbnail.img_name}`
+                ? `/api/images/FURNITURE/${thumbnail.img_name}`
                 : "/no-image.png"
         }
         alt={item.f_name}
