@@ -1167,4 +1167,1050 @@
 	</select>
 
 
+	<!-- Interior dashboard -->
+	<sql id="interiorBookingCompanyFilter">
+		b.C_KIND = 'interior'
+
+		<if test="c_id != null and c_id != ''">
+			AND b.C_ID = #{c_id}
+		</if>
+
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND b.C_NAME = #{c_name}
+		</if>
+	</sql>
+
+	<sql id="interiorInvoiceCompanyFilter">
+		i.C_KIND = 'interior'
+
+		<if test="c_id != null and c_id != ''">
+			AND i.C_ID = #{c_id}
+		</if>
+
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND i.C_NAME = #{c_name}
+		</if>
+	</sql>
+
+	<sql id="interiorScheduleCompanyFilter">
+		s.C_KIND = 'interior'
+
+		<if test="c_id != null and c_id != ''">
+			AND s.C_ID = #{c_id}
+		</if>
+
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND s.C_NAME = #{c_name}
+		</if>
+	</sql>
+
+	<sql id="interiorCompanyTableFilter">
+		c.C_KIND = 'interior'
+
+		<if test="c_id != null and c_id != ''">
+			AND c.C_ID = #{c_id}
+		</if>
+
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND c.C_NAME = #{c_name}
+		</if>
+	</sql>
+
+	<sql id="interiorExampleCompanyFilter">
+		e.C_KIND = 'interior'
+
+		<if test="c_id != null and c_id != ''">
+			AND e.C_ID = #{c_id}
+		</if>
+
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND e.C_NAME = #{c_name}
+		</if>
+	</sql>
+
+	<sql id="interiorBookingDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND b.B_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND b.B_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND b.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND b.B_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND b.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND b.B_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND b.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND b.B_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND b.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND b.B_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="interiorInvoiceDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND i.B_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND i.B_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND i.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND i.B_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND i.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND i.B_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND i.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND i.B_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND i.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND i.B_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="interiorScheduleDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND s.IS_STARTDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND s.IS_STARTDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND s.IS_STARTDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND s.IS_STARTDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND s.IS_STARTDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND s.IS_STARTDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND s.IS_STARTDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND s.IS_STARTDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND s.IS_STARTDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND s.IS_STARTDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="interiorReviewCreatedDateFilter">
+		<choose>
+			<when test="startDate != null and startDate != '' or endDate != null and endDate != ''">
+				<if test="startDate != null and startDate != ''">
+					AND r.IR_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND r.IR_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+				</if>
+			</when>
+			<when test="period == 'today'">
+				AND r.IR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE)
+				AND r.IR_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE) + 1
+			</when>
+			<when test="period == 'week'">
+				AND r.IR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW')
+				AND r.IR_CREATEDDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7
+			</when>
+			<when test="period == 'month'">
+				AND r.IR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM')
+				AND r.IR_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+			</when>
+			<when test="period == 'year'">
+				AND r.IR_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'YYYY')
+				AND r.IR_CREATEDDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12)
+			</when>
+		</choose>
+	</sql>
+
+	<select id="getInteriorBookingOverviewStats" parameterType="map" resultType="map">
+		SELECT
+			COUNT(*) AS "totalBookingCount",
+			COUNT(CASE WHEN b.B_STATUS = 'pending' THEN 1 END) AS "pendingCount",
+			COUNT(CASE WHEN b.B_STATUS = 'quoting' THEN 1 END) AS "quotingCount",
+			COUNT(CASE WHEN b.B_STATUS = 'confirmed' THEN 1 END) AS "confirmedCount",
+			COUNT(CASE WHEN b.B_STATUS = 'working' THEN 1 END) AS "workingCount",
+			COUNT(CASE WHEN b.B_STATUS = 'done' THEN 1 END) AS "doneCount",
+			COUNT(CASE WHEN b.B_STATUS = 'cancel' THEN 1 END) AS "cancelCount",
+			COUNT(CASE WHEN TRUNC(b.B_CREATEDDATE) = TRUNC(SYSDATE) THEN 1 END) AS "todayBookingCount",
+			COUNT(CASE WHEN b.B_CREATEDDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM') THEN 1 END) AS "monthBookingCount",
+			COUNT(CASE WHEN b.B_KIND = 'byemail' THEN 1 END) AS "emailBookingCount",
+			COUNT(CASE WHEN b.B_KIND = 'bytel' THEN 1 END) AS "telBookingCount",
+			NVL(ROUND(AVG(TRUNC(b.B_DATE) - TRUNC(b.B_CREATEDDATE)), 2), 0) AS "avgRequestLeadDays",
+			NVL(ROUND(AVG(NVL(b.B_LONG, 0)), 2), 0) AS "avgBookingLong"
+		FROM BOOKING b
+		<where>
+			<include refid="interiorBookingCompanyFilter" />
+			<include refid="interiorBookingDateFilter" />
+		</where>
+	</select>
+
+	<select id="getInteriorBookingMonthlyStats" parameterType="map" resultType="map">
+		SELECT
+			TO_CHAR(b.B_CREATEDDATE, 'YYYY-MM') AS "month",
+			COUNT(*) AS "bookingCount"
+		FROM BOOKING b
+		<where>
+			<include refid="interiorBookingCompanyFilter" />
+			<include refid="interiorBookingDateFilter" />
+		</where>
+		GROUP BY TO_CHAR(b.B_CREATEDDATE, 'YYYY-MM')
+		ORDER BY "month"
+	</select>
+
+	<select id="getInteriorBookingLongStats" parameterType="map" resultType="map">
+		SELECT
+			CASE
+				WHEN b.B_LONG IS NULL THEN 'unknown'
+				WHEN b.B_LONG <![CDATA[<=]]> 1 THEN '1day'
+				WHEN b.B_LONG <![CDATA[<=]]> 3 THEN '2to3days'
+				WHEN b.B_LONG <![CDATA[<=]]> 7 THEN '4to7days'
+				WHEN b.B_LONG <![CDATA[<=]]> 14 THEN '8to14days'
+				ELSE 'over14days'
+			END AS "longGroup",
+			COUNT(*) AS "bookingCount"
+		FROM BOOKING b
+		<where>
+			<include refid="interiorBookingCompanyFilter" />
+			<include refid="interiorBookingDateFilter" />
+		</where>
+		GROUP BY
+			CASE
+				WHEN b.B_LONG IS NULL THEN 'unknown'
+				WHEN b.B_LONG <![CDATA[<=]]> 1 THEN '1day'
+				WHEN b.B_LONG <![CDATA[<=]]> 3 THEN '2to3days'
+				WHEN b.B_LONG <![CDATA[<=]]> 7 THEN '4to7days'
+				WHEN b.B_LONG <![CDATA[<=]]> 14 THEN '8to14days'
+				ELSE 'over14days'
+			END
+		ORDER BY "bookingCount" DESC
+	</select>
+
+	<select id="getInteriorBookingConversionStats" parameterType="map" resultType="map">
+		WITH STATUS_BASE AS (
+			SELECT
+				COUNT(*) AS TOTAL_COUNT,
+				COUNT(CASE WHEN b.B_STATUS IN ('quoting', 'confirmed', 'working', 'done') THEN 1 END) AS QUOTING_OR_AFTER_COUNT,
+				COUNT(CASE WHEN b.B_STATUS IN ('confirmed', 'working', 'done') THEN 1 END) AS CONFIRMED_OR_AFTER_COUNT,
+				COUNT(CASE WHEN b.B_STATUS IN ('working', 'done') THEN 1 END) AS WORKING_OR_AFTER_COUNT,
+				COUNT(CASE WHEN b.B_STATUS = 'done' THEN 1 END) AS DONE_COUNT,
+				COUNT(CASE WHEN b.B_STATUS = 'cancel' THEN 1 END) AS CANCEL_COUNT
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				<include refid="interiorBookingDateFilter" />
+			</where>
+		)
+		SELECT
+			TOTAL_COUNT AS "totalCount",
+			QUOTING_OR_AFTER_COUNT AS "quoteStartCount",
+			CONFIRMED_OR_AFTER_COUNT AS "confirmedCount",
+			WORKING_OR_AFTER_COUNT AS "workingCount",
+			DONE_COUNT AS "doneCount",
+			CANCEL_COUNT AS "cancelCount",
+			CASE WHEN TOTAL_COUNT = 0 THEN 0 ELSE ROUND(QUOTING_OR_AFTER_COUNT / TOTAL_COUNT * 100, 2) END AS "quoteStartRate",
+			CASE WHEN TOTAL_COUNT = 0 THEN 0 ELSE ROUND(CONFIRMED_OR_AFTER_COUNT / TOTAL_COUNT * 100, 2) END AS "confirmedRate",
+			CASE WHEN TOTAL_COUNT = 0 THEN 0 ELSE ROUND(WORKING_OR_AFTER_COUNT / TOTAL_COUNT * 100, 2) END AS "workingRate",
+			CASE WHEN TOTAL_COUNT = 0 THEN 0 ELSE ROUND(DONE_COUNT / TOTAL_COUNT * 100, 2) END AS "doneRate",
+			CASE WHEN TOTAL_COUNT = 0 THEN 0 ELSE ROUND(CANCEL_COUNT / TOTAL_COUNT * 100, 2) END AS "cancelRate"
+		FROM STATUS_BASE
+	</select>
+
+	<select id="getInteriorInvoiceStats" parameterType="map" resultType="map">
+		WITH INVOICE_AMOUNT AS (
+			SELECT
+				i.C_ID,
+				i.C_KIND,
+				i.C_NAME,
+				i.ID,
+				i.B_CREATEDDATE,
+				i.INVOICE_NO,
+				i.INVOICE_KIND,
+				SUM(NVL(d.INVOICE_PRICE, 0) * NVL(d.INVOICE_QTY, 0)) AS INVOICE_AMOUNT
+			FROM INVOICE i
+				LEFT JOIN INVOICE_DETAIL d
+					ON i.C_ID = d.C_ID
+					AND i.C_KIND = d.C_KIND
+					AND i.C_NAME = d.C_NAME
+					AND i.ID = d.ID
+					AND i.B_CREATEDDATE = d.B_CREATEDDATE
+					AND i.INVOICE_NO = d.INVOICE_NO
+					AND (i.INVOICE_KIND = d.INVOICE_KIND OR d.INVOICE_KIND IS NULL)
+			<where>
+				<include refid="interiorInvoiceCompanyFilter" />
+				<include refid="interiorInvoiceDateFilter" />
+			</where>
+			GROUP BY i.C_ID, i.C_KIND, i.C_NAME, i.ID, i.B_CREATEDDATE, i.INVOICE_NO, i.INVOICE_KIND
+		)
+		SELECT
+			COUNT(*) AS "totalInvoiceCount",
+			COUNT(CASE WHEN INVOICE_KIND = 'Y' THEN 1 END) AS "confirmedInvoiceCount",
+			COUNT(CASE WHEN INVOICE_KIND = 'N' THEN 1 END) AS "normalInvoiceCount",
+			CASE WHEN COUNT(*) = 0 THEN 0 ELSE ROUND(COUNT(CASE WHEN INVOICE_KIND = 'Y' THEN 1 END) / COUNT(*) * 100, 2) END AS "invoiceConfirmRate",
+			NVL(ROUND(AVG(INVOICE_AMOUNT), 0), 0) AS "avgInvoiceAmount",
+			NVL(MIN(INVOICE_AMOUNT), 0) AS "minInvoiceAmount",
+			NVL(MAX(INVOICE_AMOUNT), 0) AS "maxInvoiceAmount",
+			NVL(SUM(CASE WHEN INVOICE_KIND = 'Y' THEN INVOICE_AMOUNT ELSE 0 END), 0) AS "confirmedInvoiceTotalAmount"
+		FROM INVOICE_AMOUNT
+	</select>
+
+	<select id="getInteriorContractStats" parameterType="map" resultType="map">
+		WITH CONFIRMED_INVOICE AS (
+			SELECT
+				i.C_ID,
+				i.C_KIND,
+				i.C_NAME,
+				i.ID,
+				i.B_CREATEDDATE,
+				i.INVOICE_NO,
+				SUM(NVL(d.INVOICE_PRICE, 0) * NVL(d.INVOICE_QTY, 0)) AS CONTRACT_AMOUNT
+			FROM INVOICE i
+				LEFT JOIN INVOICE_DETAIL d
+					ON i.C_ID = d.C_ID
+					AND i.C_KIND = d.C_KIND
+					AND i.C_NAME = d.C_NAME
+					AND i.ID = d.ID
+					AND i.B_CREATEDDATE = d.B_CREATEDDATE
+					AND i.INVOICE_NO = d.INVOICE_NO
+					AND (i.INVOICE_KIND = d.INVOICE_KIND OR d.INVOICE_KIND IS NULL)
+			<where>
+				<include refid="interiorInvoiceCompanyFilter" />
+				AND i.INVOICE_KIND = 'Y'
+				<include refid="interiorInvoiceDateFilter" />
+			</where>
+			GROUP BY i.C_ID, i.C_KIND, i.C_NAME, i.ID, i.B_CREATEDDATE, i.INVOICE_NO
+		)
+		SELECT
+			COUNT(*) AS "contractCount",
+			NVL(SUM(CONTRACT_AMOUNT), 0) AS "totalContractAmount",
+			NVL(ROUND(AVG(CONTRACT_AMOUNT), 0), 0) AS "avgContractAmount",
+			NVL(MIN(CONTRACT_AMOUNT), 0) AS "minContractAmount",
+			NVL(MAX(CONTRACT_AMOUNT), 0) AS "maxContractAmount"
+		FROM CONFIRMED_INVOICE
+	</select>
+
+	<select id="getInteriorMonthlyContractStats" parameterType="map" resultType="map">
+		WITH CONFIRMED_INVOICE AS (
+			SELECT
+				TO_CHAR(i.B_CREATEDDATE, 'YYYY-MM') AS YM,
+				i.ID,
+				i.B_CREATEDDATE,
+				i.INVOICE_NO,
+				SUM(NVL(d.INVOICE_PRICE, 0) * NVL(d.INVOICE_QTY, 0)) AS CONTRACT_AMOUNT
+			FROM INVOICE i
+				LEFT JOIN INVOICE_DETAIL d
+					ON i.C_ID = d.C_ID
+					AND i.C_KIND = d.C_KIND
+					AND i.C_NAME = d.C_NAME
+					AND i.ID = d.ID
+					AND i.B_CREATEDDATE = d.B_CREATEDDATE
+					AND i.INVOICE_NO = d.INVOICE_NO
+					AND (i.INVOICE_KIND = d.INVOICE_KIND OR d.INVOICE_KIND IS NULL)
+			<where>
+				<include refid="interiorInvoiceCompanyFilter" />
+				AND i.INVOICE_KIND = 'Y'
+				<include refid="interiorInvoiceDateFilter" />
+			</where>
+			GROUP BY TO_CHAR(i.B_CREATEDDATE, 'YYYY-MM'), i.ID, i.B_CREATEDDATE, i.INVOICE_NO
+		)
+		SELECT
+			YM AS "month",
+			COUNT(*) AS "contractCount",
+			NVL(SUM(CONTRACT_AMOUNT), 0) AS "totalContractAmount",
+			NVL(ROUND(AVG(CONTRACT_AMOUNT), 0), 0) AS "avgContractAmount"
+		FROM CONFIRMED_INVOICE
+		GROUP BY YM
+		ORDER BY YM
+	</select>
+
+	<select id="getInteriorInvoiceItemStats" parameterType="map" resultType="map">
+		SELECT *
+		FROM (
+			SELECT
+				NVL(d.INVOICE_TEXT, 'unknown') AS "invoiceText",
+				COUNT(*) AS "itemCount",
+				NVL(SUM(NVL(d.INVOICE_QTY, 0)), 0) AS "totalQty",
+				NVL(ROUND(AVG(NVL(d.INVOICE_PRICE, 0)), 0), 0) AS "avgUnitPrice",
+				NVL(SUM(NVL(d.INVOICE_PRICE, 0) * NVL(d.INVOICE_QTY, 0)), 0) AS "totalAmount"
+			FROM INVOICE i
+				JOIN INVOICE_DETAIL d
+					ON i.C_ID = d.C_ID
+					AND i.C_KIND = d.C_KIND
+					AND i.C_NAME = d.C_NAME
+					AND i.ID = d.ID
+					AND i.B_CREATEDDATE = d.B_CREATEDDATE
+					AND i.INVOICE_NO = d.INVOICE_NO
+					AND (i.INVOICE_KIND = d.INVOICE_KIND OR d.INVOICE_KIND IS NULL)
+			<where>
+				<include refid="interiorInvoiceCompanyFilter" />
+				AND i.INVOICE_KIND = 'Y'
+				<include refid="interiorInvoiceDateFilter" />
+			</where>
+			GROUP BY NVL(d.INVOICE_TEXT, 'unknown')
+			ORDER BY "totalAmount" DESC
+		)
+		WHERE ROWNUM <![CDATA[<=]]> 10
+	</select>
+
+	<select id="getInteriorScheduleStats" parameterType="map" resultType="map">
+		SELECT
+			COUNT(*) AS "totalScheduleCount",
+			COUNT(CASE WHEN s.IS_STARTDATE <![CDATA[<=]]> SYSDATE AND s.IS_ENDDATE <![CDATA[>=]]> SYSDATE AND b.B_STATUS = 'working' THEN 1 END) AS "workingScheduleCount",
+			COUNT(CASE WHEN TRUNC(s.IS_STARTDATE) = TRUNC(SYSDATE) THEN 1 END) AS "todayStartCount",
+			COUNT(CASE WHEN s.IS_STARTDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'IW') AND s.IS_STARTDATE <![CDATA[<]]> TRUNC(SYSDATE, 'IW') + 7 THEN 1 END) AS "weekStartCount",
+			COUNT(CASE WHEN s.IS_STARTDATE <![CDATA[>=]]> TRUNC(SYSDATE, 'MM') AND s.IS_STARTDATE <![CDATA[<]]> ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1) THEN 1 END) AS "monthStartCount",
+			COUNT(CASE WHEN s.IS_ENDDATE <![CDATA[<]]> SYSDATE AND b.B_STATUS NOT IN ('done', 'cancel') THEN 1 END) AS "delaySuspectCount",
+			NVL(ROUND(AVG(TRUNC(s.IS_ENDDATE) - TRUNC(s.IS_STARTDATE) + 1), 2), 0) AS "avgWorkDays",
+			NVL(MAX(TRUNC(s.IS_ENDDATE) - TRUNC(s.IS_STARTDATE) + 1), 0) AS "maxWorkDays"
+		FROM I_SCHEDULE s
+			JOIN BOOKING b
+				ON s.ID = b.ID
+				AND s.C_ID = b.C_ID
+				AND s.C_KIND = b.C_KIND
+				AND s.C_NAME = b.C_NAME
+				AND s.B_CREATEDDATE = b.B_CREATEDDATE
+		<where>
+			<include refid="interiorScheduleCompanyFilter" />
+			<include refid="interiorScheduleDateFilter" />
+		</where>
+	</select>
+
+	<select id="getInteriorMonthlyScheduleStats" parameterType="map" resultType="map">
+		SELECT
+			TO_CHAR(s.IS_STARTDATE, 'YYYY-MM') AS "month",
+			COUNT(*) AS "scheduleCount",
+			NVL(ROUND(AVG(TRUNC(s.IS_ENDDATE) - TRUNC(s.IS_STARTDATE) + 1), 2), 0) AS "avgWorkDays"
+		FROM I_SCHEDULE s
+		<where>
+			<include refid="interiorScheduleCompanyFilter" />
+			<include refid="interiorScheduleDateFilter" />
+		</where>
+		GROUP BY TO_CHAR(s.IS_STARTDATE, 'YYYY-MM')
+		ORDER BY "month"
+	</select>
+
+	<select id="getInteriorCustomerStats" parameterType="map" resultType="map">
+		WITH CUSTOMER_BASE AS (
+			SELECT
+				b.ID,
+				MAX(CASE WHEN b.B_STATUS IN ('confirmed', 'working', 'done') THEN 1 ELSE 0 END) AS HAS_CONTRACT
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				<include refid="interiorBookingDateFilter" />
+			</where>
+			GROUP BY b.ID
+		),
+		AGE_BASE AS (
+			SELECT
+				u.ID,
+				u.GENDER,
+				TRUNC(MONTHS_BETWEEN(SYSDATE, u.BIRTH) / 12) AS AGE,
+				cb.HAS_CONTRACT
+			FROM CUSTOMER_BASE cb
+				JOIN USERS u
+					ON cb.ID = u.ID
+		)
+		SELECT
+			COUNT(*) AS "totalCustomerCount",
+			COUNT(CASE WHEN GENDER = 'male' THEN 1 END) AS "maleCount",
+			COUNT(CASE WHEN GENDER = 'female' THEN 1 END) AS "femaleCount",
+			COUNT(CASE WHEN AGE BETWEEN 10 AND 19 THEN 1 END) AS "age10",
+			COUNT(CASE WHEN AGE BETWEEN 20 AND 29 THEN 1 END) AS "age20",
+			COUNT(CASE WHEN AGE BETWEEN 30 AND 39 THEN 1 END) AS "age30",
+			COUNT(CASE WHEN AGE BETWEEN 40 AND 49 THEN 1 END) AS "age40",
+			COUNT(CASE WHEN AGE BETWEEN 50 AND 59 THEN 1 END) AS "age50",
+			COUNT(CASE WHEN AGE <![CDATA[>=]]> 60 THEN 1 END) AS "ageOver60",
+			SUM(HAS_CONTRACT) AS "contractCustomerCount"
+		FROM AGE_BASE
+	</select>
+
+	<select id="getInteriorRepeatCustomerStats" parameterType="map" resultType="map">
+		WITH CUSTOMER_BOOKING_COUNT AS (
+			SELECT
+				b.ID,
+				COUNT(*) AS BOOKING_COUNT
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				<include refid="interiorBookingDateFilter" />
+			</where>
+			GROUP BY b.ID
+		)
+		SELECT
+			COUNT(*) AS "totalCustomerCount",
+			COUNT(CASE WHEN BOOKING_COUNT <![CDATA[>=]]> 2 THEN 1 END) AS "repeatCustomerCount",
+			CASE WHEN COUNT(*) = 0 THEN 0 ELSE ROUND(COUNT(CASE WHEN BOOKING_COUNT <![CDATA[>=]]> 2 THEN 1 END) / COUNT(*) * 100, 2) END AS "repeatCustomerRate"
+		FROM CUSTOMER_BOOKING_COUNT
+	</select>
+
+	<select id="getInteriorAnswerTypeStats" parameterType="map" resultType="map">
+		SELECT 'housingType' AS "answerType",
+			NVL(JSON_VALUE(b.B_ANSWER, '$.housingType' NULL ON ERROR), 'unknown') AS "answerValue",
+			COUNT(*) AS "bookingCount"
+		FROM BOOKING b
+		<where>
+			<include refid="interiorBookingCompanyFilter" />
+			AND b.B_ANSWER IS NOT NULL
+			AND b.B_ANSWER IS JSON
+			<include refid="interiorBookingDateFilter" />
+		</where>
+		GROUP BY NVL(JSON_VALUE(b.B_ANSWER, '$.housingType' NULL ON ERROR), 'unknown')
+		UNION ALL
+		SELECT 'purpose' AS "answerType",
+			NVL(JSON_VALUE(b.B_ANSWER, '$.purpose' NULL ON ERROR), 'unknown') AS "answerValue",
+			COUNT(*) AS "bookingCount"
+		FROM BOOKING b
+		<where>
+			<include refid="interiorBookingCompanyFilter" />
+			AND b.B_ANSWER IS NOT NULL
+			AND b.B_ANSWER IS JSON
+			<include refid="interiorBookingDateFilter" />
+		</where>
+		GROUP BY NVL(JSON_VALUE(b.B_ANSWER, '$.purpose' NULL ON ERROR), 'unknown')
+		UNION ALL
+		SELECT 'scheduleType' AS "answerType",
+			NVL(JSON_VALUE(b.B_ANSWER, '$.schedule' NULL ON ERROR), 'unknown') AS "answerValue",
+			COUNT(*) AS "bookingCount"
+		FROM BOOKING b
+		<where>
+			<include refid="interiorBookingCompanyFilter" />
+			AND b.B_ANSWER IS NOT NULL
+			AND b.B_ANSWER IS JSON
+			<include refid="interiorBookingDateFilter" />
+		</where>
+		GROUP BY NVL(JSON_VALUE(b.B_ANSWER, '$.schedule' NULL ON ERROR), 'unknown')
+		ORDER BY "answerType", "bookingCount" DESC
+	</select>
+
+	<select id="getInteriorAnswerBudgetAreaStats" parameterType="map" resultType="map">
+		WITH ANSWER_BASE AS (
+			SELECT
+				CASE
+					WHEN REGEXP_LIKE(JSON_VALUE(b.B_ANSWER, '$.budget' NULL ON ERROR), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(JSON_VALUE(b.B_ANSWER, '$.budget' NULL ON ERROR))
+				END AS BUDGET,
+				CASE
+					WHEN REGEXP_LIKE(JSON_VALUE(b.B_ANSWER, '$.areaSize' NULL ON ERROR), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(JSON_VALUE(b.B_ANSWER, '$.areaSize' NULL ON ERROR))
+				END AS AREA_SIZE
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				AND b.B_ANSWER IS NOT NULL
+				AND b.B_ANSWER IS JSON
+				<include refid="interiorBookingDateFilter" />
+			</where>
+		)
+		SELECT 'budget' AS "answerType",
+			CASE
+				WHEN BUDGET IS NULL THEN 'unknown'
+				WHEN BUDGET <![CDATA[<]]> 500 THEN 'under500'
+				WHEN BUDGET <![CDATA[<]]> 1000 THEN '500to1000'
+				WHEN BUDGET <![CDATA[<]]> 2000 THEN '1000to2000'
+				WHEN BUDGET <![CDATA[<]]> 3000 THEN '2000to3000'
+				ELSE 'over3000'
+			END AS "answerGroup",
+			COUNT(*) AS "bookingCount"
+		FROM ANSWER_BASE
+		GROUP BY
+			CASE
+				WHEN BUDGET IS NULL THEN 'unknown'
+				WHEN BUDGET <![CDATA[<]]> 500 THEN 'under500'
+				WHEN BUDGET <![CDATA[<]]> 1000 THEN '500to1000'
+				WHEN BUDGET <![CDATA[<]]> 2000 THEN '1000to2000'
+				WHEN BUDGET <![CDATA[<]]> 3000 THEN '2000to3000'
+				ELSE 'over3000'
+			END
+		UNION ALL
+		SELECT 'area' AS "answerType",
+			CASE
+				WHEN AREA_SIZE IS NULL THEN 'unknown'
+				WHEN AREA_SIZE <![CDATA[<]]> 10 THEN 'under10'
+				WHEN AREA_SIZE <![CDATA[<]]> 20 THEN '10to20'
+				WHEN AREA_SIZE <![CDATA[<]]> 30 THEN '20to30'
+				WHEN AREA_SIZE <![CDATA[<]]> 40 THEN '30to40'
+				ELSE 'over40'
+			END AS "answerGroup",
+			COUNT(*) AS "bookingCount"
+		FROM ANSWER_BASE
+		GROUP BY
+			CASE
+				WHEN AREA_SIZE IS NULL THEN 'unknown'
+				WHEN AREA_SIZE <![CDATA[<]]> 10 THEN 'under10'
+				WHEN AREA_SIZE <![CDATA[<]]> 20 THEN '10to20'
+				WHEN AREA_SIZE <![CDATA[<]]> 30 THEN '20to30'
+				WHEN AREA_SIZE <![CDATA[<]]> 40 THEN '30to40'
+				ELSE 'over40'
+			END
+		ORDER BY "answerType", "bookingCount" DESC
+	</select>
+
+	<select id="getInteriorAnswerSpaceStats" parameterType="map" resultType="map">
+		SELECT *
+		FROM (
+			SELECT
+				jt.SPACE AS "spaceName",
+				COUNT(*) AS "requestCount"
+			FROM BOOKING b,
+				JSON_TABLE(
+					b.B_ANSWER,
+					'$.spaces[*]'
+					COLUMNS (
+						SPACE VARCHAR2(100) PATH '$'
+					)
+				) jt
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				AND b.B_ANSWER IS NOT NULL
+				AND b.B_ANSWER IS JSON
+				<include refid="interiorBookingDateFilter" />
+			</where>
+			GROUP BY jt.SPACE
+			ORDER BY "requestCount" DESC
+		)
+		WHERE ROWNUM <![CDATA[<=]]> 10
+	</select>
+
+	<select id="getInteriorReviewStats" parameterType="map" resultType="map">
+		WITH DONE_BOOKING AS (
+			SELECT b.ID, b.C_ID, b.C_KIND, b.C_NAME, b.B_CREATEDDATE
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				AND b.B_STATUS = 'done'
+				<include refid="interiorBookingDateFilter" />
+			</where>
+		),
+		REVIEW_BASE AS (
+			SELECT
+				r.ID,
+				r.C_ID,
+				r.C_KIND,
+				r.C_NAME,
+				r.B_CREATEDDATE,
+				MIN(r.IR_CREATEDDATE) AS REVIEW_CREATEDDATE
+			FROM I_REVIEW r
+			WHERE r.C_KIND = 'interior'
+			<if test="c_id != null and c_id != ''">
+				AND r.C_ID = #{c_id}
+			</if>
+			<if test="c_name != null and c_name != '' and c_name != 'all'">
+				AND r.C_NAME = #{c_name}
+			</if>
+			GROUP BY r.ID, r.C_ID, r.C_KIND, r.C_NAME, r.B_CREATEDDATE
+		)
+		SELECT
+			COUNT(d.ID) AS "doneBookingCount",
+			COUNT(CASE WHEN r.ID IS NOT NULL THEN 1 END) AS "reviewWrittenCount",
+			COUNT(CASE WHEN r.ID IS NULL THEN 1 END) AS "reviewNotWrittenCount",
+			CASE WHEN COUNT(d.ID) = 0 THEN 0 ELSE ROUND(COUNT(CASE WHEN r.ID IS NOT NULL THEN 1 END) / COUNT(d.ID) * 100, 2) END AS "reviewWriteRate",
+			NVL(ROUND(AVG(r.REVIEW_CREATEDDATE - d.B_CREATEDDATE), 2), 0) AS "avgReviewAfterDays"
+		FROM DONE_BOOKING d
+			LEFT JOIN REVIEW_BASE r
+				ON d.ID = r.ID
+				AND d.C_ID = r.C_ID
+				AND d.C_KIND = r.C_KIND
+				AND d.C_NAME = r.C_NAME
+				AND d.B_CREATEDDATE = r.B_CREATEDDATE
+	</select>
+
+	<select id="getInteriorMonthlyReviewStats" parameterType="map" resultType="map">
+		SELECT
+			TO_CHAR(r.IR_CREATEDDATE, 'YYYY-MM') AS "month",
+			COUNT(*) AS "reviewCount"
+		FROM I_REVIEW r
+		WHERE r.C_KIND = 'interior'
+		<if test="c_id != null and c_id != ''">
+			AND r.C_ID = #{c_id}
+		</if>
+		<if test="c_name != null and c_name != '' and c_name != 'all'">
+			AND r.C_NAME = #{c_name}
+		</if>
+		<include refid="interiorReviewCreatedDateFilter" />
+		GROUP BY TO_CHAR(r.IR_CREATEDDATE, 'YYYY-MM')
+		ORDER BY "month"
+	</select>
+
+	<select id="getInteriorPortfolioStats" parameterType="map" resultType="map">
+		WITH EXAMPLE_BASE AS (
+			SELECT e.C_ID, e.C_KIND, e.C_NAME, e.IE_INDEX, e.IE_TAG, e.IE_TAG2, e.IE_CONTENT
+			FROM I_EXAMPLE e
+			<where>
+				<include refid="interiorExampleCompanyFilter" />
+			</where>
+		),
+		IMG_BASE AS (
+			SELECT
+				img.DIR_A AS C_ID,
+				img.DIR_B AS C_KIND,
+				img.DIR_C AS C_NAME,
+				img.DIR_D AS IE_INDEX,
+				COUNT(CASE WHEN img.IMG_TAG != 'MODEL' OR img.IMG_TAG IS NULL THEN 1 END) AS IMG_COUNT
+			FROM IMG img
+			WHERE img.IMG_KIND = 'I_EXAMPLE'
+			GROUP BY img.DIR_A, img.DIR_B, img.DIR_C, img.DIR_D
+		)
+		SELECT
+			COUNT(*) AS "exampleCount",
+			COUNT(CASE WHEN e.IE_TAG IS NOT NULL AND TRIM(e.IE_TAG) IS NOT NULL THEN 1 END) AS "tagFilledCount",
+			COUNT(CASE WHEN e.IE_TAG2 IS NOT NULL AND TRIM(e.IE_TAG2) IS NOT NULL THEN 1 END) AS "tag2FilledCount",
+			COUNT(CASE WHEN NVL(i.IMG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 END) AS "imageExampleCount",
+			COUNT(CASE WHEN NVL(i.IMG_COUNT, 0) = 0 THEN 1 END) AS "noImageExampleCount",
+			NVL(SUM(NVL(i.IMG_COUNT, 0)), 0) AS "exampleImageCount",
+			CASE WHEN COUNT(*) = 0 THEN 0 ELSE ROUND(COUNT(CASE WHEN NVL(i.IMG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 END) / COUNT(*) * 100, 2) END AS "imageFillRate",
+			CASE WHEN COUNT(*) = 0 THEN 0 ELSE ROUND(COUNT(CASE WHEN e.IE_TAG IS NOT NULL AND TRIM(e.IE_TAG) IS NOT NULL THEN 1 END) / COUNT(*) * 100, 2) END AS "tagFillRate"
+		FROM EXAMPLE_BASE e
+			LEFT JOIN IMG_BASE i
+				ON e.C_ID = i.C_ID
+				AND e.C_KIND = i.C_KIND
+				AND e.C_NAME = i.C_NAME
+				AND TO_CHAR(e.IE_INDEX) = i.IE_INDEX
+	</select>
+
+	<select id="getInteriorExampleTagStats" parameterType="map" resultType="map">
+		SELECT
+			NVL(e.IE_TAG, 'uncategorized') AS "exampleTag",
+			COUNT(*) AS "exampleCount"
+		FROM I_EXAMPLE e
+		<where>
+			<include refid="interiorExampleCompanyFilter" />
+		</where>
+		GROUP BY NVL(e.IE_TAG, 'uncategorized')
+		ORDER BY "exampleCount" DESC
+	</select>
+
+	<select id="getInteriorRecentExampleStats" parameterType="map" resultType="map">
+		SELECT *
+		FROM (
+			SELECT
+				e.C_ID AS "cId",
+				e.C_NAME AS "cName",
+				e.IE_INDEX AS "ieIndex",
+				e.IE_TAG AS "ieTag",
+				e.IE_TAG2 AS "ieTag2",
+				e.IE_CONTENT AS "ieContent"
+			FROM I_EXAMPLE e
+			<where>
+				<include refid="interiorExampleCompanyFilter" />
+			</where>
+			ORDER BY e.IE_INDEX DESC
+		)
+		WHERE ROWNUM <![CDATA[<=]]> 5
+	</select>
+
+	<select id="getInteriorInterestStats" parameterType="map" resultType="map">
+		WITH COMPANY_LIKE_CODE AS (
+			SELECT
+				c.C_ID,
+				c.C_NAME,
+				c.C_KIND,
+				c.C_ID || '/' || c.C_NAME || '/' || c.C_KIND AS LIKE_CODE
+			FROM COMPANY c
+			<where>
+				<include refid="interiorCompanyTableFilter" />
+			</where>
+		),
+		LIKE_BASE AS (
+			SELECT
+				l.LIKE_CODE,
+				COUNT(*) AS LIKE_COUNT
+			FROM "LIKE" l
+			WHERE l.LIKE_TAG = 'interior'
+			GROUP BY l.LIKE_CODE
+		),
+		BOOKING_BASE AS (
+			SELECT
+				b.C_ID,
+				b.C_NAME,
+				b.C_KIND,
+				COUNT(*) AS BOOKING_COUNT,
+				COUNT(CASE WHEN b.B_STATUS IN ('confirmed', 'working', 'done') THEN 1 END) AS CONTRACT_COUNT
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				<include refid="interiorBookingDateFilter" />
+			</where>
+			GROUP BY b.C_ID, b.C_NAME, b.C_KIND
+		)
+		SELECT
+			c.C_ID AS "cId",
+			c.C_NAME AS "cName",
+			NVL(l.LIKE_COUNT, 0) AS "likeCount",
+			NVL(b.BOOKING_COUNT, 0) AS "bookingCount",
+			NVL(b.CONTRACT_COUNT, 0) AS "contractCount",
+			CASE WHEN NVL(l.LIKE_COUNT, 0) = 0 THEN 0 ELSE ROUND(NVL(b.BOOKING_COUNT, 0) / l.LIKE_COUNT * 100, 2) END AS "likeToBookingRate",
+			CASE WHEN NVL(l.LIKE_COUNT, 0) = 0 THEN 0 ELSE ROUND(NVL(b.CONTRACT_COUNT, 0) / l.LIKE_COUNT * 100, 2) END AS "likeToContractRate"
+		FROM COMPANY_LIKE_CODE c
+			LEFT JOIN LIKE_BASE l
+				ON c.LIKE_CODE = l.LIKE_CODE
+			LEFT JOIN BOOKING_BASE b
+				ON c.C_ID = b.C_ID
+				AND c.C_KIND = b.C_KIND
+				AND c.C_NAME = b.C_NAME
+		ORDER BY "likeCount" DESC, "bookingCount" DESC
+	</select>
+
+	<select id="getInteriorProfileCompletionStats" parameterType="map" resultType="map">
+		WITH COMPANY_BASE AS (
+			SELECT c.C_ID, c.C_KIND, c.C_NAME, c.C_TEL, c.C_ADDR, c.C_INFO, c.C_BOSS
+			FROM COMPANY c
+			<where>
+				<include refid="interiorCompanyTableFilter" />
+			</where>
+		),
+		INTERIOR_BASE AS (
+			SELECT
+				i.C_ID,
+				i.C_KIND,
+				i.C_NAME,
+				COUNT(*) AS INTERIOR_INFO_COUNT,
+				COUNT(CASE WHEN i.I_TAG IS NOT NULL AND TRIM(i.I_TAG) IS NOT NULL THEN 1 END) AS TAG_COUNT,
+				COUNT(CASE WHEN i.I_TEXT IS NOT NULL AND TRIM(i.I_TEXT) IS NOT NULL THEN 1 END) AS TEXT_COUNT
+			FROM INTERIOR i
+			WHERE i.C_KIND = 'interior'
+			<if test="c_id != null and c_id != ''">
+				AND i.C_ID = #{c_id}
+			</if>
+			<if test="c_name != null and c_name != '' and c_name != 'all'">
+				AND i.C_NAME = #{c_name}
+			</if>
+			GROUP BY i.C_ID, i.C_KIND, i.C_NAME
+		),
+		IMG_BASE AS (
+			SELECT
+				img.DIR_A AS C_ID,
+				img.DIR_B AS C_KIND,
+				img.DIR_C AS C_NAME,
+				COUNT(CASE WHEN img.IMG_KIND = 'LOGO' THEN 1 END) AS LOGO_COUNT,
+				COUNT(CASE WHEN img.IMG_KIND = 'C_PROFILE' THEN 1 END) AS PROFILE_IMG_COUNT,
+				COUNT(CASE WHEN img.IMG_KIND = 'I_EXAMPLE' AND (img.IMG_TAG != 'MODEL' OR img.IMG_TAG IS NULL) THEN 1 END) AS EXAMPLE_IMG_COUNT,
+				COUNT(CASE WHEN img.IMG_KIND = 'I_EXAMPLE' AND img.IMG_TAG = 'MODEL' THEN 1 END) AS MODEL_COUNT
+			FROM IMG img
+			WHERE img.DIR_B = 'interior'
+			<if test="c_id != null and c_id != ''">
+				AND img.DIR_A = #{c_id}
+			</if>
+			<if test="c_name != null and c_name != '' and c_name != 'all'">
+				AND img.DIR_C = #{c_name}
+			</if>
+			GROUP BY img.DIR_A, img.DIR_B, img.DIR_C
+		),
+		EXAMPLE_BASE AS (
+			SELECT e.C_ID, e.C_KIND, e.C_NAME, COUNT(*) AS EXAMPLE_COUNT
+			FROM I_EXAMPLE e
+			<where>
+				<include refid="interiorExampleCompanyFilter" />
+			</where>
+			GROUP BY e.C_ID, e.C_KIND, e.C_NAME
+		)
+		SELECT
+			c.C_ID AS "cId",
+			c.C_NAME AS "cName",
+			CASE WHEN c.C_TEL IS NOT NULL AND TRIM(c.C_TEL) IS NOT NULL THEN 1 ELSE 0 END AS "telFilled",
+			CASE WHEN c.C_ADDR IS NOT NULL AND TRIM(c.C_ADDR) IS NOT NULL THEN 1 ELSE 0 END AS "addrFilled",
+			CASE WHEN c.C_INFO IS NOT NULL AND TRIM(c.C_INFO) IS NOT NULL THEN 1 ELSE 0 END AS "infoFilled",
+			CASE WHEN c.C_BOSS IS NOT NULL AND TRIM(c.C_BOSS) IS NOT NULL THEN 1 ELSE 0 END AS "bossFilled",
+			CASE WHEN NVL(i.TAG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "interiorTagFilled",
+			CASE WHEN NVL(i.TEXT_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "interiorTextFilled",
+			CASE WHEN NVL(img.LOGO_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "logoFilled",
+			CASE WHEN NVL(img.PROFILE_IMG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "profileImageFilled",
+			CASE WHEN NVL(e.EXAMPLE_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "exampleFilled",
+			CASE WHEN NVL(img.EXAMPLE_IMG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "exampleImageFilled",
+			CASE WHEN NVL(img.MODEL_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END AS "modelFilled",
+			ROUND((
+				CASE WHEN c.C_TEL IS NOT NULL AND TRIM(c.C_TEL) IS NOT NULL THEN 1 ELSE 0 END
+				+ CASE WHEN c.C_ADDR IS NOT NULL AND TRIM(c.C_ADDR) IS NOT NULL THEN 1 ELSE 0 END
+				+ CASE WHEN c.C_INFO IS NOT NULL AND TRIM(c.C_INFO) IS NOT NULL THEN 1 ELSE 0 END
+				+ CASE WHEN c.C_BOSS IS NOT NULL AND TRIM(c.C_BOSS) IS NOT NULL THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(i.TAG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(i.TEXT_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(img.LOGO_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(img.PROFILE_IMG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(e.EXAMPLE_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(img.EXAMPLE_IMG_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+				+ CASE WHEN NVL(img.MODEL_COUNT, 0) <![CDATA[>]]> 0 THEN 1 ELSE 0 END
+			) / 11 * 100, 2) AS "profileCompleteRate"
+		FROM COMPANY_BASE c
+			LEFT JOIN INTERIOR_BASE i
+				ON c.C_ID = i.C_ID
+				AND c.C_KIND = i.C_KIND
+				AND c.C_NAME = i.C_NAME
+			LEFT JOIN IMG_BASE img
+				ON c.C_ID = img.C_ID
+				AND c.C_KIND = img.C_KIND
+				AND c.C_NAME = img.C_NAME
+			LEFT JOIN EXAMPLE_BASE e
+				ON c.C_ID = e.C_ID
+				AND c.C_KIND = e.C_KIND
+				AND c.C_NAME = e.C_NAME
+	</select>
+
+	<select id="getInteriorRiskStats" parameterType="map" resultType="map">
+		WITH BOOKING_BASE AS (
+			SELECT b.*
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+			</where>
+		),
+		INVOICE_BASE AS (
+			SELECT DISTINCT i.ID, i.C_ID, i.C_KIND, i.C_NAME, i.B_CREATEDDATE
+			FROM INVOICE i
+			<where>
+				<include refid="interiorInvoiceCompanyFilter" />
+			</where>
+		),
+		SCHEDULE_BASE AS (
+			SELECT
+				s.ID,
+				s.C_ID,
+				s.C_KIND,
+				s.C_NAME,
+				s.B_CREATEDDATE,
+				MIN(s.IS_STARTDATE) AS IS_STARTDATE,
+				MAX(s.IS_ENDDATE) AS IS_ENDDATE
+			FROM I_SCHEDULE s
+			<where>
+				<include refid="interiorScheduleCompanyFilter" />
+			</where>
+			GROUP BY s.ID, s.C_ID, s.C_KIND, s.C_NAME, s.B_CREATEDDATE
+		),
+		REVIEW_BASE AS (
+			SELECT DISTINCT r.ID, r.C_ID, r.C_KIND, r.C_NAME, r.B_CREATEDDATE
+			FROM I_REVIEW r
+			WHERE r.C_KIND = 'interior'
+			<if test="c_id != null and c_id != ''">
+				AND r.C_ID = #{c_id}
+			</if>
+			<if test="c_name != null and c_name != '' and c_name != 'all'">
+				AND r.C_NAME = #{c_name}
+			</if>
+		)
+		SELECT
+			COUNT(CASE WHEN b.B_STATUS = 'pending' AND b.B_CREATEDDATE <![CDATA[<]]> SYSDATE - 3 THEN 1 END) AS "oldPendingCount",
+			COUNT(CASE WHEN b.B_STATUS = 'quoting' AND b.B_CREATEDDATE <![CDATA[<]]> SYSDATE - 7 THEN 1 END) AS "oldQuotingCount",
+			COUNT(CASE WHEN b.B_STATUS IN ('confirmed', 'working') AND s.ID IS NULL THEN 1 END) AS "confirmedNoScheduleCount",
+			COUNT(CASE WHEN s.IS_ENDDATE <![CDATA[<]]> SYSDATE AND b.B_STATUS NOT IN ('done', 'cancel') THEN 1 END) AS "scheduleDelaySuspectCount",
+			COUNT(CASE WHEN b.B_STATUS IN ('pending', 'quoting') AND i.ID IS NULL THEN 1 END) AS "noInvoiceCount",
+			COUNT(CASE WHEN b.B_STATUS = 'done' AND r.ID IS NULL THEN 1 END) AS "reviewRequestTargetCount"
+		FROM BOOKING_BASE b
+			LEFT JOIN INVOICE_BASE i
+				ON b.ID = i.ID
+				AND b.C_ID = i.C_ID
+				AND b.C_KIND = i.C_KIND
+				AND b.C_NAME = i.C_NAME
+				AND b.B_CREATEDDATE = i.B_CREATEDDATE
+			LEFT JOIN SCHEDULE_BASE s
+				ON b.ID = s.ID
+				AND b.C_ID = s.C_ID
+				AND b.C_KIND = s.C_KIND
+				AND b.C_NAME = s.C_NAME
+				AND b.B_CREATEDDATE = s.B_CREATEDDATE
+			LEFT JOIN REVIEW_BASE r
+				ON b.ID = r.ID
+				AND b.C_ID = r.C_ID
+				AND b.C_KIND = r.C_KIND
+				AND b.C_NAME = r.C_NAME
+				AND b.B_CREATEDDATE = r.B_CREATEDDATE
+	</select>
+
+	<select id="getInteriorRiskList" parameterType="map" resultType="map">
+		WITH SCHEDULE_BASE AS (
+			SELECT
+				s.ID,
+				s.C_ID,
+				s.C_KIND,
+				s.C_NAME,
+				s.B_CREATEDDATE,
+				MIN(s.IS_STARTDATE) AS IS_STARTDATE,
+				MAX(s.IS_ENDDATE) AS IS_ENDDATE
+			FROM I_SCHEDULE s
+			<where>
+				<include refid="interiorScheduleCompanyFilter" />
+			</where>
+			GROUP BY s.ID, s.C_ID, s.C_KIND, s.C_NAME, s.B_CREATEDDATE
+		),
+		REVIEW_BASE AS (
+			SELECT DISTINCT r.ID, r.C_ID, r.C_KIND, r.C_NAME, r.B_CREATEDDATE
+			FROM I_REVIEW r
+			WHERE r.C_KIND = 'interior'
+			<if test="c_id != null and c_id != ''">
+				AND r.C_ID = #{c_id}
+			</if>
+			<if test="c_name != null and c_name != '' and c_name != 'all'">
+				AND r.C_NAME = #{c_name}
+			</if>
+		)
+		SELECT *
+		FROM (
+			SELECT
+				b.ID AS "id",
+				b.C_ID AS "cId",
+				b.C_NAME AS "cName",
+				b.B_CREATEDDATE AS "createdDate",
+				b.B_DATE AS "bookingDate",
+				b.B_STATUS AS "status",
+				b.B_KIND AS "bookingKind",
+				CASE
+					WHEN b.B_STATUS = 'pending' AND b.B_CREATEDDATE <![CDATA[<]]> SYSDATE - 3 THEN 'oldPending'
+					WHEN b.B_STATUS = 'quoting' AND b.B_CREATEDDATE <![CDATA[<]]> SYSDATE - 7 THEN 'oldQuoting'
+					WHEN b.B_STATUS IN ('confirmed', 'working') AND s.ID IS NULL THEN 'noSchedule'
+					WHEN s.IS_ENDDATE <![CDATA[<]]> SYSDATE AND b.B_STATUS NOT IN ('done', 'cancel') THEN 'scheduleDelay'
+					WHEN b.B_STATUS = 'done' AND r.ID IS NULL THEN 'reviewRequest'
+					ELSE 'normal'
+				END AS "riskType"
+			FROM BOOKING b
+				LEFT JOIN SCHEDULE_BASE s
+					ON b.ID = s.ID
+					AND b.C_ID = s.C_ID
+					AND b.C_KIND = s.C_KIND
+					AND b.C_NAME = s.C_NAME
+					AND b.B_CREATEDDATE = s.B_CREATEDDATE
+				LEFT JOIN REVIEW_BASE r
+					ON b.ID = r.ID
+					AND b.C_ID = r.C_ID
+					AND b.C_KIND = r.C_KIND
+					AND b.C_NAME = r.C_NAME
+					AND b.B_CREATEDDATE = r.B_CREATEDDATE
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				AND (
+					(b.B_STATUS = 'pending' AND b.B_CREATEDDATE <![CDATA[<]]> SYSDATE - 3)
+					OR (b.B_STATUS = 'quoting' AND b.B_CREATEDDATE <![CDATA[<]]> SYSDATE - 7)
+					OR (b.B_STATUS IN ('confirmed', 'working') AND s.ID IS NULL)
+					OR (s.IS_ENDDATE <![CDATA[<]]> SYSDATE AND b.B_STATUS NOT IN ('done', 'cancel'))
+					OR (b.B_STATUS = 'done' AND r.ID IS NULL)
+				)
+			</where>
+			ORDER BY b.B_CREATEDDATE DESC
+		)
+		WHERE ROWNUM <![CDATA[<=]]> 30
+	</select>
+
 </mapper>
