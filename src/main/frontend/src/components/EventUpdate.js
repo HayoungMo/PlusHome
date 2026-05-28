@@ -18,6 +18,7 @@ import EventService from "../service/eventService";
 import ImageService from "../service/imageService";
 import GetImgDir from "../resources/function/GetImgDir";
 import FloatingActionButtonMui from "./FloatingActionButtonMui";
+import "../css/EventForm.css";
 
 const EventUpdate = () => {
   const navigate = useNavigate();
@@ -250,7 +251,7 @@ const EventUpdate = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1080, mx: "auto", px: 3, py: 5, textAlign: "left" }}>
+    <Box className="event-form-page">
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -290,6 +291,7 @@ const EventUpdate = () => {
       </Typography>
 
       <Box
+        className="event-form-layout"
         component="form"
         name="eventUpdate"
         onSubmit={handleSubmit}
@@ -300,8 +302,8 @@ const EventUpdate = () => {
           alignItems: "start",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <Box>
+        <Box className="event-form-main" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               기본 정보
             </Typography>
@@ -380,7 +382,7 @@ const EventUpdate = () => {
 
           <Divider />
 
-          <Box>
+          <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               등록된 이미지
             </Typography>
@@ -390,6 +392,7 @@ const EventUpdate = () => {
               </Typography>
             )}
             <Box
+              className="event-form-existing-grid"
               sx={{
                 display: "grid",
                 gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
@@ -398,6 +401,7 @@ const EventUpdate = () => {
             >
               {imageList.map((item) => (
                 <Box
+                  className="event-form-existing-card"
                   key={`${item.img_name}-${item.img_idx}`}
                   sx={{
                     border: "1px solid #ddd",
@@ -459,11 +463,12 @@ const EventUpdate = () => {
 
           <Divider />
 
-          <Box>
+          <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               새 이미지 추가
             </Typography>
             <Box
+              className="event-form-upload-row"
               sx={{
                 display: "flex",
                 gap: 2,
@@ -493,9 +498,10 @@ const EventUpdate = () => {
               </Button>
             </Box>
             {preview.length > 0 && (
-              <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
+              <Box className="event-form-preview-grid" sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
                 {preview.map((item, index) => (
                   <Box
+                    className="event-form-preview-card"
                     key={item}
                     sx={{
                       width: 150,
@@ -533,6 +539,7 @@ const EventUpdate = () => {
         </Box>
 
         <Box
+          className="event-form-side-panel"
           sx={{
             position: { md: "sticky" },
             top: { md: 24 },

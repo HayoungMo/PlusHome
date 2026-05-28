@@ -18,6 +18,7 @@ import CouponAdd from "./CouponAdd";
 import CouponService from "../service/couponService";
 import TableCheckBoxMui from "./TableCheckBoxMui";
 import { useNavigate } from "react-router-dom";
+import "../css/EventForm.css";
 
 const EventCreated = () => {
   const navigate = useNavigate();
@@ -280,7 +281,7 @@ const EventCreated = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1080, mx: "auto", px: 3, py: 5, textAlign: "left" }}>
+    <Box className="event-form-page">
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -320,6 +321,7 @@ const EventCreated = () => {
       </Typography>
 
       <Box
+        className="event-form-layout"
         component="form"
         name="event"
         onSubmit={handleSubmit}
@@ -330,8 +332,8 @@ const EventCreated = () => {
           alignItems: "start",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <Box>
+        <Box className="event-form-main" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               기본 정보
             </Typography>
@@ -403,11 +405,12 @@ const EventCreated = () => {
 
           <Divider />
 
-          <Box>
+          <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               이미지
             </Typography>
             <Box
+              className="event-form-upload-row"
               sx={{
                 display: "flex",
                 gap: 2,
@@ -433,9 +436,10 @@ const EventCreated = () => {
               </Button>
             </Box>
             {preview.length > 0 && (
-              <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
+              <Box className="event-form-preview-grid" sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 2 }}>
                 {preview.map((item, index) => (
                   <Box
+                    className="event-form-preview-card"
                     key={item}
                     sx={{
                       width: 150,
@@ -473,7 +477,7 @@ const EventCreated = () => {
 
           <Divider />
 
-          <Box>
+          <Box className="event-form-section">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               쿠폰 선택
             </Typography>
@@ -507,6 +511,7 @@ const EventCreated = () => {
         </Box>
 
         <Box
+          className="event-form-side-panel"
           sx={{
             position: { md: "sticky" },
             top: { md: 24 },

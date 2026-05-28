@@ -106,19 +106,20 @@ const UserWishListPage = ({ user }) => {
                     alt={item.f_name}
                   />
 
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="user-wishlist-like"
-                    onClick={(evt) => onToggleLike(evt, item.f_code)}
-                    onKeyDown={(evt) => {
-                      if (evt.key === "Enter" || evt.key === " ") {
-                        onToggleLike(evt, item.f_code);
-                      }
-                    }}
+                  <button
+                      type="button"
+                      className="user-wishlist-like-btn"
+                      onClick={(evt) => onToggleLike(evt, item.f_code)}
+                      onKeyDown={(evt) => {
+                          if (evt.key === "Enter" || evt.key === " ") {
+                              onToggleLike(evt, item.f_code);
+                          }
+                      }}
+                      aria-label="찜 해제"
                   >
-                    ♥
-                  </span>
+                      ×
+                  </button>
+                  
                 </div>
 
                 <div className="user-wishlist-company">

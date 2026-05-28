@@ -708,6 +708,8 @@ const UserReviewPage = ({ user }) => {
                     >
                       <img src={image.previewUrl} alt="추가 이미지 미리보기" />
 
+                      <span className="user-review-new-badge">추가</span>
+                      
                       <button
                         type="button"
                         className="user-review-edit-image-delete"
