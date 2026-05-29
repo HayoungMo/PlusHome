@@ -202,4 +202,9 @@
 	</where>
 </select>
 
+<!-- 5월 29일 안예린 추가함 쿠폰 개수 -->
+<select id="getCouponCount" resultType="int">
+	select count(*) from coupon
+</select>
+
 </mapper>

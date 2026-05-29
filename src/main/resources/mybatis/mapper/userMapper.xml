@@ -233,4 +233,21 @@ update users
     </trim>                   
 </select>
 
+<!-- 일반 유저 / 기업유저 count -->
+
+<select id="getUserCount" resultType="int">
+	select count(*)
+	  from users
+	  where type = 'user'
+</select>
+
+<select id="getCompanyCount" resultType="int">
+	select count(*)
+	  from users
+	 where type = 'company'
+</select>
+
+
+
+
 </mapper>

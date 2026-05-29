@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.CouponDTO;
+import com.spring.home.dto.DevDashBoardSummaryDTO;
 import com.spring.home.dto.FileSaveResult;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.ImageDTO;
@@ -395,7 +396,21 @@ public class UserService {
 		}
 	}
 	
-	//
+	//일반 유저 / 기업 유저 회원수, 쿠폰발급수
+	public DevDashBoardSummaryDTO getSummary()throws Exception{
+		DevDashBoardSummaryDTO dto = new DevDashBoardSummaryDTO();
+		
+		
+		dto.setUserCount(userMapper.getUserCount());
+		dto.setCompanyCount(userMapper.getCompanyCount());
+		dto.setCompanyCount(couponMapper.getCouponCount());
+		
+		int couponCount = couponMapper.getCouponCount();
+		System.out.println("쿠폰개수" + couponCount);
+		
+		
+		return dto;
+	}
 
 }
 	
