@@ -42,6 +42,10 @@ const UserQuestionPage = ({ user }) => {
     const [deletedQuestionImages, setDeletedQuestionImages] = useState({});
     const [addImagePreview, setAddImagePreview] = useState({});
 
+    const [selectMode, setSelectMode] = useState(false);
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
     //Viewer사용
     const [viewerOpen, setViewerOpen] = useState(false);
     const [viewerImages, setViewerImages] = useState([]);
@@ -76,6 +80,45 @@ const UserQuestionPage = ({ user }) => {
             ...prev,
             open: false,
         }));
+    };
+
+    const startSelectMode = () => {
+        setSelectMode(true);
+        setSelectedIds([]);
+    };
+
+    const cancelSelectMode = () => {
+        setSelectMode(false);
+        setSelectedIds([]);
+        setBulkDeleteOpen(false);
+    };
+
+    const toggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id)
+            ? prev.filter((item) => item !== id)
+            : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = () => {
+        const allIds = questions.map((item) => String(item.q_idx));
+
+        if (selectedIds.length === allIds.length) {
+            setSelectedIds([]);
+            return;
+        }
+
+        setSelectedIds(allIds);
+    };
+
+    const openBulkDelete = () => {
+        if (selectedIds.length === 0) {
+            alert("삭제할 항목을 선택해주세요.");
+            return;
+        }
+
+        setBulkDeleteOpen(true);
     };
     
     // 문의 삭제 확인 다이얼로그 열렸는지 여부
@@ -539,6 +582,9 @@ const UserQuestionPage = ({ user }) => {
         }));
     };
 
+    const isAllSelected =
+    questions.length > 0 &&
+    questions.every((item) => selectedIds.includes(String(item.q_idx)));
 
     const deleteAnswer = async (q_idx) => {
         if (!window.confirm("답변을 삭제하시겠습니까?")) return;
@@ -567,6 +613,15 @@ const UserQuestionPage = ({ user }) => {
         ? questions.find((item) => item.q_idx === editIdx)
         : null;
 
+    const bulkDeleteQuestions = async () => {
+        await Promise.all(
+            selectedIds.map((q_idx) => questionService.deleteQuestion(q_idx))
+        );
+
+        cancelSelectMode();
+        getMyQuestions();
+    };
+             
     return (
         <div>
             <Snackbar
@@ -801,18 +856,89 @@ const UserQuestionPage = ({ user }) => {
                     },
                 ]}
             />
-            
-            {questions.length === 0 ? (
+        
+        <DialogMui
+            open={bulkDeleteOpen}
+            onClose={() => setBulkDeleteOpen(false)}
+            title="선택 삭제"
+            text={`선택한 ${selectedIds.length}개 항목을 삭제하시겠습니까?`}
+            buttons={[
+                {
+                title: "취소",
+                color: "inherit",
+                variant: "outlined",
+                onClick: () => setBulkDeleteOpen(false),
+                },
+                {
+                title: "삭제",
+                color: "error",
+                variant: "contained",
+                onClick: bulkDeleteQuestions , // 페이지별로 함수만 교체
+                },
+            ]}
+            />
+        {questions.length > 0 &&
+            <div className="user-bulk-toolbar">
+            {selectMode ? (
+                    <>
+                        <span>{selectedIds.length}개 선택</span>
+
+                        <button 
+                            type="button" 
+                            onClick={toggleSelectAll}
+                            disabled={questions.length === 0}    
+                        >
+                            
+                            {isAllSelected ? "전체해제" : "전체선택"}
+                        </button>
+
+                        <button type="button" className="danger" onClick={openBulkDelete}>
+                            삭제
+                        </button>
+
+                        <button type="button" onClick={cancelSelectMode}>
+                            취소
+                        </button>
+                    </>
+            ) : (
+                <button type="button" onClick={startSelectMode}>
+                선택삭제
+                </button>
+            )}
+            </div>
+        }
+        
+        {questions.length === 0 ? (
                 <p className="user-question-empty">작성한 문의가 없습니다.</p>
             ) : (
         <div className="user-question-list">
-        {questions.map((item) => (
-            <article className="user-question-card" key={item.q_idx}>
+        {questions.map((item) => {
+            const itemKey = String(item.q_idx)
+
+            return(
+            <article
+                className={`user-question-card ${selectMode ? "is-selecting" : ""}`}
+                key={item.q_idx}
+            >
+                {selectMode && (
+                    <label
+                        className="user-select-check"
+                        onClick={(evt) => evt.stopPropagation()}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={selectedIds.includes(itemKey)}
+                            onChange={() => toggleSelect(itemKey)}
+                        />
+                    </label>
+                )}
+
                 <>
                     {(() => {
                         const furniture = questionFurniture[item.q_idx];
 
                         return (
+
                             <div className="user-question-product-area">
                                 <div className="user-question-product-thumb">
                                     <Link to={`/furniture/article/${item.f_code}?tab=qna`}>
@@ -936,7 +1062,8 @@ const UserQuestionPage = ({ user }) => {
                     </div>
                 </>
             </article>
-        ))}
+            )
+        })}
     </div>
             )}
 

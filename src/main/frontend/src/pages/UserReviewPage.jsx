@@ -44,6 +44,84 @@ const UserReviewPage = ({ user }) => {
     reply: null,
   });
 
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const startSelectMode = () => {
+      setSelectMode(true);
+      setSelectedIds([]);
+  };
+
+  const cancelSelectMode = () => {
+      setSelectMode(false);
+      setSelectedIds([]);
+      setBulkDeleteOpen(false);
+  };
+
+  const toggleSelect = (id) => {
+      setSelectedIds((prev) =>
+          prev.includes(id)
+          ? prev.filter((item) => item !== id)
+          : [...prev, id]
+      );
+  };
+
+  const openBulkDelete = () => {
+      if (selectedIds.length === 0) {
+          alert("삭제할 항목을 선택해주세요.");
+          return;
+      }
+
+      setBulkDeleteOpen(true);
+  };
+
+  const getReviewKey = (item) => String(item.fr_idx || item.c_code);
+
+  const toggleSelectAll = () => {
+    const allIds = (reviews || []).map((item) => getReviewKey(item));
+
+    if (
+      reviews.length > 0 &&
+      reviews.every((item) => selectedIds.includes(getReviewKey(item)))
+    ) {
+      setSelectedIds([]);
+      return;
+    }
+
+    setSelectedIds(allIds);
+  };
+
+  const bulkDeleteReviews = async () => {
+    const targets = (reviews || []).filter((item) =>
+      selectedIds.includes(getReviewKey(item))
+    );
+
+    await Promise.all(
+      targets.map(async (item) => {
+        await FurnitureReviewService.deleteReview(item);
+
+        const imageNames = (item.logo?.result || [])
+          .map((record) => record.img_originalName)
+          .filter(Boolean);
+
+        if (imageNames.length > 0) {
+          await ImageService.deleteImage(imageNames);
+        }
+      })
+    );
+
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "삭제 완료",
+      text: "선택한 리뷰를 삭제했습니다.",
+    });
+
+    cancelSelectMode();
+    setRefresh((prev) => prev + 1);
+  };
+
   const getByteLength = (value) => {
     return new TextEncoder().encode(String(value || "")).length;
   };
@@ -343,7 +421,7 @@ const UserReviewPage = ({ user }) => {
   };
 
   const reviewDeleteSubmit = async (idx) => {
-    FurnitureReviewService.deleteReview(reviews[idx]);
+    await FurnitureReviewService.deleteReview(reviews[idx]);
     await Promise.all(
       reviews[idx].logo?.result?.map((record) =>
         imageDelete([record.img_originalName])
@@ -510,9 +588,53 @@ const UserReviewPage = ({ user }) => {
         </Alert>
       </Snackbar>
 
-      <div className="user-review-list">
-        {reviews?.map((item, idx) => (
-          <article className="user-review-card" key={item.fr_idx || item.c_code || idx}>
+      {reviews.length > 0 && (
+        <div className="user-bulk-toolbar">
+          {selectMode ? (
+            <>
+              <span>{selectedIds.length}개 선택</span>
+
+              <button type="button" onClick={toggleSelectAll}>
+                {reviews.every((item) => selectedIds.includes(getReviewKey(item)))
+                  ? "전체해제"
+                  : "전체선택"}
+              </button>
+
+              <button type="button" className="danger" onClick={openBulkDelete}>
+                삭제
+              </button>
+
+              <button type="button" onClick={cancelSelectMode}>
+                취소
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={startSelectMode}>
+              선택삭제
+            </button>
+          )}
+        </div>
+      )}
+
+    <div className="user-review-list">
+      {reviews?.map((item, idx) => {
+        const itemKey = getReviewKey(item);
+
+        return (
+          <article
+            className={`user-review-card ${selectMode ? "is-selecting" : ""}`}
+            key={item.fr_idx || item.c_code || idx}
+          >
+            {selectMode && (
+              <label className="user-select-check" onClick={(evt) => evt.stopPropagation()}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(itemKey)}
+                  onChange={() => toggleSelect(itemKey)}
+                />
+              </label>
+            )}
+
             <div className="user-review-product-area">
               <div
                 className="user-review-product-thumb"
@@ -645,7 +767,8 @@ const UserReviewPage = ({ user }) => {
               </Button>
             </div>
           </article>
-        ))}
+        )
+      })}
       </div>
 
       <DialogMui
@@ -851,6 +974,27 @@ const UserReviewPage = ({ user }) => {
               }
               handleClose();
             },
+          },
+        ]}
+      />
+
+      <DialogMui
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        title="선택 삭제"
+        text={`선택한 ${selectedIds.length}개 리뷰를 삭제하시겠습니까?`}
+        buttons={[
+          {
+            title: "취소",
+            color: "inherit",
+            variant: "outlined",
+            onClick: () => setBulkDeleteOpen(false),
+          },
+          {
+            title: "삭제",
+            color: "error",
+            variant: "contained",
+            onClick: bulkDeleteReviews,
           },
         ]}
       />
