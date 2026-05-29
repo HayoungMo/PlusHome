@@ -10,6 +10,8 @@ import DialogMui from "../components/DialogMui";
 import ImageViewer from "../components/ImageViewer";
 import FurnitureService from "../service/furnitureService";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import "../css/UserQuestionPage.css";
+import TextFieldMui from "../components/TextFieldMui";
 
 const UserQuestionPage = ({ user }) => {
     const QUESTION_TITLE_MAX = 200;
@@ -670,27 +672,26 @@ const UserQuestionPage = ({ user }) => {
 
                             <div className="user-question-edit-field">
                                 <span>제목</span>
-                                <TextField
+                                <TextFieldMui
                                     name="q_title"
+                                    label=""
                                     value={editForm.q_title}
                                     onChange={onEditChange}
-                                    fullWidth
-                                    size="small"
-                                    inputProps={{ maxLength: QUESTION_TITLE_MAX }}
+                                    width="100%"
                                     helperText={`${editForm.q_title.length}/${QUESTION_TITLE_MAX}`}
                                 />
                             </div>
 
                             <div className="user-question-edit-field">
                                 <span>내용</span>
-                                <TextField
+                                <TextFieldMui
                                     name="q_content"
+                                    label=""
                                     value={editForm.q_content}
                                     onChange={onEditChange}
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    inputProps={{ maxLength: QUESTION_CONTENT_MAX  }}
+                                    width="100%"
+                                    multiline={true}
+                                    minRows={5}
                                     helperText={`${editForm.q_content.length}/${QUESTION_CONTENT_MAX}`}
                                 />
                             </div>

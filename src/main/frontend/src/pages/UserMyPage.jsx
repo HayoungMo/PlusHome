@@ -37,6 +37,8 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const [wallet, setWallet] = useState(null)
     const [point, setPoint] = useState(0)
     const [profileImageDialogOpen, setProfileImageDialogOpen] = useState(false)
+    const [deleteOpen, setDeleteOpen] = useState(false);
+
     const [alert, setAlert] = useState({
         open: false,
         severity: "info",
@@ -75,8 +77,15 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const isCompanyUser =
         user?.type === "company" || (user?.companyList || []).length > 0
 
+    const isAdminUser =
+        user?.type === "admin";
+
     const goCompanyDashboard = () => {
         navigate("/CompanyDashboard")
+    }
+
+    const geAdminDashboard = () => {
+        navigate("/DevDashboard")
     }
 
     const [activeSection, setActiveSection] = useState(
@@ -322,11 +331,11 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             onChangeProfileImage={onChangeProfileImage}
             changeMenu={changeMenu}
             />
-            {(isCompanyUser && (
+            {(isCompanyUser || isAdminUser && (
                 <div className="user-company-dashboard-menu">
                     <button 
                     type="button" 
-                    onClick={goCompanyDashboard}>
+                    onClick={isAdminUser ? geAdminDashboard : goCompanyDashboard}>
                     대시보드
                     </button>
                 </div>
@@ -373,7 +382,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                     user={user}
                     setUser={setUser}
                     setLoginUser={setLoginUser}
-                    onDeleteClick={() => changeMenu("delete")}
+                    onDeleteClick={() => setDeleteOpen(true)}
                     isCompanyUser={isCompanyUser}
                     goCompanyDashboard={goCompanyDashboard}
                 />
@@ -402,18 +411,28 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
 
                 {activeMenu === "coupon" && <UserCouponPage user={user} />}
 
-                {activeMenu === "delete" && (
+                {/* {activeMenu === "delete" && (
                 <UserDeletePage
                     user={user}
                     setLoginUser={setLoginUser}
                     setLoginInfo={setLoginInfo}
+                    onCancel={()=> changeMenu("info")}
                 />
-                )}
+                )} */}
 
                 {activeMenu === "interior" && <InteriorMyPage user={user} />}
             </section>
             </main>
         </div>
+
+        <UserDeletePage
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        user={user}
+        setLoginInfo={setLoginInfo}
+        setLoginUser={setLoginUser}
+        />
+
         </>
         );
 };

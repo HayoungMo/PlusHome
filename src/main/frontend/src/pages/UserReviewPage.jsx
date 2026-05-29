@@ -9,6 +9,7 @@ import ImageService from "../service/imageService";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Loading from "../components/Loading";
 import ImageViewer from "../components/ImageViewer";
+import "../css/UserReviewPage.css";
 
 import FurnitureService from "../service/furnitureService";
 import CartService from "../service/cartService";

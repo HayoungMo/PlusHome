@@ -121,11 +121,21 @@ public class OrderClaimService {
             throw new RuntimeException("교환/반품 상태 변경에 실패했습니다.");
         }
 
-        if (claim_status == 3 && claim.getClaim_type() == 2) {
-        	refundReturnClaim(claim);
+        //교환 완료 = 6 돈 안돌려줌 상태만 바뀜
+        //반품 완료(환불) =-2 돈 돌려주기
+        if (claim_status == 3) {
+        	if (claim.getClaim_type() == 1) {
+        		cartMapper.updateDeliveryStatus(claim.getC_code(), claim.getId(), 6);
+        	}
         	
-            cartMapper.restoreUsedPoint(claim.getC_code(), claim.getId());
-            cartMapper.restoreCouponDiscountAsPoint(claim.getC_code(), claim.getId());
+        	if (claim.getClaim_type() == 2) {
+                refundReturnClaim(claim);
+
+                cartMapper.restoreUsedPoint(claim.getC_code(), claim.getId());
+                cartMapper.restoreCouponDiscountAsPoint(claim.getC_code(), claim.getId());
+
+                cartMapper.updateDeliveryStatus(claim.getC_code(), claim.getId(), -2);
+            }
         }
     }
 
