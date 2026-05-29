@@ -18,6 +18,7 @@ import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarsOutlinedIcon from "@mui/icons-material/StarsOutlined";
+import Loading from "../components/Loading";
 import TableMui from "../components/TableMui";
 import TabsMui from "../components/TabsMui";
 import DashboardService from "../service/dashboardService";
@@ -128,6 +129,22 @@ const valuesFrom = (list, keys) => list.map((item) => num(getValue(item, Array.i
 const hasChartData = (data) => {
 	if (!data?.datasets?.length) return false;
 	return data.datasets.some((dataset) => (dataset.data || []).some((value) => num(value) > 0));
+};
+
+const isResponseFailed = (response) => response?.loadFailed === true;
+
+const hasAnyResponse = (responses) => Object.keys(responses || {}).some((key) => key !== "error");
+
+const hasPendingResponse = (responses, statusKeys) =>
+	statusKeys.length > 0 && statusKeys.some((key) => responses?.[key] === undefined);
+
+const hasFailedResponse = (responses, statusKeys) =>
+	statusKeys.length > 0 && statusKeys.some((key) => isResponseFailed(responses?.[key]));
+
+const getFailedResponseMessage = (responses, statusKeys) => {
+	const failedKey = statusKeys.find((key) => isResponseFailed(responses?.[key]));
+	const response = responses?.[failedKey];
+	return response?.message || response?.error || "데이터를 불러오는 중 오류가 발생했습니다.";
 };
 
 const isCompactChart = (children) => {
@@ -252,10 +269,13 @@ const kpiIconMap = {
 	point: <StarsOutlinedIcon />,
 };
 
-const ChartCard = ({ title, children }) => {
+const ChartCard = ({ title, children, statusKeys = [], loading = false, responses = {} }) => {
 	const chartData = React.isValidElement(children) ? children.props.data : null;
 	const hasData = hasChartData(chartData);
 	const compactClass = isCompactChart(children) ? " compact" : "";
+	const isLoading = loading && hasPendingResponse(responses, statusKeys);
+	const isFailed = hasFailedResponse(responses, statusKeys);
+	const failedMessage = getFailedResponseMessage(responses, statusKeys);
 
 	return (
 		<section className={`shopping-mall-dashboard-card${compactClass}`}>
@@ -263,18 +283,34 @@ const ChartCard = ({ title, children }) => {
 				<strong>{title}</strong>
 			</div>
 			<div className="shopping-mall-dashboard-chart">
-				{hasData ? children : <div className="shopping-mall-dashboard-empty">{emptyStatsMessage}</div>}
+				{isLoading ? (
+					<Loading message="통계 데이터를 불러오는 중입니다." />
+				) : isFailed ? (
+					<div className="shopping-mall-dashboard-empty error">{failedMessage}</div>
+				) : hasData ? (
+					children
+				) : (
+					<div className="shopping-mall-dashboard-empty">{emptyStatsMessage}</div>
+				)}
 			</div>
 		</section>
 	);
 };
 
-const TableCard = ({ title, rowData, col, columns }) => (
+const TableCard = ({ title, rowData, col, columns, statusKeys = [], loading = false, responses = {} }) => (
 	<section className="shopping-mall-dashboard-card shopping-mall-dashboard-table-card">
 		<div className="shopping-mall-dashboard-card-head">
 			<strong>{title}</strong>
 		</div>
-		{rowData?.length > 0 ? (
+		{loading && hasPendingResponse(responses, statusKeys) ? (
+			<div className="shopping-mall-dashboard-table-loading">
+				<Loading message="목록 데이터를 불러오는 중입니다." />
+			</div>
+		) : hasFailedResponse(responses, statusKeys) ? (
+			<div className="shopping-mall-dashboard-empty table error">
+				{getFailedResponseMessage(responses, statusKeys)}
+			</div>
+		) : rowData?.length > 0 ? (
 			<TableMui rowData={rowData} col={col} columns={columns} defaultRowPerPage={5} pagination />
 		) : (
 			<div className="shopping-mall-dashboard-empty table">{emptyStatsMessage}</div>
@@ -295,6 +331,7 @@ const ShoppingMallDashboard = () => {
 	const [activeDashboardTab, setActiveDashboardTab] = useState("summary");
 	const [loading, setLoading] = useState(false);
 	const [dashboardData, setDashboardData] = useState({});
+	const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -326,15 +363,31 @@ const ShoppingMallDashboard = () => {
 
 		setLoading(true);
 
-		const entries = await Promise.all(
-			dashboardRequests.map(async ([key, request]) => {
-				const response = await request(requestDto);
-				return [key, response];
-			}),
-		);
+		try {
+			const entries = await Promise.all(
+				dashboardRequests.map(async ([key, request]) => {
+					try {
+						const response = await request(requestDto);
+						return [key, response?.success === false && response?.error ? { ...response, loadFailed: true } : response];
+					} catch (error) {
+						return [
+							key,
+							{
+								success: false,
+								loadFailed: true,
+								error: String(error),
+								message: "대시보드 데이터를 불러오는 중 오류가 발생했습니다.",
+							},
+						];
+					}
+				}),
+			);
 
-		setDashboardData(Object.fromEntries(entries));
-		setLoading(false);
+			setDashboardData(Object.fromEntries(entries));
+			setLastUpdatedAt(new Date());
+		} finally {
+			setLoading(false);
+		}
 	}, [id, requestDto]);
 
 	useEffect(() => {
@@ -687,6 +740,9 @@ const ShoppingMallDashboard = () => {
 		};
 	}, [dashboardData]);
 
+	const isInitialLoading = loading && !hasAnyResponse(dashboardData);
+	const cardStatusProps = { loading, responses: dashboardData };
+
 	return (
 		<div className="shopping-mall-dashboard-page">
 			<div className="shopping-mall-dashboard-header">
@@ -701,6 +757,9 @@ const ShoppingMallDashboard = () => {
 						label={categoryLevelOptions.find((option) => option.value === categoryLevel)?.label || `카테고리 단계 ${categoryLevel}`}
 						variant="outlined"
 					/>
+					{lastUpdatedAt && (
+						<Chip label={`마지막 갱신 ${lastUpdatedAt.toLocaleTimeString()}`} variant="outlined" />
+					)}
 				</div>
 			</div>
 
@@ -763,9 +822,12 @@ const ShoppingMallDashboard = () => {
 				))}
 			</section>
 
-			{loading && <div className="shopping-mall-dashboard-loading">{"대시보드 데이터를 불러오는 중입니다."}</div>}
-
-			<section className="shopping-mall-dashboard-tabs">
+			{isInitialLoading ? (
+				<section className="shopping-mall-dashboard-card">
+					<Loading message="대시보드 데이터를 불러오는 중입니다." />
+				</section>
+			) : (
+				<section className="shopping-mall-dashboard-tabs">
 				<TabsMui
 					tabValue={activeDashboardTab}
 					handleTabChange={(event, newValue) => setActiveDashboardTab(newValue)}
@@ -775,24 +837,26 @@ const ShoppingMallDashboard = () => {
 					value="key"
 				/>
 
+				{loading && <div className="shopping-mall-dashboard-loading">{"대시보드 데이터를 새로 불러오는 중입니다."}</div>}
+
 				{activeDashboardTab === "summary" && (
 					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"시간대별 장바구니 / 구매확정"}>
+						<ChartCard title={"시간대별 장바구니 / 구매확정"} statusKeys={["cartHourly", "statusHourly"]} {...cardStatusProps}>
 							<Line data={stats.hourly} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"재고 상태"}>
+						<ChartCard title={"재고 상태"} statusKeys={["productOverview"]} {...cardStatusProps}>
 							<Doughnut data={stats.stock} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"상품별 매출 TOP 10"}>
+						<ChartCard title={"상품별 매출 TOP 10"} statusKeys={["productRevenue"]} {...cardStatusProps}>
 							<Bar data={stats.revenueTop} options={horizontalOptions} />
 						</ChartCard>
-						<ChartCard title={"상품별 판매량 TOP 10"}>
+						<ChartCard title={"상품별 판매량 TOP 10"} statusKeys={["productSales"]} {...cardStatusProps}>
 							<Bar data={stats.salesTop} options={horizontalOptions} />
 						</ChartCard>
-						<ChartCard title={"카테고리별 매출"}>
+						<ChartCard title={"카테고리별 매출"} statusKeys={["categoryProduct"]} {...cardStatusProps}>
 							<Bar data={stats.categoryRevenue} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"쿠폰/포인트 사용 유형"}>
+						<ChartCard title={"쿠폰/포인트 사용 유형"} statusKeys={["benefitUseType"]} {...cardStatusProps}>
 							<Doughnut data={stats.benefitUseType} options={baseOptions} />
 						</ChartCard>
 					</div>
@@ -800,19 +864,19 @@ const ShoppingMallDashboard = () => {
 
 				{activeDashboardTab === "customer" && (
 					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"주문 건 기준 성별 비율"}>
+						<ChartCard title={"주문 건 기준 성별 비율"} statusKeys={["orderAgeGender"]} {...cardStatusProps}>
 							<Doughnut data={stats.genderOrder} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"구매자 기준 성별 비율"}>
+						<ChartCard title={"구매자 기준 성별 비율"} statusKeys={["buyerAgeGender"]} {...cardStatusProps}>
 							<Doughnut data={stats.genderBuyer} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"연령대 비교"}>
+						<ChartCard title={"연령대 비교"} statusKeys={["orderAgeGender", "buyerAgeGender"]} {...cardStatusProps}>
 							<Bar data={stats.ageCompare} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"시간대별 장바구니 / 구매확정"}>
+						<ChartCard title={"시간대별 장바구니 / 구매확정"} statusKeys={["cartHourly", "statusHourly"]} {...cardStatusProps}>
 							<Line data={stats.hourly} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"평균 소요 시간"}>
+						<ChartCard title={"평균 소요 시간"} statusKeys={["orderElapsedTime"]} {...cardStatusProps}>
 							<Bar data={stats.elapsed} options={horizontalOptions} />
 						</ChartCard>
 					</div>
@@ -820,25 +884,25 @@ const ShoppingMallDashboard = () => {
 
 				{activeDashboardTab === "product" && (
 					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"재고 상태"}>
+						<ChartCard title={"재고 상태"} statusKeys={["productOverview"]} {...cardStatusProps}>
 							<Doughnut data={stats.stock} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"노출 / 숨김 상품"}>
+						<ChartCard title={"노출 / 숨김 상품"} statusKeys={["productDisplay"]} {...cardStatusProps}>
 							<Doughnut data={stats.display} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"상품별 판매량 TOP 10"}>
+						<ChartCard title={"상품별 판매량 TOP 10"} statusKeys={["productSales"]} {...cardStatusProps}>
 							<Bar data={stats.salesTop} options={horizontalOptions} />
 						</ChartCard>
-						<ChartCard title={"상품별 매출 TOP 10"}>
+						<ChartCard title={"상품별 매출 TOP 10"} statusKeys={["productRevenue"]} {...cardStatusProps}>
 							<Bar data={stats.revenueTop} options={horizontalOptions} />
 						</ChartCard>
-						<ChartCard title={"매출 + 평균 결제금액"}>
+						<ChartCard title={"매출 + 평균 결제금액"} statusKeys={["productRevenue"]} {...cardStatusProps}>
 							<Chart type="bar" data={stats.revenueMixed} options={mixedAxisOptions} />
 						</ChartCard>
-						<ChartCard title={"상품별 구매 전환율 TOP 10"}>
+						<ChartCard title={"상품별 구매 전환율 TOP 10"} statusKeys={["productEngagementConversion"]} {...cardStatusProps}>
 							<Bar data={stats.engagementRate} options={horizontalOptions} />
 						</ChartCard>
-						<ChartCard title={"옵션 매출 / 판매 수량"}>
+						<ChartCard title={"옵션 매출 / 판매 수량"} statusKeys={["productOption"]} {...cardStatusProps}>
 							<Chart type="bar" data={stats.optionMixed} options={mixedAxisOptions} />
 						</ChartCard>
 						<TableCard
@@ -846,16 +910,18 @@ const ShoppingMallDashboard = () => {
 							rowData={stats.tables.hiddenProducts}
 							col={["fName", "displayStatusText", "hideDate", "payCount", "totalPayAmount"]}
 							columns={["상품명", "상태", "숨김일", "결제", "매출"]}
+							statusKeys={["productDisplay"]}
+							{...cardStatusProps}
 						/>
 					</div>
 				)}
 
 				{activeDashboardTab === "review" && (
 					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"리뷰 수 + 평균 별점"}>
+						<ChartCard title={"리뷰 수 + 평균 별점"} statusKeys={["productReview"]} {...cardStatusProps}>
 							<Chart type="bar" data={stats.reviewMixed} options={mixedAxisOptions} />
 						</ChartCard>
-						<ChartCard title={"문의 답변 현황"}>
+						<ChartCard title={"문의 답변 현황"} statusKeys={["productQuestion"]} {...cardStatusProps}>
 							<Bar data={stats.questionStacked} options={stackedOptions} />
 						</ChartCard>
 						<TableCard
@@ -863,13 +929,15 @@ const ShoppingMallDashboard = () => {
 							rowData={stats.tables.questionTop}
 							col={["fName", "questionCount", "doneCount", "notDoneCount", "answerRate"]}
 							columns={["상품명", "총 문의", "답변 완료", "미답변", "답변률"]}
+							statusKeys={["productQuestion"]}
+							{...cardStatusProps}
 						/>
 					</div>
 				)}
 
 				{activeDashboardTab === "delivery" && (
 					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"배송 상태"}>
+						<ChartCard title={"배송 상태"} statusKeys={["productDeliveryClaim"]} {...cardStatusProps}>
 							<Bar data={stats.deliveryStacked} options={stackedOptions} />
 						</ChartCard>
 						<TableCard
@@ -877,30 +945,33 @@ const ShoppingMallDashboard = () => {
 							rowData={stats.tables.deliveryTop}
 							col={["fName", "claimCount", "claimRate", "cancelCount", "payCount"]}
 							columns={["상품명", "클레임 수", "클레임률", "취소", "결제"]}
+							statusKeys={["productDeliveryClaim"]}
+							{...cardStatusProps}
 						/>
 					</div>
 				)}
 
 				{activeDashboardTab === "benefit" && (
 					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"상품별 쿠폰/포인트 TOP"}>
+						<ChartCard title={"상품별 쿠폰/포인트 TOP"} statusKeys={["productBenefitTop"]} {...cardStatusProps}>
 							<Bar data={stats.benefitTop} options={horizontalOptions} />
 						</ChartCard>
-						<ChartCard title={"쿠폰 사용률"}>
+						<ChartCard title={"쿠폰 사용률"} statusKeys={["benefitUsage"]} {...cardStatusProps}>
 							<Doughnut data={stats.couponUse} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"포인트 사용률"}>
+						<ChartCard title={"포인트 사용률"} statusKeys={["benefitUsage"]} {...cardStatusProps}>
 							<Doughnut data={stats.pointUse} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"쿠폰/포인트 사용 유형"}>
+						<ChartCard title={"쿠폰/포인트 사용 유형"} statusKeys={["benefitUseType"]} {...cardStatusProps}>
 							<Doughnut data={stats.benefitUseType} options={baseOptions} />
 						</ChartCard>
-						<ChartCard title={"쿠폰/포인트 매출 영향"}>
+						<ChartCard title={"쿠폰/포인트 매출 영향"} statusKeys={["benefitRevenueImpact"]} {...cardStatusProps}>
 							<Bar data={stats.benefitImpact} options={baseOptions} />
 						</ChartCard>
 					</div>
 				)}
-			</section>
+				</section>
+			)}
 		</div>
 	);
 };
