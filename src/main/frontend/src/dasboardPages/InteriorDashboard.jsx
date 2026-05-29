@@ -12,16 +12,20 @@ import {
 	Tooltip,
 } from "chart.js";
 import { Button, Chip, LinearProgress } from "@mui/material";
-import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
 import ChecklistOutlinedIcon from "@mui/icons-material/ChecklistOutlined";
-import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
-import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
+import Loading from "../components/Loading";
+import SkeletonMui from "../components/SkeletonMui";
 import TableMui from "../components/TableMui";
+import TabsMui from "../components/TabsMui";
 import DashboardService from "../service/dashboardService";
 import "../css/DashboardInterior.css";
+
+import { FaHammer } from "react-icons/fa";
+import { TbMessageDots } from "react-icons/tb";
+import { FaWonSign } from "react-icons/fa";
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 
 ChartJS.register(
 	ArcElement,
@@ -67,6 +71,15 @@ const periodOptions = [
 	{ value: "week", label: "이번 주" },
 	{ value: "month", label: "이번 달" },
 	{ value: "year", label: "올해" },
+];
+
+const dashboardTabList = [
+	{ key: "summary", label: "요약" },
+	{ key: "booking", label: "상담/견적" },
+	{ key: "contract", label: "계약/일정" },
+	{ key: "customer", label: "고객/요청" },
+	{ key: "portfolio", label: "리뷰/시공사례" },
+	{ key: "risk", label: "리스크" },
 ];
 
 const statusLabels = {
@@ -130,6 +143,14 @@ const riskLabels = {
 };
 
 const chartColors = ["#2563eb", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#64748b"];
+const funnelColors = [
+	"#f59e0b", // 완료
+	"#06b6d4", // 견적 진행
+	"#10b981", // 계약 확정
+	"#8b5cf6", // 작업 진행
+	"#2563eb", // 상담 요청
+	"#ef4444", // 취소
+];
 const emptyStatsMessage = "표시할 통계 데이터가 아직 부족합니다.";
 const barDatasetStyle = {
 	maxBarThickness: 42,
@@ -166,8 +187,9 @@ const formatValue = (value) => {
 	return value ?? "-";
 };
 
-const formatWon = (value) => `${num(value).toLocaleString()}원`;
+const formatManwon = (value) => Math.round(num(value) / 10000).toLocaleString();
 const formatPercent = (value) => `${num(value).toFixed(1)}%`;
+const formatPercentNumber = (value) => num(value).toFixed(1);
 
 const getValue = (item, keys) => {
 	for (const key of keys) {
@@ -179,12 +201,30 @@ const getValue = (item, keys) => {
 const top = (list, key, limit = 10) =>
 	[...list].sort((a, b) => num(getValue(b, [key])) - num(getValue(a, [key]))).slice(0, limit);
 
-const labelsFrom = (list, key, mapper = (value) => value || "-") => list.map((item) => mapper(item[key]));
-const valuesFrom = (list, keys) => list.map((item) => num(getValue(item, Array.isArray(keys) ? keys : [keys])));
+const labelsFrom = (list, key, mapper = (value) => value || "-") =>
+	list.map((item) => mapper(item[key]));
+const valuesFrom = (list, keys) =>
+	list.map((item) => num(getValue(item, Array.isArray(keys) ? keys : [keys])));
 
 const hasChartData = (data) => {
 	if (!data?.datasets?.length) return false;
 	return data.datasets.some((dataset) => (dataset.data || []).some((value) => num(value) > 0));
+};
+
+const isResponseFailed = (response) => response?.loadFailed === true;
+
+const hasAnyResponse = (responses) => Object.keys(responses || {}).some((key) => key !== "error");
+
+const hasPendingResponse = (responses, statusKeys) =>
+	statusKeys.length > 0 && statusKeys.some((key) => responses?.[key] === undefined);
+
+const hasFailedResponse = (responses, statusKeys) =>
+	statusKeys.length > 0 && statusKeys.some((key) => isResponseFailed(responses?.[key]));
+
+const getFailedResponseMessage = (responses, statusKeys) => {
+	const failedKey = statusKeys.find((key) => isResponseFailed(responses?.[key]));
+	const response = responses?.[failedKey];
+	return response?.message || response?.error || "데이터를 불러오는 중 오류가 발생했습니다.";
 };
 
 const makeDoughnut = (labels, values, colors = chartColors) => ({
@@ -263,24 +303,30 @@ const mixedAxisOptions = {
 	},
 };
 
-const KpiCard = ({ icon, label, value, helper, tone = "blue" }) => (
+const KpiCard = ({ icon, label, value, unit, helper, tone = "blue" }) => (
 	<div className="interior-dashboard-kpi">
-		<div>
-			<span>{label}</span>
-			<strong>{value}</strong>
-		</div>
 		<div className={`interior-dashboard-kpi-icon ${tone}`}>{icon}</div>
-		{helper && (
-			<div className="interior-dashboard-kpi-foot">
-				<small>{helper}</small>
-			</div>
-		)}
+		<div className="interior-dashboard-kpi-body">
+			<span>{label}</span>
+			<strong>
+				{value}
+				{unit && <em>{unit}</em>}
+			</strong>
+			{helper && (
+				<div className="interior-dashboard-kpi-foot">
+					<small>{helper}</small>
+				</div>
+			)}
+		</div>
 	</div>
 );
 
-const ChartCard = ({ title, children }) => {
+const ChartCard = ({ title, children, statusKeys = [], loading = false, responses = {} }) => {
 	const chartData = React.isValidElement(children) ? children.props.data : null;
 	const hasData = hasChartData(chartData);
+	const isLoading = loading && hasPendingResponse(responses, statusKeys);
+	const isFailed = hasFailedResponse(responses, statusKeys);
+	const failedMessage = getFailedResponseMessage(responses, statusKeys);
 
 	return (
 		<section className="interior-dashboard-card">
@@ -288,19 +334,49 @@ const ChartCard = ({ title, children }) => {
 				<strong>{title}</strong>
 			</div>
 			<div className="interior-dashboard-chart">
-				{hasData ? children : <div className="interior-dashboard-empty">{emptyStatsMessage}</div>}
+				{isLoading ? (
+					<Loading message="통계 데이터를 불러오는 중입니다." />
+				) : isFailed ? (
+					<div className="interior-dashboard-empty error">{failedMessage}</div>
+				) : hasData ? (
+					children
+				) : (
+					<div className="interior-dashboard-empty">{emptyStatsMessage}</div>
+				)}
 			</div>
 		</section>
 	);
 };
 
-const TableCard = ({ title, rowData, col, columns }) => (
+const TableCard = ({
+	title,
+	rowData,
+	col,
+	columns,
+	statusKeys = [],
+	loading = false,
+	responses = {},
+}) => (
 	<section className="interior-dashboard-card interior-dashboard-table-card">
 		<div className="interior-dashboard-card-head">
 			<strong>{title}</strong>
 		</div>
-		{rowData?.length > 0 ? (
-			<TableMui rowData={rowData} col={col} columns={columns} defaultRowPerPage={5} pagination />
+		{loading && hasPendingResponse(responses, statusKeys) ? (
+			<div className="interior-dashboard-table-loading">
+				<Loading message="목록 데이터를 불러오는 중입니다." />
+			</div>
+		) : hasFailedResponse(responses, statusKeys) ? (
+			<div className="interior-dashboard-empty table error">
+				{getFailedResponseMessage(responses, statusKeys)}
+			</div>
+		) : rowData?.length > 0 ? (
+			<TableMui
+				rowData={rowData}
+				col={col}
+				columns={columns}
+				defaultRowPerPage={5}
+				pagination
+			/>
 		) : (
 			<div className="interior-dashboard-empty table">{emptyStatsMessage}</div>
 		)}
@@ -327,7 +403,8 @@ const aggregateProfileCompletion = (list) => {
 	const result = {
 		cName: "전체",
 		profileCompleteRate:
-			list.reduce((sum, item) => sum + num(item.profileCompleteRate), 0) / Math.max(list.length, 1),
+			list.reduce((sum, item) => sum + num(item.profileCompleteRate), 0) /
+			Math.max(list.length, 1),
 	};
 
 	fields.forEach((field) => {
@@ -407,8 +484,10 @@ const InteriorDashboard = () => {
 
 	const [selectedInteriorName, setSelectedInteriorName] = useState("all");
 	const [period, setPeriod] = useState("all");
+	const [activeDashboardTab, setActiveDashboardTab] = useState("summary");
 	const [loading, setLoading] = useState(false);
 	const [dashboardData, setDashboardData] = useState({});
+	const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
 	const requestDto = useMemo(
 		() => ({
@@ -438,12 +517,18 @@ const InteriorDashboard = () => {
 				dashboardRequests.map(async ([key, request]) => {
 					try {
 						const response = await request(requestDto);
-						return [key, response];
+						return [
+							key,
+							response?.success === false && response?.error
+								? { ...response, loadFailed: true }
+								: response,
+						];
 					} catch (error) {
 						return [
 							key,
 							{
 								success: false,
+								loadFailed: true,
 								error: String(error),
 								message: "대시보드 데이터를 불러오는 중 오류가 발생했습니다.",
 							},
@@ -453,6 +538,7 @@ const InteriorDashboard = () => {
 			);
 
 			setDashboardData(Object.fromEntries(entries));
+			setLastUpdatedAt(new Date());
 		} finally {
 			setLoading(false);
 		}
@@ -521,38 +607,43 @@ const InteriorDashboard = () => {
 					key: "booking",
 					label: "전체 상담",
 					value: formatValue(num(bookingOverview.totalBookingCount)),
+					unit: "건",
 					helper: `오늘 ${formatValue(num(bookingOverview.todayBookingCount))}건`,
-					icon: <AssignmentTurnedInOutlinedIcon />,
+					icon: <TbMessageDots />,
 					tone: "blue",
 				},
 				{
 					key: "invoiceRate",
 					label: "견적 확정률",
-					value: formatPercent(invoice.invoiceConfirmRate),
+					value: formatPercentNumber(invoice.invoiceConfirmRate),
+					unit: "%",
 					helper: `확정 ${formatValue(num(invoice.confirmedInvoiceCount))}건`,
-					icon: <RequestQuoteOutlinedIcon />,
+					icon: <LiaFileInvoiceDollarSolid />,
 					tone: "green",
 				},
 				{
 					key: "contract",
 					label: "총 계약 금액",
-					value: formatWon(contract.totalContractAmount),
-					helper: `평균 ${formatWon(contract.avgContractAmount)}`,
-					icon: <PaidOutlinedIcon />,
+					value: formatManwon(contract.totalContractAmount),
+					unit: "만원",
+					helper: `평균 ${formatManwon(contract.avgContractAmount)}만원`,
+					icon: <FaWonSign />,
 					tone: "orange",
 				},
 				{
 					key: "schedule",
 					label: "진행 중 일정",
 					value: formatValue(num(schedule.workingScheduleCount)),
+					unit: "건",
 					helper: `이번 달 시작 ${formatValue(num(schedule.monthStartCount))}건`,
-					icon: <EventAvailableOutlinedIcon />,
+					icon: <FaHammer />,
 					tone: "purple",
 				},
 				{
 					key: "reviewRate",
 					label: "리뷰 작성률",
-					value: formatPercent(review.reviewWriteRate),
+					value: formatPercentNumber(review.reviewWriteRate),
+					unit: "%",
 					helper: `작성 ${formatValue(num(review.reviewWrittenCount))}건`,
 					icon: <RateReviewOutlinedIcon />,
 					tone: "yellow",
@@ -561,22 +652,20 @@ const InteriorDashboard = () => {
 					key: "risk",
 					label: "관리 필요",
 					value: formatValue(totalRiskCount),
+					unit: "건",
 					helper: `지연 의심 ${formatValue(num(risk.scheduleDelaySuspectCount))}건`,
 					icon: <ReportProblemOutlinedIcon />,
 					tone: "red",
 				},
 			],
-			bookingStatus: makeDoughnut(
-				Object.values(statusLabels),
-				[
-					num(bookingOverview.pendingCount),
-					num(bookingOverview.quotingCount),
-					num(bookingOverview.confirmedCount),
-					num(bookingOverview.workingCount),
-					num(bookingOverview.doneCount),
-					num(bookingOverview.cancelCount),
-				],
-			),
+			bookingStatus: makeDoughnut(Object.values(statusLabels), [
+				num(bookingOverview.pendingCount),
+				num(bookingOverview.quotingCount),
+				num(bookingOverview.confirmedCount),
+				num(bookingOverview.workingCount),
+				num(bookingOverview.doneCount),
+				num(bookingOverview.cancelCount),
+			]),
 			bookingKind: makeDoughnut(
 				Object.values(bookingKindLabels),
 				[num(bookingOverview.emailBookingCount), num(bookingOverview.telBookingCount)],
@@ -593,7 +682,7 @@ const InteriorDashboard = () => {
 					num(bookingConversion.cancelCount),
 				],
 				"건수",
-				"#2563eb",
+				funnelColors,
 			),
 			bookingMonthly: makeVerticalBar(
 				labelsFrom(bookingMonthly, "month"),
@@ -602,7 +691,11 @@ const InteriorDashboard = () => {
 				"#2563eb",
 			),
 			bookingLong: makeVerticalBar(
-				labelsFrom(bookingLong, "longGroup", (value) => bookingLongLabels[value] || value || "미입력"),
+				labelsFrom(
+					bookingLong,
+					"longGroup",
+					(value) => bookingLongLabels[value] || value || "미입력",
+				),
 				valuesFrom(bookingLong, "bookingCount"),
 				"상담 수",
 				"#06b6d4",
@@ -643,7 +736,11 @@ const InteriorDashboard = () => {
 			),
 			scheduleStatus: makeDoughnut(
 				["진행 중", "이번 달 시작", "지연 의심"],
-				[num(schedule.workingScheduleCount), num(schedule.monthStartCount), num(schedule.delaySuspectCount)],
+				[
+					num(schedule.workingScheduleCount),
+					num(schedule.monthStartCount),
+					num(schedule.delaySuspectCount),
+				],
 				["#2563eb", "#10b981", "#ef4444"],
 			),
 			scheduleMonthly: makeVerticalBar(
@@ -671,22 +768,38 @@ const InteriorDashboard = () => {
 				"#2563eb",
 			),
 			housingType: makeDoughnut(
-				labelsFrom(housingRows, "answerValue", (value) => answerValueLabels[value] || value || "미입력"),
+				labelsFrom(
+					housingRows,
+					"answerValue",
+					(value) => answerValueLabels[value] || value || "미입력",
+				),
 				valuesFrom(housingRows, "bookingCount"),
 			),
 			purpose: makeDoughnut(
-				labelsFrom(purposeRows, "answerValue", (value) => answerValueLabels[value] || value || "미입력"),
+				labelsFrom(
+					purposeRows,
+					"answerValue",
+					(value) => answerValueLabels[value] || value || "미입력",
+				),
 				valuesFrom(purposeRows, "bookingCount"),
 				["#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"],
 			),
 			budget: makeVerticalBar(
-				labelsFrom(budgetRows, "answerGroup", (value) => answerGroupLabels[value] || value || "미입력"),
+				labelsFrom(
+					budgetRows,
+					"answerGroup",
+					(value) => answerGroupLabels[value] || value || "미입력",
+				),
 				valuesFrom(budgetRows, "bookingCount"),
 				"상담 수",
 				"#f59e0b",
 			),
 			area: makeVerticalBar(
-				labelsFrom(areaRows, "answerGroup", (value) => answerGroupLabels[value] || value || "미입력"),
+				labelsFrom(
+					areaRows,
+					"answerGroup",
+					(value) => answerGroupLabels[value] || value || "미입력",
+				),
 				valuesFrom(areaRows, "bookingCount"),
 				"상담 수",
 				"#06b6d4",
@@ -728,7 +841,11 @@ const InteriorDashboard = () => {
 			),
 			interestFlow: makeVerticalBar(
 				["찜", "상담", "계약"],
-				[num(selectedInterest.likeCount), num(selectedInterest.bookingCount), num(selectedInterest.contractCount)],
+				[
+					num(selectedInterest.likeCount),
+					num(selectedInterest.bookingCount),
+					num(selectedInterest.contractCount),
+				],
 				"건수",
 				"#2563eb",
 			),
@@ -748,7 +865,9 @@ const InteriorDashboard = () => {
 			recentExample: recentExample.map((item) => ({
 				...item,
 				ieContentSummary:
-					item.ieContent && item.ieContent.length > 40 ? `${item.ieContent.slice(0, 40)}...` : item.ieContent,
+					item.ieContent && item.ieContent.length > 40
+						? `${item.ieContent.slice(0, 40)}...`
+						: item.ieContent,
 			})),
 			repeatCustomer,
 			review,
@@ -757,8 +876,56 @@ const InteriorDashboard = () => {
 			schedule,
 			portfolio,
 			interest: selectedInterest,
+
+			miniMetrics: [
+				{
+					key: "repeat",
+					label: "재상담률",
+					value: formatPercent(repeatCustomer.repeatCustomerRate),
+					helper: "기존 고객 재유입 확인",
+					tone: "blue",
+				},
+				{
+					key: "review",
+					label: "리뷰 작성률",
+					value: formatPercent(review.reviewWriteRate),
+					helper: "완료 후 후기 확보율",
+					tone: "green",
+				},
+				{
+					key: "workDays",
+					label: "평균 시공 기간",
+					value: `${formatValue(num(schedule.avgWorkDays))}일`,
+					helper: "일정 운영 효율 확인",
+					tone: "purple",
+				},
+				{
+					key: "portfolio",
+					label: "포트폴리오 등록률",
+					value: formatPercent(portfolio.imageFillRate),
+					helper: "업체 신뢰도 관리 지표",
+					tone: "orange",
+				},
+				{
+					key: "likeBooking",
+					label: "찜 → 상담",
+					value: formatPercent(selectedInterest.likeToBookingRate),
+					helper: "관심 고객 상담 전환율",
+					tone: "cyan",
+				},
+				{
+					key: "likeContract",
+					label: "찜 → 계약",
+					value: formatPercent(selectedInterest.likeToContractRate),
+					helper: "관심 고객 최종 계약률",
+					tone: "red",
+				},
+			],
 		};
 	}, [dashboardData, selectedInteriorName]);
+
+	const isInitialLoading = loading && !hasAnyResponse(dashboardData);
+	const cardStatusProps = { loading, responses: dashboardData };
 
 	return (
 		<div className="interior-dashboard-page">
@@ -768,8 +935,22 @@ const InteriorDashboard = () => {
 					<p>상담, 계약, 일정, 고객 니즈와 운영 리스크를 한눈에 확인합니다.</p>
 				</div>
 				<div className="interior-dashboard-summary">
-					<Chip label={selectedInteriorName === "all" ? "전체 업체" : selectedInteriorName} variant="outlined" />
-					<Chip label={periodOptions.find((option) => option.value === period)?.label || period} variant="outlined" />
+					<Chip
+						label={selectedInteriorName === "all" ? "전체 업체" : selectedInteriorName}
+						variant="outlined"
+					/>
+					<Chip
+						label={
+							periodOptions.find((option) => option.value === period)?.label || period
+						}
+						variant="outlined"
+					/>
+					{lastUpdatedAt && (
+						<Chip
+							label={`마지막 갱신 ${lastUpdatedAt.toLocaleTimeString()}`}
+							variant="outlined"
+						/>
+					)}
 				</div>
 			</div>
 
@@ -777,9 +958,13 @@ const InteriorDashboard = () => {
 				<div className="interior-dashboard-filter">
 					<label>
 						<span>업체</span>
-						<select value={selectedInteriorName} onChange={(event) => setSelectedInteriorName(event.target.value)}>
+						<select
+							value={selectedInteriorName}
+							onChange={(event) => setSelectedInteriorName(event.target.value)}>
 							{interiorList.map((company) => (
-								<option key={`${company.c_id}-${company.c_name}`} value={company.c_name}>
+								<option
+									key={`${company.c_id}-${company.c_name}`}
+									value={company.c_name}>
 									{company.c_name === "all" ? "전체" : company.c_name}
 								</option>
 							))}
@@ -804,123 +989,291 @@ const InteriorDashboard = () => {
 			</section>
 
 			<section className="interior-dashboard-kpi-grid">
-				{stats.kpi.map((item) => (
-					<KpiCard key={item.key} {...item} />
-				))}
+				{isInitialLoading ? (
+					<SkeletonMui variant="kpi" count={6} />
+				) : (
+					stats.kpi.map((item) => <KpiCard key={item.key} {...item} />)
+				)}
 			</section>
 
-			{loading && <div className="interior-dashboard-loading">대시보드 데이터를 불러오는 중입니다.</div>}
-
-			<section className="interior-dashboard-grid two">
-				<ChartCard title="상담 상태별 현황">
-					<Doughnut data={stats.bookingStatus} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="상담 진행 퍼널">
-					<Bar data={stats.bookingFunnel} options={horizontalOptions} />
-				</ChartCard>
-				<ChartCard title="월별 상담 요청">
-					<Bar data={stats.bookingMonthly} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="상담 방식 비율">
-					<Doughnut data={stats.bookingKind} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="상담 소요 기간 분포">
-					<Bar data={stats.bookingLong} options={baseOptions} />
-				</ChartCard>
-			</section>
-
-			<section className="interior-dashboard-grid two">
-				<ChartCard title="월별 계약 금액">
-					<Chart type="bar" data={stats.contractMonthly} options={mixedAxisOptions} />
-				</ChartCard>
-				<ChartCard title="확정 / 미확정 견적">
-					<Doughnut data={stats.invoiceKind} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="견적 항목 TOP 10">
-					<Bar data={stats.invoiceItemTop} options={horizontalOptions} />
-				</ChartCard>
-				<ChartCard title="찜 / 상담 / 계약 비교">
-					<Bar data={stats.interestFlow} options={baseOptions} />
-				</ChartCard>
-			</section>
-
-			<section className="interior-dashboard-grid two">
-				<ChartCard title="고객 성별 비율">
-					<Doughnut data={stats.customerGender} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="고객 연령대 분포">
-					<Bar data={stats.customerAge} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="주거 유형">
-					<Doughnut data={stats.housingType} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="인테리어 목적">
-					<Doughnut data={stats.purpose} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="예산 구간">
-					<Bar data={stats.budget} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="평수 구간">
-					<Bar data={stats.area} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="요청 공간 TOP 10">
-					<Bar data={stats.spaceTop} options={horizontalOptions} />
-				</ChartCard>
-			</section>
-
-			<section className="interior-dashboard-grid two">
-				<ChartCard title="시공 일정 상태">
-					<Doughnut data={stats.scheduleStatus} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="월별 시공 일정">
-					<Bar data={stats.scheduleMonthly} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="운영 리스크">
-					<Bar data={stats.riskBar} options={horizontalOptions} />
-				</ChartCard>
-				<TableCard
-					title="관리 필요 목록"
-					rowData={stats.riskList}
-					col={["id", "cName", "createdDate", "bookingDate", "statusText", "riskTypeText"]}
-					columns={["고객 ID", "업체명", "상담 생성일", "상담 희망일", "상태", "리스크 유형"]}
-				/>
-			</section>
-
-			<section className="interior-dashboard-grid two">
-				<ChartCard title="리뷰 작성 여부">
-					<Doughnut data={stats.reviewWritten} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="월별 리뷰 수">
-					<Line data={stats.reviewMonthly} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="시공 사례 태그">
-					<Bar data={stats.exampleTag} options={baseOptions} />
-				</ChartCard>
-				<ChartCard title="시공 사례 이미지 등록 상태">
-					<Doughnut data={stats.exampleImage} options={baseOptions} />
-				</ChartCard>
-				<TableCard
-					title="최근 시공 사례"
-					rowData={stats.recentExample}
-					col={["cName", "ieIndex", "ieTag", "ieTag2", "ieContentSummary"]}
-					columns={["업체명", "번호", "태그", "보조 태그", "내용"]}
-				/>
-				<ProgressChecklist profile={stats.profile} />
+			{isInitialLoading ? (
 				<section className="interior-dashboard-card">
-					<div className="interior-dashboard-card-head">
-						<strong>보조 지표</strong>
-						<ChecklistOutlinedIcon />
-					</div>
-					<div className="interior-dashboard-mini-list">
-						<span>재상담률: {formatPercent(stats.repeatCustomer.repeatCustomerRate)}</span>
-						<span>리뷰 작성률: {formatPercent(stats.review.reviewWriteRate)}</span>
-						<span>평균 시공 기간: {formatValue(num(stats.schedule.avgWorkDays))}일</span>
-						<span>포트폴리오 이미지 등록률: {formatPercent(stats.portfolio.imageFillRate)}</span>
-						<span>찜 대비 상담 비율: {formatPercent(stats.interest.likeToBookingRate)}</span>
-						<span>찜 대비 계약 비율: {formatPercent(stats.interest.likeToContractRate)}</span>
-					</div>
+					<Loading message="대시보드 데이터를 불러오는 중입니다." />
 				</section>
-			</section>
+			) : (
+				<section className="interior-dashboard-tabs">
+					<TabsMui
+						tabValue={activeDashboardTab}
+						handleTabChange={(event, newValue) => setActiveDashboardTab(newValue)}
+						tabList={dashboardTabList}
+						tabKey="key"
+						label="label"
+						value="key"
+					/>
+
+					{loading && (
+						<div className="interior-dashboard-loading">
+							대시보드 데이터를 새로 불러오는 중입니다.
+						</div>
+					)}
+
+					{activeDashboardTab === "summary" && (
+						<div className="interior-dashboard-grid two">
+							<ChartCard
+								title="상담 진행 퍼널"
+								statusKeys={["bookingConversion"]}
+								{...cardStatusProps}>
+								<Bar data={stats.bookingFunnel} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title="월별 계약 금액"
+								statusKeys={["monthlyContract"]}
+								{...cardStatusProps}>
+								<Chart
+									type="bar"
+									data={stats.contractMonthly}
+									options={mixedAxisOptions}
+								/>
+							</ChartCard>
+							<ChartCard
+								title="시공 일정 상태"
+								statusKeys={["schedule"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.scheduleStatus} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="운영 리스크"
+								statusKeys={["risk"]}
+								{...cardStatusProps}>
+								<Bar data={stats.riskBar} options={horizontalOptions} />
+							</ChartCard>
+							<section className="interior-dashboard-card interior-dashboard-assist-card">
+								<div className="interior-dashboard-card-head interior-dashboard-assist-head">
+									<div>
+										<strong>보조 지표</strong>
+										<p>운영 효율과 전환 흐름을 빠르게 확인합니다.</p>
+									</div>
+									<ChecklistOutlinedIcon />
+								</div>
+
+								<div className="interior-dashboard-assist-grid">
+									{stats.miniMetrics.map((item) => (
+										<div
+											className={`interior-dashboard-assist-item ${item.tone}`}
+											key={item.key}>
+											<div className="assist-item-label">
+												<span>{item.label}</span>
+											</div>
+
+											<strong>{item.value}</strong>
+											<small>{item.helper}</small>
+										</div>
+									))}
+								</div>
+							</section>
+						</div>
+					)}
+
+					{activeDashboardTab === "booking" && (
+						<div className="interior-dashboard-grid two">
+							<ChartCard
+								title="상담 상태별 현황"
+								statusKeys={["bookingOverview"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.bookingStatus} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="상담 진행 퍼널"
+								statusKeys={["bookingConversion"]}
+								{...cardStatusProps}>
+								<Bar data={stats.bookingFunnel} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title="월별 상담 요청"
+								statusKeys={["bookingMonthly"]}
+								{...cardStatusProps}>
+								<Bar data={stats.bookingMonthly} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="상담 방식 비율"
+								statusKeys={["bookingOverview"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.bookingKind} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="상담 소요 기간 분포"
+								statusKeys={["bookingLong"]}
+								{...cardStatusProps}>
+								<Bar data={stats.bookingLong} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="확정 / 미확정 견적"
+								statusKeys={["invoice"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.invoiceKind} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="견적 항목 TOP 10"
+								statusKeys={["invoiceItem"]}
+								{...cardStatusProps}>
+								<Bar data={stats.invoiceItemTop} options={horizontalOptions} />
+							</ChartCard>
+						</div>
+					)}
+
+					{activeDashboardTab === "contract" && (
+						<div className="interior-dashboard-grid two">
+							<ChartCard
+								title="월별 계약 금액"
+								statusKeys={["monthlyContract"]}
+								{...cardStatusProps}>
+								<Chart
+									type="bar"
+									data={stats.contractMonthly}
+									options={mixedAxisOptions}
+								/>
+							</ChartCard>
+							<ChartCard
+								title="찜 / 상담 / 계약 비교"
+								statusKeys={["interest"]}
+								{...cardStatusProps}>
+								<Bar data={stats.interestFlow} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="시공 일정 상태"
+								statusKeys={["schedule"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.scheduleStatus} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="월별 시공 일정"
+								statusKeys={["monthlySchedule"]}
+								{...cardStatusProps}>
+								<Bar data={stats.scheduleMonthly} options={baseOptions} />
+							</ChartCard>
+						</div>
+					)}
+
+					{activeDashboardTab === "customer" && (
+						<div className="interior-dashboard-grid two">
+							<ChartCard
+								title="고객 성별 비율"
+								statusKeys={["customer"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.customerGender} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="고객 연령대 분포"
+								statusKeys={["customer"]}
+								{...cardStatusProps}>
+								<Bar data={stats.customerAge} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="주거 유형"
+								statusKeys={["answerType"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.housingType} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="인테리어 목적"
+								statusKeys={["answerType"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.purpose} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="예산 구간"
+								statusKeys={["answerBudgetArea"]}
+								{...cardStatusProps}>
+								<Bar data={stats.budget} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="평수 구간"
+								statusKeys={["answerBudgetArea"]}
+								{...cardStatusProps}>
+								<Bar data={stats.area} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="요청 공간 TOP 10"
+								statusKeys={["answerSpace"]}
+								{...cardStatusProps}>
+								<Bar data={stats.spaceTop} options={horizontalOptions} />
+							</ChartCard>
+						</div>
+					)}
+
+					{activeDashboardTab === "portfolio" && (
+						<div className="interior-dashboard-grid two">
+							<ChartCard
+								title="리뷰 작성 여부"
+								statusKeys={["review"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.reviewWritten} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="월별 리뷰 수"
+								statusKeys={["monthlyReview"]}
+								{...cardStatusProps}>
+								<Line data={stats.reviewMonthly} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="시공 사례 태그"
+								statusKeys={["exampleTag"]}
+								{...cardStatusProps}>
+								<Bar data={stats.exampleTag} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title="시공 사례 이미지 등록 상태"
+								statusKeys={["portfolio"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.exampleImage} options={baseOptions} />
+							</ChartCard>
+							<TableCard
+								title="최근 시공 사례"
+								rowData={stats.recentExample}
+								col={["cName", "ieIndex", "ieTag", "ieTag2", "ieContentSummary"]}
+								columns={["업체명", "번호", "태그", "보조 태그", "내용"]}
+								statusKeys={["recentExample"]}
+								{...cardStatusProps}
+							/>
+							<ProgressChecklist profile={stats.profile} />
+						</div>
+					)}
+
+					{activeDashboardTab === "risk" && (
+						<div className="interior-dashboard-grid two">
+							<ChartCard
+								title="운영 리스크"
+								statusKeys={["risk"]}
+								{...cardStatusProps}>
+								<Bar data={stats.riskBar} options={horizontalOptions} />
+							</ChartCard>
+							<TableCard
+								title="관리 필요 목록"
+								rowData={stats.riskList}
+								col={[
+									"id",
+									"cName",
+									"createdDate",
+									"bookingDate",
+									"statusText",
+									"riskTypeText",
+								]}
+								columns={[
+									"고객 ID",
+									"업체명",
+									"상담 생성일",
+									"상담 희망일",
+									"상태",
+									"리스크 유형",
+								]}
+								statusKeys={["riskList"]}
+								{...cardStatusProps}
+							/>
+							<ProgressChecklist profile={stats.profile} />
+						</div>
+					)}
+				</section>
+			)}
 		</div>
 	);
 };

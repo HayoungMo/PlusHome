@@ -635,9 +635,18 @@
 			SELECT
 				r.F_CODE,
 				COUNT(*) AS REVIEW_COUNT,
-				ROUND(AVG(TO_NUMBER(r.FR_STAR)), 2) AS AVG_STAR,
-				MAX(TO_NUMBER(r.FR_STAR)) AS MAX_STAR,
-				MIN(TO_NUMBER(r.FR_STAR)) AS MIN_STAR
+				ROUND(AVG(CASE
+					WHEN REGEXP_LIKE(TRIM(r.FR_STAR), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(TRIM(r.FR_STAR))
+				END), 2) AS AVG_STAR,
+				MAX(CASE
+					WHEN REGEXP_LIKE(TRIM(r.FR_STAR), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(TRIM(r.FR_STAR))
+				END) AS MAX_STAR,
+				MIN(CASE
+					WHEN REGEXP_LIKE(TRIM(r.FR_STAR), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(TRIM(r.FR_STAR))
+				END) AS MIN_STAR
 			FROM F_REVIEW r
 				JOIN FURNITURE f
 					ON r.F_CODE = f.F_CODE
@@ -873,7 +882,10 @@
 			SELECT
 				r.F_CODE,
 				COUNT(*) AS REVIEW_COUNT,
-				ROUND(AVG(TO_NUMBER(r.FR_STAR)), 2) AS AVG_STAR
+				ROUND(AVG(CASE
+					WHEN REGEXP_LIKE(TRIM(r.FR_STAR), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(TRIM(r.FR_STAR))
+				END), 2) AS AVG_STAR
 			FROM F_REVIEW r
 				JOIN FURNITURE f
 					ON r.F_CODE = f.F_CODE
@@ -1349,6 +1361,19 @@
 	</sql>
 
 	<select id="getInteriorBookingOverviewStats" parameterType="map" resultType="map">
+		WITH BOOKING_BASE AS (
+			SELECT
+				b.*,
+				CASE
+					WHEN REGEXP_LIKE(TRIM(b.B_LONG), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(TRIM(b.B_LONG))
+				END AS B_LONG_NUM
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				<include refid="interiorBookingDateFilter" />
+			</where>
+		)
 		SELECT
 			COUNT(*) AS "totalBookingCount",
 			COUNT(CASE WHEN b.B_STATUS = 'pending' THEN 1 END) AS "pendingCount",
@@ -1362,12 +1387,8 @@
 			COUNT(CASE WHEN b.B_KIND = 'byemail' THEN 1 END) AS "emailBookingCount",
 			COUNT(CASE WHEN b.B_KIND = 'bytel' THEN 1 END) AS "telBookingCount",
 			NVL(ROUND(AVG(TRUNC(b.B_DATE) - TRUNC(b.B_CREATEDDATE)), 2), 0) AS "avgRequestLeadDays",
-			NVL(ROUND(AVG(NVL(b.B_LONG, 0)), 2), 0) AS "avgBookingLong"
-		FROM BOOKING b
-		<where>
-			<include refid="interiorBookingCompanyFilter" />
-			<include refid="interiorBookingDateFilter" />
-		</where>
+			NVL(ROUND(AVG(NVL(b.B_LONG_NUM, 0)), 2), 0) AS "avgBookingLong"
+		FROM BOOKING_BASE b
 	</select>
 
 	<select id="getInteriorBookingMonthlyStats" parameterType="map" resultType="map">
@@ -1384,28 +1405,37 @@
 	</select>
 
 	<select id="getInteriorBookingLongStats" parameterType="map" resultType="map">
+		WITH BOOKING_BASE AS (
+			SELECT
+				b.*,
+				CASE
+					WHEN REGEXP_LIKE(TRIM(b.B_LONG), '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(TRIM(b.B_LONG))
+				END AS B_LONG_NUM
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				<include refid="interiorBookingDateFilter" />
+			</where>
+		)
 		SELECT
 			CASE
-				WHEN b.B_LONG IS NULL THEN 'unknown'
-				WHEN b.B_LONG <![CDATA[<=]]> 1 THEN '1day'
-				WHEN b.B_LONG <![CDATA[<=]]> 3 THEN '2to3days'
-				WHEN b.B_LONG <![CDATA[<=]]> 7 THEN '4to7days'
-				WHEN b.B_LONG <![CDATA[<=]]> 14 THEN '8to14days'
+				WHEN b.B_LONG_NUM IS NULL THEN 'unknown'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 1 THEN '1day'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 3 THEN '2to3days'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 7 THEN '4to7days'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 14 THEN '8to14days'
 				ELSE 'over14days'
 			END AS "longGroup",
 			COUNT(*) AS "bookingCount"
-		FROM BOOKING b
-		<where>
-			<include refid="interiorBookingCompanyFilter" />
-			<include refid="interiorBookingDateFilter" />
-		</where>
+		FROM BOOKING_BASE b
 		GROUP BY
 			CASE
-				WHEN b.B_LONG IS NULL THEN 'unknown'
-				WHEN b.B_LONG <![CDATA[<=]]> 1 THEN '1day'
-				WHEN b.B_LONG <![CDATA[<=]]> 3 THEN '2to3days'
-				WHEN b.B_LONG <![CDATA[<=]]> 7 THEN '4to7days'
-				WHEN b.B_LONG <![CDATA[<=]]> 14 THEN '8to14days'
+				WHEN b.B_LONG_NUM IS NULL THEN 'unknown'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 1 THEN '1day'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 3 THEN '2to3days'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 7 THEN '4to7days'
+				WHEN b.B_LONG_NUM <![CDATA[<=]]> 14 THEN '8to14days'
 				ELSE 'over14days'
 			END
 		ORDER BY "bookingCount" DESC
@@ -1670,62 +1700,63 @@
 	</select>
 
 	<select id="getInteriorAnswerTypeStats" parameterType="map" resultType="map">
-		SELECT 'housingType' AS "answerType",
-			NVL(JSON_VALUE(b.B_ANSWER, '$.housingType' NULL ON ERROR), 'unknown') AS "answerValue",
-			COUNT(*) AS "bookingCount"
-		FROM BOOKING b
-		<where>
-			<include refid="interiorBookingCompanyFilter" />
-			AND b.B_ANSWER IS NOT NULL
-			AND b.B_ANSWER IS JSON
-			<include refid="interiorBookingDateFilter" />
-		</where>
-		GROUP BY NVL(JSON_VALUE(b.B_ANSWER, '$.housingType' NULL ON ERROR), 'unknown')
-		UNION ALL
-		SELECT 'purpose' AS "answerType",
-			NVL(JSON_VALUE(b.B_ANSWER, '$.purpose' NULL ON ERROR), 'unknown') AS "answerValue",
-			COUNT(*) AS "bookingCount"
-		FROM BOOKING b
-		<where>
-			<include refid="interiorBookingCompanyFilter" />
-			AND b.B_ANSWER IS NOT NULL
-			AND b.B_ANSWER IS JSON
-			<include refid="interiorBookingDateFilter" />
-		</where>
-		GROUP BY NVL(JSON_VALUE(b.B_ANSWER, '$.purpose' NULL ON ERROR), 'unknown')
-		UNION ALL
-		SELECT 'scheduleType' AS "answerType",
-			NVL(JSON_VALUE(b.B_ANSWER, '$.schedule' NULL ON ERROR), 'unknown') AS "answerValue",
-			COUNT(*) AS "bookingCount"
-		FROM BOOKING b
-		<where>
-			<include refid="interiorBookingCompanyFilter" />
-			AND b.B_ANSWER IS NOT NULL
-			AND b.B_ANSWER IS JSON
-			<include refid="interiorBookingDateFilter" />
-		</where>
-		GROUP BY NVL(JSON_VALUE(b.B_ANSWER, '$.schedule' NULL ON ERROR), 'unknown')
-		ORDER BY "answerType", "bookingCount" DESC
-	</select>
-
-	<select id="getInteriorAnswerBudgetAreaStats" parameterType="map" resultType="map">
 		WITH ANSWER_BASE AS (
 			SELECT
-				CASE
-					WHEN REGEXP_LIKE(JSON_VALUE(b.B_ANSWER, '$.budget' NULL ON ERROR), '^[0-9]+(\.[0-9]+)?$')
-					THEN TO_NUMBER(JSON_VALUE(b.B_ANSWER, '$.budget' NULL ON ERROR))
-				END AS BUDGET,
-				CASE
-					WHEN REGEXP_LIKE(JSON_VALUE(b.B_ANSWER, '$.areaSize' NULL ON ERROR), '^[0-9]+(\.[0-9]+)?$')
-					THEN TO_NUMBER(JSON_VALUE(b.B_ANSWER, '$.areaSize' NULL ON ERROR))
-				END AS AREA_SIZE
+				NVL(REGEXP_SUBSTR(b.B_ANSWER, '"housingType"[[:space:]]*:[[:space:]]*"([^"]*)"', 1, 1, NULL, 1), 'unknown') AS HOUSING_TYPE,
+				NVL(REGEXP_SUBSTR(b.B_ANSWER, '"purpose"[[:space:]]*:[[:space:]]*"([^"]*)"', 1, 1, NULL, 1), 'unknown') AS PURPOSE,
+				NVL(REGEXP_SUBSTR(b.B_ANSWER, '"schedule"[[:space:]]*:[[:space:]]*"([^"]*)"', 1, 1, NULL, 1), 'unknown') AS SCHEDULE_TYPE
 			FROM BOOKING b
 			<where>
 				<include refid="interiorBookingCompanyFilter" />
 				AND b.B_ANSWER IS NOT NULL
-				AND b.B_ANSWER IS JSON
 				<include refid="interiorBookingDateFilter" />
 			</where>
+		)
+		SELECT 'housingType' AS "answerType",
+			HOUSING_TYPE AS "answerValue",
+			COUNT(*) AS "bookingCount"
+		FROM ANSWER_BASE
+		GROUP BY HOUSING_TYPE
+		UNION ALL
+		SELECT 'purpose' AS "answerType",
+			PURPOSE AS "answerValue",
+			COUNT(*) AS "bookingCount"
+		FROM ANSWER_BASE
+		GROUP BY PURPOSE
+		UNION ALL
+		SELECT 'scheduleType' AS "answerType",
+			SCHEDULE_TYPE AS "answerValue",
+			COUNT(*) AS "bookingCount"
+		FROM ANSWER_BASE
+		GROUP BY SCHEDULE_TYPE
+		ORDER BY "answerType", "bookingCount" DESC
+	</select>
+
+	<select id="getInteriorAnswerBudgetAreaStats" parameterType="map" resultType="map">
+		WITH ANSWER_VALUE AS (
+			SELECT
+				REGEXP_SUBSTR(b.B_ANSWER, '"budget"[[:space:]]*:[[:space:]]*"?([^",}]*)"?', 1, 1, NULL, 1) AS BUDGET_TEXT,
+				REGEXP_SUBSTR(b.B_ANSWER, '"areaSize"[[:space:]]*:[[:space:]]*"?([^",}]*)"?', 1, 1, NULL, 1) AS AREA_SIZE_TEXT
+			FROM BOOKING b
+			<where>
+				<include refid="interiorBookingCompanyFilter" />
+				AND b.B_ANSWER IS NOT NULL
+				<include refid="interiorBookingDateFilter" />
+			</where>
+		),
+		ANSWER_BASE AS (
+			SELECT
+				CASE
+					WHEN REGEXP_LIKE(BUDGET_TEXT, '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(BUDGET_TEXT)
+				END AS BUDGET,
+				CASE
+					WHEN REGEXP_LIKE(AREA_SIZE_TEXT, '^[0-9]+(\.[0-9]+)?$')
+					THEN TO_NUMBER(AREA_SIZE_TEXT)
+					WHEN REGEXP_LIKE(AREA_SIZE_TEXT, '^[0-9]+_[0-9]+$')
+					THEN TO_NUMBER(REGEXP_SUBSTR(AREA_SIZE_TEXT, '^[0-9]+'))
+				END AS AREA_SIZE
+			FROM ANSWER_VALUE
 		)
 		SELECT 'budget' AS "answerType",
 			CASE
@@ -1772,26 +1803,35 @@
 	</select>
 
 	<select id="getInteriorAnswerSpaceStats" parameterType="map" resultType="map">
-		SELECT *
-		FROM (
-			SELECT
-				jt.SPACE AS "spaceName",
-				COUNT(*) AS "requestCount"
-			FROM BOOKING b,
-				JSON_TABLE(
-					b.B_ANSWER,
-					'$.spaces[*]'
-					COLUMNS (
-						SPACE VARCHAR2(100) PATH '$'
-					)
-				) jt
+		WITH SPACE_OPTIONS AS (
+			SELECT 'kitchen' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'livingroom' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'bath' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'storage' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'door' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'window' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'wallpaper' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'lighting' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'tile' AS SPACE_NAME FROM DUAL
+			UNION ALL SELECT 'floor' AS SPACE_NAME FROM DUAL
+		),
+		ANSWER_BASE AS (
+			SELECT b.B_ANSWER
+			FROM BOOKING b
 			<where>
 				<include refid="interiorBookingCompanyFilter" />
 				AND b.B_ANSWER IS NOT NULL
-				AND b.B_ANSWER IS JSON
 				<include refid="interiorBookingDateFilter" />
 			</where>
-			GROUP BY jt.SPACE
+		)
+		SELECT *
+		FROM (
+			SELECT
+				s.SPACE_NAME AS "spaceName",
+				COUNT(CASE WHEN REGEXP_LIKE(a.B_ANSWER, '"spaces"[[:space:]]*:[[:space:]]*\[[^]]*"' || s.SPACE_NAME || '"') THEN 1 END) AS "requestCount"
+			FROM SPACE_OPTIONS s, ANSWER_BASE a
+			GROUP BY s.SPACE_NAME
+			HAVING COUNT(CASE WHEN REGEXP_LIKE(a.B_ANSWER, '"spaces"[[:space:]]*:[[:space:]]*\[[^]]*"' || s.SPACE_NAME || '"') THEN 1 END) <![CDATA[>]]> 0
 			ORDER BY "requestCount" DESC
 		)
 		WHERE ROWNUM <![CDATA[<=]]> 10
