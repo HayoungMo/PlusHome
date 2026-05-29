@@ -11,6 +11,10 @@ public class DevDashBoardSummaryDTO {
 	
 	private int couponCount;
 	
+	private int notJoinedUserCount;
+	
+	private int notJoinedCompanyCount;
+	
 	//private int salseCount;
 	
 

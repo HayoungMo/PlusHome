@@ -396,21 +396,30 @@ public class UserService {
 		}
 	}
 	
-	//일반 유저 / 기업 유저 회원수, 쿠폰발급수
+	//일반 유저 / 기업 유저 회원수, 쿠폰발급수 , 회원탈퇴 수
 	public DevDashBoardSummaryDTO getSummary()throws Exception{
 		DevDashBoardSummaryDTO dto = new DevDashBoardSummaryDTO();
 		
 		
+		
 		dto.setUserCount(userMapper.getUserCount());
 		dto.setCompanyCount(userMapper.getCompanyCount());
-		dto.setCompanyCount(couponMapper.getCouponCount());
+		dto.setCouponCount(couponMapper.getCouponCount());
+		dto.setNotJoinedUserCount(userMapper.getNotJoinedUserCount());
+		dto.setNotJoinedCompanyCount(userMapper.getNotJoinedCompanyCount());
 		
 		int couponCount = couponMapper.getCouponCount();
 		System.out.println("쿠폰개수" + couponCount);
 		
+		System.out.println(dto);
 		
-		return dto;
+		
+		return dto;		
+		
+		
 	}
+	
+	
 
 }
 	

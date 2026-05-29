@@ -74,6 +74,12 @@ public class DevController {
 	//유저 탈퇴 상태
 	@PostMapping("/delete")
 	public Map<String,Object> deleteUser(@RequestBody List<UserDTO> dtoList) throws Exception{
+		
+		for(UserDTO dto : dtoList) {
+			System.out.println("삭제 대상 ID: " + dto.getId());
+			System.out.println("삭제 대상 type: " + dto.getType());
+		}
+		
 		Map<String,Object> result = new HashMap<>();
 		
 		if(dtoList.size()==0) {

@@ -60,4 +60,10 @@ public interface UserMapper {
 	
 	public int getCompanyCount()throws Exception;
 	
+	public int getNotJoinedUserCount()throws Exception;
+	
+	public int getNotJoinedCompanyCount()throws Exception;
+	
+	
+	
 }

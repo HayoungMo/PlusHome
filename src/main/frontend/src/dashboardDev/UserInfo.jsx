@@ -7,6 +7,7 @@ import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
 import SelectMui from '../components/SelectMui';
 import TextFieldMui from '../components/TextFieldMui';
+import AlertMui from '../components/AlertMui';
 
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
@@ -69,6 +70,13 @@ const UserInfo = (props) => {
 
     const [userType,setUserType] = useState("user");
 
+    const [alert,setAlert] = useState({        
+        open: false,
+        severity: "info",
+        title: "",
+        text: "",  
+    })
+
     const [searchInfo,setSearchInfo] = useState({})
 
     const onChangeNewUserInfo = (e) =>{
@@ -118,9 +126,16 @@ const companyColumns = [
 
        const res = await userService.userGetAll(userType)
         console.log(res)
+        console.table("리스트 찍히는지 확인",res.list)
 
         if(res.success){
             
+            setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
             setUserList(res.list)
             
             setUserStateList(res.list);
@@ -220,7 +235,8 @@ const companyColumns = [
             if(res.success){
                 setUserList(res.list)
                 setUserStateList(res.list)
-                setEditedUserList(res.list)                           
+                setEditedUserList(res.list)
+                setRelatedCompanyList(res.list)                           
 
 					
             }
@@ -702,6 +718,8 @@ const companyColumns = [
                         />
                     )}
 
+
+
                     <Button
                         color='inherit'
                         variant='outlined'
@@ -772,6 +790,16 @@ const companyColumns = [
 
                 <div>등록된 회원이 없습니다.</div>
 
+            )}
+
+            {alertOpen && (
+                <AlertMui
+                    severity={alertInfo.severity}
+                    title={alertInfo.title}
+                    text={alertInfo.text}
+                    onClose={() => setAlertOpen(false)}
+                    autoHideDuration={3000}
+                />
             )}
 
             {relatedCompanyList.length > 0 && 
