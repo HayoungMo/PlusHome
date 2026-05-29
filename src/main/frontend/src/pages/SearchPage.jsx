@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
-import SelectMui from '../components/SelectMui';
-import CheckboxMui from '../components/CheckboxMui';
-import ToggleButtonMui from '../components/ToggleButtonMui';
+import MultiFilterBar from '../components/MultiFilterBar';
+
 import { 
     Button,
     Card,
@@ -15,6 +14,7 @@ import {
     Stack,
         } from '@mui/material';
 import {
+    furnitureCategoryOptions,
     getFurnitureCategoryCode,
     getFurnitureCategoryTitle,
         } from "../components/FurnitureCategorySelect";
@@ -37,7 +37,11 @@ const SearchPage = () => {
 
     //인테리어 URL 필터값 -> 인테리어 검색은 지역을 기준으로 검색
     const interiorRegion = searchParams.get("interiorRegion") || "";
-
+    const housingType = searchParams.get("housingType") || "";
+    const areaSize = searchParams.get("areaSize") || "";
+    const purpose = searchParams.get("purpose") || "";
+    const spaces = searchParams.get("spaces") || "";
+    const budget = searchParams.get("budget") || "";
 
     //필터 옵션 
     const [filterOptions, setFilterOptions] = useState({
@@ -45,13 +49,6 @@ const SearchPage = () => {
         interiorRegions: [],
     });
 
-    const [filterInput, setFilterInput] = useState({
-        category: category,
-        priceRange: priceRange,
-        discount: discount,
-        freeDelivery: freeDelivery,
-        interiorRegion,
-    });
 
     //화면 상태 관리
     const [inputKeyword, setInputKeyword] = useState(keyword);
@@ -100,12 +97,6 @@ const SearchPage = () => {
         });
     };
 
-    const onChangeSearchTab = (evt, nextType) => {
-        if(!nextType) return;
-
-        onClickTab(nextType);
-    }
-
 
     //검색 탭 목록 - 탭으로 쓸지 아니면 다른 방식으로 할지는 고민 , 현재는 객체로 넘겨줌
     const searchTabs = [
@@ -123,20 +114,12 @@ const SearchPage = () => {
     
     
     //keyword 또는 검색 탭이 바뀌면 DB 검색 실행함(동기화), 쇼핑 카테고리, 가격, 할인, 무료
-    useEffect(()=>{
-        setFilterInput({
-            category,
-            priceRange,
-            discount,
-            freeDelivery,
-            interiorRegion,
-        });
-    },[category, priceRange, discount, freeDelivery, interiorRegion]);
+  
 
     //검색 실행 의존성 useEffect 입니다. 지우지마
     useEffect(() => {
         getSearchResult();
-    }, [keyword, type, category, priceRange, discount, freeDelivery,interiorRegion]);
+    }, [keyword, type, category, priceRange, discount, freeDelivery,interiorRegion, housingType, areaSize, purpose, spaces, budget]);
 
     //검색 조건 바뀔 때 캐러셀 초기화 추가
     useEffect(() => {
@@ -157,7 +140,7 @@ const SearchPage = () => {
         { value: "500000-", title: "50만원 이상" },
     ];
 
-
+    
      //ㄱㄴㄷㄹ 순서 처리
     const sortByKorean = (list, getText) => {
         return [...list].sort((a,b) => 
@@ -225,13 +208,104 @@ const SearchPage = () => {
     ];
 
     //mui select 옵션 DB 기반으로 만들어줌. 
-    const furnitureCategoryOptions = [
+    const searchFurnitureCategoryOptions = [
         { value: "", title: "전체 카테고리" },
         ...filterOptions.furnitureCategories.map((item) => ({
             value: item,
             title: getFurnitureCategoryTitle(item),
         })),
     ];
+
+    //검색 필터 정리
+    const furnitureFilterGroups = [
+        {
+            key: "category",
+            label: "카테고리",
+            options: furnitureCategoryOptions.f_catagory1.map((item) => ({
+                value: item.value,
+                title: item.title,
+            })),
+        },
+        {
+            key: "priceRange",
+            label: "가격",
+            options: priceOptions.filter((item) => item.value),
+        },
+        {
+            key: "discount",
+            label: "혜택",
+            options: [{ value: "Y", title: "할인 상품"}],
+        },
+        {
+            key: "freeDelivery",
+            label: "배송",
+            options: [{ value: "Y", title: "무료배송"}],
+        },
+    ];
+
+    const interiorFilterGroups = [
+        {
+            key:"interiorRegion",
+            label:"지역",
+            options: interiorRegionOptions.filter((item) => item.value),
+        },
+        {
+            key: "housingType",
+            label: "주거 유형",
+            options: [
+                { value: "apt", title:"아파트" },
+                { value: "villa", title:"빌라" },
+                { value: "house", title:"단독주택" },
+                { value: "officetel", title:"오피스텔" },
+            ],
+        },
+        {
+            key: "areaSize",
+            label: "면적",
+            options: [
+                { value: "10_20", title: "10~20평" },
+                { value: "30", title: "30평대" },
+                { value: "40", title: "40평대" },
+                { value: "50", title: "50평 이상" },
+            ],
+        },
+        {
+            key: "purpose",
+            label: "인테리어 이유",
+            options: [
+                { value: "purchase", title: "집 구매 후" },
+                { value: "existing", title: "기존 집 리모델링" },
+                { value: "new_house", title: "새 집 입주" },
+            ],
+        },
+        {
+            key: "spaces",
+            label: "필요한 공간",
+            options: [
+                { value: "livingroom", title: "거실" },
+                { value: "kitchen", title: "주방" },
+                { value: "storage", title: "수납" },
+                { value: "door", title: "중문/문" },
+                { value: "window", title: "창문" },
+                { value: "wallpaper", title: "벽지" },
+                { value: "lighting", title: "조명" },
+                { value: "tile", title: "타일" },
+                { value: "floor", title: "마루" },
+            ],
+        },
+        {
+            key: "budget",
+            label: "예산",
+            options: [
+                { value: "1000", title: "1000만원 이하" },
+                { value: "2000", title: "1000~2000만원" },
+                { value: "3000", title: "2000~3000만원" },
+                { value: "5000", title: "3000~5000만원" },
+                { value: "10000", title: "5000만원 이상" },
+            ],
+        },
+    ];
+
 
     const getPriceRange = () => {
         if (!priceRange) {
@@ -287,46 +361,6 @@ const SearchPage = () => {
             return matchRegion;
         });
     };
-
-
-    //필터 검색 버튼 함수
-    const onFilterSearch = () => {
-    const params = {
-        keyword: keyword.trim(),
-        type,
-        page: 1,
-        category: filterInput.category,
-        priceRange: filterInput.priceRange,
-        discount: filterInput.discount,
-        freeDelivery: filterInput.freeDelivery,
-        interiorRegion: filterInput.interiorRegion,
-    };
-
-    Object.keys(params).forEach((key) => {
-        if (!params[key]) {
-            delete params[key];
-        }
-    });
-
-    setSearchParams(params);
-    };
-
-    const resetFilter = () => {
-        setFilterInput({
-            category: "",
-            priceRange: "",
-            discount: "",
-            freeDelivery: "",
-            interiorRegion: "",
-        });
-
-        setSearchParams({
-            keyword: keyword.trim(),
-            type,
-            page: 1,
-        });
-    };
-
 
 
     //검색을 안하고 전체를 눌렀을때 가구의 목록을 ㄱㄴㄷ순으로 보여주는 함수
@@ -487,6 +521,11 @@ const SearchPage = () => {
             discount,
             freeDelivery,
             interiorRegion,
+            housingType,
+            areaSize,
+            purpose,
+            spaces,
+            budget,
         };
 
         Object.keys(params).forEach((key) => {
@@ -499,14 +538,37 @@ const SearchPage = () => {
     };
 
     //필터 변경 함수 추가 (밑으로 쭉)
+    const furnitureFilterValue = {
+        category,
+        priceRange,
+        discount,
+        freeDelivery,
+    };
+
+    const interiorFilterValue = {
+        interiorRegion,
+        housingType,
+        areaSize,
+        purpose,
+        spaces,
+        budget,
+    };
+
     const updateFilter = (nextFilter) => {
         const params = {
             keyword: keyword.trim(),
             type,
             page: 1,
             category,
+            priceRange,
             discount,
             freeDelivery,
+            interiorRegion,
+            housingType,
+            areaSize,
+            purpose,
+            spaces,
+            budget,
             ...nextFilter,
         };
 
@@ -797,119 +859,72 @@ const SearchPage = () => {
         <div>
             {/* 상단 검색창 + 탭*/}
             <section>
-                <h2>통합 검색</h2>
-                
-                {/* 검색창 */}
-                <form onSubmit={onSearch}>
-                    <input
-                        placeholder="검색어를 입력해주세요"
-                        value={inputKeyword}
-                        onChange={(evt) => setInputKeyword(evt.target.value)}
-                    />
-                    <Button type="submit" variant="contained" color="success">검색</Button>
-                </form>
 
                 {/* 검색 카테고리 탭 */}
                 <div style={{marginTop: "10px"}}>
-                    <ToggleButtonMui
-                        value={type}
-                        exclusive={true}
-                        onChange={onChangeSearchTab}
-                        ButtonList={searchTabs}
-                    />
+                    <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ mt: 2, borderBottom: "1px solid #eee" }}
+                    >
+                    {searchTabs.map((tab) => {
+                        const active = type === tab.value;
+
+                        return (
+                            <Button
+                                key={tab.value}
+                                type="button"
+                                variant="text"
+                                onClick={() => onClickTab(tab.value)}
+                                sx={{
+                                    borderRadius: 0,
+                                    borderBottom: active ? "2px solid #1976d2" : "2px solid transparent",
+                                    color: active ? "#1976d2" : "#333",
+                                    fontWeight: active ? 800 : 500,
+                                }}
+                            >
+                                {tab.title}
+                            </Button>
+                        );
+                    })}
+                </Stack>
                 </div>
                     {/* 가구 필터 UI */}
                     {type === "furniture" && (
-                        <div style={{ marginTop: "12px", display: "flex", gap: "12px", alignItems: "center" }}>
-                            <SelectMui
-                                label="카테고리"
-                                name="category"
-                                value={filterInput.category}
-                                option={furnitureCategoryOptions}
-                                width="160px"
-                                onChange={(evt) =>
-                                    setFilterInput((prev) => ({
-                                        ...prev,
-                                        category: evt.target.value,
-                                    }))
+                        <div style={{ marginTop: "12px" }}>
+                            <MultiFilterBar
+                                groups={furnitureFilterGroups}
+                                selectedValues={furnitureFilterValue}
+                                onChange={updateFilter}
+                                onReset={() =>
+                                    updateFilter({
+                                        category: "",
+                                        priceRange: "",
+                                        discount: "",
+                                        freeDelivery: "",
+                                    })
                                 }
                             />
-
-                            <SelectMui
-                                label="가격대"
-                                name="priceRange"
-                                value={filterInput.priceRange}
-                                option={priceOptions}
-                                width="180px"
-                                onChange={(evt) =>
-                                    setFilterInput((prev) => ({
-                                        ...prev,
-                                        priceRange: evt.target.value,
-                                    }))
-                                }
-                            />
-
-                            <label>
-                                <CheckboxMui
-                                    type="checkbox"
-                                    checked={filterInput.discount === "Y"}
-                                    onChange={(evt) =>
-                                        setFilterInput((prev) => ({
-                                            ...prev,
-                                            discount: evt.target.checked ? "Y" : "",
-                                        }))
-                                    }
-                                />
-                                할인 상품
-                            </label>
-
-                            <label>
-                                <CheckboxMui
-                                    type="checkbox"
-                                    checked={filterInput.freeDelivery === "Y"}
-                                    onChange={(evt) =>
-                                        setFilterInput((prev) => ({
-                                            ...prev,
-                                            freeDelivery: evt.target.checked ? "Y" : "",
-                                        }))
-                                    }
-                                />
-                                무료배송
-                            </label>
-
-                            <Button variant="contained" color="primary" onClick={onFilterSearch}>
-                                필터 검색
-                            </Button>
-
-                            <Button variant="contained" color="primary" onClick={resetFilter}>
-                                초기화
-                            </Button>
                         </div>
                     )}
-                    {/* 인테리어 필터 UI */}
+
                     {type === "interior" && (
-                        <div style={{ marginTop: "12px", display: "flex", gap: "12px", alignItems: "center" }}>
-                            <SelectMui
-                                label="지역"
-                                name="interiorRegion"
-                                value={filterInput.interiorRegion}
-                                option={interiorRegionOptions}
-                                width="160px"
-                                onChange={(evt) =>
-                                    setFilterInput((prev) => ({
-                                        ...prev,
-                                        interiorRegion: evt.target.value,
-                                    }))
+                        <div style={{ marginTop: "12px" }}>
+                            <MultiFilterBar
+                                groups={interiorFilterGroups}
+                                selectedValues={interiorFilterValue}
+                                onChange={updateFilter}
+                                onReset={() =>
+                                    updateFilter({
+                                        interiorRegion: "",
+                                        housingType: "",
+                                        areaSize: "",
+                                        purpose: "",
+                                        spaces: "",
+                                        budget: "",
+                                    })
                                 }
                             />
-
-                            <Button variant="contained" color="primary" onClick={onFilterSearch}>
-                                필터 검색
-                            </Button>
-
-                            <Button variant="contained" color="primary" onClick={resetFilter}>
-                                초기화
-                            </Button>
                         </div>
                     )}
 

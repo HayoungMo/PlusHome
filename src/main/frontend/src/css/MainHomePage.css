@@ -1,0 +1,132 @@
+.main-first-view {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	min-height: calc(100vh - 96px);
+	margin-bottom: 0;
+}
+
+.main-hero-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 3.15fr) minmax(260px, 1fr);
+	gap: 20px;
+	height: clamp(500px, 58vh, 540px);
+}
+
+.main-hero-video,
+.main-event-banner {
+	height: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	background-color: #f5f5f5;
+}
+
+.main-hero-video video {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.main-event-banner {
+	position: relative;
+	border: 1px solid #e5e1da;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	background-color: #ffffff;
+}
+
+.main-event-banner-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	cursor: pointer;
+	display: block;
+}
+
+.main-event-empty {
+	margin: 0;
+	color: #777;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.main-category-section {
+	padding: 2px 8px 6px;
+	transform: translateY(48px);
+	margin-bottom: -48px;
+}
+
+.main-category-shortcuts {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(72px, 1fr));
+	gap: 18px;
+	justify-items: center;
+	align-items: start;
+}
+
+.main-category-link {
+	width: 104px;
+	text-align: center;
+	text-decoration: none;
+	color: #222;
+}
+
+.main-category-icon {
+	width: 74px;
+	height: 74px;
+	margin: 0 auto 10px;
+	border-radius: 22px;
+	background-color: #f5f1ea;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: rgba(0, 140, 255, 0.92);
+	transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.main-category-icon svg {
+	font-size: 42px;
+}
+
+.main-category-link:hover .main-category-icon {
+	transform: translateY(-2px);
+	background-color: #eaf6ff;
+}
+
+.main-category-title {
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+@media (max-width: 900px) {
+	.main-hero-grid {
+		grid-template-columns: 1fr;
+		height: auto;
+	}
+
+	.main-hero-video,
+	.main-event-banner {
+		height: 280px;
+	}
+
+	.main-category-shortcuts {
+		grid-template-columns: repeat(3, minmax(72px, 1fr));
+		row-gap: 20px;
+	}
+}
+
+@media (max-width: 520px) {
+	.main-hero-video,
+	.main-event-banner {
+		height: 220px;
+	}
+
+	.main-category-shortcuts {
+		grid-template-columns: repeat(2, minmax(72px, 1fr));
+	}
+}

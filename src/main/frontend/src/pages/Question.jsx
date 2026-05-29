@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import questionService from '../service/questionService';
-import { TextField } from '@mui/material';
+import { Alert, Button, IconButton, Snackbar, TextField } from '@mui/material';
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 import CheckboxMui from '../components/CheckboxMui';
 import ImageService from '../service/imageService';
 import GetImgDir from '../resources/function/GetImgDir';
-import SnackbarAlert from '../components/SnackbarAlert';
 import ImageViewer from '../components/ImageViewer';
+import "../css/Question.css";
 
 const Question = ({ f_code,furniture }) => {
     const [questions, setQuestions] = useState([]);
@@ -18,6 +20,8 @@ const Question = ({ f_code,furniture }) => {
     });
     const [answerForms, setAnswerForms] = useState({});
     const [questionFiles,setQuestionFiles] = useState([]);
+    const [questionPreviews, setQuestionPreviews] = useState([]);
+    const questionPreviewsRef = useRef([]);
     const [questionImages, setQuestionImages] = useState({}); 
 
     const [viewerOpen, setViewerOpen] = useState(false);
@@ -196,6 +200,91 @@ const Question = ({ f_code,furniture }) => {
         }));
     };
 
+    //파일 선택 함수 추가함.
+    const makePreviewItem = (file) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}-${Date.now()}-${Math.random()}`,
+        file,
+        url: URL.createObjectURL(file),
+    });
+
+    const isSameFile = (fileA, fileB) => (
+        fileA.name === fileB.name &&
+        fileA.size === fileB.size &&
+        fileA.lastModified === fileB.lastModified
+    );
+
+    const syncQuestionFiles = (previewItems) => {
+        setQuestionFiles(previewItems.map((item) => item.file));
+    };
+
+    const onQuestionFileChange = (evt) => {
+        const selectedFiles = Array.from(evt.target.files || []);
+
+        setQuestionPreviews((prev) => {
+            const newFiles = selectedFiles.filter(
+                (file) => !prev.some((item) => isSameFile(item.file, file))
+            );
+
+            const next = [
+                ...prev,
+                ...newFiles.map((file) => makePreviewItem(file)),
+            ];
+
+            syncQuestionFiles(next);
+            return next;
+        });
+
+        evt.target.value = "";
+    };
+
+    //메모리 정리용으로 useEffect 추가
+    const onReplaceQuestionFile = (targetId, file) => {
+        if (!file) return;
+
+        setQuestionPreviews((prev) => {
+            const next = prev.map((item) => {
+                if (item.id !== targetId) return item;
+
+                URL.revokeObjectURL(item.url);
+                return makePreviewItem(file);
+            });
+
+            syncQuestionFiles(next);
+            return next;
+        });
+    };
+
+    const onRemoveQuestionFile = (targetId) => {
+        setQuestionPreviews((prev) => {
+            const target = prev.find((item) => item.id === targetId);
+
+            if (target) {
+                URL.revokeObjectURL(target.url);
+            }
+
+            const next = prev.filter((item) => item.id !== targetId);
+            syncQuestionFiles(next);
+            return next;
+        });
+    };
+
+    const clearQuestionPreviewFiles = () => {
+        questionPreviews.forEach((item) => URL.revokeObjectURL(item.url));
+        questionPreviewsRef.current = [];
+        setQuestionPreviews([]);
+        setQuestionFiles([]);
+    };
+
+    useEffect(() => {
+        questionPreviewsRef.current = questionPreviews;
+    }, [questionPreviews]);
+
+    useEffect(() => {
+        return () => {
+            questionPreviewsRef.current.forEach((item) => URL.revokeObjectURL(item.url));
+        };
+    }, []);
+
     const onQuestionSubmit = async (evt) => {
         evt.preventDefault();
 
@@ -263,8 +352,7 @@ const Question = ({ f_code,furniture }) => {
                 guestPhone: "",
                 q_pw: "",
             });
-            setQuestionFiles([]);
-            
+            clearQuestionPreviewFiles();
             getQuestionList();
         }catch(error){
             console.log(error);
@@ -309,17 +397,30 @@ const Question = ({ f_code,furniture }) => {
     };
 
     return (
-        <section style={{ marginTop: "40px" }}>
-            <SnackbarAlert
+        <section className="question-section">
+            <Snackbar
                 open={snackbar.open}
-                message={snackbar.message}
-                severity={snackbar.severity}
+                autoHideDuration={3000}
                 onClose={closeSnackbar}
-            />
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={closeSnackbar}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{
+                        width: "100%",
+                        minWidth: 260,
+                        boxShadow: 3,
+                    }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
             {isMyCompanyProduct() ? (
                 <p>자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.</p>
             ):(
-                <form onSubmit={onQuestionSubmit}>
+                <form className="question-form" onSubmit={onQuestionSubmit}>
                     {!loginUser && (
                         <>
                             <TextField
@@ -353,17 +454,68 @@ const Question = ({ f_code,furniture }) => {
                         placeholder="문의 내용을 입력하세요"
                         value={questionForm.q_content}
                         onChange={onQuestionChange}
-                        rows={4}
+                        multiline
+                        rows={5}
                     />
                     <br/>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(evt) => setQuestionFiles(Array.from(evt.target.files || []))}
-                    />
+                    <div className="question-upload-row">
+                    <Button
+                        component="label"
+                        variant="contained"
+                        startIcon={<CloudUploadIcon />}
+                    >
+                        이미지 업로드
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            hidden
+                            onChange={onQuestionFileChange}
+                        />
+                    </Button>
+                    </div>
+                    {questionPreviews.length > 0 && (
+                        <div className="question-preview-grid">
+                            {questionPreviews.map((item) => (
+                                <div className="question-preview-card" key={item.id}>
+                                    <img src={item.url} alt={item.file.name} />
+                                    <span className="question-preview-name">
+                                        {item.file.name}
+                                    </span>
+
+                                    <div className="question-preview-actions">
+                                        <Button component="label" size="small" variant="outlined">
+                                            수정
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                onChange={(evt) => {
+                                                    onReplaceQuestionFile(
+                                                        item.id,
+                                                        evt.target.files?.[0]
+                                                    );
+                                                    evt.target.value = "";
+                                                }}
+                                            />
+                                        </Button>
+
+                                        <IconButton
+                                            type="button"
+                                            className="question-preview-delete-button"
+                                            aria-label="이미지 삭제"
+                                            onClick={() => onRemoveQuestionFile(item.id)}
+                                        >
+                                            <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     <br />
 
+                    <div className="question-submit-row">
                     <label>
                         <CheckboxMui
                             name="q_secret"
@@ -373,7 +525,8 @@ const Question = ({ f_code,furniture }) => {
                         />
                     </label>
 
-                    <button type="submit">문의 등록</button>
+                    <Button type="submit" variant="contained">문의 등록</Button>
+                    </div>
                 </form>
             )}
             <hr />
@@ -382,7 +535,7 @@ const Question = ({ f_code,furniture }) => {
                 <p>등록된 문의가 없습니다.</p>
             ) : (
                 questions.map((item) => (
-                    <div key={item.q_idx}>
+                    <div className="question-item" key={item.q_idx}>
 
                         <h4>제목: {canReadQuestion(item) ? item.q_title: "비밀글입니다."}</h4>
                         {canReadQuestion(item) ? (
@@ -426,12 +579,13 @@ const Question = ({ f_code,furniture }) => {
                                     placeholder="답변 내용을 입력하세요"
                                     value={answerForms[item.q_idx] || ""}
                                     onChange={(evt) => onAnswerChange(item.q_idx, evt.target.value)}
+                                    multiline
                                     rows={3}
                                 />
                                 <br/>
-                                <button type="button" onClick={() => onAnswerSubmit(item.q_idx)}>
+                                <Button type="button" variant="contained" onClick={() => onAnswerSubmit(item.q_idx)}>
                                     답변 등록
-                                </button>
+                                </Button>
                             </div>
                         )}
 

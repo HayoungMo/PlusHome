@@ -331,7 +331,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
             onChangeProfileImage={onChangeProfileImage}
             changeMenu={changeMenu}
             />
-            {(isCompanyUser || isAdminUser && (
+            {((isCompanyUser || isAdminUser) && (
                 <div className="user-company-dashboard-menu">
                     <button 
                     type="button" 
