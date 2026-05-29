@@ -128,6 +128,11 @@ const insertCouponUser = async(data) =>{
     return res.data
 }
 
-const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode,insertCouponUser };
+const getSummary = async () =>{
+    const res = await http.get("/dev/summary")
+    return res.data
+}
+
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode,insertCouponUser,getSummary };
 
 export default userService;

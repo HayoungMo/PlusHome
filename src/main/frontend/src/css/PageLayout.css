@@ -1,14 +1,22 @@
 .page-layout {
 	min-height: 100vh;
-	background-color: #f7f7f5;
+	background-color: #ffffff;
 	color: #222;
 	display: flex;
 	flex-direction: column;
 }
 /* 관리자 대시보드와 헷갈리지 않게 일반 쇼핑몰 페이지는 shop으로 설정 */
 .shop-header {
+	position: sticky;
+	top: 0;
+	z-index: 1000;
 	background-color: #ffffff;
 	border-bottom: 1px solid #e5e1da;
+	transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.shop-header--hidden {
+	transform: translateY(-100%);
 }
 
 .shop-header-inner {
@@ -16,9 +24,10 @@
 	min-height: 72px;
 	margin: 0 auto;
 	padding: 0 24px;
-	display: flex;
+	display: grid;
+	grid-template-columns: 1fr minmax(320px, 420px) 1fr;
 	align-items: center;
-	gap: 28px;
+	gap: 24px;
 }
 
 .shop-logo {
@@ -28,9 +37,35 @@
 	text-decoration: none;
 	white-space: nowrap;
 }
+.shop-brand-area {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	justify-self: start;
+}
+
+.shop-primary-tabs {
+	display: flex;
+	align-items: center;
+	gap: 28px;
+	margin-left: 20px; 
+}
+
+.shop-primary-tabs a {
+	color: #333;
+	text-decoration: none;
+	font-size: 20px;
+	font-weight: 800;
+	white-space: nowrap;
+}
+
+.shop-primary-tabs a.active {
+	color: rgba(0, 140, 255, 0.92);
+}
 
 .shop-search {
-	flex: 1;
+	width: 100%;
+	justify-self: center;
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -60,6 +95,7 @@
 
 .shop-user {
 	min-width: 110px;
+	justify-self: end;
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
@@ -96,7 +132,7 @@
 }
 
 .shop-nav a.active {
-	color: #2f5d50;
+	color: rgba(0, 140, 255, 0.92);
 	font-weight: 700;
 }
 
@@ -133,14 +169,24 @@
 
 @media (max-width: 760px) {
 	.shop-header-inner {
+		display: flex;
 		flex-wrap: wrap;
 		gap: 14px;
 		padding: 16px;
 	}
 
+	.shop-brand-area {
+		width: 100%;
+		justify-content: space-between;
+	}
+
 	.shop-search {
 		order: 3;
-		flex-basis: 100%;
+		width: 100%;
+	}
+
+	.shop-user {
+		margin-left: auto;
 	}
 
 	.shop-nav-inner {

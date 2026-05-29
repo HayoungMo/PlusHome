@@ -584,16 +584,22 @@ const companyColumns = [
                 return (
                     data.code === row.code
 
+                    && data.c_boss === row.c_boss
+
                 )
             })
         }
 
         const handleRowClick = (row) =>{
+
+            if(userType !=='company'){
+                setRelatedCompanyList([])
+                return
+            }
+
             const relatedList = getRelatedCompanyList(row)
 
-            setRelatedCompanyList(
-                relatedList
-            )
+            setRelatedCompanyList(relatedList)
         }
 
        

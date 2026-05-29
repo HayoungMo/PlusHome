@@ -27,7 +27,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/freview")
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+		"http://localhost:3000",
+		"http://192.168.0.3:3000"
+})
 public class FurnitureReviewController {
 
 	@Resource
