@@ -80,7 +80,7 @@
 }
 
 .interior-list-toolbar button,
-.interior-list-section button {
+.interior-list-section button:not(.MuiPaginationItem-root) {
   border-radius: 6px;
   font-weight: 700;
   white-space: nowrap;
@@ -127,7 +127,6 @@
   border-radius: 8px;
   background: #f7f9fa;
   object-fit: cover;
-  box-shadow: inset 0 0 0 1px #eaedef;
   transition: transform 0.22s ease, filter 0.22s ease;
 }
 
@@ -204,6 +203,7 @@
 
 .interior-company-list-count.MuiTypography-root {
   display: inline-flex;
+  order: 1;
   width: fit-content;
   align-items: center;
   margin: 0;
@@ -216,6 +216,7 @@
 }
 
 .interior-company-list-grid {
+  order: 2;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
@@ -226,12 +227,10 @@
   border: 1px solid #dfeaf3;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 10px 24px rgba(38, 92, 135, 0.07);
 }
 
 .interior-company-list-card:hover {
   border-color: #89cef7;
-  box-shadow: 0 14px 30px rgba(0, 139, 232, 0.13);
 }
 
 .interior-company-list-card .interior-company-image {
@@ -264,6 +263,7 @@
 
 .interior-company-list-empty.MuiTypography-root {
   display: flex;
+  order: 3;
   min-height: 180px;
   align-items: center;
   justify-content: center;
@@ -277,6 +277,7 @@
 
 .interior-company-list-pagination.MuiPagination-root {
   display: flex;
+  order: 4;
   justify-content: center;
   margin-top: 18px;
 }
@@ -305,12 +306,6 @@
 
 .interior-lists-content img {
   max-width: 100%;
-}
-
-.interior-lists-content .MuiPaginationItem-root.Mui-selected {
-  background-color: #00a1ff;
-  color: #fff;
-  font-weight: 800;
 }
 
 .interior-lists-content .MuiTypography-root {

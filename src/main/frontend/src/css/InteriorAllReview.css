@@ -53,8 +53,8 @@
   min-width: 0;
   box-sizing: border-box;
   display: block;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   background: transparent;
   padding: 0;
   cursor: pointer;
@@ -64,6 +64,7 @@
 
 .interior-all-review-page .interior-review-card:hover {
   transform: translateY(-2px);
+  border: 1px solid #00a1ff;
 }
 
 .interior-all-review-page .interior-review-card-thumb {
@@ -72,7 +73,6 @@
   min-height: 0;
   background: #f7f9fa;
   border-radius: 8px;
-  box-shadow: inset 0 0 0 1px #eaedef;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -192,8 +192,7 @@
   line-height: 1.6;
 }
 
-.all-review-dialog-info .MuiChip-root,
-.interior-all-review-page .MuiPaginationItem-root.Mui-selected {
+.all-review-dialog-info .MuiChip-root {
   background-color: #00a1ff;
   color: #fff;
   font-weight: 800;

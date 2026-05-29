@@ -61,12 +61,10 @@
   border: 1px solid #dfeaf3;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 10px 24px rgba(38, 92, 135, 0.07);
 }
 
 .interior-list-section.interior-recommend-section .interior-recommend-card:hover {
   border-color: #89cef7;
-  box-shadow: 0 14px 30px rgba(0, 139, 232, 0.13);
 }
 
 .interior-list-section.interior-recommend-section .interior-recommend-card .interior-company-image {

@@ -5,6 +5,7 @@ import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
 import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllReview.css";
+import Loading from "../components/Loading";
 
 const PAGE_SIZE = 6;
 
@@ -146,16 +147,24 @@ const InteriorAllReivew = () => {
                 >
                   <div className="interior-review-card-thumb">
                     {thumbnail ? (
-                      <img src={thumbnail.img_name} alt={`${item.c_name} 리뷰`} />
+                      <img
+                        src={thumbnail.img_name}
+                        alt={`${item.c_name} 리뷰`}
+                      />
                     ) : (
                       <span>이미지 없음</span>
                     )}
                   </div>
 
                   <div className="interior-review-card-info">
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      flexWrap="wrap"
+                      useFlexGap
+                    >
                       <Chip label={item.c_name} size="small" />
-                      <Chip label="리뷰" size="small" />
+                      <Chip label={item.id} size="small" />
                     </Stack>
                     <p>{item.ir_content}</p>
                   </div>
@@ -166,11 +175,7 @@ const InteriorAllReivew = () => {
         </div>
       ))}
 
-      {review.length === 0 && (
-        <Typography className="interior-all-review-empty" color="text.secondary">
-          등록된 리뷰가 없습니다.
-        </Typography>
-      )}
+      {review.length === 0 && <Loading />}
 
       {pageInfo.totalPage > 1 && (
         <Pagination
@@ -179,6 +184,8 @@ const InteriorAllReivew = () => {
           onChange={(e, page) => setPageNum(page)}
           color="primary"
           sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+          showFirstButton
+          showLastButton
         />
       )}
 

@@ -9,6 +9,7 @@ import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
 } from "../resources/function/interiorAnswerFormat";
+import Loading from "./Loading";
 
 const PAGE_SIZE = 9;
 const MULTI_FILTER_KEYS = ["housingType", "spaces"];
@@ -285,7 +286,10 @@ const InteriorList = ({ tag, value }) => {
         <Button onClick={handleReset}>초기화</Button>
       </div>
 
-      <Typography className="interior-company-list-count" color="text.secondary">
+      <Typography
+        className="interior-company-list-count"
+        color="text.secondary"
+      >
         총 {pageInfo.totalCount}개 업체
       </Typography>
 
@@ -317,11 +321,7 @@ const InteriorList = ({ tag, value }) => {
         ))}
       </div>
 
-      {list.length === 0 && (
-        <Typography className="interior-company-list-empty" color="text.secondary">
-          검색 결과가 없습니다.
-        </Typography>
-      )}
+      {list.length === 0 && <Loading />}
 
       {pageInfo.totalPage > 1 && (
         <Pagination
@@ -330,6 +330,8 @@ const InteriorList = ({ tag, value }) => {
           onChange={(e, page) => setPageNum(page)}
           color="primary"
           className="interior-company-list-pagination"
+          showFirstButton
+          showLastButton
         />
       )}
     </div>

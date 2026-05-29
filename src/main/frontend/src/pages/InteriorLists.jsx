@@ -28,6 +28,9 @@ function InteriorLists() {
     if (answers) {
       setTab(3);
     }
+    else {
+      setTab(0);
+    }
   }, [answers]);
 
   const handleChange = (event, newValue) => {
@@ -52,7 +55,8 @@ function InteriorLists() {
         <Tab label="업체 목록" />
         <Tab label="시공 사례 목록" />
         <Tab label="시공 후기 목록" />
-        <Tab label={answers ? "추천 업체" : "상담 신청"}/> {/*조건이 있을때 더 자연스럽게 바꾸려고 추가 0528 모하영*/}
+        <Tab label={answers ? "추천 업체" : "상담 신청"} />{" "}
+        {/*조건이 있을때 더 자연스럽게 바꾸려고 추가 0528 모하영*/}
       </Tabs>
 
       <Box className="interior-lists-content">
@@ -65,9 +69,14 @@ function InteriorLists() {
         {tab === 3 &&
           (answers ? (
             // prop 넘기기 0528 모하영
-            <InteriorRecommend answers={answers} tag={tag} value={value} fromChatbot={fromChatbot} />
+            <InteriorRecommend
+              answers={answers}
+              tag={tag}
+              value={value}
+              fromChatbot={fromChatbot}
+            />
           ) : (
-            <InteriorQuestion />
+            <InteriorQuestion setTab ={setTab}/>
           ))}
       </Box>
     </Box>

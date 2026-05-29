@@ -294,7 +294,7 @@ const FreeBoardListMui = ({
                             showLastButton
                             sx={{
                                 "& .MuiPaginationItem-root.Mui-selected": {
-                                    bgcolor: "#1e3a8a", color: "#fff",
+                                    bgcolor: "#0019ff", color: "#fff",
                                     "&:hover": { bgcolor: "#1a317a" },
                                 },
                                 "& .MuiPaginationItem-root:hover": { bgcolor: "#eef2fa" },
