@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Pagination, Typography } from "@mui/material";
 import InteriorService from "../service/interiorService";
@@ -9,6 +9,7 @@ import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
 } from "../resources/function/interiorAnswerFormat";
+import Loading from "./Loading";
 
 const PAGE_SIZE = 9;
 const MULTI_FILTER_KEYS = ["housingType", "spaces"];
@@ -32,6 +33,10 @@ const InteriorList = ({ tag, value }) => {
   const [filterValue, setFilterValue] = useState(() =>
     getInitialFilterValue(tag, value),
   );
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedFilterValue, setAppliedFilterValue] = useState(() =>
+    getInitialFilterValue(tag, value),
+  );
   const [pageNum, setPageNum] = useState(1);
   const [pageInfo, setPageInfo] = useState({
     totalCount: 0,
@@ -40,48 +45,27 @@ const InteriorList = ({ tag, value }) => {
   });
 
   const valueOptionMap = {
-    housingType: [
-      { value: "apt", title: "아파트" },
-      { value: "villa", title: "빌라" },
-      { value: "house", title: "주택" },
-      { value: "officetel", title: "오피스텔" },
-    ],
-    purpose: [
-      { value: "purchase", title: "집 구매 전" },
-      { value: "existing", title: "기존 집 리모델링" },
-      { value: "new_house", title: "새 집 입주" },
-    ],
+    housingType: ["apt", "villa", "house", "officetel"],
+    purpose: ["purchase", "existing", "new_house"],
     spaces: [
-      { value: "livingroom", title: "거실" },
-      { value: "kitchen", title: "주방" },
-      { value: "storage", title: "수납" },
-      { value: "door", title: "중문/문" },
-      { value: "window", title: "창문" },
-      { value: "wallpaper", title: "벽지" },
-      { value: "lighting", title: "조명" },
-      { value: "tile", title: "타일" },
-      { value: "floor", title: "마루" },
+      "livingroom",
+      "kitchen",
+      "storage",
+      "door",
+      "window",
+      "wallpaper",
+      "lighting",
+      "tile",
+      "floor",
     ],
-    budget: [
-      { value: "1000", title: "1000만원 이하" },
-      { value: "2000", title: "1000~2000만원" },
-      { value: "3000", title: "2000~3000만원" },
-      { value: "5000", title: "3000~5000만원" },
-      { value: "10000", title: "5000만원 이상" },
-    ],
-    areaSize: [
-      { value: "10_20", title: "10~20평" },
-      { value: "30", title: "30평대" },
-      { value: "40", title: "40평대" },
-      { value: "50", title: "50평 이상" },
-    ],
-    location: [],
+    budget: ["1000", "2000", "3000", "5000", "10000"],
+    areaSize: ["10_20", "30", "40", "50"],
   };
 
   const formatOptions = (options = []) =>
     options.map((option) => ({
-      ...option,
-      title: formatInteriorAnswerValue(option.value),
+      value: option,
+      title: formatInteriorAnswerValue(option),
     }));
 
   const filterList = [
@@ -89,31 +73,31 @@ const InteriorList = ({ tag, value }) => {
       key: "housingType",
       title: formatInteriorAnswerLabel("housingType"),
       type: "multi",
-      options: formatOptions(valueOptionMap.housingType || []),
+      options: formatOptions(valueOptionMap.housingType),
     },
     {
       key: "areaSize",
       title: formatInteriorAnswerLabel("areaSize"),
       type: "single",
-      options: formatOptions(valueOptionMap.areaSize || []),
+      options: formatOptions(valueOptionMap.areaSize),
     },
     {
       key: "purpose",
       title: formatInteriorAnswerLabel("purpose"),
       type: "single",
-      options: formatOptions(valueOptionMap.purpose || []),
+      options: formatOptions(valueOptionMap.purpose),
     },
     {
       key: "spaces",
       title: formatInteriorAnswerLabel("spaces"),
       type: "multi",
-      options: formatOptions(valueOptionMap.spaces || []),
+      options: formatOptions(valueOptionMap.spaces),
     },
     {
       key: "budget",
       title: formatInteriorAnswerLabel("budget"),
       type: "single",
-      options: formatOptions(valueOptionMap.budget || []),
+      options: formatOptions(valueOptionMap.budget),
     },
   ];
 
@@ -135,60 +119,62 @@ const InteriorList = ({ tag, value }) => {
     });
   }, []);
 
-  const getFilteredCompanies = useCallback((companies, tagList, keyword, filters) => {
-    let result = [...companies];
-    const searchText = keyword?.trim();
+  const tagMap = useMemo(() => {
+    return tags.reduce((acc, item) => {
+      const key = getCompanyKey(item);
+      acc[key] = acc[key] || [];
+      acc[key].push(item);
+      return acc;
+    }, {});
+  }, [tags, getCompanyKey]);
 
-    if (searchText) {
-      result = result.filter(
-        (item) =>
-          item.c_name?.includes(searchText) ||
-          item.c_addr?.includes(searchText) ||
-          item.c_tel?.includes(searchText),
-      );
-    }
+  const getFilteredCompanies = useCallback(
+    (companies, keyword, filters) => {
+      let result = [...companies];
+      const searchText = keyword?.trim();
 
-    if (hasSelectedFilters(filters)) {
-      const tagMap = tagList.reduce((acc, item) => {
-        const key = getCompanyKey(item);
-        acc[key] = acc[key] || [];
-        acc[key].push(item);
-        return acc;
-      }, {});
+      if (searchText) {
+        result = result.filter(
+          (item) =>
+            item.c_name?.includes(searchText) ||
+            item.c_addr?.includes(searchText) ||
+            item.c_tel?.includes(searchText),
+        );
+      }
 
-      result = result.filter((company) => {
-        const companyTags = tagMap[getCompanyKey(company)] || [];
+      if (hasSelectedFilters(filters)) {
+        result = result.filter((company) => {
+          const companyTags = tagMap[getCompanyKey(company)] || [];
 
-        return Object.entries(filters).every(([filterKey, selectedValue]) => {
-          const selectedValues = Array.isArray(selectedValue)
-            ? selectedValue
-            : [selectedValue];
-          const activeValues = selectedValues.filter(Boolean);
+          return Object.entries(filters).every(([filterKey, selectedValue]) => {
+            const selectedValues = Array.isArray(selectedValue)
+              ? selectedValue
+              : [selectedValue];
+            const activeValues = selectedValues.filter(Boolean);
 
-          if (activeValues.length === 0) {
-            return true;
-          }
+            if (activeValues.length === 0) {
+              return true;
+            }
 
-          return companyTags.some(
-            (tag) =>
-              tag.i_tag === filterKey && activeValues.includes(tag.i_text),
-          );
+            return companyTags.some(
+              (tagItem) =>
+                tagItem.i_tag === filterKey &&
+                activeValues.includes(tagItem.i_text),
+            );
+          });
         });
-      });
-    }
+      }
 
-    return result;
-  }, [getCompanyKey, hasSelectedFilters]);
+      return result;
+    },
+    [getCompanyKey, hasSelectedFilters, tagMap],
+  );
 
   useEffect(() => {
-    if (tag && value) {
-      const selectedValue = ["housingType", "spaces"].includes(tag)
-        ? [value]
-        : value;
-
-      setFilterValue({ [tag]: selectedValue });
-      setPageNum(1);
-    }
+    const nextFilterValue = getInitialFilterValue(tag, value);
+    setFilterValue(nextFilterValue);
+    setAppliedFilterValue(nextFilterValue);
+    setPageNum(1);
   }, [tag, value]);
 
   useEffect(() => {
@@ -226,16 +212,10 @@ const InteriorList = ({ tag, value }) => {
   }, []);
 
   useEffect(() => {
-    setFilterValue(getInitialFilterValue(tag, value));
-    setPageNum(1);
-  }, [tag, value]);
-
-  useEffect(() => {
     const filteredCompanies = getFilteredCompanies(
       originList,
-      tags,
-      search,
-      filterValue,
+      appliedSearch,
+      appliedFilterValue,
     );
     const totalPage = Math.ceil(filteredCompanies.length / PAGE_SIZE);
     const nextPageNum = Math.min(pageNum, totalPage || 1);
@@ -252,11 +232,32 @@ const InteriorList = ({ tag, value }) => {
       totalPage,
       pageSize: PAGE_SIZE,
     });
-  }, [originList, tags, search, filterValue, pageNum, getFilteredCompanies]);
+  }, [
+    originList,
+    appliedSearch,
+    appliedFilterValue,
+    pageNum,
+    getFilteredCompanies,
+  ]);
+
+  const handleSearchApply = () => {
+    setAppliedSearch(search);
+    setAppliedFilterValue(filterValue);
+    setPageNum(1);
+  };
+
+  const handleFilterApply = (nextFilterValue) => {
+    const appliedValue = nextFilterValue || filterValue;
+    setFilterValue(appliedValue);
+    setAppliedFilterValue(appliedValue);
+    setPageNum(1);
+  };
 
   const handleReset = () => {
     setSearch("");
     setFilterValue({});
+    setAppliedSearch("");
+    setAppliedFilterValue({});
     setPageNum(1);
   };
 
@@ -266,26 +267,33 @@ const InteriorList = ({ tag, value }) => {
         <FilterBar
           filterList={filterList}
           value={filterValue}
-          onChange={(newFilter) => {
-            setFilterValue(newFilter);
-            setPageNum(1);
-          }}
+          onChange={setFilterValue}
+          onSubmit={handleFilterApply}
         />
 
         <TextFieldMui
           name="search"
           label="검색"
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPageNum(1);
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearchApply();
+            }
           }}
         />
+
+        <Button variant="contained" onClick={handleSearchApply}>
+          검색
+        </Button>
 
         <Button onClick={handleReset}>초기화</Button>
       </div>
 
-      <Typography className="interior-company-list-count" color="text.secondary">
+      <Typography
+        className="interior-company-list-count"
+        color="text.secondary"
+      >
         총 {pageInfo.totalCount}개 업체
       </Typography>
 
@@ -317,11 +325,7 @@ const InteriorList = ({ tag, value }) => {
         ))}
       </div>
 
-      {list.length === 0 && (
-        <Typography className="interior-company-list-empty" color="text.secondary">
-          검색 결과가 없습니다.
-        </Typography>
-      )}
+      {list.length === 0 && <Loading />}
 
       {pageInfo.totalPage > 1 && (
         <Pagination
@@ -330,6 +334,8 @@ const InteriorList = ({ tag, value }) => {
           onChange={(e, page) => setPageNum(page)}
           color="primary"
           className="interior-company-list-pagination"
+          showFirstButton
+          showLastButton
         />
       )}
     </div>

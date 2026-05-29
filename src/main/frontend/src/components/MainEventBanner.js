@@ -86,7 +86,7 @@ const MainEventBanner = () => {
         height: "360px",
         borderRadius: "8px",
         border: "1px solid #e5e1da",
-        backgroundColor: "#f3efe7",
+        backgroundColor: "#ffffff",
         overflow: "hidden",
         boxSizing: "border-box",
         padding: "32px 24px",

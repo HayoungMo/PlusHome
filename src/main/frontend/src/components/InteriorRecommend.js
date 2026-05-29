@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
 import InteriorAnswerAi from "./InteriorAnswerAi";
 import "../css/InteriorRecommend.css";
+import Loading from "./Loading";
 
 const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   //알고리즘 적용시 리스트 컴포넌트
@@ -109,63 +110,55 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   };
 
   return (
-    <div className="interior-list-section interior-recommend-section">    
-
+    <div className="interior-list-section interior-recommend-section">
       <div className="interior-company-grid interior-recommend-grid">
         {/* 결과 없을때 메세지 보여줌 - 0528 모하영 */}
-        {list.length === 0 ?(
-          <p>선택한 조건과 가까운 업체를 찾지 못했습니다.</p>
+        {list.length === 0 ? (
+          <Loading />
         ) : (
-        list.slice(0, 3).map((item, idx) => (
-          <div
-            className="interior-company-card interior-recommend-card"
-            key={idx}
-            onClick={() => handleNext(item, answers)}
-          >
-            {item?.logo?.result?.[0] && (
-            <img
-              className="interior-company-image"
-              src={
-                item?.logo?.result.find((item) => item.img_tag === "LOGO")
-                  ?.img_name
-              }
-              alt={`${item.c_name} 로고`}
-            />
-            )}
-            <span className="interior-recommend-score">
-              match {item.score}
-            </span>
-            <div className="interior-company-info">
-              <strong className="interior-company-name">{item.c_name}</strong>
-              <span>id: {item.c_id}</span>
-              <span>kind: {item.c_kind}</span>
-              <span>tel: {item.c_tel}</span>
-              <span>addr: {item.c_addr}</span>
-              <div className="interior-recommend-ai">
-                <InteriorAnswerAi
-                  answers={answers}
-                  company={item}
-                  tags={tags.filter(
-                    (tag) =>
-                      tag.c_id === item.c_id &&
-                      tag.c_kind === item.c_kind &&
-                      tag.c_name === item.c_name,
-                  )}
-                  score={item.score}
+          list.slice(0, 6).map((item, idx) => (
+            <div
+              className="interior-company-card interior-recommend-card"
+              key={idx}
+              onClick={() => handleNext(item, answers)}
+            >
+              {item?.logo?.result?.[0] && (
+                <img
+                  className="interior-company-image"
+                  src={
+                    item?.logo?.result.find((item) => item.img_tag === "LOGO")
+                      ?.img_name
+                  }
+                  alt={`${item.c_name} 로고`}
                 />
+              )}
+              <span className="interior-recommend-score">
+                Rank {idx + 1}
+              </span>
+              <div className="interior-company-info">
+                <strong className="interior-company-name">{item.c_name}</strong>
+                <span>id: {item.c_id}</span>
+                <span>kind: {item.c_kind}</span>
+                <span>tel: {item.c_tel}</span>
+                <span>addr: {item.c_addr}</span>
+                <div className="interior-recommend-ai">
+                  <InteriorAnswerAi
+                    answers={answers}
+                    company={item}
+                    tags={tags.filter(
+                      (tag) =>
+                        tag.c_id === item.c_id &&
+                        tag.c_kind === item.c_kind &&
+                        tag.c_name === item.c_name,
+                    )}
+                    score={item.score}
+                  />
+                </div>
               </div>
             </div>
-
-          </div>
           ))
         )}
       </div>
-
-      {list.length === 0 && (
-        <div className="interior-recommend-empty">
-          추천 조건에 맞는 업체가 없습니다.
-        </div>
-      )}
     </div>
   );
 };

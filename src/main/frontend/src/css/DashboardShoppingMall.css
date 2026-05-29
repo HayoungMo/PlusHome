@@ -1010,6 +1010,11 @@
 	height: 300px;
 }
 
+.shopping-mall-dashboard-chart > div[style],
+.shopping-mall-dashboard-table-loading > div[style] {
+	min-height: 100% !important;
+}
+
 .shopping-mall-dashboard-empty {
 	width: 100%;
 	height: 100%;
@@ -1029,7 +1034,17 @@
 	box-sizing: border-box;
 }
 
+.shopping-mall-dashboard-empty.error {
+	border-color: #fecaca;
+	background: #fef2f2;
+	color: #b91c1c;
+}
+
 .shopping-mall-dashboard-empty.table {
+	min-height: 148px;
+}
+
+.shopping-mall-dashboard-table-loading {
 	min-height: 148px;
 }
 

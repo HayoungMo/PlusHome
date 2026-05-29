@@ -445,10 +445,10 @@ function InteriorArticle() {
       </div>
       <div className="example-card">
         <div className="section-title">ai 정보 요약</div>
-        {/* <InteriorArticleAI
+        <InteriorArticleAI
           groupedTags={groupedTags}
           groupedReviewTags={groupedReviewTags}
-        /> */}
+        />
       </div>
     </div>
   );

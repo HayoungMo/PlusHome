@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, LinearProgress } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import InteriorCalculator from "../components/InteriorCalculator";
-import CheckboxMui from "../components/CheckboxMui";
 import DialogMui from "../components/DialogMui";
 import SelectMui from "../components/SelectMui";
 import "../css/InteriorQuestion.css";
 
-const InteriorQuestion = () => {
+const InteriorQuestion = ({setTab}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const company = location.state?.company || null;
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+
+  const [openLogin,setOpenLogin] = useState(false);
 
   const [data, setData] = useState({
     housingType: "",
@@ -24,6 +25,11 @@ const InteriorQuestion = () => {
     budget: "",
     schedule: "",
   });
+
+  useEffect(()=>{
+    if(!localStorage.getItem("user"))
+      setOpenLogin(true);
+  },[])
 
   const questionOptions = {
     q1: [
@@ -137,19 +143,21 @@ const InteriorQuestion = () => {
     setStep((prev) => prev + 1);
   };
 
-  const handleCheckChange = (value, checked) => {
+  const handleSpaceToggle = (value) => {
     setData((prev) => ({
       ...prev,
-      spaces: checked
-        ? [...prev.spaces, value]
-        : prev.spaces.filter((item) => item !== value),
+      spaces: prev.spaces.includes(value)
+        ? prev.spaces.filter((item) => item !== value)
+        : [...prev.spaces, value],
     }));
   };
 
-  const handleAllSpacesChange = (checked) => {
+  const handleAllSpacesToggle = () => {
     setData((prev) => ({
       ...prev,
-      spaces: checked ? spaceOptions.map((option) => option.value) : [],
+      spaces: allSpacesSelected
+        ? []
+        : spaceOptions.map((option) => option.value),
     }));
   };
 
@@ -186,31 +194,28 @@ const InteriorQuestion = () => {
                   <p>{question.title}</p>
 
                   {question.multi ? (
-                    <div className="confirm-checkbox-list">
-                      <label>
-                        <CheckboxMui
-                          name="spaces-all"
-                          value="all"
-                          label="전체 선택"
-                          checked={allSpacesSelected}
-                          onChange={(e) =>
-                            handleAllSpacesChange(e.target.checked)
-                          }
-                        />
-                      </label>
+                    <div className="confirm-checkbox-list confirm-button-list">
+                      <Button
+                        className="question-multi-option"
+                        variant={allSpacesSelected ? "contained" : "outlined"}
+                        onClick={handleAllSpacesToggle}
+                      >
+                        전체 선택
+                      </Button>
 
                       {question.options.map((option) => (
-                        <label key={option.value}>
-                          <CheckboxMui
-                            name="spaces"
-                            value={option.value}
-                            label={option.title}
-                            checked={data.spaces.includes(option.value)}
-                            onChange={(e) =>
-                              handleCheckChange(option.value, e.target.checked)
-                            }
-                          />
-                        </label>
+                        <Button
+                          className="question-multi-option"
+                          key={option.value}
+                          variant={
+                            data.spaces.includes(option.value)
+                              ? "contained"
+                              : "outlined"
+                          }
+                          onClick={() => handleSpaceToggle(option.value)}
+                        >
+                          {option.title}
+                        </Button>
                       ))}
                     </div>
                   ) : (
@@ -282,28 +287,27 @@ const InteriorQuestion = () => {
         {current.multi ? (
           <>
             <div className="question-options">
-              <label>
-                <CheckboxMui
-                  name="spaces-all"
-                  value="all"
-                  label="전체 선택"
-                  checked={allSpacesSelected}
-                  onChange={(e) => handleAllSpacesChange(e.target.checked)}
-                />
-              </label>
+              <Button
+                className="question-multi-option"
+                variant={allSpacesSelected ? "contained" : "outlined"}
+                onClick={handleAllSpacesToggle}
+              >
+                전체 선택
+              </Button>
 
               {current.options.map((option) => (
-                <label key={option.value}>
-                  <CheckboxMui
-                    name="spaces"
-                    value={option.value}
-                    label={option.title}
-                    checked={data.spaces.includes(option.value)}
-                    onChange={(e) =>
-                      handleCheckChange(option.value, e.target.checked)
-                    }
-                  />
-                </label>
+                <Button
+                  className="question-multi-option"
+                  key={option.value}
+                  variant={
+                    data.spaces.includes(option.value)
+                      ? "contained"
+                      : "outlined"
+                  }
+                  onClick={() => handleSpaceToggle(option.value)}
+                >
+                  {option.title}
+                </Button>
               ))}
             </div>
 
@@ -345,6 +349,30 @@ const InteriorQuestion = () => {
           </>
         )}
       </div>
+      <DialogMui
+        open={openLogin}
+        onClose={() => setOpenLogin(false)}
+        title="로그인 필요"
+        text="로그인이 필요한 서비스입니다, 로그인하시겠습니까?"
+        buttons={[
+          {
+            title: "취소",
+            color: "inherit",
+            onClick: () => {
+              setOpenLogin(false);
+              setTab(0);
+            }
+          },
+          {
+            title: "로그인",
+            variant: "outlined",
+            onClick: (e) => {
+              navigate("/login");
+              setOpenLogin(false);
+            },
+          },
+        ]}
+      />
     </div>
   );
 };
