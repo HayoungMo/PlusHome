@@ -159,12 +159,6 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
           ))
         )}
       </div>
-
-      {list.length === 0 && (
-        <div className="interior-recommend-empty">
-          추천 조건에 맞는 업체가 없습니다.
-        </div>
-      )}
     </div>
   );
 };

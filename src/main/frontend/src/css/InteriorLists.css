@@ -168,7 +168,7 @@
 
 .interior-company-list-section .interior-list-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.35fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.35fr) auto auto;
   align-items: end;
   gap: 14px;
   margin-bottom: 0;
