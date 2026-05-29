@@ -18,7 +18,10 @@ import com.spring.home.service.EventCouponService;
 
 @RequestMapping("/eventCoupon")
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+		"http://localhost:3000",
+		"http://192.168.0.3:3000"
+})
 public class EventCouponController {
 	
 	@Autowired
