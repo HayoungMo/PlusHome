@@ -1,15 +1,5 @@
-import { NavLink } from "react-router-dom";
-
 const NavBar = () => {
-	return (
-		<nav className="shop-nav">
-			<div className="shop-nav-inner">
-				{/* <NavLink to="/freeboard/list">자유게시판</NavLink> */}
-				<NavLink to="/event">이벤트</NavLink>
-				<NavLink to="/component">MUI 예시</NavLink>
-			</div>
-		</nav>
-	);
+	return null;
 };
 
 export default NavBar;

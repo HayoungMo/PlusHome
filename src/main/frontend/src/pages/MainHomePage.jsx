@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Alert, Button, Snackbar } from '@mui/material';
 import BedIcon from "@mui/icons-material/Bed";
 import WeekendIcon from "@mui/icons-material/Weekend";
 import DeskIcon from "@mui/icons-material/Desk";
@@ -10,11 +10,10 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
-import SnackbarAlert from '../components/SnackbarAlert';
 import EventPopup from './EventPopup';
 import DialogMui from "../components/DialogMui";
 import MainEventBanner from '../components/MainEventBanner';
-import { Category } from '@mui/icons-material';
+import "../css/MainHomePage.css";
 
 const MainHomePage = ({ loginUser }) => {
 
@@ -191,12 +190,25 @@ const MainHomePage = ({ loginUser }) => {
     return (
         <div>
             <EventPopup/>
-            <SnackbarAlert
+            <Snackbar
                 open={snackbar.open}
-                message={snackbar.message}
-                severity={snackbar.severity}
+                autoHideDuration={3000}
                 onClose={closeSnackbar}
-            />
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={closeSnackbar}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{
+                        width: "100%",
+                        minWidth: 260,
+                        boxShadow: 3,
+                    }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
             <DialogMui
                 open={hideConfirmOpen}
                 onClose={() => setHideConfirmOpen(false)}
@@ -221,22 +233,9 @@ const MainHomePage = ({ loginUser }) => {
                 ]}
                 />
             {/* 메인 상단 영역 */}
-                <section
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "minmax(0, 2.2fr) minmax(280px, 0.8fr)",
-                        gap: "20px",
-                        alignItems: "stretch",
-                    }}
-                >
-                    <div
-                        style={{
-                            height: "360px",
-                            overflow: "hidden",
-                            borderRadius: "8px",
-                            backgroundColor: "#f5f5f5",
-                        }}
-                    >
+            <div className="main-first-view">
+                <section className="main-hero-grid">
+                    <div className="main-hero-video">
                         <video
                             autoPlay
                             muted
@@ -258,53 +257,30 @@ const MainHomePage = ({ loginUser }) => {
                     <MainEventBanner/>
                 </section>
 
-            <section style={{ marginTop: "24px" }}>
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "73px",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                    }}
-                >
+                <section className="main-category-section">
+                <div className="main-category-shortcuts">
                     {categoryMenus.map((category) => (
                          <Link
                             key={category.value}
                             to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category.value)}&sort=latest`}
-                            style={{
-                                width: "86px",
-                                textAlign: "center",
-                                textDecoration: "none",
-                                color: "#222",
-                            }}
+                            className="main-category-link"
                         >
-                            <div
-                                style={{
-                                    width: "62px",
-                                    height: "62px",
-                                    margin: "0 auto 8px",
-                                    borderRadius: "18px",
-                                    backgroundColor: "#f5f1ea",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: "rgba(0, 140, 255, 0.92)",
-                                }}
-                            >
+                            <div className="main-category-icon">
                                 {React.cloneElement(category.icon, { fontSize: "large" })}
                             </div>
 
-                            <span style={{ fontSize: "14px", fontWeight: 600 }}>
+                            <span className="main-category-title">
                                 {category.title}
                             </span>
                         </Link>
                     ))}
                 </div>
-            </section>
+                </section>
+            </div>
         
             {/* 백에서 받아온 메세지 뿌리기 */}
             {/* 오늘의 추천 가구 목록 */}
-            <section style={{ marginTop: "36px" }}>
+            <section style={{ marginTop: "20px" }}>
                 <div
                     style={{
                         display: "flex",
@@ -313,9 +289,9 @@ const MainHomePage = ({ loginUser }) => {
                         marginBottom: "16px"
                     }}
                 >
-                    <h2 style={{margin:0}}>
+                    <h3 style={{margin:0}}>
                         {currentUser ? "맞춤 추천 가구" : "오늘의 추천 가구"}
-                    </h2>
+                    </h3>
                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                         {currentUser?.id && !hideMode && (
                             <Button
@@ -350,7 +326,16 @@ const MainHomePage = ({ loginUser }) => {
                             </>
                         )}
 
-                        <Link to="/furniture/list">전체보기</Link>
+                        <Link 
+                            to="/furniture/list"
+                            style={{
+                            color:"#1976d2",
+                            fontWeight: 700,
+                            textDecoration: "none",
+                            fontSize: "14px",
+                        }}
+                        >전체보기
+                        </Link>
                     </div>
                 </div>
                 
@@ -471,8 +456,18 @@ const MainHomePage = ({ loginUser }) => {
                         marginBottom: "16px"
                     }}
                 >
-                    <h2 style={{ margin: 0 }}>추천 인테리어 업체</h2>
-                    <Link to="/interior/list">전체보기</Link>
+                    <h3 style={{ margin: 0 }}>추천 인테리어 업체</h3>
+                    <Link 
+                        to="/interior/list"
+                        style={{
+                            color:"#1976d2",
+                            fontWeight: 700,
+                            textDecoration: "none",
+                            fontSize: "14px",
+                        }}
+                    >
+                        전체보기
+                    </Link>
                 </div>
 
                 <div

@@ -80,33 +80,13 @@ const MainEventBanner = () => {
   }, []);
 
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "360px",
-        borderRadius: "8px",
-        border: "1px solid #e5e1da",
-        backgroundColor: "#ffffff",
-        overflow: "hidden",
-        boxSizing: "border-box",
-        padding: "32px 24px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-      }}
-    >
+    <div className="main-event-banner">
       {currentBanner ? (
         <img
           src={currentBanner}
           alt={currentEvent?.e_title || "이벤트 배너"}
           onClick={() => handleNext(currentEvent.e_id)}
-          style={{
-            width: "100%",
-            height: "360px",
-            objectFit: "cover",
-            cursor: "pointer",
-          }}
+          className="main-event-banner-image"
         />
       ) : (
         <p>이벤트가 없습니다</p>

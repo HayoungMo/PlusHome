@@ -21,11 +21,11 @@
 
 .shop-header-inner {
 	max-width: 1180px;
-	min-height: 72px;
+	min-height: 78px;
 	margin: 0 auto;
 	padding: 0 24px;
 	display: grid;
-	grid-template-columns: 1fr minmax(320px, 420px) 1fr;
+	grid-template-columns: minmax(260px, 1fr) minmax(300px, 380px) minmax(260px, 1fr);
 	align-items: center;
 	gap: 24px;
 }
@@ -54,7 +54,7 @@
 .shop-primary-tabs a {
 	color: #333;
 	text-decoration: none;
-	font-size: 20px;
+	font-size: 18px;
 	font-weight: 800;
 	white-space: nowrap;
 }
@@ -69,6 +69,7 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	transform: translateX(24px);
 }
 
 .shop-search input {
@@ -107,6 +108,24 @@
 	color: #0f466b;
 	font-weight: 700;
 	text-decoration: none;
+}
+
+.shop-user .shop-icon-link {
+	width: 40px;
+	height: 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: #222;
+	text-decoration: none;
+	border-radius: 50%;
+	margin-right: 0 !important;
+	flex-shrink: 0;
+}
+
+.shop-user .shop-icon-link:hover {
+	background-color: #f2f7fb;
+	color: rgba(0, 140, 255, 0.92);
 }
 
 .shop-nav {
@@ -183,6 +202,7 @@
 	.shop-search {
 		order: 3;
 		width: 100%;
+		transform: none;
 	}
 
 	.shop-user {

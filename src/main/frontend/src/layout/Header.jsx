@@ -1,6 +1,8 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { GiShoppingCart } from "react-icons/gi";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import WidgetsIcon from "@mui/icons-material/Widgets";
 
 const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	const navigate = useNavigate();
@@ -89,7 +91,26 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
 				<div className="shop-user">
 					<Link
+						to="/event"
+						className="shop-icon-link"
+						title="Event"
+						aria-label="Event"
+					>
+						<EventAvailableIcon fontSize="medium" />
+					</Link>
+
+					<Link
+						to="/component"
+						className="shop-icon-link"
+						title="MUI sample"
+						aria-label="MUI sample"
+					>
+						<WidgetsIcon fontSize="medium" />
+					</Link>
+
+					<Link
 						to="/cart"
+						className="shop-icon-link"
 						title="장바구니"
 						style={{
 							display: "inline-flex",
