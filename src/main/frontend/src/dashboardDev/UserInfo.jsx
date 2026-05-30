@@ -7,6 +7,7 @@ import SwitchMui from '../components/SwitchMui';
 import DialogMui from '../components/DialogMui';
 import SelectMui from '../components/SelectMui';
 import TextFieldMui from '../components/TextFieldMui';
+import AlertMui from '../components/AlertMui';
 
 const UserInfo = (props) => {
     const localUserData = localStorage.getItem("user");
@@ -69,6 +70,13 @@ const UserInfo = (props) => {
 
     const [userType,setUserType] = useState("user");
 
+    const [alert,setAlert] = useState({        
+        open: false,
+        severity: "info",
+        title: "",
+        text: "",  
+    })
+
     const [searchInfo,setSearchInfo] = useState({})
 
     const onChangeNewUserInfo = (e) =>{
@@ -118,9 +126,16 @@ const companyColumns = [
 
        const res = await userService.userGetAll(userType)
         console.log(res)
+        console.table("리스트 찍히는지 확인",res.list)
 
         if(res.success){
             
+            setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
             setUserList(res.list)
             
             setUserStateList(res.list);
@@ -165,6 +180,9 @@ const companyColumns = [
         (row) => selectedUserKeys.includes((row.id))
     );
 
+    console.log("선택된 키",selectedUserKeys)
+    console.log("선택된 키",selectedUserKeys)
+
     console.log("삭제 대상")
     console.log(selectedUserList)
 
@@ -186,6 +204,9 @@ const companyColumns = [
                 text:result.message,
             })
             await reloadDataFunc()
+            setSelectedUserKeys([])
+            setUserUpdate(false)
+            setRelatedCompanyList([])
         }else{
             setAlertInfo({
                 severity:"error",
@@ -220,7 +241,8 @@ const companyColumns = [
             if(res.success){
                 setUserList(res.list)
                 setUserStateList(res.list)
-                setEditedUserList(res.list)                           
+                setEditedUserList(res.list)
+                setRelatedCompanyList(res.list)                           
 
 					
             }
@@ -264,6 +286,9 @@ const companyColumns = [
                 text:result.message,
             })
             await reloadDataFunc()
+            setSelectedUserKeys([])
+            setUserUpdate(false)
+            setRelatedCompanyList([])
         }else{
             setAlertInfo({
                 severity:"error",
@@ -584,16 +609,22 @@ const companyColumns = [
                 return (
                     data.code === row.code
 
+                    && data.c_boss === row.c_boss
+
                 )
             })
         }
 
         const handleRowClick = (row) =>{
+
+            if(userType !=='company'){
+                setRelatedCompanyList([])
+                return
+            }
+
             const relatedList = getRelatedCompanyList(row)
 
-            setRelatedCompanyList(
-                relatedList
-            )
+            setRelatedCompanyList(relatedList)
         }
 
        
@@ -696,6 +727,8 @@ const companyColumns = [
                         />
                     )}
 
+
+
                     <Button
                         color='inherit'
                         variant='outlined'
@@ -740,6 +773,16 @@ const companyColumns = [
             )}
         </div>
 
+        {alertOpen && (
+                <AlertMui
+                    severity={alertInfo.severity}
+                    title={alertInfo.title}
+                    text={alertInfo.text}
+                    onClose={() => setAlertOpen(false)}
+                    autoHideDuration={3000}
+                />
+            )}
+
         <div>
 
             {userList.length !== 0 ? (
@@ -767,6 +810,8 @@ const companyColumns = [
                 <div>등록된 회원이 없습니다.</div>
 
             )}
+
+            
 
             {relatedCompanyList.length > 0 && 
             (

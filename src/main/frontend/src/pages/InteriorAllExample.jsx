@@ -6,6 +6,8 @@ import GetImgDir from "../resources/function/GetImgDir";
 import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllExample.css";
 import MultiFilterBar from "../components/MultiFilterBar";
+import Loading from "../components/Loading";
+import { formatInteriorAnswerValue } from "../resources/function/interiorAnswerFormat";
 
 const PAGE_SIZE = 6;
 
@@ -42,22 +44,28 @@ const InteriorAllExample = () => {
     { value: "floor", title: "마루" },
   ];
 
+  const formatOptions = (options = []) =>
+    options.map((option) => ({
+      ...option,
+      title: formatInteriorAnswerValue(option.value),
+    }));
+
   const filterGroups = [
     {
       key: "housingType",
       label: "주거 유형",
-      options: tagOptions1,
+      options: formatOptions(tagOptions1),
     },
     {
-      key: "space",
+      key: "spaces",
       label: "공간",
-      options: tagOptions2,
+      options: formatOptions(tagOptions2),
     },
   ];
 
   const handleFilterChange = (selectedFilters) => {
     setFilterType(selectedFilters.housingType || "");
-    setFilterValue(selectedFilters.space || "");
+    setFilterValue(selectedFilters.spaces || "");
     setPageNum(1);
   };
 
@@ -172,20 +180,20 @@ const InteriorAllExample = () => {
           groups={filterGroups}
           selectedValues={{
             housingType: filterType,
-            space: filterValue,
+            spaces: filterValue,
           }}
           onChange={handleFilterChange}
           onReset={handleReset}
         />
       </div>
-      {(filterType || filterValue) &&
+      {(filterType || filterValue) && (
         <>
           <h2 className="interior-all-example-title">예시 조회 결과</h2>
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             총 {pageInfo.totalCount}개 예시
           </Typography>
         </>
-      }
+      )}
       {Object.values(groupedExamples).map((group) => (
         <div
           className="interior-example-group"
@@ -228,8 +236,16 @@ const InteriorAllExample = () => {
                       flexWrap="wrap"
                       useFlexGap
                     >
-                      <Chip label={item.ie_tag} size="small" />
-                      <Chip label={item.ie_tag2} size="small" />
+                      <Chip
+                        label={formatInteriorAnswerValue(
+                          item?.ie_tag
+                        )}
+                        size="small"
+                      />
+                      <Chip
+                        label={formatInteriorAnswerValue(item.ie_tag2)}
+                        size="small"
+                      />
                     </Stack>
                     <p>{item.ie_content}</p>
                   </div>
@@ -240,14 +256,7 @@ const InteriorAllExample = () => {
         </div>
       ))}
 
-      {example.length === 0 && (
-        <Typography
-          className="interior-all-example-empty"
-          color="text.secondary"
-        >
-          등록된 예시가 없습니다.
-        </Typography>
-      )}
+      {example.length === 0 && <Loading />}
 
       {pageInfo.totalPage > 1 && (
         <Pagination
@@ -256,6 +265,8 @@ const InteriorAllExample = () => {
           onChange={(e, page) => setPageNum(page)}
           color="primary"
           sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+          showFirstButton
+          showLastButton
         />
       )}
 
@@ -304,8 +315,14 @@ const InteriorAllExample = () => {
 
           <div className="all-example-dialog-info">
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Chip label={selectedExample?.ie_tag} />
-              <Chip label={selectedExample?.ie_tag2} />
+              <Chip
+                label={
+                  formatInteriorAnswerValue(selectedExample?.ie_tag)
+                }
+              />
+              <Chip
+                label={formatInteriorAnswerValue(selectedExample?.ie_tag2)}
+              />
             </Stack>
             <p>{selectedExample?.ie_content}</p>
           </div>

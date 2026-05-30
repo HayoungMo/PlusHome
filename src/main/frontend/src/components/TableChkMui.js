@@ -8,6 +8,8 @@ import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
 const TableChkMui = (props) => {
+
+	console.log("테이블췤 렌더링")
     const {
 		rowData = [],
 		columns = [],
@@ -101,8 +103,10 @@ const TableChkMui = (props) => {
 
 				<TableBody>
 					{rowData.map((row, rowIndex) => {
-						const rowId = row.id || row.coupon_code
-						|| rowIndex;
+						const rowId = row.id
+
+						console.log("rowId",rowId)
+						console.log("row 전체",row)
 
 						const isSelected = selectedKeys.includes(rowId);
 

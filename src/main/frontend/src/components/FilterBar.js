@@ -27,7 +27,7 @@ const getFilterType = (filter) => {
   return filter?.type || FILTER_TYPE.SINGLE;
 };
 const FilterBar = (props) => {
-  const { filterList = [], value = {}, onChange, setter, children, className = "" } = props;
+  const { filterList = [], value = {}, onChange, setter, onSubmit, children, className = "" } = props;
   const setFilterValue = onChange || setter;
   const [dialogOpenInFilterBar, setDialogOpenInFilterBar] = useState(false);
   const selectedFilterList = filterList
@@ -138,6 +138,7 @@ const FilterBar = (props) => {
           filterList={filterList}
           value={value}
           onChange={setFilterValue}
+          onSubmit={onSubmit}
         />
       )}
     </Stack>
@@ -145,7 +146,7 @@ const FilterBar = (props) => {
 };
 
 const FilterListDialog = (props) => {
-  const { open, setOpen, filterList, value, onChange } = props;
+  const { open, setOpen, filterList, value, onChange, onSubmit } = props;
   const [tempValue, setTempValue] = useState(value || {});
 
   useEffect(() => {
@@ -190,6 +191,7 @@ const FilterListDialog = (props) => {
 
   const handleSave = () => {
     if (onChange) onChange(tempValue);
+    if (onSubmit) onSubmit(tempValue);
     setOpen(false);
   };
 

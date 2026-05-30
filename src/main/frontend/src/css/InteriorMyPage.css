@@ -4,7 +4,7 @@
   min-width: 0;
 }
 
-.interior-my-tabs {
+/* .interior-my-tabs {
   min-height: 48px;
   padding: 6px;
   border: 1px solid #e5eef7;
@@ -30,6 +30,53 @@
 .interior-my-tabs .MuiTab-root.Mui-selected {
   color: #008be8;
   background: #eef9ff;
+}
+
+.interior-my-tabs .MuiTabs-indicator {
+  display: none;
+} */
+
+.interior-my-page {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.interior-my-tabs.MuiTabs-root {
+  min-height: 58px;
+  margin-top: -20px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #edf0f3;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.interior-my-tabs .MuiTabs-flexContainer {
+  height: 58px;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.interior-my-tabs .MuiTab-root {
+  min-width: auto;
+  min-height: 58px;
+  height: 58px;
+  padding: 0;
+  color: #333;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.interior-my-tabs .MuiTab-root.Mui-selected,
+.interior-my-tabs .MuiTab-root:hover {
+  color: #008cff;
+  background: transparent;
 }
 
 .interior-my-tabs .MuiTabs-indicator {

@@ -46,6 +46,12 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
         setAlertInfo({ severity, title, text });
     };
 
+    const formatMoney = (value) => {
+        const number = Number(String(value || "").replace(/[^0-9]/g, ""));
+        if (!number) return "";
+        return number.toLocaleString();
+    };  
+
     const loadWallet = async () => {
         try {
             const data = await WalletService.getMyWallet(user.id);
@@ -275,7 +281,7 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
                     <TextField
                         label="직접 입력"
                         name="money"
-                        value={money}
+                        value={formatMoney(money)}
                         onChange={changeMoney}
                         helperText={
                             money
@@ -345,18 +351,18 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
                 text={`${Number(money || 0).toLocaleString()}원을 지갑에 충전합니다.`}
                 buttons={[
                     {
-                        title: "취소",
-                        color: "inherit",
-                        variant: "outlined",
-                        disabled: charging,
-                        onClick: () => setConfirmOpen(false),
-                    },
-                    {
                         title: "충전",
                         color: "primary",
                         variant: "contained",
                         disabled: charging,
                         onClick: onSubmit,
+                    },
+                    {
+                        title: "취소",
+                        color: "inherit",
+                        variant: "outlined",
+                        disabled: charging,
+                        onClick: () => setConfirmOpen(false),
                     },
                 ]}
                 maxWidth="xs"

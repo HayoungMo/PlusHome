@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import GetImgDlr from "../resources/function/GetImgDir";
 import EventService from "../service/eventService";
 import "../css/EventPage.css";
+import Loading from "../components/Loading";
 
 const EventPage = () => {
   const navigate = useNavigate();
@@ -110,7 +111,6 @@ const EventPage = () => {
             <Tab label="공지사항" />
           </Tabs>
         </div>
-
         <div className="event-card-grid">
           {pagedEvents.map((record) => {
             const thumbnail = getThumbnail(record);
@@ -140,11 +140,10 @@ const EventPage = () => {
             );
           })}
         </div>
-
-        {visibleEvents.length === 0 && (
+        {events.length === 0 && <Loading />}
+        { events.length !== 0 && visibleEvents.length === 0 && (
           <div className="event-page-empty">표시할 목록이 없습니다.</div>
         )}
-
         {totalPage > 1 && (
           <Pagination
             className="event-page-pagination"

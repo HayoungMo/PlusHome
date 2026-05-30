@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.CouponDTO;
+import com.spring.home.dto.DevDashBoardSummaryDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.UserDTO;
 import com.spring.home.service.CompanyService;
@@ -72,6 +74,12 @@ public class DevController {
 	//유저 탈퇴 상태
 	@PostMapping("/delete")
 	public Map<String,Object> deleteUser(@RequestBody List<UserDTO> dtoList) throws Exception{
+		
+		for(UserDTO dto : dtoList) {
+			System.out.println("삭제 대상 ID: " + dto.getId());
+			System.out.println("삭제 대상 type: " + dto.getType());
+		}
+		
 		Map<String,Object> result = new HashMap<>();
 		
 		if(dtoList.size()==0) {
@@ -248,6 +256,14 @@ public class DevController {
 		return result;
 		
 	}
+	
+	
+	//가입자수 / 쿠폰 발급 수 확인
+	@GetMapping("/summary")
+	public DevDashBoardSummaryDTO getSummary() throws Exception {
+		return userService.getSummary();
+	}
+	
 	
 	
 	

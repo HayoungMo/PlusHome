@@ -37,4 +37,8 @@ public interface CouponMapper {
 			@Param("coupon_code") String coupon_code) throws Exception;
 
 	public List<CouponDTO> getCouponListByCompanyId(CompanyDTO dto) throws Exception;
+	
+	//쿠폰 개수를 위함(5월 29일 안예린 추가함)
+	public int getCouponCount() throws Exception;
+	
 }

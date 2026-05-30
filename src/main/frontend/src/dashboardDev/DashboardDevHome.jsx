@@ -1,10 +1,52 @@
-import React from 'react';
+import { Card, useScrollTrigger } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import userService from '../service/userService';
 
 const DashboardDevHome = () => {
+
+    const [summary,setSummary] = useState({
+        userCount:"",
+        companyCount:"",
+        couponCount:"",
+        notJoinedUserCount:"",
+        notJoinedCompanyCount:"",
+    })
+
+    const getSummary = async () =>{
+        const res = await userService.getSummary();
+        console.log("요약 결과:",res)
+        setSummary(res)
+    }
+
+    useEffect(()=>{
+        getSummary()
+    },[])
+
+
     return (
         <div>
-            여기가 바로 홈입니다~ 집이라구욧!!! 집에 가고 싶다구욧!!!
-            지금 집인 건 아닌데 마음만은 벌써 집이라고요. 아시겠냐고요~!!! 집에 가고 싶다고요!!! 집에 갈 거라고요!!
+            <Card>
+                <h3>일반 회원 수</h3>
+                <h1>{summary.userCount}</h1>
+            </Card>
+            <Card>
+                <h3>기업 회원 수</h3>
+                <h1>{summary.companyCount}</h1>
+            </Card>
+            <Card>
+                <h3>유저 탈퇴 현황(일반)</h3>
+                <h1>{summary.notJoinedUserCount}</h1>
+            </Card>
+            <Card>
+                <h3>유저 탈퇴 현황(기업)</h3>
+                <h1>{summary.notJoinedCompanyCount}</h1>
+            </Card>
+            <Card>
+                <h3>쿠폰 전체 발급 현황</h3>
+                <h1>{summary.couponCount}</h1>
+            </Card>
+            
+            
         </div>
     );
 };

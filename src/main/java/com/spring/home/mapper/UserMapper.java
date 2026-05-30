@@ -56,4 +56,14 @@ public interface UserMapper {
 	
 	public List<CartDTO> catagoryTotalCountPrice(CartDTO dto) throws Exception;
 	
+	public int getUserCount()throws Exception;
+	
+	public int getCompanyCount()throws Exception;
+	
+	public int getNotJoinedUserCount()throws Exception;
+	
+	public int getNotJoinedCompanyCount()throws Exception;
+	
+	
+	
 }

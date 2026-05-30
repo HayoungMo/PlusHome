@@ -215,7 +215,7 @@ public class CartService {
 	
 	@Transactional
 	public void updateCartCount(String id, String c_code, int f_count) throws Exception {
-	    if (f_count <= 0) {
+	    if (f_count <= 0) { 
 	        throw new RuntimeException("수량이 올바르지 않습니다.");
 	    }
 

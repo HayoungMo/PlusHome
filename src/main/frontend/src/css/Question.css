@@ -1,0 +1,146 @@
+.question-section {
+	margin-top: 40px;
+	text-align: center;
+}
+
+.question-form {
+	max-width: 620px;
+	margin: 0 auto 32px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.question-form .MuiTextField-root {
+	width: 100%;
+}
+
+.question-form br {
+	display: none;
+}
+
+.question-upload-row {
+	display: flex;
+	justify-content: center;
+	margin-top: 2px;
+}
+
+.question-submit-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column-reverse;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.question-submit-row label {
+	margin: 0;
+}
+
+.question-section > hr {
+	max-width: 760px;
+	margin: 28px auto 0;
+	border: 0;
+	border-top: 1px solid #ddd;
+}
+
+.question-item {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 24px 0;
+	border-bottom: 1px solid #e5e5e5;
+	text-align: center;
+}
+
+.question-item h4 {
+	margin: 0 0 14px;
+	font-size: 17px;
+	font-weight: 800;
+	color: #222;
+}
+
+.question-item p {
+	margin: 8px 0;
+	line-height: 1.6;
+	color: #333;
+}
+
+.question-item img {
+	border-radius: 6px;
+	border: 1px solid #eee;
+}
+
+.question-item > hr {
+	display: none;
+}
+
+@media (max-width: 640px) {
+	.question-form,
+	.question-item,
+	.question-section > hr {
+		max-width: 100%;
+	}
+
+	.question-submit-row {
+		flex-direction: column;
+		gap: 10px;
+	}
+}
+
+.question-preview-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 12px;
+	margin-top: 4px;
+}
+
+.question-preview-card {
+	position: relative;
+	min-width: 0;
+	border: 1px solid #e5e5e5;
+	border-radius: 8px;
+	padding: 8px 8px 58px;
+	background-color: #fff;
+	text-align: left;
+}
+
+.question-preview-card img {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	border-radius: 6px;
+	display: block;
+}
+
+.question-preview-name {
+	display: block;
+	margin-top: 6px;
+	font-size: 12px;
+	color: #666;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.question-preview-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.question-preview-delete-button {
+	position: absolute !important;
+	left: 10px;
+	bottom: 10px;
+	width: 44px;
+	height: 44px;
+	background-color: #e82626 !important;
+	color: #fff !important;
+	box-shadow: 0 8px 18px rgba(232, 38, 38, 0.28);
+}
+
+.question-preview-delete-button:hover {
+	background-color: #d71920 !important;
+}
