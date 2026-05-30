@@ -103,7 +103,7 @@ const TableChkMui = (props) => {
 
 				<TableBody>
 					{rowData.map((row, rowIndex) => {
-						const rowId = `${row.id}_${rowIndex}`;
+						const rowId = row.id
 
 						console.log("rowId",rowId)
 						console.log("row 전체",row)

@@ -14,7 +14,14 @@ const CouponListDeve = (props) => {
       if (!result.success) {
         return;
       }
-      setCoupon(result.data || []);
+
+      const couponList = (result.data || []).map((item,index) =>({
+        no: index + 1,
+        ...item,
+      })
+    )
+
+      setCoupon(couponList);
     };
 
   useEffect(() => {  
@@ -31,6 +38,7 @@ const CouponListDeve = (props) => {
         <TableChkMui
           rowData={coupon}
           col={[
+            "no",
             "coupon_code",
             "discount",
             "coupon_end",

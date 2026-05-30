@@ -180,6 +180,9 @@ const companyColumns = [
         (row) => selectedUserKeys.includes((row.id))
     );
 
+    console.log("선택된 키",selectedUserKeys)
+    console.log("선택된 키",selectedUserKeys)
+
     console.log("삭제 대상")
     console.log(selectedUserList)
 
@@ -201,6 +204,9 @@ const companyColumns = [
                 text:result.message,
             })
             await reloadDataFunc()
+            setSelectedUserKeys([])
+            setUserUpdate(false)
+            setRelatedCompanyList([])
         }else{
             setAlertInfo({
                 severity:"error",
@@ -280,6 +286,9 @@ const companyColumns = [
                 text:result.message,
             })
             await reloadDataFunc()
+            setSelectedUserKeys([])
+            setUserUpdate(false)
+            setRelatedCompanyList([])
         }else{
             setAlertInfo({
                 severity:"error",
@@ -764,6 +773,16 @@ const companyColumns = [
             )}
         </div>
 
+        {alertOpen && (
+                <AlertMui
+                    severity={alertInfo.severity}
+                    title={alertInfo.title}
+                    text={alertInfo.text}
+                    onClose={() => setAlertOpen(false)}
+                    autoHideDuration={3000}
+                />
+            )}
+
         <div>
 
             {userList.length !== 0 ? (
@@ -792,15 +811,7 @@ const companyColumns = [
 
             )}
 
-            {alertOpen && (
-                <AlertMui
-                    severity={alertInfo.severity}
-                    title={alertInfo.title}
-                    text={alertInfo.text}
-                    onClose={() => setAlertOpen(false)}
-                    autoHideDuration={3000}
-                />
-            )}
+            
 
             {relatedCompanyList.length > 0 && 
             (
