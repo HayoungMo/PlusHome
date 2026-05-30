@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import InteriorUserService from "../service/interiorUserService";
 import DateRangeFilter from "../components/DateRangeFilter";
+import FilterBar from "../components/FilterBar";
 import TableMui from "./../components/TableMui";
 import TextFieldMui from "../components/TextFieldMui";
 import AlertMui from "../components/AlertMui";
@@ -12,16 +13,33 @@ import dayjs from "dayjs";
 const InteriorReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { id } = userData;
+	const { id, companyList = [] } = userData;
 
 	const [intreiorReviewList, setIntreiorReviewList] = useState([]);
 	const [selectedIntreiorReview, setSelectedIntreiorReview] = useState(null);
 	const [selectedIntreiorReviewImage, setSelectedIntreiorReviewImage] = useState([]);
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [alertInfo, setAlertInfo] = useState(false);
+	const [filterBarState, setFilterBarState] = useState({});
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
 	const emptyList = useMemo(() => [], []);
+	const selectedCompanyName = filterBarState.c_name || "all";
+	const reviewFilterList = useMemo(
+		() => [
+			{
+				key: "c_name",
+				title: "업체",
+				options: companyList
+					.filter((company) => company.c_kind === "interior")
+					.map((company) => ({
+						title: company.c_name,
+						value: company.c_name,
+					})),
+			},
+		].filter((filter) => filter.options.length > 0),
+		[companyList],
+	);
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
@@ -32,6 +50,8 @@ const InteriorReviewControl = () => {
 
 		const rowIndexList = intreiorReviewList?.filter((record) => {
 			const reviewDate = dayjs(record.review?.ir_createdDate);
+			const matchCompany =
+				selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
 			const matchStart =
 				!dateRange.startDate ||
 				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
@@ -39,13 +59,13 @@ const InteriorReviewControl = () => {
 				!dateRange.endDate ||
 				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
 
-			return !isDateRangeInvalid && matchStart && matchEnd;
+			return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
 		}).map((record, index) => {
 			return { ...record.review, index };
 		});
 
 		return rowIndexList;
-	}, [intreiorReviewList, emptyList, dateRange, isDateRangeInvalid]);
+	}, [intreiorReviewList, emptyList, selectedCompanyName, dateRange, isDateRangeInvalid]);
 
 	const onlyImageList = useMemo(() => {
 		if (!intreiorReviewList || intreiorReviewList.length === 0) return emptyList;
@@ -54,6 +74,8 @@ const InteriorReviewControl = () => {
 
 		intreiorReviewList?.filter((record) => {
 			const reviewDate = dayjs(record.review?.ir_createdDate);
+			const matchCompany =
+				selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
 			const matchStart =
 				!dateRange.startDate ||
 				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
@@ -61,7 +83,7 @@ const InteriorReviewControl = () => {
 				!dateRange.endDate ||
 				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
 
-			return !isDateRangeInvalid && matchStart && matchEnd;
+			return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
 		}).forEach((record, index) => {
 			if (record.image.length !== 0) {
 				record.image.forEach((element) => {
@@ -71,7 +93,7 @@ const InteriorReviewControl = () => {
 		});
 
 		return resultList;
-	}, [intreiorReviewList, emptyList, dateRange, isDateRangeInvalid]);
+	}, [intreiorReviewList, emptyList, selectedCompanyName, dateRange, isDateRangeInvalid]);
 
 	const reloadData = async () => {
 		const result = await InteriorUserService.getInteriorReviewByCompanyId({ c_id: id });
@@ -135,7 +157,13 @@ const InteriorReviewControl = () => {
 			</div>
 
 			<section className="interior-review-card">
-				<div className="interior-filter-row">
+				<div className="interior-filter-row interior-review-filter-row">
+					<FilterBar
+						filterList={reviewFilterList}
+						value={filterBarState}
+						onChange={setFilterBarState}
+						className="interior-review-filter-bar"
+					/>
 					<DateRangeFilter
 						value={dateRange}
 						onChange={setDateRange}

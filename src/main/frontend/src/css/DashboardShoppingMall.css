@@ -369,6 +369,24 @@
 	color: #dc2626;
 }
 
+.shopping-mall-empty-state {
+	width: 100%;
+	min-height: 148px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 18px;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+	background: #f8fafc;
+	color: #64748b;
+	font-size: 14px;
+	font-weight: 800;
+	line-height: 1.5;
+	text-align: center;
+	box-sizing: border-box;
+}
+
 .shopping-mall-review-toolbar {
 	display: flex;
 	align-items: center;
@@ -386,14 +404,52 @@
 
 .shopping-mall-review-metrics {
 	display: flex;
-	align-items: center;
+	align-items: stretch;
 	justify-content: flex-end;
 	flex-wrap: wrap;
 	gap: 12px;
 }
 
-.shopping-mall-review-metrics .MuiBox-root {
-	width: 150px;
+.shopping-mall-review-metric-card {
+	min-width: 128px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 14px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #f8fafc;
+	box-sizing: border-box;
+}
+
+.shopping-mall-review-metric-card span {
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1.2;
+	color: #64748b;
+}
+
+.shopping-mall-review-metric-card strong {
+	font-size: 18px;
+	font-weight: 900;
+	line-height: 1.2;
+	color: #111827;
+	white-space: nowrap;
+}
+
+.shopping-mall-review-rating-value {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.shopping-mall-review-rating-value .MuiRating-root {
+	color: #f59e0b;
+}
+
+.shopping-mall-review-rating-value strong {
+	font-size: 16px;
 }
 
 .shopping-mall-review-product {
@@ -542,7 +598,7 @@
 	}
 
 	.shopping-mall-review-metrics,
-	.shopping-mall-review-metrics .MuiBox-root {
+	.shopping-mall-review-metric-card {
 		width: 100%;
 	}
 

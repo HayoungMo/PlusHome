@@ -241,9 +241,15 @@ const ShoppingMallFurnitureInfo = () => {
 				)}
 			</div>
 			<div className="shopping-mall-product-list">
-				{selectedTabCompanyFurnitureList?.map((record) => (
-					<FurnitureInfoDiv furniture={record} />
-				))}
+				{selectedTabCompanyFurnitureList?.length > 0 ? (
+					selectedTabCompanyFurnitureList.map((record) => (
+						<FurnitureInfoDiv key={record.f_code} furniture={record} />
+					))
+				) : (
+					<div className="shopping-mall-empty-state">
+						등록된 쇼핑몰 상품이 없습니다.
+					</div>
+				)}
 				{/* <TableMui rowData={selectedTabCompanyFurnitureList} /> */}
 			</div>
 			<div className="shopping-mall-product-footer">

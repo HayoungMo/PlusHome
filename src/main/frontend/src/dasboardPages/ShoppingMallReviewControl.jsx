@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import DateRangeFilter from "../components/DateRangeFilter";
+import RatingMui from "../components/RatingMui";
 import SelectMui from "./../components/SelectMui";
 import TableMui from "./../components/TableMui";
 import FurnitureService from "./../service/furnitureService";
@@ -16,7 +17,7 @@ import dayjs from "dayjs";
 const ShoppingMallReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
-	const { id } = userData;
+	const { id, companyList = [] } = userData;
 
 	const initReviewAndReply = {
 		c_id: "",
@@ -40,6 +41,7 @@ const ShoppingMallReviewControl = () => {
 	const [furnitureList, setFurnitureList] = useState([]);
 	const [reviewList, setReviewList] = useState([]);
 	const [replyList, setReplyList] = useState([]);
+	const [selectCompany, setSelectCompany] = useState("all");
 	const [selectFurniture, setSelectFurniture] = useState("all");
 	const [selectdFurnitureInfo, setSelectdFurnitureInfo] = useState(null);
 	const [selectedReview, setSelectedReview] = useState(initReviewAndReply);
@@ -52,8 +54,32 @@ const ShoppingMallReviewControl = () => {
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
+	const shopCompanyOptions = useMemo(() => {
+		const shopList = companyList
+			.filter((data) => data.c_kind === "shop")
+			.reduce((acc, company) => {
+				if (!company.c_name || acc.some((item) => item.value === company.c_name)) {
+					return acc;
+				}
+
+				return [...acc, { title: company.c_name, value: company.c_name }];
+			}, []);
+
+		return [{ title: "전체 보기", value: "all" }, ...shopList];
+	}, [companyList]);
+
+	const furnitureByCode = useMemo(() => {
+		return new Map(furnitureList.map((record) => [String(record.f_code), record]));
+	}, [furnitureList]);
+
+	const filteredFurnitureList = useMemo(() => {
+		if (selectCompany === "all") return furnitureList;
+
+		return furnitureList.filter((record) => record.c_name === selectCompany);
+	}, [furnitureList, selectCompany]);
+
 	const displayFurnitureList = useMemo(() => {
-		const shopList = furnitureList.map((record) => {
+		const shopList = filteredFurnitureList.map((record) => {
 			return { ...record, value: record.f_code, title: record.f_name };
 		});
 		return [
@@ -82,11 +108,14 @@ const ShoppingMallReviewControl = () => {
 			},
 			...shopList,
 		];
-	}, [furnitureList]);
+	}, [filteredFurnitureList]);
 
 	const displayReviewList = useMemo(() => {
 		return reviewList.filter((data) => {
 			const reviewDate = dayjs(data.fr_createdDate || data.fr_createddate);
+			const reviewFurniture = furnitureByCode.get(String(data.f_code));
+			const reviewCompanyName = data.c_name || reviewFurniture?.c_name;
+			const matchCompany = selectCompany === "all" || reviewCompanyName === selectCompany;
 			const matchFurniture =
 				selectFurniture === "all" || String(data.f_code) === String(selectFurniture);
 			const matchStart =
@@ -96,9 +125,16 @@ const ShoppingMallReviewControl = () => {
 				!dateRange.endDate ||
 				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
 
-			return matchFurniture && !isDateRangeInvalid && matchStart && matchEnd;
+			return matchCompany && matchFurniture && !isDateRangeInvalid && matchStart && matchEnd;
 		});
-	}, [reviewList, selectFurniture, dateRange, isDateRangeInvalid]);
+	}, [
+		reviewList,
+		furnitureByCode,
+		selectCompany,
+		selectFurniture,
+		dateRange,
+		isDateRangeInvalid,
+	]);
 
 	const initTotalInfo = {
 		star: 0,
@@ -127,6 +163,8 @@ const ShoppingMallReviewControl = () => {
 			price: totals.priceSum,
 		};
 	}, [displayReviewList]);
+
+	const formatWon = (value) => `${Number(value || 0).toLocaleString()}원`;
 
 	const reLoadData = async () => {
 		console.log("===== reLoadData =====");
@@ -231,16 +269,16 @@ const ShoppingMallReviewControl = () => {
 		setSelectedReview(initReviewAndReply);
 		if (selectFurniture === "all") return setSelectdFurnitureInfo(null);
 
-		const selectedFurnitureInfo = displayFurnitureList.filter(
+		const selectedFurnitureInfo = filteredFurnitureList.filter(
 			(data) => data.f_code === selectFurniture,
 		);
 
-		setSelectdFurnitureInfo(selectedFurnitureInfo[0]);
-	}, [selectFurniture]);
+		setSelectdFurnitureInfo(selectedFurnitureInfo[0] || null);
+	}, [filteredFurnitureList, selectFurniture]);
 
 	useEffect(() => {
 		setSelectedReview(initReviewAndReply);
-	}, [dateRange]);
+	}, [selectCompany, selectFurniture, dateRange]);
 
 	useEffect(() => {
 		if (replyList.length === 0) return setSelectedReply(initReviewAndReply);
@@ -278,10 +316,23 @@ const ShoppingMallReviewControl = () => {
 					<div className="shopping-mall-review-filter-main">
 						<SelectMui
 							size="small"
+							label="회사 선택"
+							value={selectCompany}
+							onChange={(e) => {
+								setSelectCompany(e.target.value);
+								setSelectFurniture("all");
+								setSelectdFurnitureInfo(null);
+								setSelectedReview(initReviewAndReply);
+								setSelectedReply(initReviewAndReply);
+							}}
+							option={shopCompanyOptions}
+							width="180px"
+						/>
+						<SelectMui
+							size="small"
 							label="상품 선택"
 							value={selectFurniture}
 							onChange={(e) => {
-								console.log("SelectMui : " + e.target.value);
 								setSelectFurniture(e.target.value);
 							}}
 							option={displayFurnitureList || []}
@@ -295,9 +346,26 @@ const ShoppingMallReviewControl = () => {
 						/>
 					</div>
 					<div className="shopping-mall-review-metrics">
-						<TextFieldMui size="small" value={totalReviewInfo.star} label="별점 평균" />
-						<TextFieldMui size="small" value={totalReviewInfo.qty} label="구매 물품 수" />
-						<TextFieldMui size="small" value={totalReviewInfo.price} label="총 금액" />
+						<div className="shopping-mall-review-metric-card">
+							<span>별점 평균</span>
+							<div className="shopping-mall-review-rating-value">
+								<RatingMui
+									value={totalReviewInfo.star}
+									precision={0.1}
+									size="small"
+									readOnly
+								/>
+								<strong>{totalReviewInfo.star.toFixed(2)}</strong>
+							</div>
+						</div>
+						<div className="shopping-mall-review-metric-card">
+							<span>구매 물품 수</span>
+							<strong>{Number(totalReviewInfo.qty || 0).toLocaleString()}건</strong>
+						</div>
+						<div className="shopping-mall-review-metric-card">
+							<span>총 금액</span>
+							<strong>{formatWon(totalReviewInfo.price)}</strong>
+						</div>
 					</div>
 				</div>
 
@@ -332,11 +400,13 @@ const ShoppingMallReviewControl = () => {
 							selectedRow={selectedReview}
 							setSelectedRow={setSelectedReview}
 							defaultRowPerPage={5}
-							resetPageKey={`${selectFurniture}-${dateRange.startDate}-${dateRange.endDate}`}
+							resetPageKey={`${selectCompany}-${selectFurniture}-${dateRange.startDate}-${dateRange.endDate}`}
 							pagination
 						/>
 					) : (
-						<div>데이터 없음</div>
+						<div className="shopping-mall-empty-state">
+							선택한 조건에 해당하는 리뷰가 없습니다.
+						</div>
 					)}
 				</div>
 			</section>

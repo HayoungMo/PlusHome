@@ -215,7 +215,9 @@ const ShoppingMallCouponControl = () => {
 							resetPageKey={`${tabValue}-${viewDataType}-${dateRange.startDate}-${dateRange.endDate}`}
 						/>
 					) : (
-						<div>데이터 없음</div>
+						<div className="shopping-mall-empty-state">
+							선택한 조건에 해당하는 쿠폰이 없습니다.
+						</div>
 					)}
 				</div>
 			</section>

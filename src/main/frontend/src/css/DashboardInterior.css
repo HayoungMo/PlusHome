@@ -142,6 +142,15 @@
 	flex-wrap: wrap;
 }
 
+.interior-review-filter-row {
+	justify-content: space-between;
+}
+
+.interior-review-filter-bar {
+	min-width: 0;
+	flex: 1 1 320px;
+}
+
 .interior-dashboard-card {
 	width: 100%;
 	display: flex;

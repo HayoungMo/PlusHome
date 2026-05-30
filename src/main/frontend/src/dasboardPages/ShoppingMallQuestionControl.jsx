@@ -240,7 +240,9 @@ const ShoppingMallQuestionControl = () => {
 							pagination
 						/>
 					) : (
-						<div>데이터 없음</div>
+						<div className="shopping-mall-empty-state">
+							선택한 조건에 해당하는 문의가 없습니다.
+						</div>
 					)}
 				</div>
 			</section>
