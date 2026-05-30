@@ -17,6 +17,25 @@ function intersection(a, b) {
 	return a.filter((value) => b.includes(value));
 }
 
+/**
+ * 좌우 이동형 Transfer List 컴포넌트
+ *
+ * 왼쪽 리스트와 오른쪽 리스트를 표시하고,
+ * 체크된 항목 또는 전체 항목을 좌우로 이동시킬 수 있는 MUI 기반 컴포넌트입니다.
+ * 항목 클릭 시 체크 상태를 토글하며, 필요하면 선택된 항목 데이터를 외부 state에 저장할 수 있습니다.
+ *
+ * @param {Object} props
+ * @param {Array<Object>} props.listData 초기 왼쪽 리스트에 표시할 전체 데이터 배열
+ * @param {string[]} props.textKey 리스트 항목에 표시할 데이터 key 목록
+ * @param {Array<Object>} props.left 왼쪽 리스트 데이터
+ * @param {Function} props.setLeft 왼쪽 리스트 데이터를 변경하는 setState 함수
+ * @param {Array<Object>} props.right 오른쪽 리스트 데이터
+ * @param {Function} props.setRight 오른쪽 리스트 데이터를 변경하는 setState 함수
+ * @param {Object|null} props.selectedItem 현재 선택된 항목 데이터를 담는 state
+ * @param {Function} props.setSelectedItem 항목 클릭 시 선택된 데이터를 저장하는 setState 함수
+ *
+ * @returns {JSX.Element} 좌우 이동이 가능한 Transfer List UI
+ */
 const TransferListMui = (props) => {
 	const {
 		listData = [],
