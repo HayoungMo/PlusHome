@@ -15,12 +15,15 @@ import { Button, Chip, LinearProgress } from "@mui/material";
 import ChecklistOutlinedIcon from "@mui/icons-material/ChecklistOutlined";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
+import DateRangeFilter from "../components/DateRangeFilter";
+import FilterBar from "../components/FilterBar";
 import Loading from "../components/Loading";
 import SkeletonMui from "../components/SkeletonMui";
 import TableMui from "../components/TableMui";
 import TabsMui from "../components/TabsMui";
 import DashboardService from "../service/dashboardService";
 import "../css/DashboardInterior.css";
+import dayjs from "dayjs";
 
 import { FaHammer } from "react-icons/fa";
 import { TbMessageDots } from "react-icons/tb";
@@ -63,14 +66,6 @@ const dashboardRequests = [
 	["profileCompletion", DashboardService.getInteriorProfileCompletionStats],
 	["risk", DashboardService.getInteriorRiskStats],
 	["riskList", DashboardService.getInteriorRiskList],
-];
-
-const periodOptions = [
-	{ value: "all", label: "전체 기간" },
-	{ value: "today", label: "오늘" },
-	{ value: "week", label: "이번 주" },
-	{ value: "month", label: "이번 달" },
-	{ value: "year", label: "올해" },
 ];
 
 const dashboardTabList = [
@@ -483,20 +478,42 @@ const InteriorDashboard = () => {
 	}, [companyList, id]);
 
 	const [selectedInteriorName, setSelectedInteriorName] = useState("all");
-	const [period, setPeriod] = useState("all");
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 	const [activeDashboardTab, setActiveDashboardTab] = useState("summary");
 	const [loading, setLoading] = useState(false);
 	const [dashboardData, setDashboardData] = useState({});
 	const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const dashboardFilterList = useMemo(
+		() => [
+			{
+				key: "c_name",
+				title: "업체",
+				options: interiorList
+					.filter((company) => company.c_name !== "all")
+					.map((company) => ({ title: company.c_name, value: company.c_name })),
+			},
+		],
+		[interiorList],
+	);
+	const dashboardFilterValue = useMemo(
+		() => (selectedInteriorName === "all" ? {} : { c_name: selectedInteriorName }),
+		[selectedInteriorName],
+	);
 
 	const requestDto = useMemo(
 		() => ({
 			c_id: id,
 			c_kind: "interior",
 			c_name: selectedInteriorName,
-			period,
+			period: "all",
+			startDate: dateRange.startDate,
+			endDate: dateRange.endDate,
 		}),
-		[id, selectedInteriorName, period],
+		[id, selectedInteriorName, dateRange.startDate, dateRange.endDate],
 	);
 
 	const fetchDashboardData = useCallback(async () => {
@@ -505,6 +522,17 @@ const InteriorDashboard = () => {
 				error: {
 					success: false,
 					message: "로그인 사용자 정보를 찾을 수 없습니다.",
+				},
+			});
+			return;
+		}
+
+		if (isDateRangeInvalid) {
+			setDashboardData({
+				error: {
+					success: false,
+					loadFailed: true,
+					message: "시작일은 종료일보다 늦을 수 없습니다.",
 				},
 			});
 			return;
@@ -542,7 +570,11 @@ const InteriorDashboard = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [id, requestDto]);
+	}, [id, requestDto, isDateRangeInvalid]);
+
+	const handleDashboardFilterChange = (nextValue) => {
+		setSelectedInteriorName(nextValue.c_name || "all");
+	};
 
 	useEffect(() => {
 		fetchDashboardData();
@@ -941,7 +973,9 @@ const InteriorDashboard = () => {
 					/>
 					<Chip
 						label={
-							periodOptions.find((option) => option.value === period)?.label || period
+							dateRange.startDate || dateRange.endDate
+								? `${dateRange.startDate || "시작일"} ~ ${dateRange.endDate || "종료일"}`
+								: "전체 기간"
 						}
 						variant="outlined"
 					/>
@@ -956,31 +990,19 @@ const InteriorDashboard = () => {
 
 			<section className="interior-dashboard-card">
 				<div className="interior-dashboard-filter">
-					<label>
-						<span>업체</span>
-						<select
-							value={selectedInteriorName}
-							onChange={(event) => setSelectedInteriorName(event.target.value)}>
-							{interiorList.map((company) => (
-								<option
-									key={`${company.c_id}-${company.c_name}`}
-									value={company.c_name}>
-									{company.c_name === "all" ? "전체" : company.c_name}
-								</option>
-							))}
-						</select>
-					</label>
+					<FilterBar
+						filterList={dashboardFilterList}
+						value={dashboardFilterValue}
+						onChange={handleDashboardFilterChange}
+						className="interior-dashboard-filter-bar"
+					/>
 
-					<label>
-						<span>기간</span>
-						<select value={period} onChange={(event) => setPeriod(event.target.value)}>
-							{periodOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</select>
-					</label>
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
+						className="interior-dashboard-date-range"
+					/>
 
 					<Button variant="contained" onClick={fetchDashboardData} disabled={loading}>
 						{loading ? "불러오는 중" : "새로고침"}

@@ -3,11 +3,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import TableMui from "./../components/TableMui";
 import questionService from "../service/questionService";
 import AlertMui from "../components/AlertMui";
+import DateRangeFilter from "../components/DateRangeFilter";
 import TextFieldMui from "./../components/TextFieldMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
 import DialogMui from "../components/DialogMui";
 import TabsMui from "./../components/TabsMui";
 import "../css/DashboardShoppingMall.css";
+import dayjs from "dayjs";
 
 const ShoppingMallQuestionControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -24,8 +26,13 @@ const ShoppingMallQuestionControl = () => {
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
 	const [answerDialogOpen, setAnswerDialogOpen] = useState(false);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
 	const emptyList = useMemo(() => [], []);
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -36,9 +43,21 @@ const ShoppingMallQuestionControl = () => {
 		if (!allQuestionList || allQuestionList.length === 0) return emptyList;
 
 		return allQuestionList
-			.filter((record) => tabValue === "all" || tabValue === record.question.c_name)
+			.filter((record) => {
+				const questionDate = dayjs(record.question.q_createdDate);
+				const matchTab = tabValue === "all" || tabValue === record.question.c_name;
+				const matchStart =
+					!dateRange.startDate ||
+					(questionDate.isValid() &&
+						!questionDate.isBefore(dayjs(dateRange.startDate), "day"));
+				const matchEnd =
+					!dateRange.endDate ||
+					(questionDate.isValid() && !questionDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+				return matchTab && !isDateRangeInvalid && matchStart && matchEnd;
+			})
 			.map((record, index) => ({ ...record.question, index }));
-	}, [allQuestionList, tabValue, emptyList]);
+	}, [allQuestionList, tabValue, emptyList, dateRange, isDateRangeInvalid]);
 
 	const displayImageList = useMemo(() => {
 		if (!allQuestionList || allQuestionList.length === 0) return emptyList;
@@ -46,7 +65,19 @@ const ShoppingMallQuestionControl = () => {
 		const resultList = [];
 
 		allQuestionList
-			.filter((record) => tabValue === "all" || tabValue === record.question.c_name)
+			.filter((record) => {
+				const questionDate = dayjs(record.question.q_createdDate);
+				const matchTab = tabValue === "all" || tabValue === record.question.c_name;
+				const matchStart =
+					!dateRange.startDate ||
+					(questionDate.isValid() &&
+						!questionDate.isBefore(dayjs(dateRange.startDate), "day"));
+				const matchEnd =
+					!dateRange.endDate ||
+					(questionDate.isValid() && !questionDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+				return matchTab && !isDateRangeInvalid && matchStart && matchEnd;
+			})
 			.forEach((record, index) => {
 				(record.image || []).forEach((element) => {
 					resultList.push({ ...element, index });
@@ -54,7 +85,7 @@ const ShoppingMallQuestionControl = () => {
 			});
 
 		return resultList;
-	}, [allQuestionList, tabValue, emptyList]);
+	}, [allQuestionList, tabValue, emptyList, dateRange, isDateRangeInvalid]);
 
 	const selectedCompanyLabel =
 		tabValue === "all" ? "전체 쇼핑몰" : selectedTabCompany?.c_name || tabValue;
@@ -71,6 +102,10 @@ const ShoppingMallQuestionControl = () => {
 		setSelectedTabCompany(selectedCompany);
 		setSelectedRow(null);
 	};
+
+	useEffect(() => {
+		setSelectedRow(null);
+	}, [dateRange]);
 
 	const reloadData = async () => {
 		const result = await questionService.getQuestionListsWithImage(id);
@@ -169,14 +204,21 @@ const ShoppingMallQuestionControl = () => {
 					</div>
 				</div>
 
-				<TabsMui
-					tabValue={tabValue}
-					handleTabChange={handleTabChange}
-					tabList={shopListState}
-					tabKey="c_id"
-					label="c_name"
-					value="c_name"
-				/>
+				<div className="shopping-mall-question-filter-row">
+					<TabsMui
+						tabValue={tabValue}
+						handleTabChange={handleTabChange}
+						tabList={shopListState}
+						tabKey="c_id"
+						label="c_name"
+						value="c_name"
+					/>
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
+					/>
+				</div>
 
 				<div className="shopping-mall-question-table">
 					{displayQuestionList?.length > 0 ? (
@@ -194,7 +236,7 @@ const ShoppingMallQuestionControl = () => {
 							selectedRow={selectedRow}
 							setSelectedRow={setSelectedRow}
 							defaultRowPerPage={5}
-							resetPageKey={tabValue}
+							resetPageKey={`${tabValue}-${dateRange.startDate}-${dateRange.endDate}`}
 							pagination
 						/>
 					) : (

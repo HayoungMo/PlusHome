@@ -318,11 +318,70 @@
 	gap: 16px;
 }
 
+.shopping-mall-date-range-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+	flex: 0 0 auto;
+	max-width: 100%;
+}
+
+.shopping-mall-date-range-filter {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: nowrap;
+	max-width: 100%;
+}
+
+.shopping-mall-date-range-filter .MuiFormControl-root {
+	width: 142px;
+	flex: 0 0 142px;
+}
+
+.shopping-mall-date-range-filter .MuiInputBase-root {
+	min-height: 40px;
+}
+
+.shopping-mall-date-range-filter .MuiInputBase-input {
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.shopping-mall-date-range-filter > span {
+	font-size: 14px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.shopping-mall-date-range-filter .MuiButton-root {
+	min-width: 74px;
+	padding-inline: 8px;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.shopping-mall-date-range-error {
+	font-size: 12px;
+	font-weight: 800;
+	color: #dc2626;
+}
+
 .shopping-mall-review-toolbar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.shopping-mall-review-filter-main {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .shopping-mall-review-metrics {
@@ -587,10 +646,24 @@
 
 .shopping-mall-coupon-filters {
 	display: flex;
-	align-items: flex-end;
+	flex-direction: column;
+	gap: 12px;
+	border-bottom: 1px solid #d8dee8;
+	padding-bottom: 12px;
+}
+
+.shopping-mall-coupon-shop-tabs {
+	min-width: 0;
+	width: 100%;
+}
+
+.shopping-mall-coupon-filter-row {
+	width: 100%;
+	display: flex;
+	align-items: flex-start;
 	justify-content: space-between;
 	gap: 16px;
-	border-bottom: 1px solid #d8dee8;
+	flex-wrap: wrap;
 }
 
 .shopping-mall-coupon-filters .MuiBox-root {
@@ -620,7 +693,11 @@
 }
 
 .shopping-mall-coupon-filters .MuiToggleButtonGroup-root {
-	margin-bottom: 8px;
+	margin-bottom: 0;
+}
+
+.shopping-mall-coupon-date-range {
+	margin-left: auto;
 }
 
 .shopping-mall-coupon-filters .MuiToggleButton-root {
@@ -724,6 +801,433 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+.shopping-mall-claim-page {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	color: #1f2937;
+}
+
+.shopping-mall-claim-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 18px;
+	padding-bottom: 14px;
+	border-bottom: 1px solid #d8dee8;
+}
+
+.shopping-mall-claim-header h3 {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 800;
+	line-height: 1.3;
+	color: #111827;
+}
+
+.shopping-mall-claim-header p {
+	margin: 6px 0 0;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: #64748b;
+}
+
+.shopping-mall-claim-summary {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.shopping-mall-claim-summary .MuiChip-root {
+	border-radius: 6px;
+	background-color: #ffffff;
+	font-weight: 800;
+}
+
+.shopping-mall-claim-card {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 18px 20px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+	box-sizing: border-box;
+}
+
+.shopping-mall-claim-filter-card {
+	width: 100%;
+	padding: 14px 16px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+	box-sizing: border-box;
+}
+
+.shopping-mall-order-toolbar,
+.shopping-mall-question-filter-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+.shopping-mall-order-toolbar > .MuiStack-root,
+.shopping-mall-question-filter-row > .MuiBox-root {
+	min-width: 0;
+	flex: 1 1 520px;
+}
+
+.shopping-mall-order-toolbar .shopping-mall-date-range-wrap,
+.shopping-mall-question-filter-row .shopping-mall-date-range-wrap,
+.shopping-mall-claim-filter-row .shopping-mall-date-range-wrap,
+.shopping-mall-coupon-filters .shopping-mall-date-range-wrap {
+	margin-left: auto;
+}
+
+.shopping-mall-claim-filter-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+.shopping-mall-claim-filter-row > .MuiStack-root {
+	min-width: 0;
+	flex: 1 1 420px;
+}
+
+.shopping-mall-claim-top-filter {
+	gap: 14px !important;
+}
+
+.shopping-mall-claim-top-filter .MuiToggleButtonGroup-root {
+	align-self: stretch;
+}
+
+.shopping-mall-claim-top-filter .MuiToggleButton-root {
+	min-width: 72px;
+	border-color: #cbd5e1;
+	font-weight: 800;
+	color: #475569;
+}
+
+.shopping-mall-claim-top-filter .MuiToggleButton-root.Mui-selected {
+	background-color: #eff6ff;
+	color: #1d4ed8;
+}
+
+.shopping-mall-claim-card-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.shopping-mall-claim-card-head strong {
+	display: block;
+	font-size: 16px;
+	font-weight: 800;
+	line-height: 1.35;
+	color: #111827;
+}
+
+.shopping-mall-claim-card-head span {
+	display: block;
+	margin-top: 3px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #64748b;
+}
+
+.shopping-mall-claim-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	align-items: end;
+	border-bottom: 1px solid #d8dee8;
+	padding-bottom: 12px;
+}
+
+.shopping-mall-claim-filters .MuiBox-root {
+	margin-bottom: 0;
+	border-bottom: 0;
+}
+
+.shopping-mall-claim-filters .MuiTabs-root {
+	min-height: 44px;
+}
+
+.shopping-mall-claim-filters .MuiTab-root {
+	min-height: 44px;
+	padding: 10px 14px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.shopping-mall-claim-filters .MuiTab-root.Mui-selected {
+	color: #1d4ed8;
+}
+
+.shopping-mall-claim-filters .MuiTabs-indicator {
+	height: 3px;
+	border-radius: 999px 999px 0 0;
+	background-color: #1d4ed8;
+}
+
+.shopping-mall-claim-filters .MuiToggleButtonGroup-root {
+	margin-bottom: 8px;
+}
+
+.shopping-mall-claim-filters .MuiToggleButton-root {
+	min-width: 72px;
+	border-color: #cbd5e1;
+	font-weight: 800;
+	color: #475569;
+}
+
+.shopping-mall-claim-filters .MuiToggleButton-root.Mui-selected {
+	background-color: #eff6ff;
+	color: #1d4ed8;
+}
+
+.shopping-mall-claim-status-tabs .MuiBox-root {
+	margin-bottom: 0;
+	border-bottom-color: #d8dee8;
+}
+
+.shopping-mall-claim-status-tabs .MuiTabs-root {
+	min-height: 44px;
+}
+
+.shopping-mall-claim-status-tabs .MuiTab-root {
+	min-height: 44px;
+	padding: 10px 18px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.shopping-mall-claim-status-tabs .MuiTab-root.Mui-selected {
+	color: #1d4ed8;
+}
+
+.shopping-mall-claim-status-tabs .MuiTabs-indicator {
+	height: 3px;
+	border-radius: 999px 999px 0 0;
+	background-color: #1d4ed8;
+}
+
+.shopping-mall-claim-bulk-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.shopping-mall-claim-bulk-actions span {
+	margin-right: 4px;
+	color: #475569;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.shopping-mall-claim-bulk-actions .MuiButton-root {
+	min-width: 92px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.shopping-mall-claim-bulk-actions .MuiButton-root:hover {
+	box-shadow: none;
+}
+
+.shopping-mall-claim-table {
+	width: 100%;
+	overflow-x: auto;
+}
+
+.shopping-mall-claim-table .MuiPaper-root {
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+.shopping-mall-claim-table .MuiTableCell-head {
+	background-color: #1d4ed8;
+	border-bottom-color: #1e3a8a;
+	white-space: nowrap;
+}
+
+.shopping-mall-claim-table .MuiTableCell-body {
+	color: #334155;
+}
+
+.shopping-mall-claim-table .MuiTableCell-root {
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.shopping-mall-claim-empty {
+	width: 100%;
+	min-height: 148px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 18px;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+	background: #f8fafc;
+	color: #64748b;
+	font-size: 14px;
+	font-weight: 800;
+	box-sizing: border-box;
+}
+
+.shopping-mall-claim-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.shopping-mall-claim-detail-dialog {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 22px 24px;
+	background: #ffffff;
+	box-sizing: border-box;
+}
+
+.shopping-mall-claim-detail-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.shopping-mall-claim-detail-grid > div,
+.shopping-mall-claim-reason {
+	min-width: 0;
+	padding: 12px;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #f8fafc;
+	box-sizing: border-box;
+}
+
+.shopping-mall-claim-detail-grid span,
+.shopping-mall-claim-reason span {
+	display: block;
+	margin-bottom: 6px;
+	color: #64748b;
+	font-size: 12px;
+	font-weight: 800;
+}
+
+.shopping-mall-claim-detail-grid strong {
+	display: block;
+	color: #111827;
+	font-size: 14px;
+	font-weight: 800;
+	line-height: 1.4;
+	overflow-wrap: anywhere;
+}
+
+.shopping-mall-claim-reason p {
+	margin: 0;
+	color: #334155;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.6;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.shopping-mall-claim-images {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+	min-height: 0;
+}
+
+.shopping-mall-claim-image-button {
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.shopping-mall-claim-images img {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	display: block;
+	object-fit: cover;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.shopping-mall-claim-preview-image {
+	display: block;
+	max-width: 80vw;
+	max-height: 82vh;
+	object-fit: contain;
+	background: #ffffff;
+}
+
+@media (max-width: 1080px) {
+	.shopping-mall-claim-header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.shopping-mall-claim-summary {
+		justify-content: flex-start;
+	}
+
+	.shopping-mall-claim-filters {
+		grid-template-columns: 1fr;
+		align-items: start;
+	}
+
+	.shopping-mall-claim-bulk-actions {
+		justify-content: flex-start;
+	}
+}
+
+@media (max-width: 760px) {
+	.shopping-mall-claim-card {
+		padding: 16px;
+	}
+
+	.shopping-mall-claim-filters .MuiToggleButtonGroup-root {
+		width: 100%;
+	}
+
+	.shopping-mall-claim-filters .MuiToggleButton-root {
+		flex: 1 1 0;
+	}
+
+	.shopping-mall-claim-bulk-actions .MuiButton-root {
+		flex: 1 1 100%;
+	}
+
+}
 /* Shopping mall dashboard statistics */
 
 .shopping-mall-dashboard-page {
@@ -802,36 +1306,16 @@
 }
 
 .shopping-mall-dashboard-filter {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
-	gap: 12px;
-	align-items: end;
-}
-
-.shopping-mall-dashboard-filter label {
 	display: flex;
-	flex-direction: column;
-	gap: 6px;
+	gap: 12px;
+	align-items: flex-start;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.shopping-mall-dashboard-filter-bar {
 	min-width: 0;
-}
-
-.shopping-mall-dashboard-filter span {
-	font-size: 13px;
-	font-weight: 800;
-	color: #475569;
-}
-
-.shopping-mall-dashboard-filter select {
-	width: 100%;
-	height: 40px;
-	padding: 0 12px;
-	border: 1px solid #cbd5e1;
-	border-radius: 6px;
-	background: #ffffff;
-	color: #334155;
-	font-size: 14px;
-	font-weight: 700;
-	box-sizing: border-box;
+	flex: 1 1 360px;
 }
 
 .shopping-mall-dashboard-filter .MuiButton-root {
@@ -844,6 +1328,11 @@
 
 .shopping-mall-dashboard-filter .MuiButton-root:hover {
 	box-shadow: none;
+}
+
+.shopping-mall-dashboard-date-range {
+	align-items: flex-end;
+	margin-left: auto;
 }
 
 .shopping-mall-dashboard-kpi-grid {

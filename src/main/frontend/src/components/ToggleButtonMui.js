@@ -21,7 +21,10 @@ const ToggleButtonMui = (props) => {
 			aria-label="view type set">
 			{ButtonList.map((record, index) => {
 				return (
-					<ToggleButton value={record.value} aria-label={`${record.title}__${index}`}>
+					<ToggleButton
+						key={`${record.value}__${index}`}
+						value={record.value}
+						aria-label={`${record.title}__${index}`}>
 						{record.title}
 					</ToggleButton>
 				);

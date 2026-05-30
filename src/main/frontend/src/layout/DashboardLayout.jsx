@@ -16,6 +16,7 @@ import EmptyCompanyGuide from "../dasboardPages/EmptyCompanyGuide";
 import ShoppingMallCouponControl from "../dasboardPages/ShoppingMallCouponControl";
 import InteriorExampleControl from "../dasboardPages/InteriorExampleControl";
 import InteriorConstructionControl from "../dasboardPages/InteriorConstructionControl";
+import ShoppingMallClaim from "../dasboardPages/ShoppingMallClaim";
 
 import "../css/Dashboard.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -75,6 +76,11 @@ const DashboardLayout = () => {
 						key: "question",
 						label: "문의 관리",
 						component: <ShoppingMallQuestionControl />,
+					},
+					{
+						key: "claim",
+						label: "교환 환불 관리",
+						component: <ShoppingMallClaim />,
 					},
 					{
 						key: "coupon",

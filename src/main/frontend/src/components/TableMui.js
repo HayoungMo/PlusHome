@@ -94,8 +94,10 @@ const TableMui = (props) => {
 							<StyledTableRow
 								onClick={() => {
 									const selectedRowData = { ...row, rowIndex: realRowIndex };
-									if (setSelectedRow) setSelectedRow(selectedRowData);
-									if (onRowClick) onRowClick(selectedRowData);
+									if (setSelectedRow) {
+										setSelectedRow(isSelected ? {} : selectedRowData);
+									}
+									if (onRowClick) onRowClick(isSelected ? {} : selectedRowData);
 								}}
 								// ------
 								key={
@@ -120,6 +122,7 @@ const TableMui = (props) => {
 											<Button
 												variant={column.variant}
 												color={column.color}
+												disabled={column.disabled}
 												onClick={() => column.onClick(row)}>
 												{column.title}
 											</Button>

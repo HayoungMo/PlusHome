@@ -1,6 +1,7 @@
 package com.spring.home.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -26,7 +27,7 @@ public interface OrderClaimMapper {
 			@Param("claim_status") int claim_status
 			) throws Exception;
 	
-	public List<OrderClaimDTO> getCompanyClaims(String company_id) throws Exception;
+	public List<OrderClaimDTO> getCompanyClaims(@Param("company_id") String company_id) throws Exception;
 
 	public int updateType(
 		    @Param("claim_code") String claim_code,
@@ -34,5 +35,9 @@ public interface OrderClaimMapper {
 		) throws Exception;
 
 	public OrderClaimDTO getByClaimCode(String claim_code) throws Exception;
+
+	public List<Map<String, Object>> getListByCompany(Map<String, Object> params) throws Exception;
+
+	public Map<String, Object> getCompanyOrderClaimStatusCounts(Map<String, Object> params) throws Exception;
 	
 }

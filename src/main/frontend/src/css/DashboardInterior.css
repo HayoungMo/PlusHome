@@ -54,36 +54,21 @@
 }
 
 .interior-dashboard-filter {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(160px, 1fr)) auto;
-	gap: 12px;
-	align-items: end;
-}
-
-.interior-dashboard-filter label {
 	display: flex;
-	flex-direction: column;
-	gap: 6px;
+	gap: 12px;
+	align-items: flex-start;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.interior-dashboard-filter-bar {
 	min-width: 0;
+	flex: 1 1 360px;
 }
 
-.interior-dashboard-filter span {
-	font-size: 13px;
-	font-weight: 800;
-	color: #475569;
-}
-
-.interior-dashboard-filter select {
-	width: 100%;
-	height: 40px;
-	padding: 0 12px;
-	border: 1px solid #cbd5e1;
-	border-radius: 6px;
-	background: #ffffff;
-	color: #334155;
-	font-size: 14px;
-	font-weight: 700;
-	box-sizing: border-box;
+.interior-dashboard-date-range {
+	align-items: flex-end;
+	margin-left: auto;
 }
 
 .interior-dashboard-filter .MuiButton-root {
@@ -96,6 +81,65 @@
 
 .interior-dashboard-filter .MuiButton-root:hover {
 	box-shadow: none;
+}
+
+.shopping-mall-date-range-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+	flex: 0 0 auto;
+	max-width: 100%;
+}
+
+.shopping-mall-date-range-filter {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: nowrap;
+	max-width: 100%;
+}
+
+.shopping-mall-date-range-filter .MuiFormControl-root {
+	width: 142px;
+	flex: 0 0 142px;
+}
+
+.shopping-mall-date-range-filter .MuiInputBase-root {
+	min-height: 40px;
+}
+
+.shopping-mall-date-range-filter .MuiInputBase-input {
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.shopping-mall-date-range-filter > span {
+	font-size: 14px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.shopping-mall-date-range-filter .MuiButton-root {
+	min-width: 74px;
+	padding-inline: 8px;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.shopping-mall-date-range-error {
+	font-size: 12px;
+	font-weight: 800;
+	color: #dc2626;
+}
+
+.interior-filter-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-end;
+	gap: 14px;
+	flex-wrap: wrap;
 }
 
 .interior-dashboard-card {
@@ -960,7 +1004,11 @@
 
 .interior-schedule-filter {
 	width: 100%;
-	overflow-x: auto;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 14px;
+	flex-wrap: wrap;
 }
 
 .interior-schedule-filter .MuiToggleButtonGroup-root {

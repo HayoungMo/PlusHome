@@ -15,6 +15,7 @@
 			c_kind,
 			c_name,
 			c_code,
+			cart_paydate,
 			cart_statusdate,
 			f_dprice,
 			f_createddate,

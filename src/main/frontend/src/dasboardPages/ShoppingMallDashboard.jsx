@@ -18,11 +18,14 @@ import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarsOutlinedIcon from "@mui/icons-material/StarsOutlined";
+import DateRangeFilter from "../components/DateRangeFilter";
+import FilterBar from "../components/FilterBar";
 import Loading from "../components/Loading";
 import TableMui from "../components/TableMui";
 import TabsMui from "../components/TabsMui";
 import DashboardService from "../service/dashboardService";
 import "../css/DashboardShoppingMall.css";
+import dayjs from "dayjs";
 
 ChartJS.register(
 	ArcElement,
@@ -55,14 +58,6 @@ const dashboardRequests = [
 	["benefitUseType", DashboardService.getBenefitUseTypeStats],
 	["productBenefitTop", DashboardService.getProductBenefitTopStats],
 	["benefitRevenueImpact", DashboardService.getBenefitRevenueImpactStats],
-];
-
-const periodOptions = [
-	{ value: "all", label: "전체 기간" },
-	{ value: "today", label: "오늘" },
-	{ value: "week", label: "이번 주" },
-	{ value: "month", label: "이번 달" },
-	{ value: "year", label: "올해" },
 ];
 
 const categoryLevelOptions = [
@@ -246,7 +241,7 @@ const formatValue = (value) => {
 	return value ?? "-";
 };
 
-const formatWon = (value) => `₩${num(value).toLocaleString()}`;
+const formatManwon = (value) => Math.round(num(value) / 10000).toLocaleString();
 const formatPercent = (value) => `${num(value).toFixed(1)}%`;
 
 const makeKpiChange = (value, fallbackRate) => {
@@ -326,28 +321,65 @@ const ShoppingMallDashboard = () => {
 		[userData.companyList],
 	);
 	const [selectedShopName, setSelectedShopName] = useState("all");
-	const [period, setPeriod] = useState("all");
-	const [categoryLevel, setCategoryLevel] = useState(1);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [categoryLevel, setCategoryLevel] = useState(null);
 	const [activeDashboardTab, setActiveDashboardTab] = useState("summary");
 	const [loading, setLoading] = useState(false);
 	const [dashboardData, setDashboardData] = useState({});
 	const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
 		return [{ c_id: id, c_kind: "shop", c_name: "all" }, ...shopList];
 	}, [companyList, id]);
+	const dashboardFilterList = useMemo(
+		() =>
+			[
+				{
+					key: "c_name",
+					title: "쇼핑몰",
+					options: shopListState
+						.filter((shop) => shop.c_name !== "all")
+						.map((shop) => ({
+							title: shop.c_name,
+							value: shop.c_name,
+						})),
+				},
+				{
+					key: "categoryLevel",
+					title: "카테고리 단계",
+					options: categoryLevelOptions.map((option) => ({
+						title: option.label,
+						value: option.value,
+					})),
+				},
+			].filter((filter) => filter.options.length > 0),
+		[shopListState],
+	);
+	const dashboardFilterValue = useMemo(
+		() => ({
+			...(selectedShopName === "all" ? {} : { c_name: selectedShopName }),
+			...(categoryLevel ? { categoryLevel } : {}),
+		}),
+		[selectedShopName, categoryLevel],
+	);
 
 	const requestDto = useMemo(
 		() => ({
 			c_id: id,
 			c_kind: "shop",
 			c_name: selectedShopName,
-			period,
-			categoryLevel,
+			period: "all",
+			startDate: dateRange.startDate,
+			endDate: dateRange.endDate,
+			categoryLevel: categoryLevel || 1,
 			f_dstatus: 5,
 		}),
-		[id, selectedShopName, period, categoryLevel],
+		[id, selectedShopName, dateRange.startDate, dateRange.endDate, categoryLevel],
 	);
 
 	const fetchDashboardData = useCallback(async () => {
@@ -356,6 +388,17 @@ const ShoppingMallDashboard = () => {
 				error: {
 					success: false,
 					message: "No logged-in user data.",
+				},
+			});
+			return;
+		}
+
+		if (isDateRangeInvalid) {
+			setDashboardData({
+				error: {
+					success: false,
+					loadFailed: true,
+					message: "시작일은 종료일보다 늦을 수 없습니다.",
 				},
 			});
 			return;
@@ -388,7 +431,12 @@ const ShoppingMallDashboard = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [id, requestDto]);
+	}, [id, requestDto, isDateRangeInvalid]);
+
+	const handleDashboardFilterChange = (nextValue) => {
+		setSelectedShopName(nextValue.c_name || "all");
+		setCategoryLevel(nextValue.categoryLevel || null);
+	};
 
 	useEffect(() => {
 		fetchDashboardData();
@@ -453,7 +501,7 @@ const ShoppingMallDashboard = () => {
 				{
 					key: "revenue",
 					label: "총 매출",
-					value: formatWon(totalRevenue),
+					value: formatManwon(totalRevenue),
 					helper: "전 기간 대비",
 					changeRate: makeKpiChange(totalRevenue, 18.6),
 					tone: "orange",
@@ -469,7 +517,7 @@ const ShoppingMallDashboard = () => {
 				{
 					key: "avgPay",
 					label: "평균 결제 금액",
-					value: formatWon(avgPayAmount),
+					value: formatManwon(avgPayAmount),
 					helper: "전 기간 대비",
 					changeRate: makeKpiChange(avgPayAmount, 6.8),
 					tone: "red",
@@ -752,9 +800,21 @@ const ShoppingMallDashboard = () => {
 				</div>
 				<div className="shopping-mall-dashboard-summary">
 					<Chip label={selectedShopName === "all" ? "전체 쇼핑몰" : selectedShopName} variant="outlined" />
-					<Chip label={periodOptions.find((option) => option.value === period)?.label || period} variant="outlined" />
 					<Chip
-						label={categoryLevelOptions.find((option) => option.value === categoryLevel)?.label || `카테고리 단계 ${categoryLevel}`}
+						label={
+							dateRange.startDate || dateRange.endDate
+								? `${dateRange.startDate || "시작일"} ~ ${dateRange.endDate || "종료일"}`
+								: "전체 기간"
+						}
+						variant="outlined"
+					/>
+					<Chip
+						label={
+							!categoryLevel
+								? "전체 카테고리"
+								: categoryLevelOptions.find((option) => option.value === categoryLevel)
+										?.label || `카테고리 단계 ${categoryLevel}`
+						}
 						variant="outlined"
 					/>
 					{lastUpdatedAt && (
@@ -765,38 +825,19 @@ const ShoppingMallDashboard = () => {
 
 			<section className="shopping-mall-dashboard-card">
 				<div className="shopping-mall-dashboard-filter">
-					<label>
-						<span>{"쇼핑몰"}</span>
-						<select value={selectedShopName} onChange={(event) => setSelectedShopName(event.target.value)}>
-							{shopListState.map((shop) => (
-								<option key={`${shop.c_id}-${shop.c_name}`} value={shop.c_name}>
-									{shop.c_name === "all" ? "전체" : shop.c_name}
-								</option>
-							))}
-						</select>
-					</label>
+					<FilterBar
+						filterList={dashboardFilterList}
+						value={dashboardFilterValue}
+						onChange={handleDashboardFilterChange}
+						className="shopping-mall-dashboard-filter-bar"
+					/>
 
-					<label>
-						<span>{"기간"}</span>
-						<select value={period} onChange={(event) => setPeriod(event.target.value)}>
-							{periodOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</select>
-					</label>
-
-					<label>
-						<span>{"카테고리 단계"}</span>
-						<select value={categoryLevel} onChange={(event) => setCategoryLevel(Number(event.target.value))}>
-							{categoryLevelOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</select>
-					</label>
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
+						className="shopping-mall-dashboard-date-range"
+					/>
 
 					<Button variant="contained" onClick={fetchDashboardData} disabled={loading}>
 						{loading ? "불러오는 중" : "새로고침"}
@@ -809,7 +850,7 @@ const ShoppingMallDashboard = () => {
 					<div className="shopping-mall-dashboard-kpi" key={item.key}>
 						<div className={`shopping-mall-dashboard-kpi-icon ${item.tone}`}>{kpiIconMap[item.key]}</div>
 						<span>{item.label}</span>
-						<strong>{item.value}</strong>
+						<strong>{item.key === "revenue" ? `${item.value}만원` : item.value}</strong>
 						<div className="shopping-mall-dashboard-kpi-foot">
 							<small>{item.helper}</small>
 							{item.changeRate !== 0 && (

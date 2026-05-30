@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BookingUpdate from "../components/BookingUpdate";
+import DateRangeFilter from "../components/DateRangeFilter";
 import TableMui from "../components/TableMui";
 import { Chip } from "@mui/material";
 import InteriorInvoiceAdd from "../components/InteriorInvoiceAdd";
 import { GrDocumentPdf } from "react-icons/gr";
 import "../css/DashboardInterior.css";
+import dayjs from "dayjs";
 
 const InteriorBookingControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -22,6 +24,11 @@ const InteriorBookingControl = () => {
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [selectedInvoiceDetailLatestList, setSelectedInvoiceDetailLatestList] = useState([]);
 	const [bookingRefreshKey, setBookingRefreshKey] = useState(0);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const [transferListMuiLeft, setTransferListMuiLeft] = useState([]);
 	const [transferListMuiRight, setTransferListMuiRight] = useState([]);
@@ -175,6 +182,14 @@ const InteriorBookingControl = () => {
 					)}
 				</div>
 
+				<div className="interior-filter-row">
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
+					/>
+				</div>
+
 				{selectedCompany ? (
 					<div className="interior-booking-panel">
 						<BookingUpdate
@@ -186,6 +201,8 @@ const InteriorBookingControl = () => {
 							selectedInvoiceDetailList={selectedInvoiceDetailLatestList}
 							setSelectedInvoiceDetailList={setSelectedInvoiceDetailLatestList}
 							bookingRefreshKey={bookingRefreshKey}
+							dateRange={dateRange}
+							isDateRangeInvalid={Boolean(isDateRangeInvalid)}
 						/>
 					</div>
 				) : (

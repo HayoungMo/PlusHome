@@ -27,7 +27,7 @@ const getFilterType = (filter) => {
   return filter?.type || FILTER_TYPE.SINGLE;
 };
 const FilterBar = (props) => {
-  const { filterList = [], value = {}, onChange, setter } = props;
+  const { filterList = [], value = {}, onChange, setter, children, className = "" } = props;
   const setFilterValue = onChange || setter;
   const [dialogOpenInFilterBar, setDialogOpenInFilterBar] = useState(false);
   const selectedFilterList = filterList
@@ -93,15 +93,19 @@ const FilterBar = (props) => {
       alignItems="center"
       flexWrap="wrap"
       useFlexGap
+      className={className}
     >
-      <Button
-        variant="outlined"
-        startIcon={<TuneIcon />}
-        disabled={filterList.length === 0}
-        onClick={() => setDialogOpenInFilterBar(true)}
-      >
-        {FILTER_TEXT.filter}
-      </Button>
+      {children}
+
+      {filterList.length > 0 && (
+        <Button
+          variant="outlined"
+          startIcon={<TuneIcon />}
+          onClick={() => setDialogOpenInFilterBar(true)}
+        >
+          {FILTER_TEXT.filter}
+        </Button>
+      )}
 
       {selectedFilterList.map((filter) => (
         <Chip

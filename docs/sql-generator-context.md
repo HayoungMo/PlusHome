@@ -1,0 +1,142 @@
+# SQL Generator Context
+
+이 문서는 PlusHome 프로젝트에서 SQL을 생성할 때 참고할 DB 스키마 컨텍스트입니다.
+
+## DB
+
+- Oracle SQL 문법 기준
+- 테이블/컬럼명은 대부분 대문자 사용
+- 문자열: `VARCHAR2`
+- 날짜: `DATE`, 기본값은 여러 테이블에서 `SYSDATE` 사용
+- 게시판/리뷰/문의 일부 PK는 시퀀스 또는 트리거 기반
+
+## 주요 시퀀스
+
+- `SEQ_GLOBAL`: `QUESTION.Q_IDX`, `F_REVIEW.FR_IDX` 등에서 사용
+- `FREEBOARD_SEQ`
+- `SEQ_FREEBOARD_COMMENT_ID`
+- `SEQ_FREEBOARD_REPORT_ID`
+- `SEQ_FREEBOARD_CREPORT_ID`
+- `SEQ_I_EXAMPLE_INDEX`: `I_EXAMPLE.IE_INDEX` 자동 발번
+
+## 핵심 테이블 관계
+
+- `USERS.ID`가 사용자/기업/관리자 공통 PK
+- `COMPANY.C_ID`는 `USERS.ID` 참조
+- `INTERIOR`, `BOOKING`, `FURNITURE`, `I_EXAMPLE`은 `(C_ID, C_NAME, C_KIND)`로 `COMPANY` 참조
+- `BOOKING`은 고객 `USERS.ID`와 기업 `(C_ID, C_NAME, C_KIND)`를 연결
+- `I_SCHEDULE`은 `(ID, C_ID, C_KIND, C_NAME, B_CREATEDDATE)`로 `BOOKING` 참조
+- `INVOICE`는 `BOOKING` 참조
+- `INVOICE_DETAIL`, `I_REVIEW`는 `INVOICE` 참조
+- `FURNITURE.F_CODE`가 쇼핑 상품 PK
+- `OPTIONS`, `QUESTION`, `CART`, `CART_OPTION`, `F_REVIEW`, `FURNITUREHIDE`는 `FURNITURE.F_CODE`와 연결
+- `"LIKE".LIKE_CODE`는 찜 대상 코드이며, 가구는 `F_CODE`, 인테리어는 `C_ID/C_NAME/C_KIND` 조합 문자열을 의미
+- `CART.C_CODE`는 주문/장바구니 식별용 unique 값이며 `CART_OPTION.C_CODE`가 참조
+- `EVENT_COUPON`은 `EVENT.E_ID`와 `COUPON(COUPON_CODE, ID)`를 연결
+- `FREEBOARD.USERID`는 `USERS.ID` 참조
+- `FREEBOARD_COMMENT.BOARDID`는 `FREEBOARD.BOARDID` 참조, 게시글 삭제 시 cascade
+- `FREEBOARD_REPORT.TARGETID`는 `FREEBOARD.BOARDID` 참조, 삭제 시 cascade
+- `FREEBOARD_COMMENT_REPORT.TARGETID`는 `FREEBOARD_COMMENT.COMMENTID` 참조, 삭제 시 cascade
+
+## 주요 인덱스
+
+- `IDX_FURNITURE_COMPANY`: `FURNITURE(C_ID, C_KIND, C_NAME, F_CREATEDDATE)`
+- `IDX_IMG_KIND_DIRA_TAG`: `IMG(IMG_KIND, DIR_A, IMG_TAG)`
+- `IDX_IMG_NAME`: `IMG(IMG_NAME)`
+- `IDX_FREEBOARD_CREATED`: `FREEBOARD(BOARDID DESC)`
+- `IDX_FREEBOARD_USERID`: `FREEBOARD(USERID)`
+- `IDX_FREEBOARD_TITLE`: `FREEBOARD(TITLE)`
+- `IDX_FREEBOARD_USERNAME`: `FREEBOARD(USERNAME)`
+- `IDX_FB_REPORT_TARGET`: `FREEBOARD_REPORT(TARGETID)`
+- `IDX_FB_CREPORT_TARGET`: `FREEBOARD_COMMENT_REPORT(TARGETID)`
+- `EVENT_E_INDEX_INDEX`: `EVENT(E_INDEX)`
+
+## SQL 생성 시 주의
+
+- `USERS.TYPE`: `user`, `company`, `admin`
+- `USERS.GENDER`: `male`, `female`, `none`, `NULL`
+- `USERS.JOINED`: `Y`, `N`
+- `COMPANY.C_KIND`: `shop`, `interior`
+- `BOOKING.B_STATUS`: `pending`, `quoting`, `confirmed`, `working`, `done`, `cancel`
+- `INVOICE.INVOICE_KIND`: `Y`, `N`
+- `QUESTION.Q_STATUS`: `received`, `answering`, `done`
+- `QUESTION.Q_IDX`: 최신 DDL 기준 단일 PK이며, `ID`는 비회원 문의를 위해 nullable
+- `QUESTION.Q_GUESTPHONE`, `QUESTION.Q_PW`: 비회원 문의 식별/비밀번호 용도
+- `CART.F_STATUS`: `Y`, `N`
+- `CART.F_DSTATUS`: `-1`, `0`, `1`, `2`, `3`, `4`, `5`
+- `CART.F_DSTATUS` meanings: `-1` order cancelled, `0` payment complete/order received, `1` delivery received/waiting for shipment, `2` shipped, `3` in delivery, `4` delivered, `5` purchase confirmed
+- `CART.CART_CREATEDDATE`: time an item was added to cart; use for cart-hour statistics
+- `CART.CART_PAYDATE`: payment completion time; use for payment-hour and cart-to-payment elapsed-time statistics
+- `CART.CART_STATUSDATE`: latest `F_DSTATUS` change time; when current `F_DSTATUS = 5`, treat as purchase-confirmed time
+- `COUPON.COUPON_USED`: 기본값 `N`
+- `COUPON.COUPON_CATAGORY`: 최신 DDL 기준 `VARCHAR2(200)`
+- `"LIKE".LIKE_TAG`: `furniture`, `interior`
+- `IMG.IMG_KIND`: `I_REVIEW`, `U_PROFILE`, `F_REVIEW`, `QUESTION`, `BOARD`, `LOGO`, `FURNITURE`, `I_EXAMPLE`, `Q&A`, `C_PROFILE`, `DEV`, `CLAIM`
+- `IMG.IMG_TAG`: 최신 DDL에서는 체크 제약이 없으나, 기존 관례상 `THUMBNAIL`, `INFO`, `OTHERS`를 주로 사용
+- `EVENT.E_TYPE`: `notice`, `event` 용도
+- `EVENT.E_POPUP`: 기본값 `N`, 팝업 노출 여부
+
+## 대표 컬럼 메모
+
+- `USERS`: `ID`, `PW`, `TYPE`, `CODE`, `NAME`, `EMAIL`, `BIRTH`, `TEL`, `GENDER`, `ADDR`, `JOINED`
+- `COMPANY`: `C_ID`, `C_NAME`, `C_KIND`, `C_TEL`, `C_ADDR`, `C_INFO`, `C_BOSS`
+- `INTERIOR`: `C_ID`, `I_TAG`, `I_TEXT`, `C_KIND`, `C_NAME`
+- `BOOKING`: `ID`, `B_CREATEDDATE`, `C_ID`, `C_KIND`, `C_NAME`, `B_KIND`, `B_LONG`, `B_DATE`, `B_STATUS`, `B_CONTENT`, `B_ANSWER`
+- `INVOICE`: `C_ID`, `C_KIND`, `C_NAME`, `ID`, `INVOICE_NO`, `INVOICE_KIND`, `B_CREATEDDATE`
+- `INVOICE_DETAIL`: `C_ID`, `C_KIND`, `C_NAME`, `ID`, `INVOICE_NO`, `INVOICE_KIND`, `B_CREATEDDATE`, `INVOICE_TEXT`, `INVOICE_PRICE`, `INVOICE_QTY`
+- `I_REVIEW`: `C_ID`, `C_KIND`, `C_NAME`, `ID`, `INVOICE_KIND`, `B_CREATEDDATE`, `IR_CONTENT`, `IR_CREATEDDATE`, `INVOICE_NO`
+- `I_EXAMPLE`: `C_ID`, `C_KIND`, `C_NAME`, `IE_CONTENT`, `IE_TAG`, `IE_TAG2`, `IE_INDEX`
+- `FURNITURE`: `F_CODE`, `C_ID`, `C_KIND`, `C_NAME`, `F_NAME`, `F_PRICE`, `F_DPRICE`, `F_CREATEDDATE`, `F_CATAGORY1`, `F_CATAGORY2`, `F_CATAGORY3`, `F_CATAGORY4`, `F_CATAGORY5`, `F_DISCOUNT`, `F_POINT`, `F_COUNT`, `F_VIEWCOUNT`, `F_DELIVERYPRICE`
+- `OPTIONS`: `F_CODE`, `O_SELECT`, `O_TEXT`, `O_COUNT`, `O_PRICE`, `O_IMPORTANT`, `O_CODE`
+- `COUPON`: `COUPON_CODE`, `DISCOUNT`, `COUPON_END`, `COUPON_MAX`, `ID`, `COUPON_INFO`, `COUPON_TYPE`, `COUPON_CATAGORY`, `COUPON_USED`
+- `WALLET`: `ID`, `MONEY`
+- `QUESTION`: `ID`, `F_CODE`, `Q_IDX`, `Q_STATUS`, `Q_CONTENT`, `Q_CREATEDDATE`, `Q_TITLE`, `Q_ANSWER`, `Q_ANSWERDATE`, `Q_SECRET`, `Q_GUESTPHONE`, `Q_PW`
+- `CART`: `ID`, `F_CODE`, `F_STATUS`, `F_DSTATUS`, `F_COUNT`, `F_ADDR`, `F_NAME`, `F_TEL`, `F_PRICE`, `F_POINT`, `CART_STATUSDATE`, `C_CODE`, `PAY_TOTAL`, `USE_POINT`, `SAVE_POINT`, `COUPON_DISCOUNT`, `CART_CREATEDDATE`, `CART_PAYDATE`
+- `"LIKE"`: `ID`, `LIKE_CODE`, `LIKE_TAG`
+- `CART_OPTION`: `ID`, `F_CODE`, `CO_SELECT`, `CO_TEXT`, `CO_COUNT`, `CO_PRICE`, `C_CODE`
+- `F_REVIEW`: `ID`, `F_CODE`, `FR_SUBJECT`, `FR_STAR`, `FR_CREATEDDATE`, `FR_CONTENT`, `FR_IDX`, `C_CODE`
+- `IMG`: `IMG_KIND`, `IMG_TAG`, `IMG_IDX`, `DIR_A`, `DIR_B`, `DIR_C`, `DIR_D`, `DIR_E`, `IMG_NAME`, `IMG_CREATEDDATE`
+- `ORDER_CLAIM`: `CLAIM_CODE`, `C_CODE`, `ID`, `F_CODE`, `CLAIM_TYPE`, `CLAIM_STATUS`, `CLAIM_REASON`, `CLAIM_CREATEDDATE`
+- `FURNITUREHIDE`: `ID`, `F_CODE`, `FH_CREATEDDATE`
+- `I_SCHEDULE`: `ID`, `B_CREATEDDATE`, `C_ID`, `C_KIND`, `C_NAME`, `IS_STARTDATE`, `IS_ENDDATE`
+- `EVENT`: `E_TITLE`, `E_INDEX`, `E_CONTENT`, `E_ENDDATE`, `E_CREATEDDATE`, `E_ID`, `E_TYPE`, `E_STARTDATE`, `E_POPUP`
+- `EVENT_COUPON`: `COUPON_CODE`, `E_ID`, `ID`
+- `FREEBOARD`: `BOARDID`, `USERID`, `USERNAME`, `CATEGORY`, `TITLE`, `CONTENT`, `VIEWCOUNT`, `LIKECOUNT`, `COMMENTCOUNT`, `HIDDEN`, `CREATEDAT`, `UPDATEDAT`
+- `FREEBOARD_COMMENT`: `COMMENTID`, `BOARDID`, `USERID`, `USERNAME`, `CONTENT`, `PARENTID`, `HIDDEN`, `CREATEDAT`, `UPDATEDAT`
+- `FREEBOARD_REPORT`: `REPORTID`, `TARGETID`, `REPORTERID`, `REASON`, `DETAIL`, `CREATEDAT`
+- `FREEBOARD_COMMENT_REPORT`: `REPORTID`, `TARGETID`, `REPORTERID`, `REASON`, `DETAIL`, `CREATEDAT`
+
+## 이미지 디렉터리 규칙 메모
+
+- `I_REVIEW`: `DIR_A=C_ID`, `DIR_B=C_KIND`, `DIR_C=C_NAME`, `DIR_D=ID`, `DIR_E=B_CREATEDDATE 문자열`
+- `F_REVIEW`, `QUESTION`, `Q&A`, `CLAIM`: `DIR_A=대상 코드`, `DIR_D=ID`
+- `LOGO`, `I_EXAMPLE`, `C_PROFILE`: `DIR_A=C_ID`, `DIR_B=C_KIND`, `DIR_C=C_NAME`, `DIR_D=LOGO/TAG/INFO`
+- `FURNITURE`: `DIR_A=F_CODE`
+- `BOARD`: `DIR_A=BOARDID`, `DIR_D=ID`
+- `DEV`: `DIR_A=DEV_ID`, `DIR_B=event name`
+
+## 주문 클레임 메모
+
+- `ORDER_CLAIM.CLAIM_CODE`: UUID로 생성되는 PK, `CL...` 형식
+- `ORDER_CLAIM.C_CODE`: 장바구니 PK
+- `ORDER_CLAIM.ID`: 소비자 ID
+- `ORDER_CLAIM.F_CODE`: 구매한 상품 코드
+- `ORDER_CLAIM.CLAIM_TYPE`: `1` 교환, `2` 반품
+- `ORDER_CLAIM.CLAIM_STATUS`: `0` 신청완료, `1` 접수, `2` 처리중, `3` 처리완료, `-1` 거절
+- `ORDER_CLAIM.CLAIM_REASON`: 신청사유
+- `ORDER_CLAIM.CLAIM_CREATEDDATE`: 생성일
+
+## 트리거/프로시저 메모
+
+- `TRG_USER_WITHDRAW`: `USERS.JOINED`가 `Y`에서 `N`으로 바뀌면 `DELETE_USER_DATA(:OLD.ID, :OLD.TYPE)` 호출
+- `TRG_INVOICE_KIND_CHECK`: 확정 견적서(`INVOICE_KIND = 'Y'`)는 같은 예약에 1건만 허용
+- `TRG_INVOICE_STATUS`: 견적서 생성 시 `BOOKING.B_STATUS`를 `pending`에서 `quoting`으로 변경
+- `TRG_BOOKING_STATUS`: 확정 견적서 생성/수정 시 `BOOKING.B_STATUS`를 `confirmed`로 변경
+- `TRG_QUESTION_IDX`: `QUESTION.Q_IDX`가 `NULL`이면 `SEQ_GLOBAL.NEXTVAL`
+- `TRG_F_REVIEW_IDX`: `F_REVIEW.FR_IDX`가 `NULL`이면 `SEQ_GLOBAL.NEXTVAL`
+- `TRI_IE_INDEX`: `I_EXAMPLE.IE_INDEX`가 `NULL`이면 `SEQ_I_EXAMPLE_INDEX.NEXTVAL`
+- `DELETE_USER_DATA`: 기업 탈퇴 시 관련 인테리어/견적/상담/이미지/회사 데이터를 삭제
+
+## Dashboard Schema Notes
+
+- `TRG_CART_STATUS_DATE`: when `F_STATUS` becomes `Y`, set `CART_PAYDATE = SYSDATE`; when `F_STATUS` becomes `N`, clear `CART_PAYDATE`; when `F_DSTATUS` changes, set `CART_STATUSDATE = SYSDATE`

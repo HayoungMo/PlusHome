@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import InteriorService from "../service/interiorService";
 import TableMuiCollapse from "./TableMuiCollapse";
 import {
@@ -29,6 +29,8 @@ const BookingUpdate = ({
 	selectedInvoiceDetailList,
 	setSelectedInvoiceDetailList,
 	bookingRefreshKey = 0,
+	dateRange = { startDate: "", endDate: "" },
+	isDateRangeInvalid = false,
 }) => {
 	const [booking, setBooking] = useState([]);
 	const handledRefreshKeyRef = useRef(bookingRefreshKey);
@@ -54,6 +56,22 @@ const BookingUpdate = ({
 		is_startdate: "",
 		is_enddate: "",
 	});
+
+	const displayBooking = useMemo(() => {
+		if (!booking || booking.length === 0) return [];
+
+		return booking.filter((item) => {
+			const bookingDate = dayjs(item.b_createdDate || item.b_date);
+			const matchStart =
+				!dateRange.startDate ||
+				(bookingDate.isValid() && !bookingDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(bookingDate.isValid() && !bookingDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+			return !isDateRangeInvalid && matchStart && matchEnd;
+		});
+	}, [booking, dateRange, isDateRangeInvalid]);
 
 	const isSameBooking = (bookingA, bookingB) => {
 		if (!bookingA || !bookingB) return false;
@@ -204,7 +222,7 @@ const BookingUpdate = ({
 				<TableMuiCollapse
 					selectedRow={selectedBooking}
 					setSelectedRow={setSelectedBooking}
-					rowData={booking}
+					rowData={displayBooking}
 					hiddenColumns={["b_answer"]}
 					columns={[
 						"예약자 ID",

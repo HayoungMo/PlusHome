@@ -121,8 +121,10 @@ const TableCheckBoxMui = (props) => {
 							<StyledTableRow
 								onClick={() => {
 									const selectedRowData = { ...row, rowIndex: realRowIndex };
-									if (setSelectedRow) setSelectedRow(selectedRowData);
-									if (onRowClick) onRowClick(selectedRowData);
+									if (setSelectedRow) {
+										setSelectedRow(isSelected ? {} : selectedRowData);
+									}
+									if (onRowClick) onRowClick(isSelected ? {} : selectedRowData);
 								}}
 								// ------
 								key={

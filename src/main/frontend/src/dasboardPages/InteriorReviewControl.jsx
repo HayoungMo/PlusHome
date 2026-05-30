@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import InteriorUserService from "../service/interiorUserService";
+import DateRangeFilter from "../components/DateRangeFilter";
 import TableMui from "./../components/TableMui";
 import TextFieldMui from "../components/TextFieldMui";
 import AlertMui from "../components/AlertMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
 import { Chip } from "@mui/material";
 import "../css/DashboardInterior.css";
+import dayjs from "dayjs";
 
 const InteriorReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -17,25 +19,50 @@ const InteriorReviewControl = () => {
 	const [selectedIntreiorReviewImage, setSelectedIntreiorReviewImage] = useState([]);
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [alertInfo, setAlertInfo] = useState(false);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
 	const emptyList = useMemo(() => [], []);
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const intreiorMuiDisplayList = useMemo(() => {
 		if (!intreiorReviewList || intreiorReviewList.length === 0) return emptyList;
 
-		const rowIndexList = intreiorReviewList?.map((record, index) => {
+		const rowIndexList = intreiorReviewList?.filter((record) => {
+			const reviewDate = dayjs(record.review?.ir_createdDate);
+			const matchStart =
+				!dateRange.startDate ||
+				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+			return !isDateRangeInvalid && matchStart && matchEnd;
+		}).map((record, index) => {
 			return { ...record.review, index };
 		});
 
 		return rowIndexList;
-	}, [intreiorReviewList, emptyList]);
+	}, [intreiorReviewList, emptyList, dateRange, isDateRangeInvalid]);
 
 	const onlyImageList = useMemo(() => {
 		if (!intreiorReviewList || intreiorReviewList.length === 0) return emptyList;
 
 		let resultList = [];
 
-		intreiorReviewList?.forEach((record, index) => {
+		intreiorReviewList?.filter((record) => {
+			const reviewDate = dayjs(record.review?.ir_createdDate);
+			const matchStart =
+				!dateRange.startDate ||
+				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+			return !isDateRangeInvalid && matchStart && matchEnd;
+		}).forEach((record, index) => {
 			if (record.image.length !== 0) {
 				record.image.forEach((element) => {
 					resultList.push({ ...element, index });
@@ -44,7 +71,7 @@ const InteriorReviewControl = () => {
 		});
 
 		return resultList;
-	}, [intreiorReviewList, emptyList]);
+	}, [intreiorReviewList, emptyList, dateRange, isDateRangeInvalid]);
 
 	const reloadData = async () => {
 		const result = await InteriorUserService.getInteriorReviewByCompanyId({ c_id: id });
@@ -106,6 +133,16 @@ const InteriorReviewControl = () => {
 					/>
 				</div>
 			</div>
+
+			<section className="interior-review-card">
+				<div className="interior-filter-row">
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
+					/>
+				</div>
+			</section>
 
 			<section className="interior-review-grid">
 				<div className="interior-review-card">

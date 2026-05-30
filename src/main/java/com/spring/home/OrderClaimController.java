@@ -132,5 +132,38 @@ public class OrderClaimController {
         return ResponseEntity.ok(result);
     }
     
+    @SuppressWarnings("unchecked")
+	@PostMapping("/getListByCompany")
+    public Map<String, Object> getListByCompany(@RequestBody Map<String, Object> params) throws Exception {
+    	Map<String, Object> result = new HashMap<>();
+    	try {
+    		if (params == null) {
+    			params = new HashMap<>();
+    		}
+
+    		params.put("c_kind", "shop");
+
+    		Map<String, Object> claimResult = orderClaimService.getListByCompany(params);
+    		List<Map<String, Object>> claimList = (List<Map<String, Object>>) claimResult.get("claimList");
+
+    		result.put("success", true);
+    		result.put("claimList", claimList);
+    		result.put("statusCounts", claimResult.get("statusCounts"));
+    		result.put("totalCount", claimResult.get("totalCount"));
+    		result.put("page", claimResult.get("page"));
+    		result.put("size", claimList.size());
+    		if(claimList.size() > 0) {
+    			result.put("message", "교환 환불 목록 조회에 성공하였습니다.");    			
+    		} else {
+    			result.put("message", "신청된 교환 또는 환불이 없습니다.");   
+    		}
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("message", "교환 환불 목록 조회중 오류가 발생하였습니다.");
+			result.put("error", e.toString());
+		}
+    	return result;
+    }
+    
 	    
 }

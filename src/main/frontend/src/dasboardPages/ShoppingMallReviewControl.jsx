@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import DateRangeFilter from "../components/DateRangeFilter";
 import SelectMui from "./../components/SelectMui";
 import TableMui from "./../components/TableMui";
 import FurnitureService from "./../service/furnitureService";
@@ -10,6 +11,7 @@ import TextFieldMui from "./../components/TextFieldMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import "../css/DashboardShoppingMall.css";
+import dayjs from "dayjs";
 
 const ShoppingMallReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -44,6 +46,11 @@ const ShoppingMallReviewControl = () => {
 	const [selectedReply, setSelectedReply] = useState(initReviewAndReply);
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const displayFurnitureList = useMemo(() => {
 		const shopList = furnitureList.map((record) => {
@@ -78,12 +85,20 @@ const ShoppingMallReviewControl = () => {
 	}, [furnitureList]);
 
 	const displayReviewList = useMemo(() => {
-		if (selectFurniture === "all") {
-			return reviewList;
-		}
+		return reviewList.filter((data) => {
+			const reviewDate = dayjs(data.fr_createdDate || data.fr_createddate);
+			const matchFurniture =
+				selectFurniture === "all" || String(data.f_code) === String(selectFurniture);
+			const matchStart =
+				!dateRange.startDate ||
+				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
 
-		return reviewList.filter((data) => String(data.f_code) === String(selectFurniture));
-	}, [reviewList, selectFurniture]);
+			return matchFurniture && !isDateRangeInvalid && matchStart && matchEnd;
+		});
+	}, [reviewList, selectFurniture, dateRange, isDateRangeInvalid]);
 
 	const initTotalInfo = {
 		star: 0,
@@ -224,6 +239,10 @@ const ShoppingMallReviewControl = () => {
 	}, [selectFurniture]);
 
 	useEffect(() => {
+		setSelectedReview(initReviewAndReply);
+	}, [dateRange]);
+
+	useEffect(() => {
 		if (replyList.length === 0) return setSelectedReply(initReviewAndReply);
 
 		const replyIndex = selectedReview.fr_idx * -1;
@@ -256,20 +275,29 @@ const ShoppingMallReviewControl = () => {
 
 			<section className="shopping-mall-review-card">
 				<div className="shopping-mall-review-toolbar">
-					<SelectMui
-						label="상품 선택"
-						value={selectFurniture}
-						onChange={(e) => {
-							console.log("SelectMui : " + e.target.value);
-							setSelectFurniture(e.target.value);
-						}}
-						option={displayFurnitureList || []}
-						width="220px"
-					/>
+					<div className="shopping-mall-review-filter-main">
+						<SelectMui
+							size="small"
+							label="상품 선택"
+							value={selectFurniture}
+							onChange={(e) => {
+								console.log("SelectMui : " + e.target.value);
+								setSelectFurniture(e.target.value);
+							}}
+							option={displayFurnitureList || []}
+							width="220px"
+						/>
+						<DateRangeFilter
+							value={dateRange}
+							onChange={setDateRange}
+							isInvalid={Boolean(isDateRangeInvalid)}
+							className="shopping-mall-review-date-range"
+						/>
+					</div>
 					<div className="shopping-mall-review-metrics">
-						<TextFieldMui value={totalReviewInfo.star} label="별점 평균" />
-						<TextFieldMui value={totalReviewInfo.qty} label="구매 물품 수" />
-						<TextFieldMui value={totalReviewInfo.price} label="총 금액" />
+						<TextFieldMui size="small" value={totalReviewInfo.star} label="별점 평균" />
+						<TextFieldMui size="small" value={totalReviewInfo.qty} label="구매 물품 수" />
+						<TextFieldMui size="small" value={totalReviewInfo.price} label="총 금액" />
 					</div>
 				</div>
 
@@ -304,7 +332,7 @@ const ShoppingMallReviewControl = () => {
 							selectedRow={selectedReview}
 							setSelectedRow={setSelectedReview}
 							defaultRowPerPage={5}
-							resetPageKey={selectFurniture}
+							resetPageKey={`${selectFurniture}-${dateRange.startDate}-${dateRange.endDate}`}
 							pagination
 						/>
 					) : (

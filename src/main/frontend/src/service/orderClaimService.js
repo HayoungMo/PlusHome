@@ -80,6 +80,21 @@ const updateBulk = async (list) => {
     return res.data;
 };
 
+const getListByCompany  = async (dto) => {
+	try {
+		const result = await http.post("/claim/getListByCompany", dto, {
+			headers: getAuthHeaders()
+		});
+		return result.data;
+	} catch (err) {
+		return {
+			success: false,
+			error: err + "",
+			message: "교환 및 환불 요청 목록 조회 중 오류가 발생했습니다.",
+		};
+	}
+}
+
 const OrderClaimService = {
   createClaim,
   checkClaim,
@@ -89,6 +104,7 @@ const OrderClaimService = {
   getCompanyClaims,
   updateClaim,
   updateBulk,
+  getListByCompany
 };
 
 export default OrderClaimService;
