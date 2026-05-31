@@ -14,15 +14,17 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
  *
  */
 const DatePickerMui = (props) => {
-	const { value, onChange, label } = props;
+	const { value, onChange, label, format = "YYYY-MM-DD", slotProps, sx } = props;
 
 	return (
 		<LocalizationProvider dateAdapter={AdapterDayjs}>
 			<DatePicker
 				label={label ? label : "날짜 선택"}
-				format="YYYY-MM-DD"
+				format={format}
 				value={value ? dayjs(value) : null}
 				onChange={onChange}
+				slotProps={slotProps}
+				sx={sx}
 			/>
 		</LocalizationProvider>
 	);

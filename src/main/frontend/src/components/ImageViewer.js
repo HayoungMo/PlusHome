@@ -1,6 +1,36 @@
 ﻿import React, { useEffect, useState } from "react";
 import "../css/ImageViewer.css";
 
+/**
+ * 이미지 뷰어 모달 컴포넌트
+ *
+ * 이미지 목록을 모달 형태로 확대해서 보여주는 컴포넌트입니다.
+ * 여러 이미지가 있을 경우 이전/다음 버튼, 썸네일, 키보드 방향키로 이미지를 이동할 수 있습니다.
+ * ESC 키 또는 배경 클릭으로 닫을 수 있으며,
+ * 제목, 내용, 작성자, 날짜, 별점, 업체 답변 등의 부가 정보를 함께 표시할 수 있습니다.
+ *
+ * @param {Object} props
+ * @param {boolean} props.open 이미지 뷰어 표시 여부
+ * @param {Object[]} [props.images=[]] 표시할 이미지 목록
+ * @param {string} props.images[].src 이미지 경로
+ * @param {string} [props.images[].alt] 이미지 대체 텍스트
+ * @param {string} [props.images[].title] 이미지 제목
+ * @param {string} [props.images[].content] 이미지 또는 리뷰 내용
+ * @param {string} [props.images[].date] 이미지 또는 리뷰 작성일
+ * @param {string} [props.images[].writer] 이미지 또는 리뷰 작성자
+ * @param {number} [props.startIndex=0] 처음 표시할 이미지 index
+ * @param {Function} props.onClose 이미지 뷰어를 닫을 때 실행할 함수
+ * @param {string} [props.title] 우측 영역에 표시할 제목
+ * @param {string} [props.content] 우측 영역에 표시할 내용
+ * @param {string} [props.date] 우측 영역에 표시할 날짜
+ * @param {string} [props.writer] 우측 영역에 표시할 작성자
+ * @param {number | string} [props.star] 별점 값
+ * @param {Object} [props.reply] 업체 답변 정보
+ * @param {string} [props.reply.fr_subject] 업체 답변 제목
+ * @param {string} [props.reply.fr_content] 업체 답변 내용
+ *
+ * @returns {JSX.Element|null} 이미지 뷰어 모달 UI
+ */
 const ImageViewer = ({
   open,
   images = [],

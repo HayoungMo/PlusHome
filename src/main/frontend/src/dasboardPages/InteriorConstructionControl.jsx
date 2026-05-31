@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import TableMui from "../components/TableMui";
 import { Button, Chip, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import AlertMui from "../components/AlertMui";
+import DateRangeFilter from "../components/DateRangeFilter";
 import SelectMui from "../components/SelectMui";
 import InteriorService from "../service/interiorService";
 import "../css/DashboardInterior.css";
+import dayjs from "dayjs";
 
 const InteriorConstructionControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -26,6 +28,40 @@ const InteriorConstructionControl = () => {
 	const [cancelList, setCancelList] = useState([]);
 	const [workStateChangeDialogOpen, setWorkStateChangeDialogOpen] = useState(false);
 	const [workStateChangeDialogInfo, setWorkStateChangeDialogInfo] = useState(dialogInfoInit);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+
+	const filteredAllList = useMemo(() => {
+		if (!allList || allList.length === 0) return [];
+
+		return allList.filter((dto) => {
+			const targetDate = dayjs(dto.b_date || dto.b_createdDate);
+			const matchStart =
+				!dateRange.startDate ||
+				(targetDate.isValid() && !targetDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(targetDate.isValid() && !targetDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+			return !isDateRangeInvalid && matchStart && matchEnd;
+		});
+	}, [allList, dateRange, isDateRangeInvalid]);
+
+	const displayWorkingList = useMemo(
+		() => filteredAllList.filter((dto) => dto.b_status === "working"),
+		[filteredAllList],
+	);
+	const displayDoneList = useMemo(
+		() => filteredAllList.filter((dto) => dto.b_status === "done"),
+		[filteredAllList],
+	);
+	const displayCancelList = useMemo(
+		() => filteredAllList.filter((dto) => dto.b_status === "cancel"),
+		[filteredAllList],
+	);
 
 	const reloadData = async () => {
 		const result = await InteriorService.selectWorkingAndDone(id);
@@ -177,18 +213,28 @@ const InteriorConstructionControl = () => {
 			</div>
 
 			<section className="interior-construction-card">
+				<div className="interior-filter-row">
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
+					/>
+				</div>
+			</section>
+
+			<section className="interior-construction-card">
 				<div className="interior-construction-card-head">
 					<div>
 						<strong>진행 중인 시공 목록</strong>
 						<span>현재 시공 중인 건의 완료/취소 처리와 견적서 조회를 진행합니다.</span>
 					</div>
-					<Chip label={`${workingList.length}건`} color="primary" variant="outlined" />
+					<Chip label={`${displayWorkingList.length}건`} color="primary" variant="outlined" />
 				</div>
 
-				{workingList.length !== 0 ? (
+				{displayWorkingList.length !== 0 ? (
 					<div className="interior-construction-table">
 						<TableMui
-							rowData={workingList}
+							rowData={displayWorkingList}
 							col={tableCol}
 							columns={tableColumns}
 							buttonData={buttonData}
@@ -207,13 +253,13 @@ const InteriorConstructionControl = () => {
 						<strong>시공 완료 목록</strong>
 						<span>완료 처리된 시공 건을 확인하고 필요 시 상태를 변경합니다.</span>
 					</div>
-					<Chip label={`${doneList.length}건`} color="success" variant="outlined" />
+					<Chip label={`${displayDoneList.length}건`} color="success" variant="outlined" />
 				</div>
 
-				{doneList.length !== 0 ? (
+				{displayDoneList.length !== 0 ? (
 					<div className="interior-construction-table">
 						<TableMui
-							rowData={doneList}
+							rowData={displayDoneList}
 							col={tableCol}
 							columns={tableColumns}
 							buttonData={buttonDataCancelOrDone}
@@ -232,13 +278,13 @@ const InteriorConstructionControl = () => {
 						<strong>취소된 시공 목록</strong>
 						<span>취소 처리된 시공 건을 확인하고 필요 시 상태를 되돌립니다.</span>
 					</div>
-					<Chip label={`${cancelList.length}건`} color="error" variant="outlined" />
+					<Chip label={`${displayCancelList.length}건`} color="error" variant="outlined" />
 				</div>
 
-				{cancelList.length !== 0 ? (
+				{displayCancelList.length !== 0 ? (
 					<div className="interior-construction-table">
 						<TableMui
-							rowData={cancelList}
+							rowData={displayCancelList}
 							col={tableCol}
 							columns={tableColumns}
 							buttonData={buttonDataCancelOrDone}

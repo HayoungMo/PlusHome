@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
 import MultiFilterBar from '../components/MultiFilterBar';
-
 import { 
     Button,
     Card,
@@ -11,6 +10,7 @@ import {
     CardContent,
     CardMedia,
     Chip,
+    Pagination,
     Stack,
         } from '@mui/material';
 import {
@@ -18,6 +18,8 @@ import {
     getFurnitureCategoryCode,
     getFurnitureCategoryTitle,
         } from "../components/FurnitureCategorySelect";
+
+import "../css/SearchPage.css";
 
 const SearchPage = () => {
 
@@ -42,6 +44,44 @@ const SearchPage = () => {
     const purpose = searchParams.get("purpose") || "";
     const spaces = searchParams.get("spaces") || "";
     const budget = searchParams.get("budget") || "";
+
+    //필터 임시 state
+    const [draftFurnitureFilter, setDraftFurnitureFilter] = useState({
+        category,
+        priceRange,
+        discount,
+        freeDelivery,
+    });
+
+    const [draftInteriorFilter, setDraftInteriorFilter] = useState({
+        interiorRegion,
+        housingType,
+        areaSize,
+        purpose,
+        spaces,
+        budget,
+    });
+
+    //url이 바뀌면 임시 필터도 맞춰줘야함
+    useEffect(() => {
+        setDraftFurnitureFilter({
+            category,
+            priceRange,
+            discount,
+            freeDelivery,
+        });
+    }, [category, priceRange, discount, freeDelivery]);
+
+    useEffect(() => {
+        setDraftInteriorFilter({
+            interiorRegion,
+            housingType,
+            areaSize,
+            purpose,
+            spaces,
+            budget,
+        });
+    },[interiorRegion, housingType, areaSize,purpose, spaces, budget]);
 
     //필터 옵션 
     const [filterOptions, setFilterOptions] = useState({
@@ -538,42 +578,18 @@ const SearchPage = () => {
     };
 
     //필터 변경 함수 추가 (밑으로 쭉)
-    const furnitureFilterValue = {
-        category,
-        priceRange,
-        discount,
-        freeDelivery,
-    };
+    const furnitureFilterValue = draftFurnitureFilter;
+    const interiorFilterValue = draftInteriorFilter;
 
-    const interiorFilterValue = {
-        interiorRegion,
-        housingType,
-        areaSize,
-        purpose,
-        spaces,
-        budget,
-    };
-
-    const updateFilter = (nextFilter) => {
+    const applyFilter = (nextFilter) => {
         const params = {
             keyword: keyword.trim(),
             type,
-            page: 1,
-            category,
-            priceRange,
-            discount,
-            freeDelivery,
-            interiorRegion,
-            housingType,
-            areaSize,
-            purpose,
-            spaces,
-            budget,
+            page:1,
             ...nextFilter,
         };
-
         Object.keys(params).forEach((key) => {
-            if (!params[key]) {
+            if(!params[key]) {
                 delete params[key];
             }
         });
@@ -625,7 +641,7 @@ const SearchPage = () => {
                     sx={{ objectFit: "cover" }}
                 />
 
-                <CardContent sx={{ p: 1}}>
+                <CardContent sx={{ p: 1, textAlign: "center" }}>
                     <p style={{ margin: "0 0 6px", color: "#666", fontSize: "12px" }}>
                         {item.c_name || "업체"}
                     </p>
@@ -648,14 +664,14 @@ const SearchPage = () => {
                         </p>
                     )}
 
-                    <div style={{ display: "flex", gap: "4px", alignItems: "baseline"}}>
+                    <div style={{ display: "flex", gap: "4px", alignItems: "baseline", justifyContent: "center" }}>
                         
                         <strong>
                             {Number(item.f_dprice || 0).toLocaleString()}원
                         </strong>
                     </div>
 
-                    <Stack direction="row" spacing={1} mt={1}>
+                    <Stack direction="row" spacing={1} mt={1} justifyContent="center" flexWrap="wrap" useFlexGap>
                         {deliveryPrice === 0 ? (
                             <Chip
                                 size="small"
@@ -892,39 +908,65 @@ const SearchPage = () => {
                     {/* 가구 필터 UI */}
                     {type === "furniture" && (
                         <div style={{ marginTop: "12px" }}>
-                            <MultiFilterBar
-                                groups={furnitureFilterGroups}
-                                selectedValues={furnitureFilterValue}
-                                onChange={updateFilter}
-                                onReset={() =>
-                                    updateFilter({
-                                        category: "",
-                                        priceRange: "",
-                                        discount: "",
-                                        freeDelivery: "",
-                                    })
-                                }
-                            />
+                            <div className="search-filter-panel">
+                                <MultiFilterBar
+                                    className="search-filter-bar"
+                                    groups={furnitureFilterGroups}
+                                    selectedValues={furnitureFilterValue}
+                                    onChange={setDraftFurnitureFilter}
+                                    onReset={() =>
+                                        setDraftFurnitureFilter({
+                                            category: "",
+                                            priceRange: "",
+                                            discount: "",
+                                            freeDelivery: "",
+                                        })
+                                    }
+                                />
+
+                                <div className="search-filter-actions">
+                                    <Button
+                                        type="button"
+                                        variant="contained"
+                                        onClick={() => applyFilter(draftFurnitureFilter)}
+                                    >
+                                        필터 검색
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {type === "interior" && (
                         <div style={{ marginTop: "12px" }}>
-                            <MultiFilterBar
-                                groups={interiorFilterGroups}
-                                selectedValues={interiorFilterValue}
-                                onChange={updateFilter}
-                                onReset={() =>
-                                    updateFilter({
-                                        interiorRegion: "",
-                                        housingType: "",
-                                        areaSize: "",
-                                        purpose: "",
-                                        spaces: "",
-                                        budget: "",
-                                    })
-                                }
-                            />
+                            <div className="search-filter-panel">
+                                <MultiFilterBar
+                                    className="search-filter-bar"
+                                    groups={interiorFilterGroups}
+                                    selectedValues={interiorFilterValue}
+                                    onChange={setDraftInteriorFilter}
+                                    onReset={() =>
+                                        setDraftInteriorFilter({
+                                            interiorRegion: "",
+                                            housingType: "",
+                                            areaSize: "",
+                                            purpose: "",
+                                            spaces: "",
+                                            budget: "",
+                                        })
+                                    }
+                                />
+
+                                <div className="search-filter-actions">
+                                    <Button
+                                        type="button"
+                                        variant="contained"
+                                        onClick={() => applyFilter(draftInteriorFilter)}
+                                    >
+                                        필터 검색
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -964,7 +1006,7 @@ const SearchPage = () => {
                                 style={{
                                     display: "grid",
                                     gridTemplateColumns: "repeat(auto-fill, 180px)",
-                                    justifyContent: "start",
+                                    justifyContent: "center",
                                     gap: "16px",
                                 }}
                             >
@@ -979,28 +1021,16 @@ const SearchPage = () => {
 
             {/* 검색 결과 목록, 페이징 처리 페이징 버튼 추가*/}
             {type !== "all" && !isEmptyKeywordCategory && totalPages > 1 && (
-                <section style={{ marginTop: "24px", textAlign: "center"}}>
-                    <Button
-                        type="button"
-                        variant="contained"
-                        onClick={() => movePage(Math.max(1, page - 1))}
-                        disabled={page === 1}
-                    >
-                        이전
-                    </Button>
-
-                    <span style={{margin: "0 12px", fontWeight: 600}}>
-                        {page} /{totalPages}
-                    </span>
-
-                    <Button
-                        type="button"
-                        variant="contained"
-                        onClick={() => movePage(Math.min(totalPages, page + 1))}
-                        disabled={page === totalPages}
-                    >
-                        다음
-                    </Button>
+            <section style={{ marginTop: "24px", display: "flex", justifyContent: "center" }}>
+                <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={(evt, nextPage) => movePage(nextPage)}
+                    color="primary"
+                    shape="circular"
+                    showFirstButton
+                    showLastButton
+                />
             </section>
         )}
     </div>

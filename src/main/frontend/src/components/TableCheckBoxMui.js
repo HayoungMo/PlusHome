@@ -121,8 +121,10 @@ const TableCheckBoxMui = (props) => {
 							<StyledTableRow
 								onClick={() => {
 									const selectedRowData = { ...row, rowIndex: realRowIndex };
-									if (setSelectedRow) setSelectedRow(selectedRowData);
-									if (onRowClick) onRowClick(selectedRowData);
+									if (setSelectedRow) {
+										setSelectedRow(isSelected ? {} : selectedRowData);
+									}
+									if (onRowClick) onRowClick(isSelected ? {} : selectedRowData);
 								}}
 								// ------
 								key={
@@ -134,7 +136,7 @@ const TableCheckBoxMui = (props) => {
 									backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
 									cursor: setSelectedRow ? "pointer" : "default",
 								}}>
-								<StyledTableCell align="center">
+								<StyledTableCell align="center" onClick={(event) => event.stopPropagation()}>
 									<Checkbox
 										checked={isChecked}
 										onChange={(event) => handleRowCheck(event, row, rowIndex)}

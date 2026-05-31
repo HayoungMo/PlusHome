@@ -14,6 +14,7 @@ public class CartAndFurnitureDTO {
 	private String c_id;
 	private String c_kind;
 	private String c_name;
+	private Date cart_paydate;
 	private Date cart_statusdate;
 	private int f_dprice;
 	private Date f_createddate;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -83,7 +83,6 @@
         WHERE claim_code = #{claim_code}
     </update>
 
-<!-- 회사 id 기준 모든 상품 띄우기 -->
 <select id="getCompanyClaims" parameterType="string" resultType="com.spring.home.dto.OrderClaimDTO">
     SELECT
         oc.claim_code,
@@ -104,7 +103,6 @@
     ORDER BY oc.claim_createddate DESC
 </select>
 
-<!-- 교환, 환불 업데이트 -->
 <update id="updateType">
     UPDATE order_claim
     SET claim_type = #{claim_type}
@@ -125,4 +123,133 @@
     WHERE claim_code = #{claim_code}
 </select>
 
+<select id="getListByCompany" parameterType="map" resultType="map">
+    SELECT *
+    FROM (
+        SELECT
+            claim_data.*,
+            ROWNUM AS "ROW_NUMBER"
+        FROM (
+            SELECT
+                    oc.CLAIM_CODE AS "claim_code",
+                oc.C_CODE AS "c_code",
+                oc.ID AS "id",
+                u.NAME AS "user_name",
+                u.TEL AS "user_tel",
+                u.EMAIL AS "user_email",
+
+                oc.F_CODE AS "f_code",
+                f.F_NAME AS "f_name",
+                f.C_ID AS "c_id",
+                f.C_KIND AS "c_kind",
+                f.C_NAME AS "c_name",
+
+                c.F_COUNT AS "f_count",
+                c.F_PRICE AS "f_price",
+                c.PAY_TOTAL AS "pay_total",
+                c.CART_PAYDATE AS "cart_paydate",
+
+                oc.CLAIM_TYPE AS "claim_type",
+                CASE oc.CLAIM_TYPE
+                    WHEN 1 THEN '교환'
+                    WHEN 2 THEN '반품'
+                    ELSE '알 수 없음'
+                END AS "claim_type_name",
+
+                oc.CLAIM_STATUS AS "claim_status",
+                CASE oc.CLAIM_STATUS
+                    WHEN 0 THEN '신청완료'
+                    WHEN 1 THEN '접수'
+                    WHEN 2 THEN '처리중'
+                    WHEN 3 THEN '처리완료'
+                    WHEN -1 THEN '거절'
+                    ELSE '알 수 없음'
+                END AS "claim_status_name",
+
+                oc.CLAIM_REASON AS "claim_reason",
+                oc.CLAIM_CREATEDDATE AS "claim_createddate",
+
+                COUNT(*) OVER () AS "total_count"
+            FROM ORDER_CLAIM oc
+                JOIN FURNITURE f
+                    ON oc.F_CODE = f.F_CODE
+                LEFT JOIN CART c
+                    ON oc.C_CODE = c.C_CODE
+                LEFT JOIN USERS u
+                    ON oc.ID = u.ID
+            <where>
+                f.C_ID = #{c_id}
+                AND f.C_KIND = #{c_kind}
+
+                <if test="c_name != null and c_name != '' and c_name != 'all'">
+                    AND f.C_NAME = #{c_name}
+                </if>
+
+                <if test="claimType != null and claimType != '' and claimType != 'all'">
+                    AND oc.CLAIM_TYPE = #{claimType}
+                </if>
+
+                <if test="claimStatus != null and claimStatus != '' and claimStatus != 'all'">
+                    AND oc.CLAIM_STATUS = #{claimStatus}
+                </if>
+
+                <if test="startDate != null and startDate != ''">
+                    AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+                </if>
+
+                <if test="endDate != null and endDate != ''">
+                    AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+                </if>
+
+                <if test="keyword != null and keyword != ''">
+                    AND (
+                           oc.CLAIM_CODE LIKE '%' || #{keyword} || '%'
+                        OR oc.C_CODE LIKE '%' || #{keyword} || '%'
+                        OR oc.ID LIKE '%' || #{keyword} || '%'
+                        OR f.F_NAME LIKE '%' || #{keyword} || '%'
+                        OR oc.CLAIM_REASON LIKE '%' || #{keyword} || '%'
+                    )
+                </if>
+            </where>
+            ORDER BY oc.CLAIM_CREATEDDATE DESC, oc.CLAIM_CODE DESC
+        ) claim_data
+        WHERE ROWNUM <![CDATA[<=]]> #{endRow}
+    )
+    WHERE "ROW_NUMBER" <![CDATA[>]]> #{offset}
+</select>
+
+<select id="getCompanyOrderClaimStatusCounts" parameterType="map" resultType="map">
+    SELECT
+        COUNT(*) AS "totalCount",
+
+        COUNT(CASE WHEN oc.CLAIM_STATUS = 0 THEN 1 END) AS "requestCount",
+        COUNT(CASE WHEN oc.CLAIM_STATUS = 1 THEN 1 END) AS "receivedCount",
+        COUNT(CASE WHEN oc.CLAIM_STATUS = 2 THEN 1 END) AS "processingCount",
+        COUNT(CASE WHEN oc.CLAIM_STATUS = 3 THEN 1 END) AS "doneCount",
+        COUNT(CASE WHEN oc.CLAIM_STATUS = -1 THEN 1 END) AS "rejectCount",
+
+        COUNT(CASE WHEN oc.CLAIM_TYPE = 1 THEN 1 END) AS "exchangeCount",
+        COUNT(CASE WHEN oc.CLAIM_TYPE = 2 THEN 1 END) AS "returnCount"
+    FROM ORDER_CLAIM oc
+        JOIN FURNITURE f
+            ON oc.F_CODE = f.F_CODE
+    <where>
+        f.C_ID = #{c_id}
+        AND f.C_KIND = #{c_kind}
+
+        <if test="c_name != null and c_name != '' and c_name != 'all'">
+            AND f.C_NAME = #{c_name}
+        </if>
+
+        <if test="startDate != null and startDate != ''">
+            AND oc.CLAIM_CREATEDDATE <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+        </if>
+
+        <if test="endDate != null and endDate != ''">
+            AND oc.CLAIM_CREATEDDATE <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+        </if>
+    </where>
+</select>
+
 </mapper>
+

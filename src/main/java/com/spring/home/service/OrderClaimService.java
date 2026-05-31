@@ -1,6 +1,8 @@
 package com.spring.home.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -194,4 +196,43 @@ public class OrderClaimService {
             throw new RuntimeException("잘못된 교환/반품 상태입니다.");
         }
     }
+
+	public Map<String, Object> getListByCompany(Map<String, Object> params) throws Exception {
+		prepareCompanyClaimSearchParams(params);
+
+		Map<String, Object> result = new HashMap<>();
+		List<Map<String, Object>> claimList = orderClaimMapper.getListByCompany(params);
+		Map<String, Object> statusCounts = orderClaimMapper.getCompanyOrderClaimStatusCounts(params);
+
+		result.put("claimList", claimList);
+		result.put("statusCounts", statusCounts);
+		result.put("totalCount", claimList.isEmpty() ? 0 : claimList.get(0).get("total_count"));
+		result.put("page", params.get("page"));
+		result.put("size", params.get("size"));
+
+		return result;
+	}
+
+	private void prepareCompanyClaimSearchParams(Map<String, Object> params) {
+		int page = parsePositiveInt(params.get("page"), 1);
+		int size = parsePositiveInt(params.get("size"), 10);
+
+		params.put("page", page);
+		params.put("size", size);
+		params.put("offset", (page - 1) * size);
+		params.put("endRow", page * size);
+	}
+
+	private int parsePositiveInt(Object value, int defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		}
+
+		try {
+			int parsedValue = Integer.parseInt(value.toString());
+			return parsedValue > 0 ? parsedValue : defaultValue;
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
 }

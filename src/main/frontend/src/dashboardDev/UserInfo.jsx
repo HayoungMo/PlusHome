@@ -70,6 +70,12 @@ const UserInfo = (props) => {
 
     const [userType,setUserType] = useState("user");
 
+    const [alert,setAlert] = useState({        
+        open: false,
+        severity: "info",
+        title: "",
+        text: "",  
+    })
 
     const [searchInfo,setSearchInfo] = useState({})
 
@@ -124,7 +130,12 @@ const companyColumns = [
 
         if(res.success){
             
-            
+            setAlert({
+        open: true,
+        severity: "success",
+        title: "등록 성공",
+        text: "등록되었습니다.",
+      });
             setUserList(res.list)
             
             setUserStateList(res.list);

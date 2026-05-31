@@ -3,6 +3,7 @@ import { Button, Chip } from "@mui/material";
 import TableMui from "./../components/TableMui";
 import InteriorService from "../service/interiorService";
 import CalendarMui from "../components/CalendarMui";
+import DateRangeFilter from "../components/DateRangeFilter";
 import ToggleButtonMui from "../components/ToggleButtonMui";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -35,9 +36,14 @@ const InteriorScheduleControl = () => {
 	const [selectedSchedule, setSelectedSchedule] = useState(null);
 	const [viewDataType, setViewDataType] = useState("working");
 	const [changeDate, setChangeDate] = useState(dateInit);
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 
 	const [confirmDialogInfo, setConfirmDialogInfo] = useState(dialogInit);
 	const [alertInfo, setAlertInfo] = useState(alertInit);
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const reLoadData = async () => {
 		const result = await InteriorService.getInteriorSchedule({ c_id: id });
@@ -115,11 +121,7 @@ const InteriorScheduleControl = () => {
 	};
 
 	const displayScheduleList = useMemo(() => {
-		if (viewDataType === "all") {
-			return interiorScheduleList;
-		}
-
-		let filterdList = [];
+		let filterdList = interiorScheduleList;
 
 		if (viewDataType === "working") {
 			const todayStart = today.startOf("day");
@@ -173,8 +175,19 @@ const InteriorScheduleControl = () => {
 		if (viewDataType === "canceled") {
 			filterdList = interiorScheduleList.filter((data) => data.b_status === "cancel");
 		}
-		return filterdList;
-	}, [interiorScheduleList, viewDataType, today]);
+		return filterdList.filter((data) => {
+			const scheduleDate = dayjs(data.is_startdate || data.b_createdDate);
+			const matchStart =
+				!dateRange.startDate ||
+				(scheduleDate.isValid() &&
+					!scheduleDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(scheduleDate.isValid() && !scheduleDate.isAfter(dayjs(dateRange.endDate), "day"));
+
+			return !isDateRangeInvalid && matchStart && matchEnd;
+		});
+	}, [interiorScheduleList, viewDataType, today, dateRange, isDateRangeInvalid]);
 
 	const scheduleLabelMap = {
 		id: "예약자 ID",
@@ -216,6 +229,7 @@ const InteriorScheduleControl = () => {
 	const doneCount = interiorScheduleList.filter((data) => data.b_status === "done").length;
 
 	const handleViewType = (event, newAlignment) => {
+		if (newAlignment === null) return;
 		setViewDataType(newAlignment);
 	};
 
@@ -302,6 +316,11 @@ const InteriorScheduleControl = () => {
 						exclusive={true}
 						onChange={handleViewType}
 						ButtonList={toggleButtonList}
+					/>
+					<DateRangeFilter
+						value={dateRange}
+						onChange={setDateRange}
+						isInvalid={Boolean(isDateRangeInvalid)}
 					/>
 				</div>
 			</section>

@@ -12,10 +12,12 @@ import { Select, FormControl, InputLabel, FormHelperText, MenuItem } from "@mui/
  * @param {string} props.name id 및 document name 에 사용될 이름 ( 기본 selectMui )
  * @param {boolean} props.required 필수 여부 ( 기본 false )
  * @param {string} props.width 넓이 ( 기본 200px )
+ * @param {string} props.size 컴포넌트 높이 ( small / medium )
  *
  */
 const SelectMui = (props) => {
 	const {
+		size = "medium",
 		label,
 		value,
 		onChange,
@@ -33,6 +35,7 @@ const SelectMui = (props) => {
 			<FormControl>
 				{label && <InputLabel id={labelId}>{label}</InputLabel>}
 				<Select
+					size={size}
 					labelId={label ? labelId : undefined}
 					name={name}
 					id={selectId}

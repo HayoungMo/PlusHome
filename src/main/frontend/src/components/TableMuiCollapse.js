@@ -17,6 +17,36 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
 
+/**
+ * 접이식 상세 Row를 지원하는 공통 Table 컴포넌트
+ *
+ * MUI Table을 기반으로 만든 Collapse Table 컴포넌트입니다.
+ * 기본 Row를 클릭해 선택할 수 있으며, 화살표 버튼을 통해 하위 상세 영역을 펼치거나 접을 수 있습니다.
+ * hiddenColumns로 특정 컬럼을 숨길 수 있고, columns를 통해 헤더명을 별도로 지정할 수 있습니다.
+ * renderCell, renderCollapse를 전달하면 셀 출력 방식과 상세 영역 렌더링 방식을 직접 커스터마이징할 수 있습니다.
+ *
+ * @param {Object} props
+ * @param {Object[] | Object} [props.rowData=[]] 테이블에 표시할 데이터 배열 또는 단일 객체
+ * @param {string[]} [props.hiddenColumns=[]] 테이블에서 숨길 컬럼 key 목록
+ * @param {string[]} [props.columns=[]] 테이블 헤더에 표시할 이름 목록
+ * @param {string|null} [props.collapseKey=null] 상세 영역에 표시할 하위 데이터 key
+ * @param {string} [props.collapseTitle="상세 정보"] Collapse 영역 상단에 표시할 제목
+ * @param {Function} [props.renderCell] 일반 셀 값을 커스텀 렌더링하는 함수
+ * @param {Function} [props.renderCollapse] Collapse 상세 영역을 커스텀 렌더링하는 함수
+ * @param {Object|null} [props.selectedRow] 현재 선택된 Row 데이터를 담는 state
+ * @param {Function} [props.setSelectedRow] 선택된 Row 데이터를 변경하는 setState 함수
+ * @param {Object[]} [props.buttonData=[]] 각 Row 오른쪽에 표시할 버튼 설정 목록
+ * @param {string} props.buttonData[].key 버튼 컬럼 key
+ * @param {string} props.buttonData[].title 버튼 컬럼 헤더 이름
+ * @param {React.ReactNode} props.buttonData[].icon 버튼 내부에 표시할 아이콘 또는 내용
+ * @param {Function} props.buttonData[].onClick 버튼 클릭 시 실행할 함수
+ * @param {"text" | "outlined" | "contained"} [props.buttonData[].variant] 버튼 형태
+ * @param {"primary" | "secondary" | "success" | "error" | "info" | "warning" | "inherit"} [props.buttonData[].color] 버튼 색상
+ * @param {string[]} [props.collapseColumns] 기본 Collapse Table에 표시할 상세 데이터 key 목록
+ * @param {string[]} [props.collapseColumnLabels=[]] 기본 Collapse Table의 상세 컬럼 헤더 이름 목록
+ *
+ * @returns {JSX.Element} Row 펼침/접힘, Row 선택, 상세 정보 표시를 지원하는 테이블 UI
+ */
 const TableMuiCollapse = ({
 	rowData = [],
 	hiddenColumns = [],

@@ -21,6 +21,7 @@ import { Box, TextField } from "@mui/material";
  * @param {number} props.rows 줄 개수 ( multiline true 필수 )
  * @param {number} props.minRows 최소 줄 개수 ( multiline true 필수 )
  * @param {number} props.maxRows 최대 줄 개수 ( multiline true 필수 )
+ * @param {string} props.size 컴포넌트 높이 ( small / medium )
  *
  */
 const TextFieldMui = (props) => {
@@ -41,6 +42,7 @@ const TextFieldMui = (props) => {
 		rows,
 		minRows,
 		maxRows,
+		size = "medium"
 	} = props;
 
 	return (
@@ -61,6 +63,7 @@ const TextFieldMui = (props) => {
 				rows={rows}
 				minRows={minRows}
 				maxRows={maxRows}
+				size={size}
 				fullWidth></TextField>
 		</Box>
 	);

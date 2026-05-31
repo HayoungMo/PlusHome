@@ -1,12 +1,14 @@
 import { Button } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import AlertMui from "../components/AlertMui";
+import DateRangeFilter from "../components/DateRangeFilter";
 import DialogMui from "../components/DialogMui";
 import FilterBar from "../components/FilterBar";
 import SelectMui from "./../components/SelectMui";
 import TableCheckBoxMui from "../components/TableCheckBoxMui";
 import TabsMui from "./../components/TabsMui";
 import CartService from "../service/cartService";
+import dayjs from "dayjs";
 
 const ShoppingMallOrderControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -30,6 +32,11 @@ const ShoppingMallOrderControl = () => {
 	const [deliveryChangeState, setDeliveryChangeState] = useState(null);
 	const [tempState, setTempState] = useState(null);
 	const [filterBarState, setFilterBarState] = useState({});
+	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const isDateRangeInvalid =
+		dateRange.startDate &&
+		dateRange.endDate &&
+		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -202,13 +209,21 @@ const ShoppingMallOrderControl = () => {
 				if (value === "" || value === null || value === undefined) return true;
 				return data[key] === value;
 			});
+			const orderDate = dayjs(data.cart_paydate || data.cart_statusdate || data.f_createddate);
+			const matchStart =
+				!dateRange.startDate ||
+				(orderDate.isValid() && !orderDate.isBefore(dayjs(dateRange.startDate), "day"));
+			const matchEnd =
+				!dateRange.endDate ||
+				(orderDate.isValid() && !orderDate.isAfter(dayjs(dateRange.endDate), "day"));
+			const matchDateRange = !isDateRangeInvalid && matchStart && matchEnd;
 
-			return matchTab && matchFilter;
+			return matchTab && matchFilter && matchDateRange;
 		});
 		console.log(displayList);
 		setTableDisplayDataList(displayList);
 		setCheckedList([]);
-	}, [orderFurnitureList, tabValue, filterBarState]);
+	}, [orderFurnitureList, tabValue, filterBarState, dateRange, isDateRangeInvalid]);
 
 	return (
 		<div className="shopping-mall-order-page">
@@ -217,6 +232,11 @@ const ShoppingMallOrderControl = () => {
 					filterList={orderFilterList}
 					value={filterBarState}
 					onChange={setFilterBarState}
+				/>
+				<DateRangeFilter
+					value={dateRange}
+					onChange={setDateRange}
+					isInvalid={Boolean(isDateRangeInvalid)}
 				/>
 			</div>
 
@@ -259,7 +279,9 @@ const ShoppingMallOrderControl = () => {
 						pagination
 					/>
 				) : (
-					<div>데이터 없음</div>
+					<div className="shopping-mall-empty-state">
+						선택한 조건에 해당하는 주문이 없습니다.
+					</div>
 				)}
 			</div>
 

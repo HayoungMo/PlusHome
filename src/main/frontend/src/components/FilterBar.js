@@ -26,8 +26,35 @@ const FILTER_TYPE = {
 const getFilterType = (filter) => {
   return filter?.type || FILTER_TYPE.SINGLE;
 };
+
+/**
+ * 필터 바 컴포넌트
+ *
+ * 필터 버튼, 선택된 필터 Chip 목록, 초기화 버튼을 표시하는 공통 필터 UI 컴포넌트입니다.
+ * filterList를 기준으로 필터 항목을 구성하며,
+ * 사용자가 선택한 필터 값은 value 객체로 관리됩니다.
+ * 필터 버튼 클릭 시 FilterListDialog가 열리고,
+ * 선택된 필터는 Chip 형태로 표시되어 개별 삭제할 수 있습니다.
+ *
+ * @param {Object} props
+ * @param {Object[]} [props.filterList=[]] 필터 설정 목록
+ * @param {string} props.filterList[].key 필터 값을 저장할 key
+ * @param {string} props.filterList[].title 필터 화면에 표시할 제목
+ * @param {"single" | "multi"} [props.filterList[].type="single"] 단일 선택 또는 다중 선택 여부
+ * @param {Object[]} [props.filterList[].options=[]] 필터 선택 옵션 목록
+ * @param {string} props.filterList[].options[].title 옵션에 표시할 텍스트
+ * @param {string | number} props.filterList[].options[].value 실제 필터 값
+ * @param {Object} [props.value={}] 현재 선택된 필터 값 객체
+ * @param {Function} [props.onChange] 필터 값 변경 시 실행할 함수
+ * @param {Function} [props.setter] onChange 대신 사용할 수 있는 필터 값 변경 함수
+ * @param {Function} [props.onSubmit] 필터 저장 시 추가로 실행할 함수
+ * @param {React.ReactNode} [props.children] 필터 버튼 앞에 표시할 추가 요소
+ * @param {string} [props.className=""] 최상위 Stack에 추가로 적용할 className
+ *
+ * @returns {JSX.Element} 필터 버튼, 선택된 필터 Chip, 초기화 버튼이 포함된 필터 바 UI
+ */
 const FilterBar = (props) => {
-  const { filterList = [], value = {}, onChange, onSubmit, setter } = props;
+  const { filterList = [], value = {}, onChange, setter, onSubmit, children, className = "" } = props;
   const setFilterValue = onChange || setter;
   const [dialogOpenInFilterBar, setDialogOpenInFilterBar] = useState(false);
   const selectedFilterList = filterList
@@ -93,15 +120,19 @@ const FilterBar = (props) => {
       alignItems="center"
       flexWrap="wrap"
       useFlexGap
+      className={className}
     >
-      <Button
-        variant="outlined"
-        startIcon={<TuneIcon />}
-        disabled={filterList.length === 0}
-        onClick={() => setDialogOpenInFilterBar(true)}
-      >
-        {FILTER_TEXT.filter}
-      </Button>
+      {children}
+
+      {filterList.length > 0 && (
+        <Button
+          variant="outlined"
+          startIcon={<TuneIcon />}
+          onClick={() => setDialogOpenInFilterBar(true)}
+        >
+          {FILTER_TEXT.filter}
+        </Button>
+      )}
 
       {selectedFilterList.map((filter) => (
         <Chip
