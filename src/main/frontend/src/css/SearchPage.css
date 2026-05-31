@@ -1,0 +1,26 @@
+.search-filter-panel {
+    margin-top: 12px;
+    border-bottom: 1px solid #eaedef;
+    padding: 4px 0 12px;
+}
+
+.search-filter-bar {
+    gap: 0;
+}
+
+.search-filter-bar .multi-filterbar-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.search-filter-bar .multi-filterbar-row:last-of-type {
+    border-bottom: 0;
+}
+
+.search-filter-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #eaedef;
+}
