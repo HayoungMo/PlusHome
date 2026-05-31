@@ -233,33 +233,80 @@ update users
     </trim>                   
 </select>
 
-<!-- 일반 유저 / 기업유저 count -->
+<select id="getDevDashboardSummary"
+        resultType="com.spring.home.dto.DevDashBoardSummaryDTO">
 
-<select id="getUserCount" resultType="int">
-	select count(*)
-	  from users
-	  where type = 'user'
-	  and joined = 'Y'
-</select>
+    SELECT
 
-<select id="getCompanyCount" resultType="int">
-	select count(*)
-	  from users
-	 where type = 'company'
-	 and joined = 'Y'
-</select>
+        <!-- 가입 일반회원 -->
+        (SELECT COUNT(*)
+           FROM USERS
+          WHERE TYPE = 'user'
+            AND JOINED = 'Y'
+        ) AS userCount,
 
-<select id="getNotJoinedUserCount">
-	select count(*)
-	from users
-	where joined = 'N'
-</select>
+        <!-- 가입 기업회원 -->
+        (SELECT COUNT(*)
+           FROM USERS
+          WHERE TYPE = 'company'
+            AND JOINED = 'Y'
+        ) AS companyCount,
 
-<select id="getNotJoinedCompanyCount">
-	select count(*)
-	from users
-	where joined = 'N'
-	and type = 'company'
+        <!-- 탈퇴 일반회원 -->
+        (SELECT COUNT(*)
+           FROM USERS
+          WHERE TYPE = 'user'
+            AND JOINED = 'N'
+        ) AS notJoinedUserCount,
+
+        <!-- 탈퇴 기업회원 -->
+        (SELECT COUNT(*)
+           FROM USERS
+          WHERE TYPE = 'company'
+            AND JOINED = 'N'
+        ) AS notJoinedCompanyCount,
+
+        <!-- 쿠폰 개수 -->
+        (SELECT COUNT(*)
+           FROM COUPON
+        ) AS couponCount,
+
+        <!-- 전체 상담 -->
+        (SELECT COUNT(*)
+           FROM BOOKING
+        ) AS bookingCount,
+
+        <!-- 진행중 상담 -->
+        (SELECT COUNT(*)
+           FROM BOOKING
+          WHERE B_STATUS IN (
+              'pending',
+              'quoting',
+              'confirmed',
+              'working'
+          )
+        ) AS progressCount,
+
+        <!-- 완료 상담 -->
+        (SELECT COUNT(*)
+           FROM BOOKING
+          WHERE B_STATUS = 'done'
+        ) AS doneCount,
+
+        <!-- 취소 상담 -->
+        (SELECT COUNT(*)
+           FROM BOOKING
+          WHERE B_STATUS = 'cancel'
+        ) AS cancelCount,
+        
+        <!-- 오늘 상담 신청 -->
+        (SELECT COUNT(*)
+        	FROM BOOKING
+        	WHERE TRUNC(B_CREATEDDATE) = TRUNC(SYSDATE)
+        	) AS todayBookingCount
+
+    FROM DUAL
+
 </select>
 
 

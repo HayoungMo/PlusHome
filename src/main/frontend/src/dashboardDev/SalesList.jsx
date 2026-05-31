@@ -1,7 +1,7 @@
 import React, { useEffect,useState } from 'react';
 import userService from '../service/userService';
 import TableChkMui from '../components/TableChkMui';
-import { Button } from '@mui/material';
+import { Button, Card, CardContent, Grid, Typography } from '@mui/material';
 import TableMui from '../components/TableMui';
 
 const Saleslist = () => {
@@ -20,6 +20,20 @@ const Saleslist = () => {
     const [category2SelectedRow,setCategory2SelectedRow] = useState(null)
     const [category3SelectedRow,setCategory3SelectedRow] = useState(null)
     const [category4SelectedRow,setCategory4SelectedRow] = useState(null)
+
+    let totalCount = 0
+
+    for (let item of statisticsList){
+        totalCount +=item.f_count || 0
+    }
+
+     let totalPrice = 0
+
+    for (let item of statisticsList){
+
+        console.log(item)
+        totalPrice +=item.f_price || 0
+    }
 
     const loadStatistics = async() =>{
         try {
@@ -118,6 +132,44 @@ const Saleslist = () => {
 
     return (
         <div>
+
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid item xs={12} md={6}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6">
+                                총 판매 건수
+                            </Typography>
+
+                            <Typography
+                                variant="h4"
+                                fontWeight="bold"
+                            >
+                                {totalCount.toLocaleString()} 건
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6">
+                                총 매출액
+                            </Typography>
+
+                            <Typography
+                                variant="h4"
+                                fontWeight="bold"
+                            >
+                                {totalPrice.toLocaleString()} 원
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+
             <h2>카테고리별 판매 통계</h2>
 
             <TableMui

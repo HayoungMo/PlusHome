@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
+import com.spring.home.dto.DevDashBoardSummaryDTO;
 import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.UserDTO;
 
@@ -63,6 +64,8 @@ public interface UserMapper {
 	public int getNotJoinedUserCount()throws Exception;
 	
 	public int getNotJoinedCompanyCount()throws Exception;
+	
+	public DevDashBoardSummaryDTO getDevDashboardSummary()throws Exception;
 	
 	
 	

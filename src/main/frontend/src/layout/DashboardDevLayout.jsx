@@ -10,6 +10,7 @@ import CouponList from "../dashboardDev/CouponList";
 import CouponListDev from "../components/CouponListDev";
 import Coupon from "../pages/Coupon";
 import DevDashboardHeader from "./DevDashBoardHeader";
+import InteriorList from "../dashboardDev/InteriorList";
 
 const DashboardDevLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -56,6 +57,21 @@ const DashboardDevLayout = () => {
 				component:(
 					<CouponList/>
 					
+
+				)
+
+			},
+
+
+
+		],
+
+		interior:[
+			{
+				key:"InteriorList",
+				label:"인테리어 상담 통계",
+				component:(
+					<InteriorList/>
 
 				)
 
