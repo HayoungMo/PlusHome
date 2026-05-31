@@ -136,7 +136,7 @@ const TableCheckBoxMui = (props) => {
 									backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
 									cursor: setSelectedRow ? "pointer" : "default",
 								}}>
-								<StyledTableCell align="center">
+								<StyledTableCell align="center" onClick={(event) => event.stopPropagation()}>
 									<Checkbox
 										checked={isChecked}
 										onChange={(event) => handleRowCheck(event, row, rowIndex)}
