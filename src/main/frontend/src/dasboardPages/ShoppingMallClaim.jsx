@@ -10,6 +10,7 @@ import ImageService from "../service/imageService";
 import OrderClaimService from "../service/orderClaimService";
 import "../css/DashboardShoppingMall.css";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
 
 const TEXT = {
 	statusRequest: "신청완료",
@@ -119,6 +120,8 @@ const ShoppingMallClaim = () => {
 	const userData = localUserData ? JSON.parse(localUserData) : {};
 	const { id, companyList = [] } = userData;
 
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("교환/반품 신청 목록을 불러오는 중입니다...");
 	const [selectedNewClaim, setSelectedNewClaim] = useState({});
 	const [selectedManagedClaim, setSelectedManagedClaim] = useState({});
 	const [claimStatus, setClaimStatus] = useState("all");
@@ -222,76 +225,117 @@ const ShoppingMallClaim = () => {
 		[claimList, claimStatus],
 	);
 
-	const reloadData = useCallback(async () => {
-		if (isDateRangeInvalid) {
-			setClaimList([]);
-			setStatusCounts({});
-			setTotalCount(0);
-			setClaimImageMap({});
-			setAlertInfo({
-				severity: "warning",
-				title: TEXT.dateRangeFail,
-				text: "시작일은 종료일보다 늦을 수 없습니다.",
-				open: true,
-			});
-			return;
-		}
+	const reloadData = useCallback(
+		async (showLoading = true) => {
+			if (showLoading) {
+				setIsLoading(true);
+				setLoadingText("교환/반품 신청 목록을 불러오는 중입니다...");
+			}
 
-		const result = await OrderClaimService.getListByCompany(requestParams);
-		const isSuccess = result.success;
-		const nextClaimList = isSuccess ? result.claimList || [] : [];
+			try {
+				if (isDateRangeInvalid) {
+					setClaimList([]);
+					setStatusCounts({});
+					setTotalCount(0);
+					setClaimImageMap({});
+					setAlertInfo({
+						severity: "warning",
+						title: TEXT.dateRangeFail,
+						text: "시작일은 종료일보다 늦을 수 없습니다.",
+						open: true,
+					});
+					return;
+				}
 
-		setClaimList(nextClaimList);
-		setStatusCounts(isSuccess ? result.statusCounts || {} : {});
-		setTotalCount(Number(result.totalCount || 0));
-		setClaimImageMap({});
-		setAlertInfo({
-			severity: nextClaimList.length > 0 ? "success" : isSuccess ? "info" : "error",
-			title: nextClaimList.length > 0 ? TEXT.success : isSuccess ? TEXT.empty : TEXT.fail,
-			text: result.message,
-			open: true,
-		});
+				const result = await OrderClaimService.getListByCompany(requestParams);
+				const isSuccess = result.success;
+				const nextClaimList = isSuccess ? result.claimList || [] : [];
 
-		if (!isSuccess || nextClaimList.length === 0) return;
+				setClaimList(nextClaimList);
+				setStatusCounts(isSuccess ? result.statusCounts || {} : {});
+				setTotalCount(Number(result.totalCount || 0));
+				setClaimImageMap({});
 
-		try {
-			setIsImageLoading(true);
-			const imageList = await ImageService.getImageData({
-				kind: "CLAIM",
-				range: "ALL",
-				idx: -1,
-			});
-			const claimKeySet = new Set(
-				nextClaimList.map((record) => getClaimImageKey(record.claim_code, record.id)),
-			);
-			const nextImageMap = (imageList || []).reduce((acc, image) => {
-				const imageKey = getClaimImageKey(image.dir_a, image.dir_d);
+				setAlertInfo({
+					severity: nextClaimList.length > 0 ? "success" : isSuccess ? "info" : "error",
+					title:
+						nextClaimList.length > 0
+							? TEXT.success
+							: isSuccess
+								? TEXT.empty
+								: TEXT.fail,
+					text: result.message,
+					open: true,
+				});
 
-				if (!claimKeySet.has(imageKey)) return acc;
+				if (!isSuccess || nextClaimList.length === 0) return;
 
-				return {
-					...acc,
-					[imageKey]: [...(acc[imageKey] || []), image],
-				};
-			}, {});
+				try {
+					setIsImageLoading(true);
 
-			Object.keys(nextImageMap).forEach((imageKey) => {
-				nextImageMap[imageKey] = sortClaimImages(nextImageMap[imageKey]);
-			});
+					const imageList = await ImageService.getImageData({
+						kind: "CLAIM",
+						range: "ALL",
+						idx: -1,
+					});
 
-			setClaimImageMap(nextImageMap);
-		} catch (error) {
-			setClaimImageMap({});
-			setAlertInfo({
-				severity: "error",
-				title: TEXT.fail,
-				text: "첨부 이미지를 불러오는 중 오류가 발생했습니다.",
-				open: true,
-			});
-		} finally {
-			setIsImageLoading(false);
-		}
-	}, [isDateRangeInvalid, requestParams]);
+					const claimKeySet = new Set(
+						nextClaimList.map((record) =>
+							getClaimImageKey(record.claim_code, record.id),
+						),
+					);
+
+					const nextImageMap = (imageList || []).reduce((acc, image) => {
+						const imageKey = getClaimImageKey(image.dir_a, image.dir_d);
+
+						if (!claimKeySet.has(imageKey)) return acc;
+
+						return {
+							...acc,
+							[imageKey]: [...(acc[imageKey] || []), image],
+						};
+					}, {});
+
+					Object.keys(nextImageMap).forEach((imageKey) => {
+						nextImageMap[imageKey] = sortClaimImages(nextImageMap[imageKey]);
+					});
+
+					setClaimImageMap(nextImageMap);
+				} catch (error) {
+					console.error(error);
+
+					setClaimImageMap({});
+					setAlertInfo({
+						severity: "error",
+						title: TEXT.fail,
+						text: "첨부 이미지를 불러오는 중 오류가 발생했습니다.",
+						open: true,
+					});
+				} finally {
+					setIsImageLoading(false);
+				}
+			} catch (error) {
+				console.error(error);
+
+				setClaimList([]);
+				setStatusCounts({});
+				setTotalCount(0);
+				setClaimImageMap({});
+
+				setAlertInfo({
+					severity: "error",
+					title: TEXT.fail,
+					text: "교환/반품 신청 목록을 불러오는 중 오류가 발생했습니다.",
+					open: true,
+				});
+			} finally {
+				if (showLoading) {
+					setIsLoading(false);
+				}
+			}
+		},
+		[isDateRangeInvalid, requestParams],
+	);
 
 	useEffect(() => {
 		reloadData();
@@ -324,17 +368,25 @@ const ShoppingMallClaim = () => {
 
 			if (!claimCode) return;
 
+			setIsLoading(true);
+			setLoadingText("신규 신청을 접수 처리하는 중입니다...");
+
 			try {
 				setAcceptingClaimCode(claimCode);
+
 				await OrderClaimService.updateClaim({
 					claim_code: claimCode,
 					claim_type: Number(row.claim_type),
 					claim_status: 1,
 				});
+
 				setSelectedNewClaim({});
 				setSelectedManagedClaim({});
 				setClaimStatus("all");
-				await reloadData();
+
+				setLoadingText("교환/반품 신청 목록을 다시 불러오는 중입니다...");
+				await reloadData(false);
+
 				setAlertInfo({
 					severity: "success",
 					title: TEXT.acceptSuccess,
@@ -350,6 +402,7 @@ const ShoppingMallClaim = () => {
 				});
 			} finally {
 				setAcceptingClaimCode("");
+				setIsLoading(false);
 			}
 		},
 		[reloadData],
@@ -362,12 +415,11 @@ const ShoppingMallClaim = () => {
 				variant: "contained",
 				color: "primary",
 				onClick: handleAcceptClaim,
-				disabled: Boolean(acceptingClaimCode),
+				disabled: Boolean(acceptingClaimCode) || isLoading,
 			},
 		],
-		[acceptingClaimCode, handleAcceptClaim],
+		[acceptingClaimCode, handleAcceptClaim, isLoading],
 	);
-
 	const handleBulkStatusChange = useCallback(
 		async (nextStatus) => {
 			const selectedClaims = managedClaimList.filter((record) =>
@@ -384,8 +436,12 @@ const ShoppingMallClaim = () => {
 				return;
 			}
 
+			setIsLoading(true);
+			setLoadingText("선택한 신청 건의 상태를 변경하는 중입니다...");
+
 			try {
 				setUpdatingStatus(nextStatus);
+
 				await OrderClaimService.updateBulk(
 					selectedClaims.map((record) => ({
 						claim_code: record.claim_code,
@@ -393,10 +449,14 @@ const ShoppingMallClaim = () => {
 						claim_status: nextStatus,
 					})),
 				);
+
 				setSelectedManagedClaim({});
 				setCheckedClaimCodes([]);
 				setClaimStatus(String(nextStatus));
-				await reloadData();
+
+				setLoadingText("교환/반품 신청 목록을 다시 불러오는 중입니다...");
+				await reloadData(false);
+
 				setAlertInfo({
 					severity: "success",
 					title: TEXT.bulkSuccess,
@@ -412,12 +472,14 @@ const ShoppingMallClaim = () => {
 				});
 			} finally {
 				setUpdatingStatus(null);
+				setIsLoading(false);
 			}
 		},
 		[checkedClaimCodes, managedClaimList, reloadData],
 	);
 
-	const isBulkActionDisabled = checkedClaimCodes.length === 0 || updatingStatus !== null;
+	const isBulkActionDisabled =
+		checkedClaimCodes.length === 0 || updatingStatus !== null || isLoading;
 
 	return (
 		<div className="shopping-mall-claim-page">
@@ -476,7 +538,9 @@ const ShoppingMallClaim = () => {
 				</div>
 
 				<div className="shopping-mall-claim-table">
-					{newClaimList.length > 0 ? (
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : newClaimList.length > 0 ? (
 						<TableMui
 							rowData={newClaimList}
 							col={newClaimTableColumns}
@@ -540,7 +604,9 @@ const ShoppingMallClaim = () => {
 				</div>
 
 				<div className="shopping-mall-claim-table">
-					{managedClaimList.length > 0 ? (
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : managedClaimList.length > 0 ? (
 						<TableCheckBoxMui
 							rowData={managedClaimList}
 							col={managedTableColumns}
@@ -628,7 +694,9 @@ const ShoppingMallClaim = () => {
 
 							<div className="shopping-mall-claim-images">
 								{isImageLoading ? (
-									<div className="shopping-mall-claim-empty">{TEXT.imageLoading}</div>
+									<div className="shopping-mall-claim-empty">
+										{TEXT.imageLoading}
+									</div>
 								) : selectedClaimImages.length > 0 ? (
 									selectedClaimImages.map((image) => (
 										<button
@@ -643,7 +711,9 @@ const ShoppingMallClaim = () => {
 										</button>
 									))
 								) : (
-									<div className="shopping-mall-claim-empty">{TEXT.imageEmpty}</div>
+									<div className="shopping-mall-claim-empty">
+										{TEXT.imageEmpty}
+									</div>
 								)}
 							</div>
 						</div>

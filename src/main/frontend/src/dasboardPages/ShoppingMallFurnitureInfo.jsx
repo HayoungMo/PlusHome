@@ -9,6 +9,7 @@ import {
 	DialogTitle,
 	Tab,
 	Tabs,
+	Pagination,
 } from "@mui/material";
 import TableMui from "./../components/TableMui";
 import FurnitureService from "../service/furnitureService";
@@ -18,6 +19,7 @@ import FurnitureUpdatePage from "./../pages/FurnitureUpdatePage";
 import DialogMui from "../components/DialogMui";
 import TabsMui from "../components/TabsMui";
 import dayjs from "dayjs";
+import SkeletonMui from "../components/SkeletonMui";
 
 const ShoppingMallFurnitureInfo = () => {
 	const localUserData = localStorage.getItem("user");
@@ -48,6 +50,14 @@ const ShoppingMallFurnitureInfo = () => {
 	const [selectedFurniture, setSelectedFurniture] = useState(null);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
+	const [furnitureLoading, setFurnitureLoading] = useState(false);
+	const [imageLoading, setImageLoading] = useState(false);
+
+	const [page, setPage] = useState(1);
+	const [rowsPerPage, setRowsPerPage] = useState(5);
+
+	const isProductLoading = furnitureLoading || imageLoading;
+
 	const dialogDeleteConfirmButtonList = [
 		{
 			title: "Cancel",
@@ -65,10 +75,9 @@ const ShoppingMallFurnitureInfo = () => {
 
 	const handleTabChange = (event, newValue) => {
 		setTabValue(newValue);
-
 		const selectedCompany = shopListState.find((record) => record.c_name === newValue);
-
 		setSelectedTabCompany(selectedCompany);
+		setPage(1);
 	};
 
 	const handleFurnitureDelete = async () => {
@@ -103,37 +112,89 @@ const ShoppingMallFurnitureInfo = () => {
 		setAlertOpen(!alertOpen);
 	};
 
-	const reloadFurnitureList = async () => {
-		FurnitureService.getFurnitureByUserId(id).then((res) => {
-			if (res.success === false) setAlertInfo({ severity: "error", text: res.message });
-			else if (res.furnitureList == null) {
-				setAlertInfo({ severity: "info", text: res.message });
-				setAllFurnitureList([]);
-			}
-
-			if (res.success === true && res.furnitureList !== null) {
-				setAlertInfo({ severity: "success", text: res.message });
-				setAllFurnitureList(res.furnitureList);
-			}
-			setAlertOpen(!alertOpen);
-		});
+	const handlePageChange = (event, value) => {
+		setPage(value);
 	};
 
-	useEffect(() => {
-		console.log("useEffect [allFurnitureList] ===================");
+	const reloadFurnitureList = async () => {
+		setFurnitureLoading(true);
 
+		try {
+			const res = await FurnitureService.getFurnitureByUserId(id);
+
+			if (res.success === false) {
+				setAlertInfo({
+					severity: "error",
+					text: res.message,
+				});
+				setAllFurnitureList([]);
+				return;
+			}
+
+			if (res.furnitureList == null) {
+				setAlertInfo({
+					severity: "info",
+					text: res.message,
+				});
+				setAllFurnitureList([]);
+				return;
+			}
+
+			setAlertInfo({
+				severity: "success",
+				text: res.message,
+			});
+			setAllFurnitureList(res.furnitureList);
+		} catch (error) {
+			setAlertInfo({
+				severity: "error",
+				title: "에러 발생",
+				text: String(error),
+			});
+			setAllFurnitureList([]);
+		} finally {
+			setFurnitureLoading(false);
+			setAlertOpen(true);
+		}
+	};
+
+	const selectedTabCompanyFurnitureList = useMemo(() => {
+		if (tabValue === "all") {
+			return allFurnitureImgList;
+		}
+
+		return allFurnitureImgList.filter((item) => item.c_name === tabValue);
+	}, [allFurnitureImgList, tabValue]);
+
+	const pageCount = useMemo(() => {
+		return Math.ceil(selectedTabCompanyFurnitureList.length / rowsPerPage);
+	}, [selectedTabCompanyFurnitureList.length, rowsPerPage]);
+
+	const visibleFurnitureList = useMemo(() => {
+		const startIndex = (page - 1) * rowsPerPage;
+		const endIndex = startIndex + rowsPerPage;
+
+		return selectedTabCompanyFurnitureList.slice(startIndex, endIndex);
+	}, [selectedTabCompanyFurnitureList, page, rowsPerPage]);
+
+	useEffect(() => {
 		const makeImgDirInFurnitureList = async () => {
+			setImageLoading(true);
+
 			try {
 				const imgDirInFurnitureList = await getImgFurnitureList(allFurnitureList);
 				setAllFurnitureImgList(imgDirInFurnitureList);
 			} catch (error) {
 				console.error("데이터 로드 실패:", error);
 				setAllFurnitureImgList([]);
+			} finally {
+				setImageLoading(false);
 			}
 		};
 
 		if (allFurnitureList.length === 0) {
 			setAllFurnitureImgList([]);
+			setImageLoading(false);
 			return;
 		}
 
@@ -144,13 +205,23 @@ const ShoppingMallFurnitureInfo = () => {
 		reloadFurnitureList();
 	}, [id]);
 
-	const selectedTabCompanyFurnitureList = useMemo(() => {
-		if (tabValue === "all") {
-			return allFurnitureImgList;
+	useEffect(() => {
+		if (selectedTabCompanyFurnitureList.length === 0) {
+			if (page !== 1) {
+				setPage(1);
+			}
+			return;
 		}
 
-		return allFurnitureImgList.filter((item) => item.c_name === tabValue);
-	}, [allFurnitureImgList, tabValue]);
+		if (page < 1) {
+			setPage(1);
+			return;
+		}
+
+		if (page > pageCount) {
+			setPage(pageCount);
+		}
+	}, [selectedTabCompanyFurnitureList.length, page, pageCount]);
 
 	const FurnitureInfoDiv = ({ furniture }) => {
 		const {
@@ -241,17 +312,29 @@ const ShoppingMallFurnitureInfo = () => {
 				)}
 			</div>
 			<div className="shopping-mall-product-list">
-				{selectedTabCompanyFurnitureList?.length > 0 ? (
-					selectedTabCompanyFurnitureList.map((record) => (
+				{isProductLoading ? (
+					<SkeletonMui variant="shoppingMallProductCard" count={rowsPerPage} />
+				) : selectedTabCompanyFurnitureList?.length > 0 ? (
+					visibleFurnitureList.map((record) => (
 						<FurnitureInfoDiv key={record.f_code} furniture={record} />
 					))
 				) : (
-					<div className="shopping-mall-empty-state">
-						등록된 쇼핑몰 상품이 없습니다.
-					</div>
+					<div className="shopping-mall-empty-state">등록된 쇼핑몰 상품이 없습니다.</div>
 				)}
-				{/* <TableMui rowData={selectedTabCompanyFurnitureList} /> */}
 			</div>
+			{!isProductLoading && selectedTabCompanyFurnitureList.length > 0 && (
+				<div className="shopping-mall-product-pagination">
+					<Pagination
+						count={pageCount}
+						page={page}
+						onChange={handlePageChange}
+						color="primary"
+						shape="rounded"
+						showFirstButton
+						showLastButton
+					/>
+				</div>
+			)}
 			<div className="shopping-mall-product-footer">
 				{tabValue !== "all" && (
 					<Button

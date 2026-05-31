@@ -8,6 +8,7 @@ import SelectMui from "./../components/SelectMui";
 import TableCheckBoxMui from "../components/TableCheckBoxMui";
 import TabsMui from "./../components/TabsMui";
 import CartService from "../service/cartService";
+import Loading from "../components/Loading";
 import dayjs from "dayjs";
 
 const ShoppingMallOrderControl = () => {
@@ -21,6 +22,8 @@ const ShoppingMallOrderControl = () => {
 		text: "",
 	};
 
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("주문 목록을 불러오는 중입니다...");
 	const [tabValue, setTabValue] = useState(0);
 	const [orderFurnitureList, setOrderFurnitureList] = useState([]);
 	const [tableDisplayDataList, setTableDisplayDataList] = useState([]);
@@ -149,21 +152,38 @@ const ShoppingMallOrderControl = () => {
 	};
 
 	const reLoadServerData = useCallback(async () => {
-		CartService.getOrderFurnitureList({
-			c_id: id,
-			f_catagory1: "reload",
-		}).then((res) => {
+		setIsLoading(true);
+		setLoadingText("주문 목록을 불러오는 중입니다...");
+
+		try {
+			const res = await CartService.getOrderFurnitureList({
+				c_id: id,
+				f_catagory1: "reload",
+			});
+
 			if (res.success === false) {
 				setAlertInfo({ severity: "error", text: res.message });
+				setOrderFurnitureList([]);
 			} else if (res.cartList == null) {
 				setAlertInfo({ severity: "info", text: res.message });
+				setOrderFurnitureList([]);
 			} else {
 				setAlertInfo({ severity: "success", text: res.message });
 				setOrderFurnitureList(res.cartList);
 			}
 
 			setAlertOpen(true);
-		});
+		} catch (error) {
+			console.error(error);
+			setAlertInfo({
+				severity: "error",
+				text: "주문 목록을 불러오는 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+			setOrderFurnitureList([]);
+		} finally {
+			setIsLoading(false);
+		}
 	}, [id]);
 
 	const handleChangeDeliveryState = () => {
@@ -183,19 +203,34 @@ const ShoppingMallOrderControl = () => {
 		}));
 
 		setDeliveryStateChangeConfirmOpen(false);
+		setIsLoading(true);
+		setLoadingText("배송 상태를 변경하는 중입니다...");
 
-		CartService.changeDeliveryState(dtoList).then((res) => {
+		try {
+			const res = await CartService.changeDeliveryState(dtoList);
+
 			if (res.success === false) {
 				setAlertInfo({ severity: "error", text: res.message });
+				setAlertOpen(true);
+				return;
 			}
 
 			if (res.success === true && res.cartList !== null) {
 				setAlertInfo({ severity: "success", text: res.message });
+				setAlertOpen(true);
 			}
 
+			await reLoadServerData();
+		} catch (error) {
+			console.error(error);
+			setAlertInfo({
+				severity: "error",
+				text: "배송 상태 변경 중 오류가 발생했습니다.",
+			});
 			setAlertOpen(true);
-			reLoadServerData();
-		});
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	useEffect(() => {
@@ -209,7 +244,9 @@ const ShoppingMallOrderControl = () => {
 				if (value === "" || value === null || value === undefined) return true;
 				return data[key] === value;
 			});
-			const orderDate = dayjs(data.cart_paydate || data.cart_statusdate || data.f_createddate);
+			const orderDate = dayjs(
+				data.cart_paydate || data.cart_statusdate || data.f_createddate,
+			);
 			const matchStart =
 				!dateRange.startDate ||
 				(orderDate.isValid() && !orderDate.isBefore(dayjs(dateRange.startDate), "day"));
@@ -252,7 +289,9 @@ const ShoppingMallOrderControl = () => {
 			</div>
 
 			<div className="shopping-mall-order-table">
-				{tableDisplayDataList?.length > 0 ? (
+				{isLoading ? (
+					<Loading message={loadingText} />
+				) : tableDisplayDataList?.length > 0 ? (
 					<TableCheckBoxMui
 						rowData={tableDisplayDataList}
 						col={[

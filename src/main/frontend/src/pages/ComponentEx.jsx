@@ -261,7 +261,7 @@ const ComponentEx = () => {
           <h3>AlertMui</h3>
           {alertOpen && (
             <AlertMui
-              severity="sucess"
+              severity="success"
               title="성공"
               text="저장이 완료되었습니다."
               onClose={() => setAlertOpen(false)}
@@ -287,7 +287,7 @@ const ComponentEx = () => {
           <button onClick={() => setDialogOpen(true)}>다이얼로그 열기</button>
           {dialogAlertOpen && (
             <AlertMui
-              severity="sucess"
+              severity="success"
               title="완료"
               text="확인되었습니다."
               onClose={() => setDialogAlertOpen(false)}

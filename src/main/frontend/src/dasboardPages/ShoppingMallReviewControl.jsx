@@ -13,6 +13,7 @@ import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import "../css/DashboardShoppingMall.css";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
 
 const ShoppingMallReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -37,6 +38,8 @@ const ShoppingMallReviewControl = () => {
 		text: "",
 	};
 
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("리뷰 목록을 불러오는 중입니다...");
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
 	const [furnitureList, setFurnitureList] = useState([]);
 	const [reviewList, setReviewList] = useState([]);
@@ -166,35 +169,67 @@ const ShoppingMallReviewControl = () => {
 
 	const formatWon = (value) => `${Number(value || 0).toLocaleString()}원`;
 
-	const reLoadData = async () => {
+	const reLoadData = async (showLoading = true) => {
 		console.log("===== reLoadData =====");
-		const result = await FurnitureService.getFurnitureByUserId(id);
 
-		if (!result || !result?.furnitureList) return;
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("리뷰 목록을 불러오는 중입니다...");
+		}
 
-		const withThumbnail = await getImgFurnitureList(result.furnitureList);
+		try {
+			const result = await FurnitureService.getFurnitureByUserId(id);
 
-		console.log(withThumbnail);
+			if (!result || !result?.furnitureList) {
+				setFurnitureList([]);
+				setReviewList([]);
+				setReplyList([]);
+				return;
+			}
 
-		setFurnitureList(withThumbnail);
+			const withThumbnail = await getImgFurnitureList(result.furnitureList);
 
-		const selectReviewList = [];
-		const selectReplyList = [];
+			setFurnitureList(withThumbnail);
 
-		for (const element of result.furnitureList) {
-			const res = await FurnitureReviewService.selectReview({ f_code: element.f_code });
-			if (res.data && Array.isArray(res.data)) {
-				res.data.forEach((review) => {
-					if (Number(review.fr_idx) < 0) {
-						selectReplyList.push(review);
-					} else {
-						selectReviewList.push(review);
-					}
+			const selectReviewList = [];
+			const selectReplyList = [];
+
+			for (const element of result.furnitureList) {
+				const res = await FurnitureReviewService.selectReview({
+					f_code: element.f_code,
 				});
+
+				if (res.data && Array.isArray(res.data)) {
+					res.data.forEach((review) => {
+						if (Number(review.fr_idx) < 0) {
+							selectReplyList.push(review);
+						} else {
+							selectReviewList.push(review);
+						}
+					});
+				}
+			}
+
+			setReviewList(selectReviewList);
+			setReplyList(selectReplyList);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "조회 실패",
+				text: "리뷰 목록을 불러오는 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+
+			setFurnitureList([]);
+			setReviewList([]);
+			setReplyList([]);
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
 			}
 		}
-		setReviewList(selectReviewList);
-		setReplyList(selectReplyList);
 	};
 
 	const cancelWriteReply = () => {
@@ -210,6 +245,9 @@ const ShoppingMallReviewControl = () => {
 	const handleReplySave = async () => {
 		const saveType = selectedReply.fr_idx !== 0;
 
+		setIsLoading(true);
+		setLoadingText("답글을 저장하는 중입니다...");
+
 		try {
 			const result = saveType
 				? await FurnitureReviewService.updateReplyOnDashboard(selectedReply)
@@ -217,6 +255,7 @@ const ShoppingMallReviewControl = () => {
 						selectedReply,
 						selectedReview,
 					);
+
 			if (result.success) {
 				setAlertInfo({
 					severity: "success",
@@ -230,20 +269,25 @@ const ShoppingMallReviewControl = () => {
 					text: result.message,
 				});
 			}
-			console.log(result);
+
+			setSelectedReply(initReviewAndReply);
+			setSelectedReview(initReviewAndReply);
+
+			setLoadingText("리뷰 목록을 다시 불러오는 중입니다...");
+			await reLoadData(false);
 		} catch (error) {
+			console.error(error);
+
 			setAlertInfo({
 				severity: "error",
 				title: "오류 발생",
-				text: error,
+				text: "답글 저장 중 오류가 발생했습니다.",
 			});
-			console.log(error);
+		} finally {
+			setConfirmOpen(false);
+			setAlertOpen(true);
+			setIsLoading(false);
 		}
-		setSelectedReply(initReviewAndReply);
-		setSelectedReview(initReviewAndReply);
-		reLoadData();
-		setConfirmOpen(!confirmOpen);
-		setAlertOpen(!alertOpen);
 	};
 
 	const dialogUpdateConfirmButtonList = [
@@ -385,7 +429,9 @@ const ShoppingMallReviewControl = () => {
 				)}
 
 				<div className="shopping-mall-review-table">
-					{displayReviewList?.length > 0 ? (
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : displayReviewList?.length > 0 ? (
 						<TableMui
 							rowData={displayReviewList}
 							col={["id", "fr_star", "fr_subject", "f_name", "c_id", "f_code"]}

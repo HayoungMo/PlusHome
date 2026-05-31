@@ -499,6 +499,14 @@
 	color: #64748b;
 }
 
+.shopping-mall-product-pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 28px;
+	margin-bottom: 20px;
+}
+
 .shopping-mall-review-table {
 	width: 100%;
 	overflow-x: auto;

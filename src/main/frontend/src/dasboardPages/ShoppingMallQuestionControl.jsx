@@ -10,6 +10,7 @@ import DialogMui from "../components/DialogMui";
 import TabsMui from "./../components/TabsMui";
 import "../css/DashboardShoppingMall.css";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
 
 const ShoppingMallQuestionControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -18,6 +19,8 @@ const ShoppingMallQuestionControl = () => {
 
 	const initAlertInfo = { severity: "", title: "", text: "" };
 
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("문의 목록을 불러오는 중입니다...");
 	const [tabValue, setTabValue] = useState("all");
 	const [selectedTabCompany, setSelectedTabCompany] = useState(null);
 	const [selectedRow, setSelectedRow] = useState(null);
@@ -52,7 +55,8 @@ const ShoppingMallQuestionControl = () => {
 						!questionDate.isBefore(dayjs(dateRange.startDate), "day"));
 				const matchEnd =
 					!dateRange.endDate ||
-					(questionDate.isValid() && !questionDate.isAfter(dayjs(dateRange.endDate), "day"));
+					(questionDate.isValid() &&
+						!questionDate.isAfter(dayjs(dateRange.endDate), "day"));
 
 				return matchTab && !isDateRangeInvalid && matchStart && matchEnd;
 			})
@@ -74,7 +78,8 @@ const ShoppingMallQuestionControl = () => {
 						!questionDate.isBefore(dayjs(dateRange.startDate), "day"));
 				const matchEnd =
 					!dateRange.endDate ||
-					(questionDate.isValid() && !questionDate.isAfter(dayjs(dateRange.endDate), "day"));
+					(questionDate.isValid() &&
+						!questionDate.isAfter(dayjs(dateRange.endDate), "day"));
 
 				return matchTab && !isDateRangeInvalid && matchStart && matchEnd;
 			})
@@ -107,26 +112,63 @@ const ShoppingMallQuestionControl = () => {
 		setSelectedRow(null);
 	}, [dateRange]);
 
-	const reloadData = async () => {
-		const result = await questionService.getQuestionListsWithImage(id);
+	const reloadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("문의 목록을 불러오는 중입니다...");
+		}
 
-		if (result.success === false) {
-			setAlertInfo({ severity: "error", text: result.message });
-			setAlertOpen(true);
-		} else if (result.listSize === 0) {
-			setAlertInfo({ severity: "info", text: result.message });
-			setAlertOpen(true);
-			setAllQuestionList([]);
-		} else {
+		try {
+			const result = await questionService.getQuestionListsWithImage(id);
+
+			if (result.success === false) {
+				setAlertInfo({
+					severity: "error",
+					title: "조회 실패",
+					text: result.message,
+				});
+				setAlertOpen(true);
+				setAllQuestionList([]);
+				return;
+			}
+
+			if (result.listSize === 0) {
+				setAlertInfo({
+					severity: "info",
+					title: "조회 결과 없음",
+					text: result.message,
+				});
+				setAlertOpen(true);
+				setAllQuestionList([]);
+				return;
+			}
+
 			const questionList = result.questionList.map((record) => ({
 				...record,
 				image: (record.image || []).map((img) => ({
 					...img,
-					img_dir: getImgDirSimple({ kind: img.img_kind, name: img.img_name }),
+					img_dir: getImgDirSimple({
+						kind: img.img_kind,
+						name: img.img_name,
+					}),
 				})),
 			}));
 
 			setAllQuestionList(questionList);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "문의 목록을 불러오는 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+			setAllQuestionList([]);
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
+			}
 		}
 	};
 
@@ -139,10 +181,36 @@ const ShoppingMallQuestionControl = () => {
 	};
 
 	const answerSaveHandler = async () => {
-		questionService.answerQuestion(selectedRow).then(() => {
-			setAnswerDialogOpen(false);
-			reloadData();
-		});
+		setAnswerDialogOpen(false);
+		setIsLoading(true);
+		setLoadingText("문의 답변을 저장하는 중입니다...");
+
+		try {
+			const result = await questionService.answerQuestion(selectedRow);
+
+			setAlertInfo({
+				severity: result?.success === false ? "error" : "success",
+				title: result?.success === false ? "저장 실패" : "저장 성공",
+				text: result?.message || "문의 답변이 저장되었습니다.",
+			});
+
+			setLoadingText("문의 목록을 다시 불러오는 중입니다...");
+			await reloadData(false);
+
+			setSelectedRow(null);
+			setSelectedImage([]);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "문의 답변 저장 중 오류가 발생했습니다.",
+			});
+		} finally {
+			setAlertOpen(true);
+			setIsLoading(false);
+		}
 	};
 
 	const dialogAnswerDialogButtonList = [
@@ -221,7 +289,9 @@ const ShoppingMallQuestionControl = () => {
 				</div>
 
 				<div className="shopping-mall-question-table">
-					{displayQuestionList?.length > 0 ? (
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : displayQuestionList?.length > 0 ? (
 						<TableMui
 							col={["f_name", "c_name", "q_idx", "q_secret", "q_status", "id"]}
 							columns={[
@@ -247,7 +317,7 @@ const ShoppingMallQuestionControl = () => {
 				</div>
 			</section>
 
-			{selectedRow && (
+			{!isLoading && selectedRow && (
 				<section className="shopping-mall-question-detail">
 					<div className="shopping-mall-question-detail-head">
 						<div>

@@ -8,6 +8,7 @@ import CouponAdd from "../components/CouponAdd";
 import ToggleButtonMui from "../components/ToggleButtonMui";
 import { Chip } from "@mui/material";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
 import "../css/DashboardShoppingMall.css";
 
 const ShoppingMallCouponControl = () => {
@@ -22,6 +23,8 @@ const ShoppingMallCouponControl = () => {
 	const [allCouponList, setAllCouponList] = useState([]);
 	const [viewDataType, setViewDataType] = useState("all");
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("쿠폰 목록을 불러오는 중입니다...");
 
 	const today = useMemo(() => dayjs().startOf("day"), []);
 	const emptyList = useMemo(() => [], []);
@@ -86,37 +89,58 @@ const ShoppingMallCouponControl = () => {
 		setViewDataType(newAlignment);
 	};
 
-	const reLoadData = async () => {
-		const result = await CouponService.getCouponListByCompanyId({ c_id: id });
-
-		const isSuccess = result.success;
-		const hasData = isSuccess && result.size > 0;
-
-		setAlertInfo({
-			severity: hasData ? "success" : isSuccess ? "info" : "error",
-			title: hasData ? "조회 성공" : isSuccess ? "데이터 없음" : "조회 실패",
-			text: result.message,
-			open: true,
-		});
-
-		let couponList = emptyList;
-
-		if (hasData) {
-			couponList = result.couponList.map((record) => {
-				const [c_id = "", c_kind = "", ...cNameParts] = (
-					record.coupon_catagory || ""
-				).split("_");
-
-				return {
-					...record,
-					c_id,
-					c_kind,
-					c_name: cNameParts.join("_"),
-				};
-			});
+	const reLoadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("쿠폰 목록을 불러오는 중입니다...");
 		}
 
-		setAllCouponList(couponList);
+		try {
+			const result = await CouponService.getCouponListByCompanyId({ c_id: id });
+
+			const isSuccess = result.success;
+			const hasData = isSuccess && result.size > 0;
+
+			setAlertInfo({
+				severity: hasData ? "success" : isSuccess ? "info" : "error",
+				title: hasData ? "조회 성공" : isSuccess ? "데이터 없음" : "조회 실패",
+				text: result.message,
+				open: true,
+			});
+
+			let couponList = emptyList;
+
+			if (hasData) {
+				couponList = result.couponList.map((record) => {
+					const [c_id = "", c_kind = "", ...cNameParts] = (
+						record.coupon_catagory || ""
+					).split("_");
+
+					return {
+						...record,
+						c_id,
+						c_kind,
+						c_name: cNameParts.join("_"),
+					};
+				});
+			}
+
+			setAllCouponList(couponList);
+		} catch (error) {
+			console.error(error);
+
+			setAllCouponList(emptyList);
+			setAlertInfo({
+				severity: "error",
+				title: "조회 실패",
+				text: "쿠폰 목록을 불러오는 중 오류가 발생했습니다.",
+				open: true,
+			});
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
+			}
+		}
 	};
 
 	useEffect(() => {
@@ -189,7 +213,9 @@ const ShoppingMallCouponControl = () => {
 				</div>
 
 				<div className="shopping-mall-coupon-table">
-					{displayCouponList?.length > 0 ? (
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : displayCouponList?.length > 0 ? (
 						<TableMui
 							rowData={displayCouponList}
 							col={[
