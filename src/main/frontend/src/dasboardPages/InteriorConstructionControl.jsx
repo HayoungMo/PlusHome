@@ -5,8 +5,9 @@ import AlertMui from "../components/AlertMui";
 import DateRangeFilter from "../components/DateRangeFilter";
 import SelectMui from "../components/SelectMui";
 import InteriorService from "../service/interiorService";
-import "../css/DashboardInterior.css";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
+import "../css/DashboardInterior.css";
 
 const InteriorConstructionControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -19,7 +20,8 @@ const InteriorConstructionControl = () => {
 		row: null,
 		type: "",
 	};
-
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("시공 진행 목록을 불러오는 중입니다...");
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [alertInfo, setAlertInfo] = useState(false);
 	const [allList, setAllList] = useState([]);
@@ -63,35 +65,111 @@ const InteriorConstructionControl = () => {
 		[filteredAllList],
 	);
 
-	const reloadData = async () => {
-		const result = await InteriorService.selectWorkingAndDone(id);
-		if (result.success === false) {
-			setAlertInfo({ severity: "error", text: result.message });
-			setAlertOpen(true);
-		} else if (result.dtoList == null) {
-			setAlertInfo({ severity: "info", text: result.message });
-			setAlertOpen(true);
-		} else {
+	const reloadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("시공 진행 목록을 불러오는 중입니다...");
+		}
+
+		try {
+			const result = await InteriorService.selectWorkingAndDone(id);
+
+			if (result.success === false) {
+				setAlertInfo({
+					severity: "error",
+					title: "조회 실패",
+					text: result.message,
+				});
+				setAlertOpen(true);
+
+				setAllList([]);
+				setWorkingList([]);
+				setDoneList([]);
+				setCancelList([]);
+				return;
+			}
+
+			if (result.dtoList == null) {
+				setAlertInfo({
+					severity: "info",
+					title: "조회 결과 없음",
+					text: result.message,
+				});
+				setAlertOpen(true);
+
+				setAllList([]);
+				setWorkingList([]);
+				setDoneList([]);
+				setCancelList([]);
+				return;
+			}
+
 			setAllList(result.dtoList);
 			setWorkingList(result.dtoList.filter((dto) => dto.b_status === "working"));
 			setDoneList(result.dtoList.filter((dto) => dto.b_status === "done"));
 			setCancelList(result.dtoList.filter((dto) => dto.b_status === "cancel"));
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "시공 진행 목록을 불러오는 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+
+			setAllList([]);
+			setWorkingList([]);
+			setDoneList([]);
+			setCancelList([]);
+		} finally {
+			setWorkStateChangeDialogInfo(dialogInfoInit);
+
+			if (showLoading) {
+				setIsLoading(false);
+			}
 		}
-		setWorkStateChangeDialogInfo(dialogInfoInit);
 	};
 
 	const handleWorkStateChange = async () => {
-		setWorkStateChangeDialogOpen(!workStateChangeDialogOpen);
-		if (workStateChangeDialogInfo.row) {
+		setWorkStateChangeDialogOpen(false);
+
+		if (!workStateChangeDialogInfo.row) {
+			setWorkStateChangeDialogInfo(dialogInfoInit);
+			return;
+		}
+
+		setIsLoading(true);
+		setLoadingText("시공 상태를 변경하는 중입니다...");
+
+		try {
 			const result = await InteriorService.workingToDoneOrCancel({
 				...workStateChangeDialogInfo.row,
 				b_status: workStateChangeDialogInfo.type,
 			});
-			setAlertInfo({ severity: "success", text: result.message });
+
+			setAlertInfo({
+				severity: result.success ? "success" : "error",
+				title: result.success ? "처리 성공" : "처리 실패",
+				text: result.message,
+			});
 			setAlertOpen(true);
+
+			setLoadingText("시공 진행 목록을 다시 불러오는 중입니다...");
+			await reloadData(false);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "시공 상태 변경 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+		} finally {
+			setWorkStateChangeDialogInfo(dialogInfoInit);
+			setIsLoading(false);
 		}
-		reloadData();
-		setWorkStateChangeDialogInfo(dialogInfoInit);
 	};
 
 	const handleColButtonOnClick = (row, type) => {
@@ -121,28 +199,51 @@ const InteriorConstructionControl = () => {
 	};
 
 	const handleViewInvoicePDF = async (row) => {
-		const sendData = {
-			booking: row,
-			company: {
-				c_id: row.c_id,
-				c_name: row.c_name,
-			},
-		};
-		const result = await InteriorService.getPDFData(sendData);
+		if (!row) return;
 
-		if (result.success) {
-			const pdfData = {
-				invoice: result.invoice,
-				invoiceDetail: result.invoiceDetail,
-				company: result.company,
-				orderBy: "insert",
+		setIsLoading(true);
+		setLoadingText("견적서 데이터를 불러오는 중입니다...");
+
+		try {
+			const sendData = {
+				booking: row,
+				company: {
+					c_id: row.c_id,
+					c_name: row.c_name,
+				},
 			};
-			sessionStorage.setItem("exportPDFData", JSON.stringify(pdfData));
 
-			window.open("/ExportPDFViewPage", "_blank", "width=1200,height=900");
-		} else {
-			setAlertInfo({ severity: "error", text: result.message });
+			const result = await InteriorService.getPDFData(sendData);
+
+			if (result.success) {
+				const pdfData = {
+					invoice: result.invoice,
+					invoiceDetail: result.invoiceDetail,
+					company: result.company,
+					orderBy: "insert",
+				};
+
+				sessionStorage.setItem("exportPDFData", JSON.stringify(pdfData));
+				window.open("/ExportPDFViewPage", "_blank", "width=1200,height=900");
+			} else {
+				setAlertInfo({
+					severity: "error",
+					title: "조회 실패",
+					text: result.message,
+				});
+				setAlertOpen(true);
+			}
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "견적서 데이터를 불러오는 중 오류가 발생했습니다.",
+			});
 			setAlertOpen(true);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -202,11 +303,18 @@ const InteriorConstructionControl = () => {
 			<div className="interior-construction-header">
 				<div>
 					<h3>시공 진행 관리</h3>
-					<p>진행 중, 완료, 취소된 시공 건을 확인하고 상태 변경과 견적서 조회를 처리합니다.</p>
+					<p>
+						진행 중, 완료, 취소된 시공 건을 확인하고 상태 변경과 견적서 조회를
+						처리합니다.
+					</p>
 				</div>
 				<div className="interior-construction-summary">
 					<Chip label={`전체 ${allList.length}건`} variant="outlined" />
-					<Chip label={`진행중 ${workingList.length}건`} color="primary" variant="outlined" />
+					<Chip
+						label={`진행중 ${workingList.length}건`}
+						color="primary"
+						variant="outlined"
+					/>
 					<Chip label={`완료 ${doneList.length}건`} color="success" variant="outlined" />
 					<Chip label={`취소 ${cancelList.length}건`} color="error" variant="outlined" />
 				</div>
@@ -228,10 +336,18 @@ const InteriorConstructionControl = () => {
 						<strong>진행 중인 시공 목록</strong>
 						<span>현재 시공 중인 건의 완료/취소 처리와 견적서 조회를 진행합니다.</span>
 					</div>
-					<Chip label={`${displayWorkingList.length}건`} color="primary" variant="outlined" />
+					<Chip
+						label={`${displayWorkingList.length}건`}
+						color="primary"
+						variant="outlined"
+					/>
 				</div>
 
-				{displayWorkingList.length !== 0 ? (
+				{isLoading ? (
+					<div className="interior-construction-table">
+						<Loading message={loadingText} />
+					</div>
+				) : displayWorkingList.length !== 0 ? (
 					<div className="interior-construction-table">
 						<TableMui
 							rowData={displayWorkingList}
@@ -253,10 +369,18 @@ const InteriorConstructionControl = () => {
 						<strong>시공 완료 목록</strong>
 						<span>완료 처리된 시공 건을 확인하고 필요 시 상태를 변경합니다.</span>
 					</div>
-					<Chip label={`${displayDoneList.length}건`} color="success" variant="outlined" />
+					<Chip
+						label={`${displayDoneList.length}건`}
+						color="success"
+						variant="outlined"
+					/>
 				</div>
 
-				{displayDoneList.length !== 0 ? (
+				{isLoading ? (
+					<div className="interior-construction-table">
+						<Loading message={loadingText} />
+					</div>
+				) : displayDoneList.length !== 0 ? (
 					<div className="interior-construction-table">
 						<TableMui
 							rowData={displayDoneList}
@@ -278,10 +402,18 @@ const InteriorConstructionControl = () => {
 						<strong>취소된 시공 목록</strong>
 						<span>취소 처리된 시공 건을 확인하고 필요 시 상태를 되돌립니다.</span>
 					</div>
-					<Chip label={`${displayCancelList.length}건`} color="error" variant="outlined" />
+					<Chip
+						label={`${displayCancelList.length}건`}
+						color="error"
+						variant="outlined"
+					/>
 				</div>
 
-				{displayCancelList.length !== 0 ? (
+				{isLoading ? (
+					<div className="interior-construction-table">
+						<Loading message={loadingText} />
+					</div>
+				) : displayCancelList.length !== 0 ? (
 					<div className="interior-construction-table">
 						<TableMui
 							rowData={displayCancelList}
@@ -302,8 +434,7 @@ const InteriorConstructionControl = () => {
 					open={workStateChangeDialogOpen}
 					onClose={() => setWorkStateChangeDialogOpen(false)}
 					maxWidth="sm"
-					fullWidth
-				>
+					fullWidth>
 					<DialogTitle>{workStateChangeDialogInfo.title}</DialogTitle>
 
 					<DialogContent>
@@ -329,15 +460,13 @@ const InteriorConstructionControl = () => {
 								<Button
 									variant="outlined"
 									color="error"
-									onClick={() => setWorkStateChangeDialogOpen(false)}
-								>
+									onClick={() => setWorkStateChangeDialogOpen(false)}>
 									취소
 								</Button>
 								<Button
 									variant="contained"
 									color="primary"
-									onClick={() => handleWorkStateChange()}
-								>
+									onClick={() => handleWorkStateChange()}>
 									저장
 								</Button>
 							</div>

@@ -5,6 +5,7 @@ import InteriorService from "../service/interiorService";
 import { Button, Chip, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import ButtonGroupMui from "./../components/ButtonGroupMui";
 import TableMui from "./../components/TableMui";
+import Loading from "../components/Loading";
 import "../css/DashboardInterior.css";
 
 const InteriorInfo = () => {
@@ -13,7 +14,8 @@ const InteriorInfo = () => {
 	const { id, companyList = [] } = userData;
 
 	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
-
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("인테리어 정보를 불러오는 중입니다...");
 	const [tabValue, setTabValue] = useState("info");
 	const [interiorCompanyList, setInteriorCompanyList] = useState([]);
 	const [interiorList, setInteriorList] = useState([]);
@@ -32,15 +34,45 @@ const InteriorInfo = () => {
 		return `${row.c_id}__${row.c_name}__${row.c_kind}`;
 	};
 
-	const reLoadData = async () => {
-		const interiorList = await InteriorService.fetchArticle({ c_id: id });
-		const withKey = interiorList.map((record) => ({ ...record, id: makeCheckKey(record) }));
-		const setIndexToCompanyList = interior.map((record, index) => ({ ...record, id: index }));
+	const reLoadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("인테리어 정보를 불러오는 중입니다...");
+		}
 
-		setTabValue("info");
-		setSelectedCompany(null);
-		setInteriorCompanyList(setIndexToCompanyList);
-		setInteriorList(withKey);
+		try {
+			const interiorList = await InteriorService.fetchArticle({ c_id: id });
+
+			const safeInteriorList = Array.isArray(interiorList) ? interiorList : [];
+
+			const withKey = safeInteriorList.map((record) => ({
+				...record,
+				id: makeCheckKey(record),
+			}));
+
+			const setIndexToCompanyList = interior.map((record, index) => ({
+				...record,
+				id: index,
+			}));
+
+			setTabValue("info");
+			setSelectedCompany(null);
+			setSelectedInterior(null);
+			setInteriorCompanyList(setIndexToCompanyList);
+			setInteriorList(withKey);
+		} catch (error) {
+			console.error(error);
+
+			setSelectedCompany(null);
+			setSelectedInterior(null);
+			setInteriorCompanyList([]);
+			setInteriorList([]);
+			setInteriorDisplayList([]);
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
+			}
+		}
 	};
 
 	const handleTabChange = (value) => {
@@ -87,7 +119,7 @@ const InteriorInfo = () => {
 		console.log(interior);
 	}, [id]);
 
-	const companyCheck = interiorList?.length < 0;
+	const companyCheck = interiorCompanyList.length === 0 && !isLoading;
 	const interiorListCheck = selectedCompany && interiorDisplayList.length > 0;
 
 	return (
@@ -99,7 +131,11 @@ const InteriorInfo = () => {
 				</div>
 				<div className="interior-info-summary">
 					<Chip label={`업체 ${interiorCompanyList.length}개`} variant="outlined" />
-					<Chip label={`등록 정보 ${interiorList.length}개`} color="primary" variant="outlined" />
+					<Chip
+						label={`등록 정보 ${interiorList.length}개`}
+						color="primary"
+						variant="outlined"
+					/>
 					<Chip
 						label={selectedCompany ? "업체 선택됨" : "업체 미선택"}
 						color={selectedCompany ? "success" : "default"}
@@ -123,13 +159,21 @@ const InteriorInfo = () => {
 				</div>
 
 				<div className="interior-info-table">
-					<TableMui
-						selectedRow={selectedCompany}
-						setSelectedRow={setSelectedCompany}
-						rowData={interiorCompanyList}
-						col={["c_name", "c_tel", "c_addr", "c_boss"]}
-						columns={["업체명", "연락처", "주소", "대표자"]}
-					/>
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : interiorCompanyList.length > 0 ? (
+						<TableMui
+							selectedRow={selectedCompany}
+							setSelectedRow={setSelectedCompany}
+							rowData={interiorCompanyList}
+							col={["c_name", "c_tel", "c_addr", "c_boss"]}
+							columns={["업체명", "연락처", "주소", "대표자"]}
+						/>
+					) : (
+						<div className="interior-info-guide">
+							<p>등록된 인테리어 업체가 없습니다.</p>
+						</div>
+					)}
 				</div>
 			</section>
 
@@ -141,7 +185,11 @@ const InteriorInfo = () => {
 					</div>
 				</div>
 
-				{interiorListCheck ? (
+				{isLoading ? (
+					<div className="interior-info-table">
+						<Loading text={loadingText} />
+					</div>
+				) : interiorListCheck ? (
 					<div className="interior-info-table">
 						<TableMui
 							selectedRow={selectedInterior}
@@ -158,7 +206,7 @@ const InteriorInfo = () => {
 							variant="contained"
 							color="primary"
 							onClick={() => handleTabChange("add")}
-						>
+							disabled={isLoading}>
 							등록
 						</Button>
 					</div>
@@ -168,7 +216,7 @@ const InteriorInfo = () => {
 					</div>
 				)}
 
-				{interiorListCheck ? (
+				{!isLoading && interiorListCheck ? (
 					<div className="interior-info-actions">
 						<ButtonGroupMui
 							button={interiorControlButtonGroupList}
@@ -182,10 +230,9 @@ const InteriorInfo = () => {
 			{tabValue === "add" && (
 				<Dialog
 					open={openAddDialog}
-					onClose={() => setOpenAddDialog(!openAddDialog)}
+					onClose={() => setOpenAddDialog(false)}
 					maxWidth="md"
-					fullWidth
-				>
+					fullWidth>
 					<DialogTitle>인테리어 정보 등록</DialogTitle>
 
 					<DialogContent>
@@ -193,8 +240,9 @@ const InteriorInfo = () => {
 							setOpenAddDialog={setOpenAddDialog}
 							company={selectedCompany}
 							onSuccess={async () => {
+								setLoadingText("인테리어 정보를 다시 불러오는 중입니다...");
 								await reLoadData();
-								setOpenAddDialog(!openAddDialog);
+								setOpenAddDialog(false);
 							}}
 						/>
 					</DialogContent>
@@ -203,10 +251,9 @@ const InteriorInfo = () => {
 			{tabValue === "update" && (
 				<Dialog
 					open={openUpdateDialog}
-					onClose={() => setOpenAddDialog(!openUpdateDialog)}
+					onClose={() => setOpenAddDialog(false)}
 					maxWidth="md"
-					fullWidth
-				>
+					fullWidth>
 					<DialogTitle>인테리어 정보 수정</DialogTitle>
 
 					<DialogContent>
@@ -214,8 +261,9 @@ const InteriorInfo = () => {
 							setOpenUpdateDialog={setOpenUpdateDialog}
 							interiorInfo={selectedInterior}
 							onSuccess={async () => {
+								setLoadingText("인테리어 정보를 다시 불러오는 중입니다...");
 								await reLoadData();
-								setOpenUpdateDialog(!openUpdateDialog);
+								setOpenUpdateDialog(false);
 							}}
 						/>
 					</DialogContent>

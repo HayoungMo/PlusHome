@@ -7,8 +7,9 @@ import TextFieldMui from "../components/TextFieldMui";
 import AlertMui from "../components/AlertMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
 import { Chip } from "@mui/material";
-import "../css/DashboardInterior.css";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
+import "../css/DashboardInterior.css";
 
 const InteriorReviewControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -18,6 +19,8 @@ const InteriorReviewControl = () => {
 	const [intreiorReviewList, setIntreiorReviewList] = useState([]);
 	const [selectedIntreiorReview, setSelectedIntreiorReview] = useState(null);
 	const [selectedIntreiorReviewImage, setSelectedIntreiorReviewImage] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("인테리어 리뷰 목록을 불러오는 중입니다...");
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [alertInfo, setAlertInfo] = useState(false);
 	const [filterBarState, setFilterBarState] = useState({});
@@ -26,18 +29,19 @@ const InteriorReviewControl = () => {
 	const emptyList = useMemo(() => [], []);
 	const selectedCompanyName = filterBarState.c_name || "all";
 	const reviewFilterList = useMemo(
-		() => [
-			{
-				key: "c_name",
-				title: "업체",
-				options: companyList
-					.filter((company) => company.c_kind === "interior")
-					.map((company) => ({
-						title: company.c_name,
-						value: company.c_name,
-					})),
-			},
-		].filter((filter) => filter.options.length > 0),
+		() =>
+			[
+				{
+					key: "c_name",
+					title: "업체",
+					options: companyList
+						.filter((company) => company.c_kind === "interior")
+						.map((company) => ({
+							title: company.c_name,
+							value: company.c_name,
+						})),
+				},
+			].filter((filter) => filter.options.length > 0),
 		[companyList],
 	);
 	const isDateRangeInvalid =
@@ -48,21 +52,24 @@ const InteriorReviewControl = () => {
 	const intreiorMuiDisplayList = useMemo(() => {
 		if (!intreiorReviewList || intreiorReviewList.length === 0) return emptyList;
 
-		const rowIndexList = intreiorReviewList?.filter((record) => {
-			const reviewDate = dayjs(record.review?.ir_createdDate);
-			const matchCompany =
-				selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
-			const matchStart =
-				!dateRange.startDate ||
-				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
-			const matchEnd =
-				!dateRange.endDate ||
-				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+		const rowIndexList = intreiorReviewList
+			?.filter((record) => {
+				const reviewDate = dayjs(record.review?.ir_createdDate);
+				const matchCompany =
+					selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
+				const matchStart =
+					!dateRange.startDate ||
+					(reviewDate.isValid() &&
+						!reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+				const matchEnd =
+					!dateRange.endDate ||
+					(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
 
-			return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
-		}).map((record, index) => {
-			return { ...record.review, index };
-		});
+				return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
+			})
+			.map((record, index) => {
+				return { ...record.review, index };
+			});
 
 		return rowIndexList;
 	}, [intreiorReviewList, emptyList, selectedCompanyName, dateRange, isDateRangeInvalid]);
@@ -72,49 +79,102 @@ const InteriorReviewControl = () => {
 
 		let resultList = [];
 
-		intreiorReviewList?.filter((record) => {
-			const reviewDate = dayjs(record.review?.ir_createdDate);
-			const matchCompany =
-				selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
-			const matchStart =
-				!dateRange.startDate ||
-				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
-			const matchEnd =
-				!dateRange.endDate ||
-				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+		intreiorReviewList
+			?.filter((record) => {
+				const reviewDate = dayjs(record.review?.ir_createdDate);
+				const matchCompany =
+					selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
+				const matchStart =
+					!dateRange.startDate ||
+					(reviewDate.isValid() &&
+						!reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+				const matchEnd =
+					!dateRange.endDate ||
+					(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
 
-			return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
-		}).forEach((record, index) => {
-			if (record.image.length !== 0) {
-				record.image.forEach((element) => {
-					resultList.push({ ...element, index });
-				});
-			}
-		});
+				return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
+			})
+			.forEach((record, index) => {
+				if (record.image.length !== 0) {
+					record.image.forEach((element) => {
+						resultList.push({ ...element, index });
+					});
+				}
+			});
 
 		return resultList;
 	}, [intreiorReviewList, emptyList, selectedCompanyName, dateRange, isDateRangeInvalid]);
 
-	const reloadData = async () => {
-		const result = await InteriorUserService.getInteriorReviewByCompanyId({ c_id: id });
+	const reloadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("인테리어 리뷰 목록을 불러오는 중입니다...");
+		}
 
-		if (result.success === false) {
-			setAlertInfo({ severity: "error", text: result.message });
-			setAlertOpen(true);
-		} else if (result.listSize === 0) {
-			setAlertInfo({ severity: "info", text: result.message });
-			setAlertOpen(true);
-		} else {
+		try {
+			const result = await InteriorUserService.getInteriorReviewByCompanyId({
+				c_id: id,
+			});
+
+			if (result.success === false) {
+				setAlertInfo({
+					severity: "error",
+					title: "조회 실패",
+					text: result.message,
+				});
+				setAlertOpen(true);
+
+				setIntreiorReviewList([]);
+				setSelectedIntreiorReview(null);
+				setSelectedIntreiorReviewImage([]);
+				return;
+			}
+
+			if (result.listSize === 0) {
+				setAlertInfo({
+					severity: "info",
+					title: "조회 결과 없음",
+					text: result.message,
+				});
+				setAlertOpen(true);
+
+				setIntreiorReviewList([]);
+				setSelectedIntreiorReview(null);
+				setSelectedIntreiorReviewImage([]);
+				return;
+			}
+
 			const reviewData = result.reviewList.map((record) => ({
 				...record,
 				image: (record.image || []).map((img) => ({
 					...img,
-					img_dir: getImgDirSimple({ kind: img.img_kind, name: img.img_name }),
+					img_dir: getImgDirSimple({
+						kind: img.img_kind,
+						name: img.img_name,
+					}),
 				})),
 			}));
+
 			setSelectedIntreiorReviewImage([]);
 			setSelectedIntreiorReview(null);
 			setIntreiorReviewList(reviewData);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "인테리어 리뷰 목록을 불러오는 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+
+			setIntreiorReviewList([]);
+			setSelectedIntreiorReview(null);
+			setSelectedIntreiorReviewImage([]);
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
+			}
 		}
 	};
 
@@ -146,7 +206,11 @@ const InteriorReviewControl = () => {
 					<p>고객이 남긴 인테리어 시공 리뷰와 첨부 이미지를 확인합니다.</p>
 				</div>
 				<div className="interior-review-summary">
-					<Chip label={`리뷰 ${intreiorMuiDisplayList.length}건`} color="primary" variant="outlined" />
+					<Chip
+						label={`리뷰 ${intreiorMuiDisplayList.length}건`}
+						color="primary"
+						variant="outlined"
+					/>
 					<Chip label={`이미지 ${onlyImageList.length}장`} variant="outlined" />
 					<Chip
 						label={selectedIntreiorReview ? "리뷰 선택됨" : "리뷰 미선택"}
@@ -181,7 +245,11 @@ const InteriorReviewControl = () => {
 						</div>
 					</div>
 
-					{intreiorMuiDisplayList.length > 0 ? (
+					{isLoading ? (
+						<div className="interior-review-table">
+							<Loading message={loadingText} />
+						</div>
+					) : intreiorMuiDisplayList.length > 0 ? (
 						<div className="interior-review-table">
 							<TableMui
 								rowData={intreiorMuiDisplayList}
@@ -202,10 +270,15 @@ const InteriorReviewControl = () => {
 							<strong>리뷰 상세</strong>
 							<span>선택한 고객 리뷰의 내용을 확인합니다.</span>
 						</div>
-						<Chip label={`${selectedIntreiorReviewImage.length}장`} variant="outlined" />
+						<Chip
+							label={`${selectedIntreiorReviewImage.length}장`}
+							variant="outlined"
+						/>
 					</div>
 
-					{selectedIntreiorReview ? (
+					{isLoading ? (
+						<div className="interior-review-guide">리뷰 정보를 불러오는 중입니다.</div>
+					) : selectedIntreiorReview ? (
 						<div className="interior-review-detail">
 							<div className="interior-review-meta">
 								<span>견적 번호 {selectedIntreiorReview.invoice_no ?? "-"}</span>
@@ -233,8 +306,10 @@ const InteriorReviewControl = () => {
 					</div>
 				</div>
 
-				{Array.isArray(selectedIntreiorReviewImage) &&
-				selectedIntreiorReviewImage.length !== 0 ? (
+				{isLoading ? (
+					<div className="interior-review-guide">리뷰 이미지를 불러오는 중입니다.</div>
+				) : Array.isArray(selectedIntreiorReviewImage) &&
+				  selectedIntreiorReviewImage.length !== 0 ? (
 					<div className="interior-review-image-grid">
 						{selectedIntreiorReviewImage.map((record) => {
 							return (

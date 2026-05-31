@@ -7,7 +7,7 @@ import DateRangeFilter from "../components/DateRangeFilter";
 import ToggleButtonMui from "../components/ToggleButtonMui";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-
+import Loading from "../components/Loading";
 import DatePickerMui from "./../components/DatePickerMui";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
@@ -31,7 +31,8 @@ const InteriorScheduleControl = () => {
 		is_startdate: today.format('"YYYY-MM-DD"'),
 		is_enddate: today.format('"YYYY-MM-DD"'),
 	};
-
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("시공 일정 목록을 불러오는 중입니다...");
 	const [interiorScheduleList, setInteriorScheduleList] = useState([]);
 	const [selectedSchedule, setSelectedSchedule] = useState(null);
 	const [viewDataType, setViewDataType] = useState("working");
@@ -45,15 +46,50 @@ const InteriorScheduleControl = () => {
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
 
-	const reLoadData = async () => {
-		const result = await InteriorService.getInteriorSchedule({ c_id: id });
-		if (result.success) {
-			const scheduleList = result.scheduleList ?? [];
-			setInteriorScheduleList(scheduleList);
-			setSelectedSchedule((prev) => {
-				if (!prev) return null;
-				return scheduleList[prev.rowIndex] ? prev : null;
+	const reLoadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("시공 일정 목록을 불러오는 중입니다...");
+		}
+
+		try {
+			const result = await InteriorService.getInteriorSchedule({ c_id: id });
+
+			if (result.success) {
+				const scheduleList = result.scheduleList ?? [];
+
+				setInteriorScheduleList(scheduleList);
+				setSelectedSchedule((prev) => {
+					if (!prev) return null;
+					return scheduleList[prev.rowIndex] ? prev : null;
+				});
+			} else {
+				setInteriorScheduleList([]);
+				setSelectedSchedule(null);
+
+				setAlertInfo({
+					severity: "error",
+					title: "조회 실패",
+					text: result.message || "시공 일정 목록을 불러오지 못했습니다.",
+					open: true,
+				});
+			}
+		} catch (error) {
+			console.error(error);
+
+			setInteriorScheduleList([]);
+			setSelectedSchedule(null);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "시공 일정 목록을 불러오는 중 오류가 발생했습니다.",
+				open: true,
 			});
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
+			}
 		}
 	};
 
@@ -258,17 +294,35 @@ const InteriorScheduleControl = () => {
 			is_startdate: dayjs(changeDate.is_startdate).format("YYYY-MM-DD"),
 			is_enddate: dayjs(changeDate.is_enddate).format("YYYY-MM-DD"),
 		};
-		const updateResult = await InteriorService.updateScheduleEndDate(dto);
 
-		setAlertInfo({
-			severity: updateResult.success ? "success" : "error",
-			title: updateResult.success ? "수정 성공" : "수정 실패",
-			text: updateResult.message,
-			open: true,
-		});
+		setIsLoading(true);
+		setLoadingText("시공 일정을 수정하는 중입니다...");
 
-		reLoadData();
-		hadleConfirmClose();
+		try {
+			const updateResult = await InteriorService.updateScheduleEndDate(dto);
+
+			setAlertInfo({
+				severity: updateResult.success ? "success" : "error",
+				title: updateResult.success ? "수정 성공" : "수정 실패",
+				text: updateResult.message,
+				open: true,
+			});
+
+			setLoadingText("시공 일정 목록을 다시 불러오는 중입니다...");
+			await reLoadData(false);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "시공 일정 수정 중 오류가 발생했습니다.",
+				open: true,
+			});
+		} finally {
+			hadleConfirmClose();
+			setIsLoading(false);
+		}
 	};
 
 	const handleUpdateStateDone = async () => {
@@ -276,16 +330,35 @@ const InteriorScheduleControl = () => {
 			...selectedSchedule,
 			b_status: "done",
 		};
-		const updateResult = await InteriorService.workingToDoneOrCancel(dto);
 
-		setAlertInfo({
-			severity: updateResult.success ? "success" : "error",
-			title: updateResult.success ? "처리 성공" : "처리 실패",
-			text: updateResult.message,
-			open: true,
-		});
-		reLoadData();
-		hadleConfirmClose();
+		setIsLoading(true);
+		setLoadingText("시공 일정을 완료 처리하는 중입니다...");
+
+		try {
+			const updateResult = await InteriorService.workingToDoneOrCancel(dto);
+
+			setAlertInfo({
+				severity: updateResult.success ? "success" : "error",
+				title: updateResult.success ? "처리 성공" : "처리 실패",
+				text: updateResult.message,
+				open: true,
+			});
+
+			setLoadingText("시공 일정 목록을 다시 불러오는 중입니다...");
+			await reLoadData(false);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "완료 처리 중 오류가 발생했습니다.",
+				open: true,
+			});
+		} finally {
+			hadleConfirmClose();
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -293,7 +366,9 @@ const InteriorScheduleControl = () => {
 			<div className="interior-schedule-header">
 				<div>
 					<h3>시공 일정 관리</h3>
-					<p>진행 중인 시공 일정과 마감 예정 건을 확인하고 날짜와 완료 상태를 관리합니다.</p>
+					<p>
+						진행 중인 시공 일정과 마감 예정 건을 확인하고 날짜와 완료 상태를 관리합니다.
+					</p>
 				</div>
 				<div className="interior-schedule-summary">
 					<Chip label={`전체 ${interiorScheduleList.length}건`} variant="outlined" />
@@ -334,7 +409,11 @@ const InteriorScheduleControl = () => {
 						</div>
 					</div>
 
-					{displayScheduleList.length !== 0 ? (
+					{isLoading ? (
+						<div className="interior-schedule-table">
+							<Loading message={loadingText} />
+						</div>
+					) : displayScheduleList.length !== 0 ? (
 						<div className="interior-schedule-table">
 							<TableMui
 								rowData={displayScheduleList}
@@ -365,7 +444,9 @@ const InteriorScheduleControl = () => {
 							/>
 						</div>
 					) : (
-						<div className="interior-schedule-guide">선택한 조건에 해당하는 일정이 없습니다.</div>
+						<div className="interior-schedule-guide">
+							선택한 조건에 해당하는 일정이 없습니다.
+						</div>
 					)}
 				</div>
 
@@ -387,7 +468,9 @@ const InteriorScheduleControl = () => {
 							))}
 						</div>
 					) : (
-						<div className="interior-schedule-guide">목록이나 캘린더에서 일정을 선택하세요.</div>
+						<div className="interior-schedule-guide">
+							목록이나 캘린더에서 일정을 선택하세요.
+						</div>
 					)}
 				</div>
 			</section>
@@ -414,18 +497,17 @@ const InteriorScheduleControl = () => {
 						variant="contained"
 						color="primary"
 						name="update_enddate"
-						disabled={!selectedSchedule}
-						onClick={onClickScheduleUpdateButton}
-					>
+						disabled={!selectedSchedule || isLoading}
+						onClick={onClickScheduleUpdateButton}>
 						수정하기
 					</Button>
+
 					<Button
 						variant="contained"
 						color="success"
 						name="update_b_state"
-						disabled={!selectedSchedule}
-						onClick={onClickScheduleUpdateButton}
-					>
+						disabled={!selectedSchedule || isLoading}
+						onClick={onClickScheduleUpdateButton}>
 						완료처리
 					</Button>
 				</div>
@@ -439,11 +521,15 @@ const InteriorScheduleControl = () => {
 					</div>
 				</div>
 				<div className="interior-schedule-calendar">
-					<CalendarMui
-						scheduleList={displayScheduleList}
-						selectedSchedule={selectedSchedule}
-						onSelectSchedule={setSelectedSchedule}
-					/>
+					{isLoading ? (
+						<Loading text={loadingText} />
+					) : (
+						<CalendarMui
+							scheduleList={displayScheduleList}
+							selectedSchedule={selectedSchedule}
+							onSelectSchedule={setSelectedSchedule}
+						/>
+					)}
 				</div>
 			</section>
 

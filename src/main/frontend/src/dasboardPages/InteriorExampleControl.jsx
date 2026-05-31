@@ -12,6 +12,7 @@ import SelectMui from "./../components/SelectMui";
 import InteriorExModelAdd from "./../components/InteriorExModelAdd";
 import InteriorExModelUpdate from "../components/InteriorExModelUpdate";
 import ToggleButtonMui from "./../components/ToggleButtonMui";
+import Loading from "../components/Loading";
 import "../css/DashboardInterior.css";
 
 const ExampleIsEmpty = (props) => {
@@ -36,7 +37,11 @@ const ExampleIsEmpty = (props) => {
 
 	return (
 		<div className="interior-example-empty">
-			<strong>{viewType === "example" ? "등록된 시공 사례가 없습니다." : "등록된 3D 모델이 없습니다."}</strong>
+			<strong>
+				{viewType === "example"
+					? "등록된 시공 사례가 없습니다."
+					: "등록된 3D 모델이 없습니다."}
+			</strong>
 			<span>
 				{tabValue === "all"
 					? "업체를 선택한 뒤 새 자료를 등록할 수 있습니다."
@@ -78,7 +83,8 @@ const InteriorExampleControl = () => {
 	const { id, companyList } = userData;
 
 	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
-
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("시공 사례 자료를 불러오는 중입니다...");
 	const [viewType, setViewType] = useState("example");
 	const [tabValue, setTabValue] = useState("all");
 	const [tabCompany, setTabCompany] = useState({});
@@ -183,6 +189,7 @@ const InteriorExampleControl = () => {
 	};
 
 	const handleViewType = (event, newAlignment) => {
+		if (newAlignment === null) return;
 		setViewType(newAlignment);
 		setSelectedInteriorExample({});
 		setSelectedInteriorExampleImage([]);
@@ -192,30 +199,92 @@ const InteriorExampleControl = () => {
 		setSelectedModel3DImage({});
 	};
 
-	const reLoadData = async () => {
-		const result = await InteriorService.getInteriorExampleByCompanyId({ c_id: id });
+	const reLoadData = async (showLoading = true) => {
+		if (showLoading) {
+			setIsLoading(true);
+			setLoadingText("시공 사례 자료를 불러오는 중입니다...");
+		}
 
-		if (result.success === false) {
-			setAlertInfo({ severity: "error", text: result.message });
-			setAlertOpen(true);
-		} else if (result.listSize === 0) {
-			setAlertInfo({ severity: "info", text: result.message });
-			setAlertOpen(true);
-		} else {
+		try {
+			const result = await InteriorService.getInteriorExampleByCompanyId({ c_id: id });
+
+			if (result.success === false) {
+				setAlertInfo({
+					severity: "error",
+					title: "조회 실패",
+					text: result.message,
+				});
+				setAlertOpen(true);
+
+				setInteriorExampleList([]);
+				setModel3DImageList([]);
+				setSelectedInteriorExample({});
+				setSelectedInteriorExampleImage([]);
+				setSelectedModel3DImage({});
+				setUpdateAvailable(false);
+				setAddAvailable(false);
+				return;
+			}
+
+			if (result.listSize === 0) {
+				setAlertInfo({
+					severity: "info",
+					title: "조회 결과 없음",
+					text: result.message,
+				});
+				setAlertOpen(true);
+
+				setInteriorExampleList([]);
+				setModel3DImageList(result.ModelDataList || []);
+				setSelectedInteriorExample({});
+				setSelectedInteriorExampleImage([]);
+				setSelectedModel3DImage({});
+				setModelReloadKey(Date.now());
+				setUpdateAvailable(false);
+				setAddAvailable(false);
+				return;
+			}
+
 			const exampleData = result.exampleList.map((record) => ({
 				...record,
 				image: (record.image || []).map((img) => ({
 					...img,
-					img_dir: getImgDirSimple({ kind: img.img_kind, name: img.img_name }),
+					img_dir: getImgDirSimple({
+						kind: img.img_kind,
+						name: img.img_name,
+					}),
 				})),
 			}));
+
 			setSelectedInteriorExample({});
 			setSelectedInteriorExampleImage([]);
 			setInteriorExampleList(exampleData);
-			setModel3DImageList(result.ModelDataList);
+			setModel3DImageList(result.ModelDataList || []);
 			setModelReloadKey(Date.now());
+			setSelectedModel3DImage({});
 			setUpdateAvailable(false);
 			setAddAvailable(false);
+		} catch (error) {
+			console.error(error);
+
+			setAlertInfo({
+				severity: "error",
+				title: "오류 발생",
+				text: "시공 사례 자료를 불러오는 중 오류가 발생했습니다.",
+			});
+			setAlertOpen(true);
+
+			setInteriorExampleList([]);
+			setModel3DImageList([]);
+			setSelectedInteriorExample({});
+			setSelectedInteriorExampleImage([]);
+			setSelectedModel3DImage({});
+			setUpdateAvailable(false);
+			setAddAvailable(false);
+		} finally {
+			if (showLoading) {
+				setIsLoading(false);
+			}
 		}
 	};
 
@@ -278,8 +347,16 @@ const InteriorExampleControl = () => {
 				</div>
 				<div className="interior-example-summary">
 					<Chip label={`업체 ${interior.length}개`} variant="outlined" />
-					<Chip label={`사례 ${exampleMuiDisplayList.length}건`} color="primary" variant="outlined" />
-					<Chip label={`모델 ${model3DViewImageList.length}건`} color="secondary" variant="outlined" />
+					<Chip
+						label={`사례 ${exampleMuiDisplayList.length}건`}
+						color="primary"
+						variant="outlined"
+					/>
+					<Chip
+						label={`모델 ${model3DViewImageList.length}건`}
+						color="secondary"
+						variant="outlined"
+					/>
 				</div>
 			</div>
 
@@ -313,12 +390,21 @@ const InteriorExampleControl = () => {
 				</div>
 				<div className="interior-example-actions">
 					{tabValue !== "all" && (
-						<Button variant="contained" color="success" onClick={onClickNewPost}>
+						<Button
+							variant="contained"
+							color="success"
+							onClick={onClickNewPost}
+							disabled={isLoading}>
 							새로 등록
 						</Button>
 					)}
+
 					{(selectedInteriorExample?.c_id || selectedModel3DImage?.dir_d) && (
-						<Button variant="contained" color="primary" onClick={onClickPostUpdate}>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={onClickPostUpdate}
+							disabled={isLoading}>
 							수정하기
 						</Button>
 					)}
@@ -326,7 +412,11 @@ const InteriorExampleControl = () => {
 			</section>
 
 			{viewType === "example" &&
-				(exampleMuiDisplayList.length === 0 ? (
+				(isLoading ? (
+					<section className="interior-example-card">
+						<Loading message={loadingText} />
+					</section>
+				) : exampleMuiDisplayList.length === 0 ? (
 					<section className="interior-example-card">
 						<ExampleIsEmpty
 							tabValue={tabValue}
@@ -343,7 +433,9 @@ const InteriorExampleControl = () => {
 							<div className="interior-example-card-head">
 								<div>
 									<strong>시공 사례 목록</strong>
-									<span>목록에서 사례를 선택하면 등록된 이미지를 확인할 수 있습니다.</span>
+									<span>
+										목록에서 사례를 선택하면 등록된 이미지를 확인할 수 있습니다.
+									</span>
 								</div>
 							</div>
 							<div className="interior-example-table">
@@ -365,6 +457,7 @@ const InteriorExampleControl = () => {
 								</div>
 								<Chip label={`${selectedImageCount}장`} variant="outlined" />
 							</div>
+
 							{selectedInteriorExampleImage?.length > 0 ? (
 								<div className="interior-example-image-grid">
 									{selectedInteriorExampleImage.map((record) => (
@@ -399,12 +492,15 @@ const InteriorExampleControl = () => {
 								</div>
 							</div>
 						)}
+
 						{tabValue !== "all" && isAddAvailable && (
 							<div className="interior-example-card interior-example-wide">
 								<div className="interior-example-card-head">
 									<div>
 										<strong>시공 사례 등록</strong>
-										<span>선택한 업체에 새로운 포트폴리오 사례를 추가합니다.</span>
+										<span>
+											선택한 업체에 새로운 포트폴리오 사례를 추가합니다.
+										</span>
 									</div>
 								</div>
 								<div className="interior-example-form">
@@ -416,7 +512,11 @@ const InteriorExampleControl = () => {
 				))}
 
 			{viewType === "model" &&
-				(model3DViewImageList.length === 0 ? (
+				(isLoading ? (
+					<section className="interior-example-card">
+						<Loading message={loadingText} />
+					</section>
+				) : model3DViewImageList.length === 0 ? (
 					<section className="interior-example-card">
 						<ExampleIsEmpty
 							tabValue={tabValue}
@@ -456,6 +556,7 @@ const InteriorExampleControl = () => {
 									<span>선택한 모델을 확인합니다.</span>
 								</div>
 							</div>
+
 							{selectedModel3DImage?.img_dir ? (
 								<div className="interior-example-model-viewer">
 									<InteriorModelViewer src={selectedModel3DImage.img_dir} />
@@ -485,6 +586,7 @@ const InteriorExampleControl = () => {
 								</div>
 							</div>
 						)}
+
 						{tabValue !== "all" && isAddAvailable && (
 							<div className="interior-example-card interior-example-wide">
 								<div className="interior-example-card-head">

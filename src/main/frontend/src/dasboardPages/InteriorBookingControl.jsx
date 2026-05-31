@@ -5,8 +5,9 @@ import TableMui from "../components/TableMui";
 import { Chip } from "@mui/material";
 import InteriorInvoiceAdd from "../components/InteriorInvoiceAdd";
 import { GrDocumentPdf } from "react-icons/gr";
-import "../css/DashboardInterior.css";
 import dayjs from "dayjs";
+import Loading from "../components/Loading";
+import "../css/DashboardInterior.css";
 
 const InteriorBookingControl = () => {
 	const localUserData = localStorage.getItem("user");
@@ -19,7 +20,8 @@ const InteriorBookingControl = () => {
 	);
 	const [selectedCompany, setSelectedCompany] = useState(null);
 	const [interiorCompanyList, setInteriorCompanyList] = useState([]);
-
+	const [isLoading, setIsLoading] = useState(true);
+	const [loadingText, setLoadingText] = useState("상담 예약 관리 데이터를 불러오는 중입니다...");
 	const [selectedBooking, setSelectedBooking] = useState(null);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [selectedInvoiceDetailLatestList, setSelectedInvoiceDetailLatestList] = useState([]);
@@ -33,12 +35,34 @@ const InteriorBookingControl = () => {
 	const [transferListMuiLeft, setTransferListMuiLeft] = useState([]);
 	const [transferListMuiRight, setTransferListMuiRight] = useState([]);
 
-	const reLoadData = useCallback(async () => {
-		const setIndexToCompanyList = interior.map((record, index) => ({ ...record, id: index }));
+	const reLoadData = useCallback(
+		async (showLoading = true) => {
+			if (showLoading) {
+				setIsLoading(true);
+				setLoadingText("인테리어 업체 목록을 불러오는 중입니다...");
+			}
 
-		setSelectedCompany(null);
-		setInteriorCompanyList(setIndexToCompanyList);
-	}, [interior]);
+			try {
+				const setIndexToCompanyList = interior.map((record, index) => ({
+					...record,
+					id: index,
+				}));
+
+				setSelectedCompany(null);
+				setInteriorCompanyList(setIndexToCompanyList);
+			} catch (error) {
+				console.error(error);
+
+				setSelectedCompany(null);
+				setInteriorCompanyList([]);
+			} finally {
+				if (showLoading) {
+					setIsLoading(false);
+				}
+			}
+		},
+		[interior],
+	);
 
 	const refreshBookingList = () => {
 		setBookingRefreshKey((prev) => prev + 1);
@@ -149,7 +173,9 @@ const InteriorBookingControl = () => {
 				</div>
 
 				<div className="interior-booking-table">
-					{interiorCompanyList?.length > 0 ? (
+					{isLoading ? (
+						<Loading message={loadingText} />
+					) : interiorCompanyList?.length > 0 ? (
 						<TableMui
 							selectedRow={selectedCompany}
 							setSelectedRow={setSelectedCompany}
@@ -158,9 +184,7 @@ const InteriorBookingControl = () => {
 							columns={["업체명", "연락처", "주소", "대표자"]}
 						/>
 					) : (
-						<div className="interior-booking-guide">
-							등록된 업체 데이터가 없습니다.
-						</div>
+						<div className="interior-booking-guide">등록된 업체 데이터가 없습니다.</div>
 					)}
 				</div>
 			</section>
@@ -190,7 +214,11 @@ const InteriorBookingControl = () => {
 					/>
 				</div>
 
-				{selectedCompany ? (
+				{isLoading ? (
+					<div className="interior-booking-guide">
+						<Loading message={loadingText} />
+					</div>
+				) : selectedCompany ? (
 					<div className="interior-booking-panel">
 						<BookingUpdate
 							company={selectedCompany}
@@ -224,7 +252,11 @@ const InteriorBookingControl = () => {
 					</div>
 				</div>
 
-				{selectedBooking ? (
+				{isLoading ? (
+					<div className="interior-booking-guide">
+						<Loading message={loadingText} />
+					</div>
+				) : selectedBooking ? (
 					<div className="interior-booking-panel interior-booking-invoice">
 						<InteriorInvoiceAdd
 							booking={selectedBooking}
@@ -232,14 +264,12 @@ const InteriorBookingControl = () => {
 							setSelectedInvoice={setSelectedInvoice}
 							selectedInvoiceDetailList={selectedInvoiceDetailLatestList}
 							setSelectedInvoiceDetailList={setSelectedInvoiceDetailLatestList}
-							//TransferListMui
 							listData={transferListData}
 							textKey={invoiceTextKey}
 							left={transferListMuiLeft}
 							setLeft={setTransferListMuiLeft}
 							right={transferListMuiRight}
 							setRight={setTransferListMuiRight}
-							//Button Columns
 							buttonData={buttonData}
 							onInvoiceSaved={refreshBookingList}
 						/>
