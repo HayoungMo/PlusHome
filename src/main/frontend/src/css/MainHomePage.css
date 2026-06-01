@@ -147,25 +147,56 @@
 }
 
 .main-category-icon {
-	width: 74px;
-	height: 74px;
+	width: 92px;
+	height: 92px;
 	margin: 0 auto 10px;
-	border-radius: 22px;
+	border-radius: 26px;
 	background-color: #f5f1ea;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: rgba(0, 140, 255, 0.92);
-	transition: transform 0.16s ease, background-color 0.16s ease;
+	transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .main-category-icon svg {
 	font-size: 42px;
 }
 
+.main-category-image {
+	display: block;
+	width: 80px;
+	height: 80px;
+	object-fit: contain;
+}
+
+.main-category-icon-bed {
+	color: #1e88e5;
+}
+
+.main-category-icon-sofa {
+	color: #00a884;
+}
+
+.main-category-icon-desk {
+	color: #3f51b5;
+}
+
+.main-category-icon-chair {
+	color: #ff7a45;
+}
+
+.main-category-icon-storage {
+	color: #8b5cf6;
+}
+
+.main-category-icon-light {
+	color: #f59e0b;
+}
+
 .main-category-link:hover .main-category-icon {
 	transform: translateY(-2px);
-	background-color: #eaf6ff;
+	background-color: #f5f1ea;
+	box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }
 
 .main-category-title {
