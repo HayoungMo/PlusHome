@@ -1,6 +1,6 @@
 .user-coupon-page {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   color: #2f3438;
 }
 
@@ -9,10 +9,13 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px;
-  border: 1px solid #c8edff;
+  padding: 18px 20px;
+  border: 1px solid #bfe8ff;
   border-radius: 8px;
-  background: linear-gradient(90deg, #f0faff 0, #ffffff 52%);
+  background:
+    linear-gradient(90deg, #eef9ff 0, #ffffff 58%),
+    #ffffff;
+  box-shadow: 0 10px 24px rgba(0, 139, 232, 0.06);
 }
 
 .user-coupon-header p {
@@ -42,15 +45,30 @@
 }
 
 .user-coupon-tabs {
-  min-height: 42px;
-  border: 1px solid #eaedef;
+  min-height: 46px;
+  padding: 4px;
+  border: 1px solid #d9edf8;
   border-radius: 8px;
   background: #ffffff;
+  box-shadow: 0 8px 20px rgba(38, 92, 135, 0.045);
 }
 
 .user-coupon-tabs .MuiTab-root {
-  min-height: 42px;
+  min-height: 38px;
+  border-radius: 6px;
+  color: #52616b;
+  font-size: 14px;
   font-weight: 800;
+  letter-spacing: 0;
+}
+
+.user-coupon-tabs .MuiTab-root.Mui-selected {
+  color: #008be8;
+  background: #eef9ff;
+}
+
+.user-coupon-tabs .MuiTabs-indicator {
+  display: none;
 }
 
 .user-coupon-content {
@@ -62,35 +80,35 @@
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  padding: 18px;
-  border: 1px solid #eaedef;
+  padding: 18px 20px;
+  border: 1px solid #d9edf8;
   border-radius: 8px;
   background: #ffffff;
+  box-shadow: 0 8px 20px rgba(38, 92, 135, 0.045);
 }
 
-.user-coupon-success-message {
-  width: 100%;
-  margin-top: 4px;
-  padding: 10px 12px;
-  border: 1px solid #bdeeff;
-  border-radius: 8px;
-  background: #f0faff;
-  color: #0078c2;
-  font-size: 14px;
-  font-weight: 800;
+.user-coupon-register-form .MuiTextField-root {
+  flex: 1 1 280px;
+}
+
+.user-coupon-register-form .MuiButton-root {
+  min-height: 40px;
+  padding: 0 18px;
 }
 
 .user-coupon-table {
   min-width: 0;
   overflow-x: auto;
-  border: 1px solid #c8edff;
+  border: 1px solid #bfe8ff;
   border-radius: 8px;
   background: #ffffff;
+  box-shadow: 0 10px 26px rgba(0, 139, 232, 0.06);
 }
 
 .user-coupon-table .MuiPaper-root {
   border-radius: 0;
-  background: #fbfdff;
+  border: 0;
+  background: #ffffff;
   box-shadow: none;
 }
 
@@ -99,32 +117,51 @@
 }
 
 .user-coupon-table .MuiTableHead-root .MuiTableCell-root {
-  background: #eaf8ff;
-  color: #0078c2;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #bfe8ff;
+  background: #eaf7ff;
+  color: #006eb8;
+  font-size: 13px;
   font-weight: 800;
-  border-bottom: 1px solid #bdeeff;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .user-coupon-table .MuiTableCell-root {
-  border-bottom-color: #d8f1ff;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-bottom-color: #dcedf7;
   color: #2f3438;
+  text-align: center;
 }
 
 .user-coupon-table .MuiTableBody-root .MuiTableRow-root:nth-of-type(even) {
-  background: #fbfdff;
+  background: #f8fcff;
 }
 
 .user-coupon-table .MuiTableRow-root:hover {
-  background: #f0faff;
+  background: #eef9ff;
 }
 
 .user-coupon-table .MuiTableCell-root:first-of-type {
   font-weight: 800;
   color: #0078c2;
+  letter-spacing: 0;
+}
+
+.user-coupon-table .MuiTableCell-root:nth-of-type(2) {
+  color: #008be8;
+  font-weight: 800;
+}
+
+.user-coupon-table .MuiTableCell-root:last-of-type {
+  color: #45545e;
 }
 
 .user-coupon-table-used {
   border-color: #d8e0e6;
+  box-shadow: 0 8px 20px rgba(47, 52, 56, 0.045);
 }
 
 .user-coupon-table-used .MuiTableHead-root .MuiTableCell-root {
@@ -137,13 +174,17 @@
   color: #5f6f7a;
 }
 
+.user-coupon-table-used .MuiTableCell-root:nth-of-type(2) {
+  color: #6b7882;
+}
+
 .user-coupon-empty {
   min-height: 160px;
   display: grid;
   place-items: center;
   gap: 14px;
   padding: 24px;
-  border: 1px dashed #c8edff;
+  border: 1px dashed #bfe8ff;
   border-radius: 8px;
   background: #f7fbfd;
   color: #828c94;
@@ -151,6 +192,7 @@
   font-weight: 700;
   text-align: center;
   box-sizing: border-box;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 
 .user-coupon-empty > .MuiBox-root {

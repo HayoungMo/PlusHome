@@ -25,7 +25,6 @@ const UserCouponPage = ({ user }) => {
   });
 
   const [tab, setTab] = useState(1);
-  const [successMessage, setSuccessMessage] = useState("")
 
   useEffect(() => {
     const fetchCoupon = async () => {
@@ -49,8 +48,6 @@ const UserCouponPage = ({ user }) => {
   };
 
   const handleChange = (e) => {
-    setSuccessMessage("")
-
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -99,7 +96,12 @@ const UserCouponPage = ({ user }) => {
       },
     ]);
 
-    setSuccessMessage("정상적으로 쿠폰이 지급되었습니다. 쿠폰함을 확인해주세요.")
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "등록 완료",
+      text: "정상적으로 쿠폰이 지급되었습니다. 쿠폰함을 확인해주세요.",
+    });
   };
 
   const availableCoupons = coupon.filter((item) => item.coupon_used === "N")
@@ -160,12 +162,6 @@ const UserCouponPage = ({ user }) => {
               onChange={(e) => handleChange(e)}
             />
             <Button onClick={() => handleSubmit()}>등록 </Button>
-
-            {successMessage && (
-              <Box className="user-coupon-success-message">
-                {successMessage}
-              </Box>
-            )}
           </form>
         )}
 
@@ -196,6 +192,13 @@ const UserCouponPage = ({ user }) => {
                     "coupon_max",
                     "coupon_info",
                   ]}
+                  columns={[
+                    "쿠폰 코드",
+                    "할인율",
+                    "사용 기한",
+                    "최대 할인 금액",
+                    "쿠폰 설명",
+                  ]}
                 />
               </div>
             )}
@@ -218,6 +221,13 @@ const UserCouponPage = ({ user }) => {
                     "coupon_used",
                     "coupon_max",
                     "coupon_info",
+                  ]}
+                  columns={[
+                    "쿠폰 코드",
+                    "할인율",
+                    "사용 여부",
+                    "최대 할인 금액",
+                    "쿠폰 설명",
                   ]}
                 />
               </div>

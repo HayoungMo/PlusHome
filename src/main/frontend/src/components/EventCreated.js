@@ -590,7 +590,11 @@ const EventCreated = () => {
             />
           </Box>
           <Divider sx={{ my: 2 }} />
-          <Typography color="text.secondary" sx={{ mb: 2 }}>
+          <Typography
+            className="event-form-selected-coupon-count"
+            color="text.secondary"
+            sx={{ mb: 2 }}
+          >
             선택된 쿠폰 {selectedCouponCodes.length}개
           </Typography>
           <Button
@@ -613,6 +617,7 @@ const EventCreated = () => {
         onClose={() => setCouponDialogOpen(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{ className: "event-form-coupon-dialog-paper" }}
       >
         <DialogTitle>쿠폰 등록</DialogTitle>
         <DialogContent dividers className="event-form-coupon-dialog">
