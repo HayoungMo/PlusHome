@@ -278,7 +278,7 @@ const MainHomePage = ({ loginUser }) => {
         
             {/* 백에서 받아온 메세지 뿌리기 */}
             {/* 오늘의 추천 가구 목록 */}
-            <section style={{ marginTop: "20px" }}>
+            <section style={{ marginTop: "100px" }}>
                 <div
                     style={{
                         display: "flex",

@@ -240,23 +240,6 @@
   width: 100%;
 }
 
-.furniture-list-search button {
-  height: 36px;
-  padding: 0 14px;
-  border: 1px solid #111827;
-  border-radius: 4px;
-  background: #111827;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.furniture-list-search button:hover {
-  background: #008cff;
-  border-color: #008cff;
-}
-
 .furniture-list-search-panel {
   display: flex;
   align-items: center;
@@ -296,44 +279,26 @@
   width: 220px;
 }
 
-.furniture-list-filter-toggle,
-.furniture-list-search button,
-.furniture-list-reset-btn {
-  height: 44px;
-  padding: 0 18px;
+/* 0602 모하영: 검색/초기화 버튼을 MUI Button으로 통일하면서 기존 button 직접 스타일이 MUI 스타일을 덮어써서 제거함. */
+.furniture-list-search .MuiButton-root {
+  min-height: 44px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 800;
-  cursor: pointer;
+  white-space: nowrap;
 }
 
-.furniture-list-filter-toggle {
-  border: 1px solid #93c5fd;
-  background: #fff;
-  color: #008cff;
-}
-
-.furniture-list-search button[type="submit"] {
-  height: 44px;
-  padding: 0 20px;
-  border: 1px solid #008cff;
-  border-radius: 8px;
+.furniture-list-search .furniture-list-search-btn.MuiButton-root {
+  padding: 8px 20px;
   background: #008cff;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
   box-shadow: 0 6px 14px rgba(0, 140, 255, 0.25);
 }
 
-.furniture-list-reset-btn {
-  height: 44px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
+.furniture-list-search .furniture-list-search-btn.MuiButton-root:hover {
+  background: #007be0;
+}
+
+.furniture-list-search .furniture-list-reset-btn.MuiButton-root {
+  padding: 8px 12px;
   color: #008cff;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
 }

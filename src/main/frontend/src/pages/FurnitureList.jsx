@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FurnitureService from "../service/furnitureService";
 import LikeService from "../service/likeService";
-import { Snackbar, Pagination } from "@mui/material";
+import { Button, Snackbar, Pagination } from "@mui/material";
 import AlertMui from "../components/AlertMui";
 import FilterBar from "../components/FilterBar";
 import {
@@ -347,15 +347,22 @@ const FurnitureList = () => {
 							placeholder="검색"
 						/>
 
-						<button type="submit">검색</button>
+						<Button
+							type="submit"
+							variant="contained"
+							className="furniture-list-search-btn"
+						>
+							검색
+						</Button>
 
-						<button
+						<Button
 							type="button"
+							variant="text"
 							className="furniture-list-reset-btn"
 							onClick={() => navigate("/furniture/list?page=1")}
 						>
 							초기화
-						</button>
+						</Button>
 					</form>
 				</div>
 				
