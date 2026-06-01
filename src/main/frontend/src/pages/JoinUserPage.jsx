@@ -2,14 +2,16 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Await, useNavigate } from 'react-router-dom';
 import JoinService from "../service/joinService";
-import { Button, Select, TextField } from '@mui/material';
+import { Button, IconButton, InputAdornment, Select, TextField } from '@mui/material';
 import RadioMui from '../components/RadioMui';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import DatePickerMui from '../components/DatePickerMui';
+import  DatePicker  from '@mui/x-date-pickers/DatePicker';
+import BirthDatePickerMui from '../components/BirthDatePickerMui';
 import SelectMui from '../components/SelectMui';
 import Address from '../maps/Address';
 import "../css/JoinPage.css";
 import { common } from '@mui/material/colors';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import dayjs from 'dayjs';
 
 
 
@@ -53,6 +55,13 @@ const JoinUserPage = () => {
         c_addr:'',
         common:'',
     });
+
+    const [showPw,setShowPw] = useState(false)
+    const [showPwCheck,setShowPwCheck] = useState(false)
+
+
+
+
     const [idError,setIdError] = useState('');
    
         
@@ -116,16 +125,9 @@ const JoinUserPage = () => {
         case 'id':
             if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)) {
                 return '아이디에 한글은 입력할 수 없습니다';
-            }
-            if (
-        !/^(?=.*[a-z])(?=.*[0-9])[a-z0-9_-]{5,20}$/.test(value)
-    ) {
+            }         
 
-        return;
-
-    }
-
-    return;
+    return'';
 
     case 'pw':
          if(
@@ -158,12 +160,6 @@ const JoinUserPage = () => {
         return '아이디는 필수 정보입니다.';
     }
 
-    // 아이디 형식
-    if(
-        !/^(?=.*[a-z])(?=.*[0-9])[a-z0-9_-]{5,20}$/.test(form.id)
-    ){
-        return '아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.';
-    }
 
     // 중복확인 안했을 때
     if(!idCheck.ok){
@@ -175,9 +171,9 @@ const JoinUserPage = () => {
         return '비밀번호를 입력하세요.';
     }
     if(
-    !/^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[a-z\d!@#$%^&*]{8,16}$/.test(form.pw)
+    !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/.test(form.pw)
     ){
-        return '비밀번호 8~16자의 영문 소문자, 숫자, 특수문자를 사용해 주세요.';
+        return '비밀번호 8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.';
     }
 
     // 비밀번호 확인
@@ -198,6 +194,9 @@ const JoinUserPage = () => {
     //생년월일
     if(!birth){
         return '생년월일을 선택하세요.'
+    }
+    if(birth && birth.isAfter(dayjs().subtract(14,'year'))){
+        return '만 14세 미만은 가입할 수 없습니다.'
     }
    
     //이메일
@@ -415,11 +414,7 @@ if(error){
 
     setForm(prev => ({
         ...prev,
-        [name]: 
-        name==='id'
-        ? value.slice(0,20)
-        : value
-
+        [name]: value
     }))
 
 }      
@@ -517,8 +512,7 @@ if(error){
             console.log(error)
             alert("가입에 실패하였습니다.")
 
-            }
-            
+            }   
 
         
     };
@@ -574,7 +568,7 @@ if(error){
                     )}
 
                     <div className="guide-msg">
-                            5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.
+                            아이디에 한글은 입력할 수 없습니다.
                         </div>
 
 
@@ -593,45 +587,63 @@ if(error){
                 <div className="join-input">
 
     <TextField
-        fullWidth
-        label="[필수] 비밀번호"
-        type="password"
-        name="pw"
-        value={form.pw}
-        onChange={onText}
+    fullWidth
+    label="[필수] 비밀번호"
+    type={showPw ? 'text' : 'password'}
+    name="pw"
+    value={form.pw}
+    onChange={onText}
 
-        onFocus={() => {
+    InputProps={{
+        endAdornment: (
+            <InputAdornment position="end">
+                <IconButton
+                    onClick={() => setShowPw(!showPw)}
+                    edge="end"
+                >
+                    {showPw
+                        ? <Visibility/>
+                        : <VisibilityOff/>
+                    }
+                </IconButton>
+            </InputAdornment>
+        )
+    }}
 
-                    if(!form.id.trim()){
-                        setErrorMsg(prev => ({
-                    ...prev,
-                    id:'아이디는 필수 정보입니다.'
-                }))
+    onFocus={() => {
 
-            }
+        if(!form.id.trim()){
 
-        }}
+            setErrorMsg(prev => ({
+                ...prev,
+                id:'아이디는 필수 정보입니다.'
+            }))
 
-        onBlur={() => {
+        }
 
-    if(!form.pw.trim()){
+    }}
 
-        setErrorMsg(prev => ({
-            ...prev,
-            pw:'비밀번호는 필수 정보입니다.'
-        }))
+    onBlur={() => {
 
-    }else{
+        if(!form.pw.trim()){
 
-        setErrorMsg(prev => ({
-            ...prev,
-            pw:''
-        }))
+            setErrorMsg(prev => ({
+                ...prev,
+                pw:'비밀번호는 필수 정보입니다.'
+            }))
 
-    }
+        }else{
 
-}}
-    />
+            setErrorMsg(prev => ({
+                ...prev,
+                pw:''
+            }))
+
+        }
+
+    }}
+/>
+
 
         {errorMsg.pw && (
         <div className="error-msg">
@@ -648,10 +660,28 @@ if(error){
                     <TextField
                         fullWidth
                         label="비밀번호 확인"
-                        type="password"
+                        type={showPwCheck ? 'text':'password'  }
                         value={pwCheck}
                         onChange={(e) => setPwCheck(e.target.value)}
-                    />
+
+                         InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+
+                            <IconButton
+                                onClick={() => setShowPwCheck(!showPwCheck)}
+                                edge="end"
+                            >
+                                {showPwCheck
+                                    ? <Visibility/>
+                                    : <VisibilityOff/>
+                                }
+                            </IconButton>
+
+                        </InputAdornment>
+                    )
+                }}
+            />
 
                     {form.pw !== pwCheck && pwCheck && (
 
@@ -1063,32 +1093,42 @@ if(error){
 
                 <div className="join-input">
 
-                    <DatePickerMui
-    label="[필수] 생년월일"
-    value={birth}
+                <BirthDatePickerMui
+                    label="[필수] 생년월일"
+                    value={birth}
+                    maxDate={dayjs().subtract(14,'year')}
 
-    onChange={(value) => {
+                    onChange={(value) => {
 
-        onBirth(value);
+                        onBirth(value);                        
 
-        if(!value){
+                        if(!value){
 
-            setErrorMsg(prev => ({
-                ...prev,
-                birth:'생년월일을 선택하세요.'
-            }))
+                            setErrorMsg(prev => ({
+                                ...prev,
+                                birth:'생년월일을 선택하세요.'
+                            }))
 
-        }else{
+                        }
 
-            setErrorMsg(prev => ({
-                ...prev,
-                birth:''
-            }))
+                       else if(value && value.isAfter(dayjs().subtract(14,'year'))){
+                        setErrorMsg(prev => ({
+                            ...prev,
+                            birth:'만 14세 미만은 가입할 수 없습니다.'
+                        }))
+                    
 
-        }
+                        }else{
 
-    }}
-/>
+                            setErrorMsg(prev => ({
+                                ...prev,
+                                birth:''
+                            }))
+
+                        }
+
+                    }}
+                />
 
 {errorMsg.birth && (
     <div className="error-msg">

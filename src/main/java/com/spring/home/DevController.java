@@ -264,6 +264,41 @@ public class DevController {
 		return userService.getSummary();
 	}
 	
+	//상품별 리뷰 통계
+	@PostMapping("/getProductReviewStats")
+	public Map<String, Object> getProductReviewStats(@RequestBody Map<String, Object> map){
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		try {
+			result.put("list", userService.getProductReviewStats(map));			
+			result.put("success", true);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+			
+		}
+		return result;
+	}
+	
+	//상담 고객 성별 / 연령대 / 계약 고객수
+	
+	@PostMapping("/getInteriorCustomerStats")
+	public Map<String,Object> getInteriorCustomerStats(@RequestBody Map<String, Object> map){
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		System.out.println("상담고객 정보" + result);
+		
+		try {
+			result.put("list", userService.getInteriorCustomerStats(map));			
+			result.put("success", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("success", false);
+		}
+		return result;
+	}
+	
 	
 	
 	

@@ -11,6 +11,8 @@ import CouponListDev from "../components/CouponListDev";
 import Coupon from "../pages/Coupon";
 import DevDashboardHeader from "./DevDashBoardHeader";
 import InteriorList from "../dashboardDev/InteriorList";
+import Productreview from "../dashboardDev/Productreview";
+import InteriorCustomer from "../dashboardDev/InteriorCustomer";
 
 const DashboardDevLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
@@ -61,6 +63,16 @@ const DashboardDevLayout = () => {
 				)
 
 			},
+			{
+				key:"Productreview",
+				label:"상품별 리뷰 통계",
+				component:(
+					<Productreview/>
+					
+
+				)
+
+			},
 
 
 
@@ -76,7 +88,16 @@ const DashboardDevLayout = () => {
 				)
 
 			},
+			{
+				key:"InteriorCustomerStats",
+				label:"고객별 상담 통계",
+				component:(
+					<InteriorCustomer/>
 
+				)
+
+			},
+			
 
 
 		],
