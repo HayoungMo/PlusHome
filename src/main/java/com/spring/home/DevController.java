@@ -283,6 +283,7 @@ public class DevController {
 	
 	//상담 고객 성별 / 연령대 / 계약 고객수
 	
+	
 	@PostMapping("/getInteriorCustomerStats")
 	public Map<String,Object> getInteriorCustomerStats(@RequestBody Map<String, Object> map){
 		Map<String, Object> result = new HashMap<String, Object>();
