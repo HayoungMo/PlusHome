@@ -36,6 +36,7 @@ function InteriorArticle() {
 
   const [selectedExample, setSelectedExample] = useState(null);
   const [exampleImageIndex, setExampleImageIndex] = useState(0);
+  const [reviewCount, setReviewCount] = useState(null);
 
   const [bookingPossible, setBookingPossible] = useState(answers ? true : false);
   const [examplePossible, setExamplePossible] = useState(false);
@@ -230,6 +231,11 @@ function InteriorArticle() {
   };
 
   const selectedExampleImages = getExampleImages(selectedExample);
+  const modelList =
+    company?.model?.result?.filter((item) => item.img_tag === "MODEL") || [];
+  const hasExamples = example.length > 0;
+  const hasModels = modelList.length > 0;
+  const hasReviews = reviewCount > 0;
 
   const handleExampleClose = () => {
     setExamplePossible(false);
@@ -327,48 +333,50 @@ function InteriorArticle() {
           </div>
         ))}
       </div>
-      <div className="example-card">
-        <div className="section-title">시공 사례</div>
+      {hasExamples && (
+        <div className="example-card">
+          <div className="section-title">시공 사례</div>
 
-        <div className="example-grid">
-          {example.map((item, idx) => {
-            const thumbnail = getThumbnailImage(item);
+          <div className="example-grid">
+            {example.map((item, idx) => {
+              const thumbnail = getThumbnailImage(item);
 
-            return (
-              <div
-                key={`${item?.ie_index}`}
-                className="example-item"
-                onClick={() => {
-                  setSelectedExample(item);
-                  setExampleImageIndex(0);
-                  setExamplePossible(true);
-                }}
-              >
-                {thumbnail ? (
-                  <img
-                    className="example-img"
-                    src={thumbnail.img_name}
-                    alt={`${item.c_name} 예시`}
-                  />
-                ) : (
-                  <div className="example-img example-img-empty">
-                    이미지 없음
+              return (
+                <div
+                  key={`${item?.ie_index}`}
+                  className="example-item"
+                  onClick={() => {
+                    setSelectedExample(item);
+                    setExampleImageIndex(0);
+                    setExamplePossible(true);
+                  }}
+                >
+                  {thumbnail ? (
+                    <img
+                      className="example-img"
+                      src={thumbnail.img_name}
+                      alt={`${item.c_name} 시공 사례`}
+                    />
+                  ) : (
+                    <div className="example-img example-img-empty">
+                      이미지 없음
+                    </div>
+                  )}
+
+                  <div className="example-content">
+                    <Stack direction="row" spacing={1} mb={1}>
+                      <Chip label={formatInteriorAnswerValue(item?.ie_tag)} />
+                      <Chip label={formatInteriorAnswerValue(item?.ie_tag2)} />
+                    </Stack>
+
+                    <div>{item?.ie_content}</div>
                   </div>
-                )}
-
-                <div className="example-content">
-                  <Stack direction="row" spacing={1} mb={1}>
-                    <Chip label={item?.ie_tag} />
-                    <Chip label={item?.ie_tag2} />
-                  </Stack>
-
-                  <div>{item?.ie_content}</div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
       <DialogInside
         open={examplePossible}
         onClose={handleExampleClose}
@@ -385,7 +393,7 @@ function InteriorArticle() {
                   key={i}
                   className="example-img"
                   src={record.img_name}
-                  alt={`${selectedExample.c_name} 예시`}
+                  alt={`${selectedExample?.c_name} 시공 사례`}
                 />
               ))}
             {selectedExampleImages.length > 1 && (
@@ -417,32 +425,34 @@ function InteriorArticle() {
 
           <div className="example-content">
             <Stack direction="row" spacing={1} mb={1}>
-              <Chip label={selectedExample?.ie_tag} />
-              <Chip label={selectedExample?.ie_tag2} />
+              <Chip label={formatInteriorAnswerValue(selectedExample?.ie_tag)} />
+              <Chip label={formatInteriorAnswerValue(selectedExample?.ie_tag2)} />
             </Stack>
 
             <div>{selectedExample?.ie_content}</div>
           </div>
         </div>
       </DialogInside>
-      {company?.model && (
+      {hasModels && (
         <div className="example-card">
           <div className="section-title">시공 3D 모델</div>
           <div style={{ display: "flex" }}>
-            {company?.model?.result?.map(
-              (item) =>
-                item.img_tag === "MODEL" && (
-                  <InteriorModelViewer src={item.img_name} />
-                ),
-            )}
+            {modelList.map((item) => (
+              <InteriorModelViewer key={item.img_name} src={item.img_name} />
+            ))}
           </div>
         </div>
       )}
-      <div className="example-card">
-        <div className="section-title">리뷰 및 후기</div>
+      {hasReviews && (
+        <div className="example-card">
+          <div className="section-title">리뷰 및 후기</div>
 
-        <InteriorReviewList company={company} />
-      </div>
+          <InteriorReviewList company={company} onCountChange={setReviewCount} />
+        </div>
+      )}
+      {reviewCount === null && (
+        <InteriorReviewList company={company} onCountChange={setReviewCount} />
+      )}
       <div className="example-card">
         <div className="section-title">ai 정보 요약</div>
         <InteriorArticleAI

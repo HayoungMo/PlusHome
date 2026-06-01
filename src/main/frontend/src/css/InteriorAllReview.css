@@ -67,6 +67,16 @@
   border: 1px solid #00a1ff;
 }
 
+.interior-all-review-page .interior-media-card-skeleton {
+  cursor: default;
+  pointer-events: none;
+}
+
+.interior-all-review-page .interior-media-card-skeleton:hover {
+  transform: none;
+  border-color: #e5e7eb;
+}
+
 .interior-all-review-page .interior-review-card-thumb {
   width: 100%;
   aspect-ratio: 1 / 0.72;

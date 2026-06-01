@@ -1037,8 +1037,7 @@ const FurnitureArticle = () => {
 
           {tab === "review" && (
             <div>
-              <h3>리뷰</h3>
-
+              
               <div
                 style={{
                   padding: "30px",
@@ -1052,7 +1051,6 @@ const FurnitureArticle = () => {
 
           {tab === "qna" && (
             <div>
-              <h3>문의</h3>
 
               <div
                 style={{

@@ -190,115 +190,122 @@ const InteriorUpdate = (props) => {
     setInterior(interiorInfo);
   }, [interiorInfo]);
 
-  return (
-    <div>
-      {alert.open && (
-        <AlertMui
-          severity={alert.severity}
-          title={alert.title}
-          text={alert.text}
-          autoHideDuration={3000}
-          onClose={() =>
-            setAlert((prev) => ({
-              ...prev,
-              open: false,
-            }))
-          }
-        />
-      )}
-      <div>
-        <TextFieldMui
-          name="i_tag"
-          value={formatInteriorAnswerLabel(i_tag)}
-        />
-        {i_tag !== "location" ? (
-          <SelectMui
-            label="항목 선택"
-            name="i_text"
-            value={i_text}
-            onChange={handleChange}
-            option={selectedQuestion?.options || []}
-            required
-          />
-        ) : (
-          <>
-            <SelectMui
-              label="시/도"
-              name="textRegion"
-              value={textRegion}
-              onChange={handleChange}
-              option={sidoOption}
-            />
+return (
+  <div className="interior-update-card">
+    {alert.open && (
+      <AlertMui
+        severity={alert.severity}
+        title={alert.title}
+        text={alert.text}
+        autoHideDuration={3000}
+        onClose={() =>
+          setAlert((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+      />
+    )}
 
-            <SelectMui
-              label="시/군/구"
-              name="textRegionDetail"
-              value={textRegionDetail}
-              onChange={handleChange}
-              option={sigunguOption}
-              disabled={!textRegion}
-            />
-          </>
-        )}
-        <Button onClick={handleUpdateConfirm} variant="contained">
-          제출
-        </Button>
-        <DialogMui
-          open={updateOpen}
-          onClose={handleUpdateConfirm}
-          title="제출 확인"
-          text="정말 제출하시겠습니까?"
-          buttons={[
-            {
-              title: "취소",
-              color: "inherit",
-              onClick: handleUpdateConfirm,
-            },
-            {
-              title: "제출",
-              variant: "contained",
-              onClick: () => {
-                handleSubmit();
-                handleUpdateConfirm();
-              },
-            },
-          ]}
-        />
-        <Button onClick={handleCloseConfirm} variant="contained">
-          삭제
-        </Button>
-        <DialogMui
-          open={deleteOpen}
-          onClose={handleCloseConfirm}
-          title="삭제 확인"
-          text="정말 삭제하시겠습니까?"
-          buttons={[
-            {
-              title: "취소",
-              color: "inherit",
-              onClick: handleCloseConfirm,
-            },
-            {
-              title: "삭제",
-              color: "error",
-              variant: "contained",
-              onClick: () => {
-                handleDelete();
-                handleCloseConfirm();
-              },
-            },
-          ]}
-        />
-        <Button
-          onClick={() => setOpenUpdateDialog(false)}
-          color="error"
-          variant="contained"
-        >
-          수정 취소
-        </Button>
-      </div>
+    <div className="interior-update-head">
+      <strong>인테리어 {formatInteriorAnswerLabel(i_tag)} 수정</strong>
+      <span>현재 값을 변경하거나 삭제할 수 있습니다.</span>
     </div>
-  );
+
+    <div className="interior-update-form">
+      {i_tag !== "location" ? (
+        <SelectMui
+          label="항목 선택"
+          name="i_text"
+          value={i_text}
+          onChange={handleChange}
+          option={selectedQuestion?.options || []}
+          required
+        />
+      ) : (
+        <div className="interior-update-location">
+          <SelectMui
+            label="시/도"
+            name="textRegion"
+            value={textRegion}
+            onChange={handleChange}
+            option={sidoOption}
+          />
+
+          <SelectMui
+            label="시/군/구"
+            name="textRegionDetail"
+            value={textRegionDetail}
+            onChange={handleChange}
+            option={sigunguOption}
+            disabled={!textRegion}
+          />
+        </div>
+      )}
+    </div>
+
+    <div className="interior-update-actions">
+      <Button onClick={handleUpdateConfirm} variant="contained">
+        제출
+      </Button>
+
+      <Button onClick={handleCloseConfirm} color="error" variant="contained">
+        삭제
+      </Button>
+
+      <Button
+        onClick={() => setOpenUpdateDialog(false)}
+        color="inherit"
+        variant="contained"
+      >
+        수정 취소
+      </Button>
+    </div>
+    <DialogMui
+      open={updateOpen}
+      onClose={handleUpdateConfirm}
+      title="제출 확인"
+      text="정말 제출하시겠습니까?"
+      buttons={[
+        {
+          title: "취소",
+          color: "inherit",
+          onClick: handleUpdateConfirm,
+        },
+        {
+          title: "제출",
+          variant: "contained",
+          onClick: () => {
+            handleSubmit();
+            handleUpdateConfirm();
+          },
+        },
+      ]}
+    />
+    <DialogMui
+      open={deleteOpen}
+      onClose={handleCloseConfirm}
+      title="삭제 확인"
+      text="정말 삭제하시겠습니까?"
+      buttons={[
+        {
+          title: "취소",
+          color: "inherit",
+          onClick: handleCloseConfirm,
+        },
+        {
+          title: "삭제",
+          color: "error",
+          variant: "contained",
+          onClick: () => {
+            handleDelete();
+            handleCloseConfirm();
+          },
+        },
+      ]}
+    />
+  </div>
+);
 };
 
 export default InteriorUpdate;

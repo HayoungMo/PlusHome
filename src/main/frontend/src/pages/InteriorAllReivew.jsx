@@ -6,6 +6,7 @@ import GetImgDir from "../resources/function/GetImgDir";
 import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllReview.css";
 import Loading from "../components/Loading";
+import SkeletonMui from "../components/SkeletonMui";
 
 const PAGE_SIZE = 6;
 
@@ -21,6 +22,7 @@ const InteriorAllReivew = () => {
   });
   const [selectedReview, setSelectedReview] = useState(null);
   const [reviewImageIndex, setReviewImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const handleNext = (company) => {
     navigate("/interior/article", {
@@ -30,38 +32,44 @@ const InteriorAllReivew = () => {
 
   useEffect(() => {
     const fetchReview = async () => {
-      const data = await InteriorService.fetchPagedInteriorReview({
-        pageNum,
-        pageSize: PAGE_SIZE,
-      });
-      const companyList = Array.isArray(data?.list) ? data.list : [];
+      try {
+        setLoading(true);
 
-      const listWithImages = await Promise.all(
-        companyList.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "I_REVIEW",
-            returnType: "list",
-            a: item.c_id,
-            b: item.c_kind,
-            c: item.c_name,
-            d: item.id,
-            e: item.b_createdDate,
-            view: false,
-          });
+        const data = await InteriorService.fetchPagedInteriorReview({
+          pageNum,
+          pageSize: PAGE_SIZE,
+        });
+        const companyList = Array.isArray(data?.list) ? data.list : [];
 
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
+        const listWithImages = await Promise.all(
+          companyList.map(async (item) => {
+            const logo = await GetImgDir({
+              kind: "I_REVIEW",
+              returnType: "list",
+              a: item.c_id,
+              b: item.c_kind,
+              c: item.c_name,
+              d: item.id,
+              e: item.b_createdDate,
+              view: false,
+            });
 
-      setReview(listWithImages);
-      setPageInfo({
-        totalCount: data?.totalCount || 0,
-        totalPage: data?.totalPage || 0,
-        pageSize: data?.pageSize || PAGE_SIZE,
-      });
+            return {
+              ...item,
+              logo,
+            };
+          }),
+        );
+
+        setReview(listWithImages);
+        setPageInfo({
+          totalCount: data?.totalCount || 0,
+          totalPage: data?.totalPage || 0,
+          pageSize: data?.pageSize || PAGE_SIZE,
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchReview();
@@ -121,7 +129,17 @@ const InteriorAllReivew = () => {
 
   return (
     <div className="interior-all-review-page">
-      {Object.values(groupedReviews).map((group) => (
+      {loading ? (
+        <SkeletonMui
+          variant="interiorMediaCard"
+          count={PAGE_SIZE}
+          groupClassName="interior-review-group"
+          gridClassName="interior-review-grid"
+          cardClassName="interior-review-card"
+          thumbClassName="interior-review-card-thumb"
+          infoClassName="interior-review-card-info"
+        />
+      ) : Object.values(groupedReviews).map((group) => (
         <div
           className="interior-review-group"
           key={`${group.company.c_id}-${group.company.c_kind}-${group.company.c_name}`}
@@ -175,9 +193,9 @@ const InteriorAllReivew = () => {
         </div>
       ))}
 
-      {review.length === 0 && <Loading />}
+      {!loading && review.length === 0 && <Loading />}
 
-      {pageInfo.totalPage > 1 && (
+      {!loading && pageInfo.totalPage > 1 && (
         <Pagination
           count={pageInfo.totalPage}
           page={pageNum}

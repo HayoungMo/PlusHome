@@ -4,20 +4,23 @@ import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
 import InteriorAnswerAi from "./InteriorAnswerAi";
 import "../css/InteriorRecommend.css";
-import Loading from "./Loading";
+import SkeletonMui from "./SkeletonMui";
 
 const InteriorRecommend = ({ answers, fromChatbot = false }) => {
   //알고리즘 적용시 리스트 컴포넌트
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(Boolean(answers));
 
 
   useEffect(() => {
     const fetchData = async () => {
-      const companies = await InteriorService.fetchList();
-      const tags = await InteriorService.fetchArticleList();
-      setTags(Array.isArray(tags) ? tags : []);
+      setLoading(true);
+      try {
+        const companies = await InteriorService.fetchList();
+        const tags = await InteriorService.fetchArticleList();
+        setTags(Array.isArray(tags) ? tags : []);
 
       const result = recommendCompanies(
         Array.isArray(companies) ? companies : [],
@@ -45,11 +48,17 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
         }),
       );
 
-      setList(resultWithImages);
+        setList(resultWithImages);
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (answers) {
       fetchData();
+    } else {
+      setList([]);
+      setLoading(false);
     }
   }, [answers]);
 
@@ -113,8 +122,18 @@ const InteriorRecommend = ({ answers, fromChatbot = false }) => {
     <div className="interior-list-section interior-recommend-section">
       <div className="interior-company-grid interior-recommend-grid">
         {/* 결과 없을때 메세지 보여줌 - 0528 모하영 */}
-        {list.length === 0 ? (
-          <Loading />
+        {loading ? (
+          <SkeletonMui
+            variant="interiorCompanyCard"
+            count={6}
+            cardClassName="interior-recommend-card"
+            showRank
+            showAi
+          />
+        ) : list.length === 0 ? (
+          <div className="interior-recommend-empty">
+            추천할 수 있는 업체가 없습니다.
+          </div>
         ) : (
           list.slice(0, 6).map((item, idx) => (
             <div
