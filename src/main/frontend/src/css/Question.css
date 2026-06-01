@@ -4,8 +4,14 @@
 }
 
 .question-form {
-	max-width: 620px;
+	position: relative;
+	max-width: 640px;
 	margin: 0 auto 32px;
+	padding: 24px 22px 28px;
+	border: 1px solid #e5e8eb;
+	border-radius: 12px;
+	background: #fff;
+	text-align: left;
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
@@ -19,23 +25,62 @@
 	display: none;
 }
 
-.question-upload-row {
-	display: flex;
-	justify-content: center;
-	margin-top: 2px;
+.question-form-header h3 {
+	margin: 0 120px 8px 0;
+	font-size: 22px;
+	font-weight: 800;
+	color: #111;
 }
 
-.question-submit-row {
+.question-secret-row {
+	position: absolute;
+	top: 22px;
+	right: 22px;
+	display: flex;
+	align-items: center;
+}
+
+.question-action-row {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-direction: column-reverse;
-	gap: 8px;
-	margin-top: 8px;
+	gap: 10px;
+	margin-top: 2px;
 }
 
-.question-submit-row label {
+.question-action-row .MuiButton-root {
+	min-width: 116px;
+}
+
+.question-secret-checkbox {
+	width: auto !important;
+}
+
+.question-secret-checkbox .MuiFormControl-root {
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 4px;
+}
+
+.question-secret-checkbox .MuiFormLabel-root {
+	position: static;
+	color: #333;
+	font-size: 14px;
+	line-height: 1;
+}
+
+.question-secret-checkbox .MuiFormGroup-root {
+	display: inline-flex;
+	flex-direction: row;
+}
+
+.question-secret-checkbox .MuiFormControlLabel-root {
 	margin: 0;
+}
+
+.question-secret-checkbox .MuiCheckbox-root {
+	padding: 4px;
 }
 
 .question-section > hr {
@@ -82,9 +127,22 @@
 		max-width: 100%;
 	}
 
-	.question-submit-row {
+	.question-secret-row {
+		position: static;
+		justify-content: flex-end;
+	}
+
+	.question-form-header h3 {
+		margin-right: 0;
+	}
+
+	.question-action-row {
 		flex-direction: column;
 		gap: 10px;
+	}
+
+	.question-action-row .MuiButton-root {
+		width: 100%;
 	}
 }
 
