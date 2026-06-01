@@ -1119,3 +1119,5 @@ const FurnitureArticle = () => {
 };
 
 export default FurnitureArticle;
+
+//문의랑 리뷰 지워라 죽고 싶지 않으면

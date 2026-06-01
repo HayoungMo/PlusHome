@@ -26,6 +26,7 @@ import com.spring.home.dto.UserDTO;
 import com.spring.home.dto.WalletDTO;
 import com.spring.home.mapper.CompanyMapper;
 import com.spring.home.mapper.CouponMapper;
+import com.spring.home.mapper.DashboardMapper;
 import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.UserMapper;
 import com.spring.home.mapper.WalletMapper;
@@ -54,6 +55,9 @@ public class UserService {
 	
 	@Autowired
 	private WalletMapper walletMapper;
+	
+	@Autowired
+	private DashboardMapper dashboardMapper;
 	
 	@Transactional
 	public void insertUser(UserDTO dto) throws Exception{
@@ -400,6 +404,19 @@ public class UserService {
 	public DevDashBoardSummaryDTO getSummary() throws Exception {
 		return userMapper.getDevDashboardSummary();
 	}
+	
+	//상품별 리뷰 통계
+	public List<Map<String, Object>> getProductReviewStats(Map<String, Object> map) throws Exception{
+		return dashboardMapper.getProductReviewStats(map);
+	}
+	
+	
+	//상담 고객의 성별 / 연령대/ 계약 고객수
+	public Map<String, Object> getInteriorCustomerStats(Map<String, Object> map) throws Exception{
+		return dashboardMapper.getInteriorCustomerStats(map);
+	}
+	
+
 	
 	
 	

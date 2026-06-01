@@ -2,12 +2,6 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, Snackbar } from '@mui/material';
-import BedIcon from "@mui/icons-material/Bed";
-import WeekendIcon from "@mui/icons-material/Weekend";
-import DeskIcon from "@mui/icons-material/Desk";
-import ChairIcon from "@mui/icons-material/Chair";
-import Inventory2Icon from "@mui/icons-material/Inventory2";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import InteriorService from '../service/interiorService';
 import CheckboxMui from '../components/CheckboxMui';
 import EventPopup from './EventPopup';
@@ -31,12 +25,12 @@ const MainHomePage = ({ loginUser }) => {
             : savedUser; 
     //메인화면 아이콘 넣기
     const categoryMenus = [
-    { value: "bed", title: "침대", icon: <BedIcon /> },
-    { value: "sofa",title: "소파", icon: <WeekendIcon /> },
-    { value: "desk",title: "책상", icon: <DeskIcon /> },
-    { value: "chair",title: "의자", icon: <ChairIcon /> },
-    { value: "storage",title: "수납", icon: <Inventory2Icon /> },
-    { value: "light",title: "조명", icon: <LightbulbIcon /> },
+    { value: "bed", title: "침대", image: "/icons/main-category/bed.png" },
+    { value: "sofa",title: "소파", image: "/icons/main-category/sofa.png" },
+    { value: "desk",title: "책상", image: "/icons/main-category/desk.png" },
+    { value: "chair",title: "의자", image: "/icons/main-category/chair.png" },
+    { value: "storage",title: "수납", image: "/icons/main-category/storage.png" },
+    { value: "light",title: "조명", image: "/icons/main-category/light.png" },
 ];
 
     const [hideMode, setHideMode] = useState(false);
@@ -265,8 +259,12 @@ const MainHomePage = ({ loginUser }) => {
                             to={`/furniture/list?page=1&searchKey=f_catagory1&searchValue=${encodeURIComponent(category.value)}&sort=latest`}
                             className="main-category-link"
                         >
-                            <div className="main-category-icon">
-                                {React.cloneElement(category.icon, { fontSize: "large" })}
+                            <div className={`main-category-icon main-category-icon-${category.value}`}>
+                                <img
+                                    src={category.image}
+                                    alt={`${category.title} 아이콘`}
+                                    className="main-category-image"
+                                />
                             </div>
 
                             <span className="main-category-title">
@@ -507,9 +505,6 @@ const MainHomePage = ({ loginUser }) => {
 
                 
             </section>
-
-            
-
             {/* 기존 footer 제거: 공통 Footer가 담당 */}
         </div>
     );

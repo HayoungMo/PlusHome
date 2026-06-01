@@ -5,13 +5,13 @@ import {
   AlertTitle,
   Box,
   Button,
-  CircularProgress,
   Snackbar,
   Typography,
 } from "@mui/material";
 import EventService from "../service/eventService";
 import GetImgDir from "../resources/function/GetImgDir";
 import CouponDownload from "../components/CouponDownload";
+import SkeletonMui from "../components/SkeletonMui";
 import "../css/EventArticle.css";
 import "../css/CouponArticleDownload.css";
 
@@ -23,7 +23,7 @@ const EventArticle = () => {
   const [event, setEvent] = useState(null);
   const [imageList, setImageList] = useState([]);
   const [couponList, setCouponList] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [alert, setAlert] = useState({
     open: false,
@@ -166,8 +166,8 @@ const EventArticle = () => {
 
   if (loading) {
     return (
-      <Box className="event-article-loading">
-        <CircularProgress />
+      <Box className="event-article-page">
+        <SkeletonMui variant="eventArticle" />
       </Box>
     );
   }

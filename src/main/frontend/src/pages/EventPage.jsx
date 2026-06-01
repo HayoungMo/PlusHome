@@ -5,12 +5,14 @@ import GetImgDlr from "../resources/function/GetImgDir";
 import EventService from "../service/eventService";
 import "../css/EventPage.css";
 import Loading from "../components/Loading";
+import SkeletonMui from "../components/SkeletonMui";
 
 const EventPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const pageSize = 6;
 
   const handleNext = (eId) => {
@@ -24,27 +26,33 @@ const EventPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await EventService.selectEventList();
-      const dataList = Array.isArray(data) ? data : [];
+      try {
+        setLoading(true);
 
-      const listWithImages = await Promise.all(
-        dataList.map(async (item) => {
-          const logo = await GetImgDlr({
-            kind: "DEV",
-            returnType: "list",
-            a: item.e_id,
-            b: item.e_title,
-            view: false,
-          });
+        const data = await EventService.selectEventList();
+        const dataList = Array.isArray(data) ? data : [];
 
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
+        const listWithImages = await Promise.all(
+          dataList.map(async (item) => {
+            const logo = await GetImgDlr({
+              kind: "DEV",
+              returnType: "list",
+              a: item.e_id,
+              b: item.e_title,
+              view: false,
+            });
 
-      setEvents(listWithImages);
+            return {
+              ...item,
+              logo,
+            };
+          }),
+        );
+
+        setEvents(listWithImages);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -111,6 +119,9 @@ const EventPage = () => {
             <Tab label="공지사항" />
           </Tabs>
         </div>
+        {loading ? (
+          <SkeletonMui variant="eventCard" count={pageSize} />
+        ) : (
         <div className="event-card-grid">
           {pagedEvents.map((record) => {
             const thumbnail = getThumbnail(record);
@@ -140,11 +151,12 @@ const EventPage = () => {
             );
           })}
         </div>
-        {events.length === 0 && <Loading />}
-        { events.length !== 0 && visibleEvents.length === 0 && (
+        )}
+        {!loading && events.length === 0 && <Loading />}
+        {!loading && events.length !== 0 && visibleEvents.length === 0 && (
           <div className="event-page-empty">표시할 목록이 없습니다.</div>
         )}
-        {totalPage > 1 && (
+        {!loading && totalPage > 1 && (
           <Pagination
             className="event-page-pagination"
             count={totalPage}

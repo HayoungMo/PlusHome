@@ -275,6 +275,17 @@ const Question = ({ f_code,furniture }) => {
         setQuestionFiles([]);
     };
 
+    const resetQuestionForm = () => {
+        setQuestionForm({
+            q_title: "",
+            q_content: "",
+            q_secret: "N",
+            guestPhone: "",
+            q_pw: "",
+        });
+        clearQuestionPreviewFiles();
+    };
+
     useEffect(() => {
         questionPreviewsRef.current = questionPreviews;
     }, [questionPreviews]);
@@ -345,14 +356,7 @@ const Question = ({ f_code,furniture }) => {
             if (isGuest) {
                 localStorage.setItem("guestQuestionPhone", questionForm.guestPhone.trim());
             }
-            setQuestionForm({
-                q_title: "",
-                q_content: "",
-                q_secret: "N",
-                guestPhone: "",
-                q_pw: "",
-            });
-            clearQuestionPreviewFiles();
+            resetQuestionForm();
             getQuestionList();
         }catch(error){
             console.log(error);
@@ -421,6 +425,21 @@ const Question = ({ f_code,furniture }) => {
                 <p>자기 회사 상품에는 문의를 작성할 수 없습니다. 고객 문의에만 답변이 가능합니다.</p>
             ):(
                 <form className="question-form" onSubmit={onQuestionSubmit}>
+                    <div className="question-form-header">
+                        <h3>상품 문의 </h3>
+                    </div>
+
+                    <div className="question-secret-row">
+                        <CheckboxMui
+                            className="question-secret-checkbox"
+                            width="auto"
+                            name="q_secret"
+                            checked={questionForm.q_secret === "Y"}
+                            onChange={onQuestionChange}
+                            label="비밀글"
+                        />
+                    </div>
+
                     {!loginUser && (
                         <>
                             <TextField
@@ -458,21 +477,25 @@ const Question = ({ f_code,furniture }) => {
                         rows={5}
                     />
                     <br/>
-                    <div className="question-upload-row">
-                    <Button
-                        component="label"
-                        variant="contained"
-                        startIcon={<CloudUploadIcon />}
-                    >
-                        이미지 업로드
-                        <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            hidden
-                            onChange={onQuestionFileChange}
-                        />
-                    </Button>
+                    <div className="question-action-row">
+                        <Button
+                            component="label"
+                            variant="contained"
+                            startIcon={<CloudUploadIcon />}
+                        >
+                            이미지 업로드
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                hidden
+                                onChange={onQuestionFileChange}
+                            />
+                        </Button>
+
+                        <Button type="submit" variant="contained">
+                            문의 등록
+                        </Button>
                     </div>
                     {questionPreviews.length > 0 && (
                         <div className="question-preview-grid">
@@ -513,20 +536,6 @@ const Question = ({ f_code,furniture }) => {
                             ))}
                         </div>
                     )}
-                    <br />
-
-                    <div className="question-submit-row">
-                    <label>
-                        <CheckboxMui
-                            name="q_secret"
-                            checked={questionForm.q_secret === "Y"}
-                            onChange={onQuestionChange}
-                            label="비밀글"
-                        />
-                    </label>
-
-                    <Button type="submit" variant="contained">문의 등록</Button>
-                    </div>
                 </form>
             )}
             <hr />
