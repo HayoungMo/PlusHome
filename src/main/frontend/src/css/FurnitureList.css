@@ -1,0 +1,339 @@
+.furniture-list-page {
+  max-width: 1180px;
+  min-height: calc(100vh - 160px);
+  margin: 0 auto;
+  padding: 34px 24px 64px;
+  color: #2f3438;
+}
+
+.furniture-list-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.furniture-list-heading h2 {
+  margin: 0;
+  color: #2f3438;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.furniture-list-heading p {
+  margin: 0;
+  color: #828c94;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.furniture-list-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid #eee;
+  padding-top: 14px;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.furniture-list-sort-divider {
+  color: #d1d5db;
+}
+
+.furniture-list-sort-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #666;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.furniture-list-sort-btn.active {
+  color: #111827;
+  font-weight: 800;
+}
+
+.furniture-list-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px 18px;
+}
+
+.furniture-list-card {
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.furniture-list-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.18;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f7f7f7;
+}
+
+.furniture-list-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.furniture-list-like {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+}
+
+.furniture-list-like.active {
+  color: #e60023;
+}
+
+.furniture-list-like.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.furniture-list-company {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 7px;
+  padding: 2px 6px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.furniture-list-name {
+  margin-bottom: 6px;
+  color: #222;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.furniture-list-original {
+  margin-bottom: 2px;
+  color: #aaa;
+  font-size: 10px;
+  text-decoration: line-through;
+}
+
+.furniture-list-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 5px;
+}
+
+.furniture-list-discount {
+  color: #e60023;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.furniture-list-price {
+  color: #111;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.furniture-list-delivery {
+  color: #777;
+  font-size: 13px;
+}
+
+.furniture-list-empty {
+  padding: 40px;
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.furniture-list-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.furniture-list-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.furniture-list-filter-toggle {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  background: #fff;
+  color: #008cff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.furniture-list-filter-toggle:hover {
+  border-color: #008cff;
+  color: #008cff;
+  background: #f6fbff;
+}
+
+.furniture-list-current-filter {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.furniture-list-search {
+  display: contents;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fbfcfd;
+}
+
+.furniture-list-search select,
+.furniture-list-search input {
+  height: 44px;
+  min-width: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 0 14px;
+  color: #2f3438;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+
+.furniture-list-search input {
+  width: 100%;
+}
+
+.furniture-list-search button {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #111827;
+  border-radius: 4px;
+  background: #111827;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.furniture-list-search button:hover {
+  background: #008cff;
+  border-color: #008cff;
+}
+
+.furniture-list-search-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border: 1px solid #e5eef7;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(38, 92, 135, 0.06);
+}
+
+.furniture-list-search {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.furniture-list-search input {
+  width: 240px;
+  flex: none;
+}
+
+.furniture-list-search select,
+.furniture-list-search input {
+  height: 44px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.furniture-list-search input {
+  width: 220px;
+}
+
+.furniture-list-filter-toggle,
+.furniture-list-search button,
+.furniture-list-reset-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.furniture-list-filter-toggle {
+  border: 1px solid #93c5fd;
+  background: #fff;
+  color: #008cff;
+}
+
+.furniture-list-search button[type="submit"] {
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid #008cff;
+  border-radius: 8px;
+  background: #008cff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0, 140, 255, 0.25);
+}
+
+.furniture-list-reset-btn {
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #008cff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}

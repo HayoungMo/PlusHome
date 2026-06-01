@@ -150,30 +150,36 @@ const toggleSelectAll = () => {
     />
 
     {likes.length > 0 && (
-      <div className="user-bulk-toolbar">
-        {selectMode ? (
-          <>
-            <span>{selectedIds.length}개 선택</span>
+      <div className="uw-toolbar">
+        <span className="uw-total-count">
+          찜한 상품 <strong>{likes.length}</strong>개
+        </span>
 
-            <button type="button" onClick={toggleSelectAll}>
-              {likes.every((item) => selectedIds.includes(getWishKey(item)))
-                ? "전체해제"
-                : "전체선택"}
-            </button>
+        <div className="uw-toolbar-actions">
+          {selectMode ? (
+            <>
+              <span className="uw-select-count">{selectedIds.length}개 선택</span>
 
-            <button type="button" className="danger" onClick={openBulkDelete}>
-              삭제
-            </button>
+              <button type="button" className="uw-btn" onClick={toggleSelectAll}>
+                {likes.every((item) => selectedIds.includes(getWishKey(item)))
+                  ? "전체해제"
+                  : "전체선택"}
+              </button>
 
-            <button type="button" onClick={cancelSelectMode}>
-              취소
+              <button type="button" className="uw-btn danger" onClick={openBulkDelete}>
+                삭제
+              </button>
+
+              <button type="button" className="uw-btn" onClick={cancelSelectMode}>
+                취소
+              </button>
+            </>
+          ) : (
+            <button type="button" className="uw-btn" onClick={startSelectMode}>
+              선택삭제
             </button>
-          </>
-        ) : (
-          <button type="button" onClick={startSelectMode}>
-            선택삭제
-          </button>
-        )}
+          )}
+        </div>
       </div>
     )}
 

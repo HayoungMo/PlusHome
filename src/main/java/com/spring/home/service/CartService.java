@@ -11,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CartOptionDTO;
+import com.spring.home.dto.FurnitureDTO;
 import com.spring.home.dto.OptionsDTO;
 import com.spring.home.mapper.CartMapper;
 import com.spring.home.mapper.CartOptionMapper;
+import com.spring.home.mapper.FurnitureMapper;
 import com.spring.home.mapper.OptionsMapper;
 import com.spring.home.util.furnitureCode;
 
@@ -29,6 +31,17 @@ public class CartService {
 	@Autowired
 	private OptionsMapper optionsMapper;
 	
+	@Autowired
+	private FurnitureMapper furnitureMapper;
+	
+	private boolean isRequiredOption(OptionsDTO option) {
+	    String important = String.valueOf(option.getO_important());
+
+	    return "Y".equalsIgnoreCase(important)
+	            || "1".equals(important)
+	            || "true".equalsIgnoreCase(important);
+	}
+	
 	private void validateRequiredOptions(String f_code, List<CartOptionDTO> optionsList) throws Exception {
 	    List<OptionsDTO> originalOptions = optionsMapper.getListByFcode(f_code);
 
@@ -39,7 +52,7 @@ public class CartService {
 	    Set<String> requiredGroups = new HashSet<>();
 
 	    for (OptionsDTO option : originalOptions) {
-	        if (!"Y".equals(option.getO_important())) {
+	    	if (!isRequiredOption(option)) {
 	            continue;
 	        }
 
@@ -68,9 +81,13 @@ public class CartService {
 	        }
 	    }
 
+	    System.out.println("requiredGroups = " + requiredGroups);
+	    System.out.println("selectedGroups = " + selectedGroups);
+	    System.out.println("optionsList = " + optionsList);
+	    
 	    for (String requiredGroup : requiredGroups) {
 	        if (!selectedGroups.contains(requiredGroup)) {
-	            throw new RuntimeException("필수 옵션을 선택해주세요.");
+	            throw new RuntimeException("현재 상품 옵션이 변경되었으니 상품 페이지에서 옵션을 다시 선택해주세요.");
 	        }
 	    }
 	}
@@ -106,7 +123,21 @@ public class CartService {
 	
 	@Transactional
 	public String insertData(CartDTO cartDTO, List<CartOptionDTO> optionsList, boolean mergeCart) throws Exception {
-	    cartDTO.setF_status("N");
+	    FurnitureDTO furniture = furnitureMapper.getReadData(cartDTO.getF_code());
+	    
+	    if (furniture == null) {
+	    	throw new RuntimeException("상품 정보를 찾을 수 없습니다.");
+	    }
+	    
+	    if (furniture.getF_count() <= 0) {
+	    	throw new RuntimeException("현재 품절된 상품입니다.");
+	    }
+	    
+	    if (furniture.getF_count() < cartDTO.getF_count()) {
+	    	throw new RuntimeException("상품 재고가 부족합니다.");
+	    }
+	    
+		cartDTO.setF_status("N");
 
 	    validateRequiredOptions(cartDTO.getF_code(), optionsList);
 

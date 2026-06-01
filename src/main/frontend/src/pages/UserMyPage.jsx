@@ -38,6 +38,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
     const [point, setPoint] = useState(0)
     const [profileImageDialogOpen, setProfileImageDialogOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [questionCount, setQuestionCount] = useState(0)
 
     const [alert, setAlert] = useState({
         open: false,
@@ -397,7 +398,7 @@ const UserMyPage = ({loginUser, setLoginUser, loginInfo, setLoginInfo}) => {
                 )}
 
                 {activeMenu === "wishlist" && <UserWishListPage user={user} />}
-                {activeMenu === "inquiries" && <UserQuestionPage user={user} />}
+                {activeMenu === "inquiries" && <UserQuestionPage user={user} setQuestionCount={setQuestionCount} />}
                 {activeMenu === "reviews" && <UserReviewPage user={user} />}
 
                 {activeMenu === "wallet" && (
