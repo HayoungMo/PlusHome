@@ -3,7 +3,7 @@ import InteriorService from "../service/interiorService";
 import GetImgDir from "../resources/function/GetImgDir";
 import "../css/InteriorReviewList.css";
 
-const InteriorReviewList = ({ company }) => {
+const InteriorReviewList = ({ company, onCountChange }) => {
   const [review, setReview] = useState([]);
   const [selectedImg, setSelectedImg] = useState(null);
   useEffect(() => {
@@ -29,10 +29,15 @@ const InteriorReviewList = ({ company }) => {
         }),
       );
       setReview(listWithImages);
+      onCountChange?.(listWithImages.length);
     };
 
     fetchReview();
-  }, [company]);
+  }, [company, onCountChange]);
+
+  if (review.length === 0) {
+    return null;
+  }
 
   return (
     <div className="interior-review-list">

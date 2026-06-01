@@ -119,6 +119,14 @@
   transform: translateY(-2px);
 }
 
+.interior-company-card-skeleton {
+  cursor: default;
+}
+
+.interior-company-card-skeleton:hover {
+  transform: none;
+}
+
 .interior-company-image {
   display: block;
   width: 100%;
@@ -248,6 +256,12 @@
   transform: none;
 }
 
+.interior-company-card-skeleton .interior-company-image,
+.interior-company-card-skeleton:hover .interior-company-image {
+  filter: none;
+  transform: none;
+}
+
 .interior-company-list-card .interior-company-info {
   gap: 6px;
   padding-top: 14px;
@@ -302,6 +316,11 @@
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #eaedef;
+}
+
+.interior-recommend-ai-skeleton {
+  display: grid;
+  gap: 2px;
 }
 
 .interior-lists-content img {

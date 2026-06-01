@@ -906,7 +906,11 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 <button
                                     type="button"
                                     onClick={() => navigate(`/furniture/review/${item.f_code}`, {
-                                        state: { c_code: item.c_code }
+                                        state: {
+                                            c_code: item.c_code,
+                                            furniture: item.furniture,
+                                            thumbnail: item.thumbnail,
+                                        }
                                     })}
                                     style={{
                                         background: "black",

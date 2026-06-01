@@ -55,6 +55,20 @@
   white-space: pre-line;
 }
 
+.event-article-skeleton {
+  display: grid;
+  gap: 24px;
+}
+
+.event-article-skeleton-lines {
+  display: grid;
+  gap: 4px;
+}
+
+.event-article-coupon-skeleton {
+  margin-top: 4px;
+}
+
 .event-article-actions {
   display: flex;
   justify-content: center;

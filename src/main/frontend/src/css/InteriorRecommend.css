@@ -111,6 +111,7 @@
 .interior-list-section.interior-recommend-section .interior-recommend-empty {
   order: 2;
   display: flex;
+  grid-column: 1 / -1;
   min-height: 180px;
   align-items: center;
   justify-content: center;

@@ -162,6 +162,201 @@ const ShoppingMallProductCardSkeleton = ({ count = 5 }) => (
 		))}
 	</>
 );
+
+const InteriorMediaCardSkeleton = ({
+	count = 6,
+	groupTitle = true,
+	groupClassName = "interior-example-group",
+	gridClassName = "interior-example-grid",
+	cardClassName = "interior-example-card",
+	thumbClassName = "interior-example-thumb",
+	infoClassName = "interior-example-info",
+}) => (
+	<div className={groupClassName}>
+		{groupTitle && (
+			<Skeleton
+				variant="rounded"
+				animation="wave"
+				width={160}
+				height={34}
+				sx={{ borderRadius: "8px", marginBottom: "14px" }}
+			/>
+		)}
+
+		<div className={gridClassName}>
+			{Array.from({ length: count }, (_, index) => (
+				<div
+					className={`${cardClassName} interior-media-card-skeleton`}
+					key={`interior-media-card-skeleton-${index}`}>
+					<div className={thumbClassName}>
+						<Skeleton
+							variant="rounded"
+							animation="wave"
+							width="100%"
+							height="100%"
+							sx={{ borderRadius: "inherit" }}
+						/>
+					</div>
+
+					<div className={infoClassName}>
+						<StackSkeleton />
+						<Skeleton variant="text" animation="wave" width="90%" height={22} />
+						<Skeleton variant="text" animation="wave" width="68%" height={22} />
+					</div>
+				</div>
+			))}
+		</div>
+	</div>
+);
+
+const StackSkeleton = () => (
+	<div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+		<Skeleton variant="rounded" animation="wave" width={62} height={24} />
+		<Skeleton variant="rounded" animation="wave" width={78} height={24} />
+	</div>
+);
+
+const EventCardSkeleton = ({ count = 6 }) => (
+	<div className="event-card-grid">
+		{Array.from({ length: count }, (_, index) => (
+			<div className="event-card event-card-skeleton" key={`event-card-skeleton-${index}`}>
+				<Skeleton
+					variant="rounded"
+					animation="wave"
+					width="100%"
+					height="100%"
+					sx={{ borderRadius: "inherit" }}
+				/>
+			</div>
+		))}
+	</div>
+);
+
+const EventArticleSkeleton = () => (
+	<div className="event-article-skeleton">
+		<Skeleton variant="text" animation="wave" width="48%" height={48} />
+		<Skeleton
+			variant="rounded"
+			animation="wave"
+			width="100%"
+			height={420}
+			sx={{ borderRadius: "8px" }}
+		/>
+		<div className="event-article-skeleton-lines">
+			<Skeleton variant="text" animation="wave" width="96%" height={24} />
+			<Skeleton variant="text" animation="wave" width="88%" height={24} />
+			<Skeleton variant="text" animation="wave" width="72%" height={24} />
+		</div>
+		<div className="coupon-article-download event-article-coupon-skeleton">
+			<div className="coupon-article-download-header">
+				<div>
+					<Skeleton variant="text" animation="wave" width={72} height={18} />
+					<Skeleton variant="text" animation="wave" width={160} height={32} />
+				</div>
+				<Skeleton variant="rounded" animation="wave" width={44} height={30} />
+			</div>
+			<div className="coupon-article-download-list">
+				<Skeleton variant="rounded" animation="wave" width="100%" height={96} />
+				<Skeleton variant="rounded" animation="wave" width="100%" height={96} />
+			</div>
+		</div>
+	</div>
+);
+
+const MainEventBannerSkeleton = () => (
+	<div className="main-event-banner-skeleton">
+		<Skeleton
+			variant="rounded"
+			animation="wave"
+			width="100%"
+			height="100%"
+			sx={{ borderRadius: "8px" }}
+		/>
+	</div>
+);
+
+const EventPopupSkeleton = () => (
+	<div className="event-popup-skeleton">
+		<Skeleton
+			variant="rounded"
+			animation="wave"
+			width="100%"
+			height={420}
+			sx={{ borderRadius: 0 }}
+		/>
+		<div className="event-popup-skeleton-actions">
+			<Skeleton variant="rounded" animation="wave" width={72} height={36} />
+			<Skeleton variant="rounded" animation="wave" width={150} height={36} />
+		</div>
+	</div>
+);
+
+const InteriorArticleAISkeleton = () => (
+	<div className="interior-article-ai-skeleton">
+		<Skeleton variant="text" animation="wave" width="94%" height={28} />
+		<Skeleton variant="text" animation="wave" width="88%" height={28} />
+		<Skeleton variant="text" animation="wave" width="72%" height={28} />
+	</div>
+);
+
+const InteriorRecommendAISkeleton = () => (
+	<div className="interior-recommend-ai-skeleton">
+		<Skeleton variant="text" animation="wave" width="92%" height={20} />
+		<Skeleton variant="text" animation="wave" width="76%" height={20} />
+		<Skeleton variant="text" animation="wave" width="84%" height={20} />
+	</div>
+);
+
+const InteriorCompanyCardSkeleton = ({
+	count = 6,
+	cardClassName = "interior-company-list-card",
+	showRank = false,
+	showAi = false,
+}) => (
+	<>
+		{Array.from({ length: count }, (_, index) => (
+			<div
+				className={`interior-company-card ${cardClassName} interior-company-card-skeleton`}
+				key={`interior-company-card-skeleton-${index}`}>
+				<div className="interior-company-image interior-company-image-skeleton">
+					<Skeleton
+						variant="rounded"
+						animation="wave"
+						width="100%"
+						height="100%"
+						sx={{ borderRadius: "inherit" }}
+					/>
+				</div>
+
+				{showRank && (
+					<Skeleton
+						className="interior-recommend-score"
+						variant="rounded"
+						animation="wave"
+						width={58}
+						height={22}
+					/>
+				)}
+
+				<div className="interior-company-info">
+					<Skeleton variant="text" animation="wave" width="58%" height={28} />
+					<Skeleton variant="text" animation="wave" width="38%" height={18} />
+					<Skeleton variant="text" animation="wave" width="46%" height={18} />
+					<Skeleton variant="text" animation="wave" width="64%" height={18} />
+					<Skeleton variant="text" animation="wave" width="86%" height={18} />
+
+					{showAi && (
+						<div className="interior-recommend-ai">
+							<Skeleton variant="text" animation="wave" width={120} height={22} />
+							<InteriorRecommendAISkeleton />
+						</div>
+					)}
+				</div>
+			</div>
+		))}
+	</>
+);
+
 /**
  * SkeletonMui
  *
@@ -179,6 +374,38 @@ const SkeletonMui = ({ variant = "kpi", ...props }) => {
 
 	if (variant === "shoppingMallProductCard") {
 		return <ShoppingMallProductCardSkeleton {...props} />;
+	}
+
+	if (variant === "interiorMediaCard") {
+		return <InteriorMediaCardSkeleton {...props} />;
+	}
+
+	if (variant === "eventCard") {
+		return <EventCardSkeleton {...props} />;
+	}
+
+	if (variant === "eventArticle") {
+		return <EventArticleSkeleton {...props} />;
+	}
+
+	if (variant === "mainEventBanner") {
+		return <MainEventBannerSkeleton {...props} />;
+	}
+
+	if (variant === "eventPopup") {
+		return <EventPopupSkeleton {...props} />;
+	}
+
+	if (variant === "interiorArticleAI") {
+		return <InteriorArticleAISkeleton {...props} />;
+	}
+
+	if (variant === "interiorRecommendAI") {
+		return <InteriorRecommendAISkeleton {...props} />;
+	}
+
+	if (variant === "interiorCompanyCard") {
+		return <InteriorCompanyCardSkeleton {...props} />;
 	}
 	return <Skeleton animation="wave" {...props} />;
 };

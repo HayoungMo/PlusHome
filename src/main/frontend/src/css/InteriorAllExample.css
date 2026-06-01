@@ -146,6 +146,15 @@
   transform: translateY(-2px);
 }
 
+.interior-all-example-page .interior-media-card-skeleton {
+  cursor: default;
+  pointer-events: none;
+}
+
+.interior-all-example-page .interior-media-card-skeleton:hover {
+  transform: none;
+}
+
 .interior-all-example-page .interior-example-thumb {
   width: 100%;
   aspect-ratio: 1 / 0.72;
@@ -186,6 +195,16 @@
   color: #00a1ff;
   font-size: 12px;
   font-weight: 700;
+}
+
+.interior-example-info .MuiChip-clickable,
+.all-example-dialog-info .MuiChip-clickable {
+  cursor: pointer;
+}
+
+.interior-example-info .MuiChip-clickable:hover,
+.all-example-dialog-info .MuiChip-clickable:hover {
+  filter: brightness(0.96);
 }
 
 .interior-example-info p {
