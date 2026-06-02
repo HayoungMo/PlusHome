@@ -982,13 +982,17 @@ const InteriorDashboard = () => {
 				</div>
 				<div className="interior-dashboard-summary">
 					<Chip
-						label={selectedInteriorName === "all" ? "전체 업체" : selectedInteriorName}
+						label={
+							appliedSelectedInteriorName === "all"
+								? "전체 업체"
+								: appliedSelectedInteriorName
+						}
 						variant="outlined"
 					/>
 					<Chip
 						label={
-							dateRange.startDate || dateRange.endDate
-								? `${dateRange.startDate || "시작일"} ~ ${dateRange.endDate || "종료일"}`
+							appliedDateRange.startDate || appliedDateRange.endDate
+								? `${appliedDateRange.startDate || "시작일"} ~ ${appliedDateRange.endDate || "종료일"}`
 								: "전체 기간"
 						}
 						variant="outlined"

@@ -71,9 +71,124 @@
 </update>
 
 <!-- 삭제 -->
+<delete id="deleteOrderClaimsByFCode" parameterType="String">
+	delete from order_claim
+	 where f_code = #{f_code}
+	    or c_code in (
+	        select c_code
+	          from cart
+	         where f_code = #{f_code}
+	    )
+</delete>
+
+<delete id="deleteReviewsByFCode" parameterType="String">
+	delete from f_review
+	 where f_code = #{f_code}
+	    or c_code in (
+	        select c_code
+	          from cart
+	         where f_code = #{f_code}
+	    )
+</delete>
+
+<delete id="deleteCartOptionsByFCode" parameterType="String">
+	delete from cart_option
+	 where f_code = #{f_code}
+	    or c_code in (
+	        select c_code
+	          from cart
+	         where f_code = #{f_code}
+	    )
+</delete>
+
+<delete id="deleteCartsByFCode" parameterType="String">
+	delete from cart
+	 where f_code = #{f_code}
+</delete>
+
+<delete id="deleteLikesByFCode" parameterType="String">
+	delete from "LIKE"
+	 where like_code = #{f_code}
+	   and like_tag = 'furniture'
+</delete>
+
+<delete id="deleteFurnitureHideByFCode" parameterType="String">
+	delete from furniturehide
+	 where f_code = #{f_code}
+</delete>
+
+<delete id="deleteOptionsByFCode" parameterType="String">
+	delete from options
+	 where f_code = #{f_code}
+</delete>
+
+<delete id="deleteQuestionsByFCode" parameterType="String">
+	delete from question
+	 where f_code = #{f_code}
+</delete>
+
 <delete id="deleteData" parameterType="String">
-	delete furniture
-	where  f_code = #{f_code} 
+	delete from furniture
+	 where f_code = #{f_code}
+</delete>
+
+<select id="getDeleteTargetImagesByFCode"
+        parameterType="String"
+        resultType="com.spring.home.dto.ImageDTO">
+	SELECT DISTINCT i.*
+	  FROM IMG i
+	 WHERE (i.IMG_KIND = 'FURNITURE'
+	        AND i.DIR_A = #{f_code})
+
+	    OR (i.IMG_KIND = 'F_REVIEW'
+	        AND i.DIR_A IN (
+	            SELECT c.C_CODE
+	              FROM CART c
+	             WHERE c.F_CODE = #{f_code}
+	        ))
+
+	    OR (i.IMG_KIND = 'CLAIM'
+	        AND i.DIR_A IN (
+	            SELECT oc.CLAIM_CODE
+	              FROM ORDER_CLAIM oc
+	             WHERE oc.F_CODE = #{f_code}
+	                OR oc.C_CODE IN (
+	                    SELECT c.C_CODE
+	                      FROM CART c
+	                     WHERE c.F_CODE = #{f_code}
+	                )
+	        ))
+
+	    OR (i.IMG_KIND = 'QUESTION'
+	        AND i.DIR_A = #{f_code})
+</select>
+
+<delete id="deleteImagesByFCodeDeep" parameterType="String">
+	DELETE FROM IMG i
+	 WHERE (i.IMG_KIND = 'FURNITURE'
+	        AND i.DIR_A = #{f_code})
+
+	    OR (i.IMG_KIND = 'F_REVIEW'
+	        AND i.DIR_A IN (
+	            SELECT c.C_CODE
+	              FROM CART c
+	             WHERE c.F_CODE = #{f_code}
+	        ))
+
+	    OR (i.IMG_KIND = 'CLAIM'
+	        AND i.DIR_A IN (
+	            SELECT oc.CLAIM_CODE
+	              FROM ORDER_CLAIM oc
+	             WHERE oc.F_CODE = #{f_code}
+	                OR oc.C_CODE IN (
+	                    SELECT c.C_CODE
+	                      FROM CART c
+	                     WHERE c.F_CODE = #{f_code}
+	                )
+	        ))
+
+	    OR (i.IMG_KIND = 'QUESTION'
+	        AND i.DIR_A = #{f_code})
 </delete>
 
 <!-- 전체 select --> <!-- 0527 모하영 if 추가 -->
