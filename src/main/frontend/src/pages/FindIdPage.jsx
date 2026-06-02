@@ -4,6 +4,7 @@ import findService from '../service/findService';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField } from '@mui/material';
 import userService from '../service/userService';
+import { GoHomeFill } from 'react-icons/go';
 //
 const FindIdPage = () => {
 
@@ -157,6 +158,12 @@ const FindIdPage = () => {
                 로그인
             </a>
 
+            </div>
+
+            <div className='home-link'>
+                <a href='/'>        
+                    <GoHomeFill/>plushome<GoHomeFill/>
+                </a>
             </div>
 
         </div>

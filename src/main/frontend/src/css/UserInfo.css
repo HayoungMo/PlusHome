@@ -1,0 +1,65 @@
+.user-info-title {
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.user-info-subtitle {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 30px;
+}
+
+.user-info-card {
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.user-info-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.user-info-header {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.user-info-title {
+    font-size: 36px !important;
+    font-weight: 700 !important;
+}
+
+.user-info-subtitle {
+    color: #6b7280;
+    margin-top: 8px !important;
+}
+
+.user-info-search-card {
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+}
+
+.user-search-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.user-update-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.user-info-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}

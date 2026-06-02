@@ -1,5 +1,5 @@
 body{
-    background:#f5f7fb;
+    background:#ffffff;
 }
 
 /* 전체 영역 */
@@ -284,4 +284,31 @@ select{
     font-size:13px;
 
     color:#9ca3af;
+}
+
+.home-link{
+    margin-top:20px;
+
+    padding-top:18px;
+
+    border-top:1px solid #dcdfe5;
+
+    text-align:center;
+}
+
+.home-link a{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+
+    color:#2583ff;
+
+    font-size:15px;
+    font-weight:700;
+
+    text-decoration:none;
+}
+
+.home-link a:hover{
+    opacity:0.8;
 }
