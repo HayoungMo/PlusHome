@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FurnitureService from "../service/furnitureService";
 import LikeService from "../service/likeService";
-import { Button, Snackbar, Pagination } from "@mui/material";
+import { Button, Snackbar, Pagination, Collapse } from "@mui/material";
 import AlertMui from "../components/AlertMui";
 import FilterBar from "../components/FilterBar";
 import {
@@ -47,6 +47,10 @@ const FurnitureList = () => {
 	);
 	const [categoryFilters, setCategoryFilters] = useState(urlCategoryFilters);
 	const [draftCategoryFilters, setDraftCategoryFilters] = useState(urlCategoryFilters);
+	// 0602 모하영: 필터 검색 영역은 기본 접힘 상태로 두고, 필요할 때만 펼쳐서 화면을 덜 복잡하게 보이도록 함.
+	const [filterSearchOpen, setFilterSearchOpen] = useState(
+		() => Object.values(urlCategoryFilters).some(Boolean) || Boolean(urlSearchValue),
+	);
 
 	const [startPage, setStartPage] = useState(1);
 	const [endPage, setEndPage] = useState(1);
@@ -115,6 +119,9 @@ const FurnitureList = () => {
 		setSort(urlSort);
 		setCategoryFilters(urlCategoryFilters);
 		setDraftCategoryFilters(urlCategoryFilters);
+		if (Object.values(urlCategoryFilters).some(Boolean) || Boolean(urlSearchValue)) {
+			setFilterSearchOpen(true);
+		}
 	}, [
 		urlSearchKey,
 		urlSearchValue,
@@ -333,38 +340,52 @@ const FurnitureList = () => {
 					<p>공간에 어울리는 가구와 생활 소품을 확인해보세요.</p>
 					</div>
 
-				<div className="furniture-list-search-panel">
-					<form className="furniture-list-search" onSubmit={onSearch}>
-						<FilterBar
-							filterList={furnitureCategoryFilterGroups}
-							value={draftCategoryFilters}
-							onChange={setDraftCategoryFilters}
-						/>
-
-						<input
-							value={searchValue}
-							onChange={(evt) => setSearchValue(evt.target.value)}
-							placeholder="검색"
-						/>
-
-						<Button
-							type="submit"
-							variant="contained"
-							className="furniture-list-search-btn"
-						>
-							검색
-						</Button>
-
-						<Button
-							type="button"
-							variant="text"
-							className="furniture-list-reset-btn"
-							onClick={() => navigate("/furniture/list?page=1")}
-						>
-							초기화
-						</Button>
-					</form>
+				<div className="furniture-list-filter-summary">
+					<Button
+						type="button"
+						variant={filterSearchOpen ? "outlined" : "contained"}
+						className="furniture-list-filter-collapse-btn"
+						aria-expanded={filterSearchOpen}
+						onClick={() => setFilterSearchOpen((prev) => !prev)}
+					>
+						필터 검색
+					</Button>
 				</div>
+
+				<Collapse in={filterSearchOpen} timeout="auto" unmountOnExit>
+					<div className="furniture-list-search-panel">
+						<form className="furniture-list-search" onSubmit={onSearch}>
+							<FilterBar
+								filterList={furnitureCategoryFilterGroups}
+								value={draftCategoryFilters}
+								onChange={setDraftCategoryFilters}
+							/>
+
+							<input
+								value={searchValue}
+								onChange={(evt) => setSearchValue(evt.target.value)}
+								placeholder="검색"
+							/>
+
+							<Button
+								type="submit"
+								variant="contained"
+								className="furniture-list-search-btn"
+							>
+								검색
+							</Button>
+
+							<Button
+								type="button"
+								variant="text"
+								className="furniture-list-reset-btn"
+								onClick={() => navigate("/furniture/list?page=1")}
+							>
+								초기화
+							</Button>
+						</form>
+					</div>
+				</Collapse>
 				
 				<div
 					style={{

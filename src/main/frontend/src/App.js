@@ -100,6 +100,22 @@ function App() {
     return (
       <div className="App">
         <Routes>
+          {/*헤더가 없는 곳 - 예린 26-06-02*/}
+          <Route
+              path="/login"
+              element={
+                <LoginPage
+                  loginUser={loginUser}
+                  setLoginUser={setLoginUser}
+                  setLoginInfo={setLoginInfo}
+                />
+              }
+            />
+            <Route path="/join" element={<JoinUserPage />} />
+            <Route path="/findId" element={<FindIdPage />} />
+            <Route path="/findPw" element={<FindPwPage />} />
+
+
           {/* 홈페이지의 첫 화면 페이지 - 4월 28일 모하영 */}
           {/* 추가: 공통 헤더,풋터 적용된 페이지 그룹 - 5월 8일 모하영 */}
           {/* PageLayout 적용 페이지 그룹 */}
@@ -123,19 +139,7 @@ function App() {
                 />
               }
             />
-            <Route
-              path="/login"
-              element={
-                <LoginPage
-                  loginUser={loginUser}
-                  setLoginUser={setLoginUser}
-                  setLoginInfo={setLoginInfo}
-                />
-              }
-            />
-            <Route path="/join" element={<JoinUserPage />} />
-            <Route path="/findId" element={<FindIdPage />} />
-            <Route path="/findPw" element={<FindPwPage />} />
+            
 
             {/* 유저 마이페이지 */}
             <Route

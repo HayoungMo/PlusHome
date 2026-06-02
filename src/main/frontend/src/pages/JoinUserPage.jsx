@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Await, useNavigate } from 'react-router-dom';
 import JoinService from "../service/joinService";
-import { Button, IconButton, InputAdornment, Select, TextField } from '@mui/material';
+import { Alert, Button, IconButton, InputAdornment, Select, Snackbar, TextField } from '@mui/material';
 import RadioMui from '../components/RadioMui';
 import  DatePicker  from '@mui/x-date-pickers/DatePicker';
 import BirthDatePickerMui from '../components/BirthDatePickerMui';
@@ -12,6 +12,7 @@ import "../css/JoinPage.css";
 import { common } from '@mui/material/colors';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
+import { GoHomeFill } from 'react-icons/go';
 
 
 
@@ -29,6 +30,12 @@ const JoinUserPage = () => {
 
     const [codeFront,setCodeFront] = useState('')
     const [codeBack,setCodeBack] = useState('')
+
+    const [snackbar,setSnackbar] = useState({
+        open:false,
+        message:'',
+        severity:'success',
+    })
     
 
     const navigate = useNavigate();
@@ -57,24 +64,16 @@ const JoinUserPage = () => {
     });
 
     const [showPw,setShowPw] = useState(false)
-    const [showPwCheck,setShowPwCheck] = useState(false)
-
-
-
-
-    const [idError,setIdError] = useState('');
+    const [showPwCheck,setShowPwCheck] = useState(false)   
    
         
     const [email,setEmail] = useState({
         id:'',
         domain:'none',
         direct:''
-    })
-
-      
+    })      
 
     const [birth,setBirth]=useState(null);
-
 
     const [tel,setTel] = useState({
         head: '010',
@@ -203,6 +202,11 @@ const JoinUserPage = () => {
     if(!email.id.trim()){
         return '이메일을 입력해 주세요.'
     }
+
+    if(/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(email.id)){
+        return '이메일에는 한글을 사용할 수 없습니다.';
+    }
+
     if(email.domain === 'none'){
     return '이메일 도메인을 선택해 주세요.';
     }
@@ -506,11 +510,22 @@ if(error){
             }
 
             console.log("서버 응답:",res)
-            alert("회원가입에 성공하였습니다.")
-            navigate("/login")            
+            setSnackbar({
+                open:true,
+                message:'회원가입이 완료되었습니다.',
+                severity:'success'
+            });
+
+            setTimeout(() => {
+                navigate('/login');
+            }, 2500);            
         } catch (error) {
             console.log(error)
-            alert("가입에 실패하였습니다.")
+            setSnackbar({
+                open:true,
+                message:'가입에 실패하였습니다.',
+                severity:'error'
+            });
 
             }   
 
@@ -587,62 +602,62 @@ if(error){
                 <div className="join-input">
 
     <TextField
-    fullWidth
-    label="[필수] 비밀번호"
-    type={showPw ? 'text' : 'password'}
-    name="pw"
-    value={form.pw}
-    onChange={onText}
+                fullWidth
+                label="[필수] 비밀번호"
+                type={showPw ? 'text' : 'password'}
+                name="pw"
+                value={form.pw}
+                onChange={onText}
 
-    InputProps={{
-        endAdornment: (
-            <InputAdornment position="end">
-                <IconButton
-                    onClick={() => setShowPw(!showPw)}
-                    edge="end"
-                >
-                    {showPw
-                        ? <Visibility/>
-                        : <VisibilityOff/>
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton
+                                onClick={() => setShowPw(!showPw)}
+                                edge="end"
+                            >
+                                {showPw
+                                    ? <Visibility/>
+                                    : <VisibilityOff/>
+                                }
+                            </IconButton>
+                        </InputAdornment>
+                    )
+                }}
+
+                onFocus={() => {
+
+                    if(!form.id.trim()){
+
+                        setErrorMsg(prev => ({
+                            ...prev,
+                            id:'아이디는 필수 정보입니다.'
+                        }))
+
                     }
-                </IconButton>
-            </InputAdornment>
-        )
-    }}
 
-    onFocus={() => {
+                }}
 
-        if(!form.id.trim()){
+                onBlur={() => {
 
-            setErrorMsg(prev => ({
-                ...prev,
-                id:'아이디는 필수 정보입니다.'
-            }))
+                    if(!form.pw.trim()){
 
-        }
+                        setErrorMsg(prev => ({
+                            ...prev,
+                            pw:'비밀번호는 필수 정보입니다.'
+                        }))
 
-    }}
+                    }else{
 
-    onBlur={() => {
+                        setErrorMsg(prev => ({
+                            ...prev,
+                            pw:''
+                        }))
 
-        if(!form.pw.trim()){
+                    }
 
-            setErrorMsg(prev => ({
-                ...prev,
-                pw:'비밀번호는 필수 정보입니다.'
-            }))
-
-        }else{
-
-            setErrorMsg(prev => ({
-                ...prev,
-                pw:''
-            }))
-
-        }
-
-    }}
-/>
+                }}
+            />
 
 
         {errorMsg.pw && (
@@ -1023,30 +1038,39 @@ if(error){
                         value={email.id}
                         onChange={(e) => {
 
-    const value = e.target.value;
+                            const value = e.target.value;
+                            if(/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(value)){
 
-    setEmail((prev) => ({
-        ...prev,
-        id:value,
-    }))
+                                setErrorMsg(prev => ({
+                                    ...prev,
+                                    email:'이메일에는 한글을 사용할 수 없습니다.'
+                                }));
 
-    if(!value.trim()){
+                                return;
+                            }
 
-        setErrorMsg(prev => ({
-            ...prev,
-            email:'이메일을 입력해 주세요.'
-        }))
+                            setEmail((prev) => ({
+                                ...prev,
+                                id:value,
+                            }))
 
-    }else{
+                            if(!value.trim()){
 
-        setErrorMsg(prev => ({
-            ...prev,
-            email:''
-        }))
+                                setErrorMsg(prev => ({
+                                    ...prev,
+                                    email:'이메일을 입력해 주세요.'
+                                }))
 
-    }
+                            }else{
 
-}}
+                                setErrorMsg(prev => ({
+                                    ...prev,
+                                    email:''
+                                }))
+
+                            }
+
+                        }}
                     />
 
                     <SelectMui
@@ -1080,14 +1104,18 @@ if(error){
 
 }}
                     />
+                     
 
                 </div>
-
                 {errorMsg.email && (
-        <div className="error-msg">
-            {errorMsg.email}
-        </div>
-    )}
+                    <div className="error-msg">
+                        {errorMsg.email}
+                    </div>
+                )}
+
+                
+
+               
 
                 {/* 생년월일 */}
 
@@ -1151,8 +1179,8 @@ if(error){
               >
                   <option value="010">010</option>
                   <option value="011">011</option>
-                  <option value="011">016</option>
-                  <option value="011">019</option>
+                  <option value="016">016</option>
+                  <option value="019">019</option>
               </Select>
 
               <TextField
@@ -1210,15 +1238,7 @@ if(error){
                     onClick={onNext}
                 >
                     가입하기
-                </Button>
-
-                <button className="back-btn">
-
-                    <a href="/">
-                        뒤로가기
-                    </a>
-
-                </button>
+                </Button>                
 
                 {/* 하단 */}
 
@@ -1232,7 +1252,35 @@ if(error){
 
                 </div>
 
+                <div className='home-link'>
+                    <a href='/'>        
+                        <GoHomeFill/>plushome<GoHomeFill/>
+                    </a>
+                </div>
+
             </div>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() =>
+                    setSnackbar(prev => ({
+                        ...prev,
+                        open:false
+                    }))
+                }
+                anchorOrigin={{
+                    vertical:'top',
+                    horizontal:'center'
+                }}
+            >
+                <Alert
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{ width:'100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
 
         </div>
     );

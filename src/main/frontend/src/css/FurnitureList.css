@@ -241,11 +241,10 @@
 }
 
 .furniture-list-search-panel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 18px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 18px;
   padding: 18px 20px;
   border: 1px solid #e5eef7;
   border-radius: 8px;
@@ -254,15 +253,59 @@
 }
 
 .furniture-list-search {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  /* 0602 모하영: 필터칩이 가로로 끝없이 밀리지 않도록 필터 영역은 전체 폭, 검색 입력은 아래 줄에 정렬함. */
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  align-items: start;
+  gap: 14px 10px;
+  margin: 0;
+}
+
+.furniture-list-search > .filter-bar {
+  grid-column: 1 / -1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.furniture-list-search .filter-bar-options {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden;
+}
+
+.furniture-list-search .filter-bar-row {
+  display: grid !important;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: start !important;
+  gap: 10px 14px !important;
+}
+
+.furniture-list-search .filter-bar-label {
+  min-width: 0 !important;
+  padding-top: 8px;
+  color: #111827 !important;
+}
+
+.furniture-list-search .filter-bar-chip-list {
+  min-width: 0;
+  max-width: 100%;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.furniture-list-search .filter-bar-selected {
+  grid-column: 1 / -1;
+  max-width: 100%;
+  padding-top: 4px;
 }
 
 .furniture-list-search input {
-  width: 240px;
-  flex: none;
+  width: 100%;
+  max-width: 360px;
 }
 
 .furniture-list-search select,
@@ -276,22 +319,26 @@
 }
 
 .furniture-list-search input {
-  width: 220px;
+  width: 100%;
 }
 
 /* 0602 모하영: 검색/초기화 버튼을 MUI Button으로 통일하면서 기존 button 직접 스타일이 MUI 스타일을 덮어써서 제거함. */
 .furniture-list-search .MuiButton-root {
-  min-height: 44px;
+  width: auto;
+  min-height: 40px;
+  min-width: 72px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 800;
   white-space: nowrap;
+  flex: none;
 }
 
 .furniture-list-search .furniture-list-search-btn.MuiButton-root {
-  padding: 8px 20px;
-  background: #008cff;
-  box-shadow: 0 6px 14px rgba(0, 140, 255, 0.25);
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  padding: 6px 14px;
 }
 
 .furniture-list-search .furniture-list-search-btn.MuiButton-root:hover {
@@ -299,6 +346,125 @@
 }
 
 .furniture-list-search .furniture-list-reset-btn.MuiButton-root {
-  padding: 8px 12px;
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  padding: 6px 10px;
   color: #008cff;
+}
+
+.furniture-list-filter-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 12px;
+}
+
+.furniture-list-filter-collapse-btn.MuiButton-root {
+  min-height: 42px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.furniture-list-filter-collapse-btn.MuiButton-contained {
+  background: #008cff;
+  box-shadow: 0 6px 14px rgba(0, 140, 255, 0.22);
+}
+
+.furniture-list-filter-collapse-btn.MuiButton-contained:hover {
+  background: #007be0;
+}
+
+.furniture-list-filter-collapse-btn.MuiButton-outlined {
+  border-color: #008cff;
+  color: #008cff;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.furniture-list-filter-collapse-btn.MuiButton-outlined:hover {
+  border-color: #007be0;
+  background: #f6fbff;
+  color: #007be0;
+}
+
+.furniture-list-search-panel {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 22px;
+}
+
+.furniture-list-search {
+  /* 0602 모하영: 접힌 필터를 펼쳤을 때만 정리된 검색 폼으로 보이도록 레이아웃을 재정리함. */
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 76px 76px;
+  justify-content: stretch;
+  align-items: start;
+  gap: 16px 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.furniture-list-search > .filter-bar {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  justify-self: stretch;
+}
+
+.furniture-list-search .filter-bar-options {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden;
+}
+
+.furniture-list-search .filter-bar-row {
+  display: grid !important;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: start !important;
+  gap: 10px 16px !important;
+  padding: 14px 0 !important;
+}
+
+.furniture-list-search .filter-bar-row:first-child {
+  padding-top: 0 !important;
+}
+
+.furniture-list-search .filter-bar-row + .filter-bar-row {
+  border-top: 1px solid #edf2f7;
+}
+
+.furniture-list-search .filter-bar-label {
+  min-width: 0 !important;
+  padding-top: 8px;
+  color: #111827 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+.furniture-list-search .filter-bar-chip-list {
+  min-width: 0;
+  max-width: 100%;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.furniture-list-search .filter-bar-selected {
+  grid-column: 1 / -1;
+  max-width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid #edf2f7;
 }

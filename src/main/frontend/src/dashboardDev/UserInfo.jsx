@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import userService from "../service/userService";
 import TableMui from "../components/TableMui";
-import { Box, Button, Tab, Tabs } from "@mui/material";
+import { Box, Button, Card, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import TableChkMui from "../components/TableChkMui";
 import SwitchMui from "../components/SwitchMui";
 import DialogMui from "../components/DialogMui";
 import SelectMui from "../components/SelectMui";
 import TextFieldMui from "../components/TextFieldMui";
 import AlertMui from "../components/AlertMui";
+import SkeletonMui from "../components/SkeletonMui";
+import UserInfos from "../css/UserInfo.css";
+import Loading from "../components/Loading";
 
 const UserInfo = (props) => {
 	const localUserData = localStorage.getItem("user");
@@ -65,6 +68,8 @@ const UserInfo = (props) => {
 
 	const [userType, setUserType] = useState("user");
 
+	const [loading,setLoading] = useState(false)
+
 	const [alert, setAlert] = useState({
 		open: false,
 		severity: "info",
@@ -100,8 +105,36 @@ const UserInfo = (props) => {
 		"joined",
 	];
 
+	const userColumnNames = [
+		"아이디",
+		"회원유형",
+		"코드",
+		"이름",
+		"이메일",
+		"전화번호",
+		"성별",
+		"주소",
+		"가입상태",
+	];
+
+	const companyColumnNames = [
+		"아이디",
+		"회원유형",
+		"코드",
+		"이름",
+		"이메일",
+		"회사명",
+		"기업종류",
+		"회사정보",
+		"대표자",
+		"가입상태",
+	];
+
 	const getUserList = async () => {
 		console.log("회원 조회");
+
+		try{
+		setLoading(true)
 
 		const res = await userService.userGetAll(userType);
 		console.log(res);
@@ -122,24 +155,29 @@ const UserInfo = (props) => {
 
 			console.log("유저조회결과:", res.list);
 		}
-	};
+	}catch(error){
+		console.log(error)
+	} finally{
+		setLoading(false)
+	}
+}
 
 	useEffect(() => {
 		getUserList();
 	}, [userType]);
 
-	const isAdmin = type === "admin";
+	// const isAdmin = type === "admin";
 
-	let oneTimeCheck = 0;
+	// let oneTimeCheck = 0;
 
-	useEffect(() => {
-		if (!isAdmin) {
-			if (oneTimeCheck <= 0) alert("관리자만 접근 가능합니다.");
+	// useEffect(() => {
+	// 	if (!isAdmin) {
+	// 		if (oneTimeCheck <= 0) alert("관리자만 접근 가능합니다.");
 
-			oneTimeCheck++;
-			window.location.href = "/";
-		}
-	}, []);
+	// 		oneTimeCheck++;
+	// 		window.location.href = "/";
+	// 	}
+	// }, []);
 
 	const handleRowDeleteInTable = async () => {
 		console.log("선택된 키");
@@ -535,7 +573,21 @@ const UserInfo = (props) => {
 					</Tabs>
 				</Box>
 
-				<h2>{tabTitle.filter((item) => item.value === tabValue)[0].label}</h2>
+				<div className="user-info-header"> 
+					<Typography className="user-info-title">
+						{tabTitle.filter((item) => item.value === tabValue)[0].label}
+					</Typography>
+
+					<Typography className="user-info-subtitle">
+						{userType === "user"
+							? "일반 회원 정보를 조회하고 관리합니다."
+							: "기업 회원 정보를 조회하고 관리합니다."
+						}
+					</Typography>
+
+				</div>
+
+				
 			</div>
 
 			<div>
@@ -648,10 +700,26 @@ const UserInfo = (props) => {
 			)}
 
 			<div>
-				{userList.length !== 0 ? (
+				{loading ? (
+				<Loading
+					variant="table"
+					count={5}
+					/>
+				) : userList.length !== 0 ? (
+
+					<Card className="user-info-card">
+
+						<Typography className="user-info-section-title">
+							회원 목록
+						</Typography>
 					<TableChkMui
 						rowData={editedUserList}
 						columns={userType === "user" ? userColumns : companyColumns}
+						 col={
+							userType === "user"
+								? userColumnNames
+								: companyColumnNames
+						}
 						editable={userUpdate}
 						editableOnChange={tableMuiEditableOnChange}
 						setSelectedKeys={setSelectedUserKeys}
@@ -660,6 +728,8 @@ const UserInfo = (props) => {
                         pagination={true}
                         defaultRowPerPage={5}
 					/>
+					</Card>
+				
 				) : (
 					<div>등록된 회원이 없습니다.</div>
 				)}

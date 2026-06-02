@@ -6,7 +6,6 @@ import OptionsService from "../service/optionService";
 import CartService from "../service/cartService";
 import FurnitureReview from "../components/FurnitureReview";
 import Question from "./Question";
-import Loading from "../components/Loading";
 import CouponArticleDownload from "../components/CouponArticleDownload";
 import DialogInside from "../components/DialogInside";
 import { getFurnitureCategoryCode } from "../components/FurnitureCategorySelect";
@@ -19,13 +18,16 @@ import { FaTrashAlt } from "react-icons/fa";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import { GoHomeFill } from "react-icons/go";
-import { FiShoppingBag } from "react-icons/fi";
+
+import FurnitureReviewService from "../service/furnitureReviewService";
+import questionService from "../service/questionService";
 
 import {Snackbar} from "@mui/material";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
 
 import "../css/FurnitureArticle.css";
+import SkeletonMui from "../components/SkeletonMui";
 
 const FurnitureArticle = () => {
     const calledFCode = useRef(null);
@@ -53,6 +55,9 @@ const FurnitureArticle = () => {
     const [buyingNow, setBuyingNow] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [liking, setLiking] = useState(false)
+
+    const [articleReviewSummary, setArticleReviewSummary] = useState(null)
+    const [articleQnaCount, setArticleQnaCount] = useState(null)
 
     const showAlert = ({ severity = "info" , title = "", text = ""}) => {
       setAlert({
@@ -269,6 +274,45 @@ const FurnitureArticle = () => {
             .catch((error) => {
                 console.error("옵션 조회 실패", error);
                 setOptions([]);
+            });
+    }, [f_code]);
+
+    useEffect(() => {
+        if (!f_code) return;
+
+        FurnitureReviewService.selectReview({ f_code, fr_idx: 0 })
+            .then((result) => {
+                const list = Array.isArray(result.data) ? result.data : [];
+                const reviews = list.filter((item) => Number(item.fr_idx) > 0);
+
+                const count = reviews.length;
+                const average =
+                    count > 0
+                        ? reviews.reduce(
+                            (sum, review) => sum + Number(review.fr_star || 0),
+                            0
+                        ) / count
+                        : 0;
+
+                setArticleReviewSummary({ count, average });
+            })
+            .catch((error) => {
+                console.error("리뷰 요약 조회 실패", error);
+                setArticleReviewSummary({ count: 0, average: 0 });
+            });
+    }, [f_code]);
+
+    useEffect(() => {
+        if (!f_code) return;
+
+        questionService.getQuestionList(f_code)
+            .then((data) => {
+                const questions = Array.isArray(data) ? data : [];
+                setArticleQnaCount(questions.length);
+            })
+            .catch((error) => {
+                console.error("문의 개수 조회 실패", error);
+                setArticleQnaCount(0);
             });
     }, [f_code]);
 
@@ -653,7 +697,7 @@ const FurnitureArticle = () => {
     };
 
     if (!furniture) {
-        return <Loading message="상품 정보를 불러오는 중입니다."/>;
+        return <SkeletonMui variant="furnitureArticle" />;
     }
 
     const productDeliveryPrice = Number(
@@ -703,6 +747,7 @@ const FurnitureArticle = () => {
             : 0;
 
     const reviewAverage = Number(
+        articleReviewSummary?.average ??
         furniture.reviewAverage ??
         furniture.reviewAvg ??
         furniture.avgStar ??
@@ -712,6 +757,7 @@ const FurnitureArticle = () => {
     );
 
     const reviewCount = Number(
+        articleReviewSummary?.count ??
         furniture.reviewCount ??
         furniture.review_count ??
         furniture.fr_review_count ??
@@ -720,6 +766,7 @@ const FurnitureArticle = () => {
     );
 
     const qnaCount = Number(
+        articleQnaCount ??
         furniture.questionCount ??
         furniture.qnaCount ??
         furniture.qna_count ??

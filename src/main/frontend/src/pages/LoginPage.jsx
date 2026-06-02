@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import LoginService from '../service/loginService';
 import { Button, TextField } from '@mui/material';
 import "../css/LoginPage.css"
+import { GoHomeFill } from "react-icons/go";
 
 const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
 
@@ -214,6 +215,12 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                         비밀번호 찾기
                     </a>
 
+                </div>
+
+                <div className='home-link'>
+                    <a href='/'>        
+                        <GoHomeFill/>plushome<GoHomeFill/>
+                    </a>
                 </div>
 
             </div>

@@ -43,6 +43,7 @@ const TableChkMui = (props) => {
 	const {
 		rowData = [],
 		columns = [],
+		col=[],
 		selectedKeys = [],
 		setSelectedKeys,
 		selectedRow = null,
@@ -154,7 +155,7 @@ const TableChkMui = (props) => {
 
 	return (
 		<TableContainer component={Paper} sx={tableContainerSx}>
-			<Table sx={{ minWidth: 650 }} aria-label="checkbox table">
+			<Table sx={{ minWidth: 1200 }} aria-label="checkbox table">
 				<TableHead>
 					<TableRow>
 						<StyledTableCell padding="checkbox">
@@ -166,9 +167,9 @@ const TableChkMui = (props) => {
 							/>
 						</StyledTableCell>
 
-						{tableColumns.map((column) => (
+						{tableColumns.map((column,index) => (
 							<StyledTableCell key={column} align="right">
-								{column}
+								{col[index]}
 							</StyledTableCell>
 						))}
 					</TableRow>
