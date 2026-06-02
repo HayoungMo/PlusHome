@@ -5,11 +5,13 @@ import InteriorCalculator from "../components/InteriorCalculator";
 import DialogMui from "../components/DialogMui";
 import SelectMui from "../components/SelectMui";
 import "../css/InteriorQuestion.css";
+import InteriorBooking from "../components/InteriorBooking";
 
 const InteriorQuestion = ({setTab}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const company = location.state?.company || null;
+  const [bookingPossible, setBookingPossible] = useState(company ? true : false);
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -236,14 +238,26 @@ const InteriorQuestion = ({setTab}) => {
               ))}
             </div>
 
-            <div className="question-actions">
-              <Button onClick={handleBack}>이전</Button>
-              <Button onClick={handleOpen}>최종 제출</Button>
-            </div>
+            {!company && (
+              <div className="question-actions">
+                <Button onClick={handleBack}>이전</Button>
+                <Button onClick={handleOpen}>최종 제출</Button>
+              </div>
+            )}
           </div>
 
-          <aside className="question-card calculator-card">
+          <aside className="question-card calculator-card confirm-side-panel">
             <InteriorCalculator answer={data} />
+
+            {company && bookingPossible && (
+              <div className="confirm-booking-section">
+                <InteriorBooking
+                  answers={data}
+                  company={company}
+                  setBookingPossible={setBookingPossible}
+                />
+              </div>
+            )}
           </aside>
         </div>
 

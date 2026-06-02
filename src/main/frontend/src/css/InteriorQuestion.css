@@ -185,7 +185,7 @@
 
 .confirm-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.75fr);
   gap: 24px;
   align-items: start;
   margin-top: 32px;
@@ -194,6 +194,10 @@
 .confirm-layout .question-card {
   width: 100%;
   margin: 0;
+}
+
+.confirm-layout > aside.calculator-card {
+  grid-column: 2;
 }
 
 .confirm-list {
@@ -264,9 +268,67 @@
   top: 24px;
 }
 
+.confirm-layout > .question-card {
+  min-width: 0;
+}
+
 .calculator-card,
 .confirm-card {
   box-shadow: none;
+}
+
+.confirm-side-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.confirm-booking-section {
+  padding-top: 22px;
+  border-top: 1px solid #eaedef;
+}
+
+.calculator-card .interior-booking {
+  width: 100%;
+}
+
+.calculator-card .interior-booking-form {
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.calculator-card .interior-booking-head {
+  padding: 0 0 16px;
+  border-bottom-color: #eaedef;
+  background: transparent;
+}
+
+.calculator-card .interior-booking-head h3 {
+  font-size: 20px;
+}
+
+.calculator-card .interior-booking-head p {
+  font-size: 13px;
+}
+
+.calculator-card .interior-booking-fields {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 18px 0 0;
+}
+
+.calculator-card .interior-booking-fields > :nth-child(4),
+.calculator-card .interior-booking-actions {
+  grid-column: 1;
+}
+
+.calculator-card .interior-booking-actions {
+  justify-content: stretch;
+}
+
+.calculator-card .interior-booking-actions .MuiButton-root {
+  width: 100%;
 }
 
 .interior-estimate-card {

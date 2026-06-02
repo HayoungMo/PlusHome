@@ -156,12 +156,31 @@ const UserCouponPage = ({ user }) => {
       <Box className="user-coupon-content">
         {tab === 0 && (
           <form className="user-coupon-register-form">
-            <TextFieldMui
-              name="coupon_code"
-              label="코드 등록"
-              onChange={(e) => handleChange(e)}
-            />
-            <Button onClick={() => handleSubmit()}>등록 </Button>
+            <div className="user-coupon-register-head">
+              <p>CODE</p>
+              <h4>쿠폰 코드 등록</h4>
+              <span>받은 쿠폰 코드를 입력하면 내 쿠폰함에 바로 추가됩니다.</span>
+            </div>
+            <div className="user-coupon-register-body">
+              <div className="user-coupon-code-mark">%</div>
+              <div className="user-coupon-input-wrap">
+                <TextFieldMui
+                  name="coupon_code"
+                  label="쿠폰 코드"
+                  onChange={(e) => handleChange(e)}
+                  width="100%"
+                />
+                <p>영문, 숫자, 하이픈을 포함한 코드를 그대로 입력해주세요.</p>
+              </div>
+              <Button
+                className="user-coupon-register-button"
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmit()}
+              >
+                등록
+              </Button>
+            </div>
           </form>
         )}
 
