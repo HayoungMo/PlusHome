@@ -87,7 +87,6 @@ const InteriorInfo = () => {
 	};
 
 	const interiorControlButtonGroupList = [
-		{ title: "조회", onClick: () => handleTabChange("info") },
 		{
 			title: "등록",
 			onClick: () => {

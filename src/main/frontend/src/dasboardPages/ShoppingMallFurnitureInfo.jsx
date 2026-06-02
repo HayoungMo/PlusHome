@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import FurnitureAddPage from "../pages/FurnitureAddPage";
 import {
 	Box,
@@ -17,6 +17,7 @@ import AlertMui from "../components/AlertMui";
 import GetImgDir, { getImgFurnitureList } from "./../resources/function/GetImgDir";
 import FurnitureUpdatePage from "./../pages/FurnitureUpdatePage";
 import DialogMui from "../components/DialogMui";
+import FilterBar from "../components/FilterBar";
 import TabsMui from "../components/TabsMui";
 import dayjs from "dayjs";
 import SkeletonMui from "../components/SkeletonMui";
@@ -49,6 +50,7 @@ const ShoppingMallFurnitureInfo = () => {
 	const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 	const [selectedFurniture, setSelectedFurniture] = useState(null);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+	const [filterBarState, setFilterBarState] = useState({});
 
 	const [furnitureLoading, setFurnitureLoading] = useState(false);
 	const [imageLoading, setImageLoading] = useState(false);
@@ -77,8 +79,21 @@ const ShoppingMallFurnitureInfo = () => {
 		setTabValue(newValue);
 		const selectedCompany = shopListState.find((record) => record.c_name === newValue);
 		setSelectedTabCompany(selectedCompany);
+		setFilterBarState({});
 		setPage(1);
 	};
+
+	const handleFilterChange = (nextFilterValue) => {
+		setFilterBarState(nextFilterValue);
+		setPage(1);
+	};
+
+	const getUniqueFilterOptions = useCallback((list, key) => {
+		return [...new Set(list.map((item) => item[key]).filter(Boolean))].map((item) => ({
+			value: item,
+			title: item,
+		}));
+	}, []);
 
 	const handleFurnitureDelete = async () => {
 		try {
@@ -166,16 +181,70 @@ const ShoppingMallFurnitureInfo = () => {
 		return allFurnitureImgList.filter((item) => item.c_name === tabValue);
 	}, [allFurnitureImgList, tabValue]);
 
+	const productFilterList = useMemo(() => {
+		return [
+			{
+				key: "f_catagory1",
+				title: "가구 종류",
+				type: "multi",
+				options: getUniqueFilterOptions(selectedTabCompanyFurnitureList, "f_catagory1"),
+			},
+			{
+				key: "f_catagory2",
+				title: "공간",
+				type: "multi",
+				options: getUniqueFilterOptions(selectedTabCompanyFurnitureList, "f_catagory2"),
+			},
+			{
+				key: "f_catagory3",
+				title: "스타일",
+				type: "multi",
+				options: getUniqueFilterOptions(selectedTabCompanyFurnitureList, "f_catagory3"),
+			},
+			{
+				key: "f_catagory4",
+				title: "소재/특징",
+				type: "multi",
+				options: getUniqueFilterOptions(selectedTabCompanyFurnitureList, "f_catagory4"),
+			},
+			{
+				key: "f_catagory5",
+				title: "라이프스타일",
+				type: "multi",
+				options: getUniqueFilterOptions(selectedTabCompanyFurnitureList, "f_catagory5"),
+			},
+			{
+				key: "f_name",
+				title: "상품",
+				type: "multi",
+				options: getUniqueFilterOptions(selectedTabCompanyFurnitureList, "f_name"),
+			},
+		].filter((filter) => filter.options.length > 0);
+	}, [getUniqueFilterOptions, selectedTabCompanyFurnitureList]);
+
+	const filteredFurnitureList = useMemo(() => {
+		return selectedTabCompanyFurnitureList.filter((data) => {
+			return Object.entries(filterBarState).every(([key, value]) => {
+				if (value === "" || value === null || value === undefined) return true;
+				if (Array.isArray(value)) {
+					if (value.length === 0) return true;
+					return value.map(String).includes(String(data[key]));
+				}
+				return data[key] === value;
+			});
+		});
+	}, [selectedTabCompanyFurnitureList, filterBarState]);
+
 	const pageCount = useMemo(() => {
-		return Math.ceil(selectedTabCompanyFurnitureList.length / rowsPerPage);
-	}, [selectedTabCompanyFurnitureList.length, rowsPerPage]);
+		return Math.ceil(filteredFurnitureList.length / rowsPerPage);
+	}, [filteredFurnitureList.length, rowsPerPage]);
 
 	const visibleFurnitureList = useMemo(() => {
 		const startIndex = (page - 1) * rowsPerPage;
 		const endIndex = startIndex + rowsPerPage;
 
-		return selectedTabCompanyFurnitureList.slice(startIndex, endIndex);
-	}, [selectedTabCompanyFurnitureList, page, rowsPerPage]);
+		return filteredFurnitureList.slice(startIndex, endIndex);
+	}, [filteredFurnitureList, page, rowsPerPage]);
 
 	useEffect(() => {
 		const makeImgDirInFurnitureList = async () => {
@@ -206,7 +275,7 @@ const ShoppingMallFurnitureInfo = () => {
 	}, [id]);
 
 	useEffect(() => {
-		if (selectedTabCompanyFurnitureList.length === 0) {
+		if (filteredFurnitureList.length === 0) {
 			if (page !== 1) {
 				setPage(1);
 			}
@@ -221,7 +290,7 @@ const ShoppingMallFurnitureInfo = () => {
 		if (page > pageCount) {
 			setPage(pageCount);
 		}
-	}, [selectedTabCompanyFurnitureList.length, page, pageCount]);
+	}, [filteredFurnitureList.length, page, pageCount]);
 
 	const FurnitureInfoDiv = ({ furniture }) => {
 		const {
@@ -311,18 +380,29 @@ const ShoppingMallFurnitureInfo = () => {
 					</div>
 				)}
 			</div>
+			<div className="shopping-mall-product-filter">
+				<FilterBar
+					filterList={productFilterList}
+					value={filterBarState}
+					onChange={handleFilterChange}
+				/>
+			</div>
 			<div className="shopping-mall-product-list">
 				{isProductLoading ? (
 					<SkeletonMui variant="shoppingMallProductCard" count={rowsPerPage} />
-				) : selectedTabCompanyFurnitureList?.length > 0 ? (
+				) : filteredFurnitureList?.length > 0 ? (
 					visibleFurnitureList.map((record) => (
 						<FurnitureInfoDiv key={record.f_code} furniture={record} />
 					))
 				) : (
-					<div className="shopping-mall-empty-state">등록된 쇼핑몰 상품이 없습니다.</div>
+					<div className="shopping-mall-empty-state">
+						{selectedTabCompanyFurnitureList.length > 0
+							? "선택한 조건에 해당하는 상품이 없습니다."
+							: "등록된 쇼핑몰 상품이 없습니다."}
+					</div>
 				)}
 			</div>
-			{!isProductLoading && selectedTabCompanyFurnitureList.length > 0 && (
+			{!isProductLoading && filteredFurnitureList.length > 0 && (
 				<div className="shopping-mall-product-pagination">
 					<Pagination
 						count={pageCount}

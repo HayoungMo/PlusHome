@@ -68,6 +68,7 @@ const ShoppingMallOrderControl = () => {
 			{
 				key: "c_name",
 				title: "판매처",
+				type: "multi",
 				options: shopListState
 					.filter((shop) => shop.c_name !== "all")
 					.map((shop) => ({ value: shop.c_name, title: shop.c_name })),
@@ -75,31 +76,37 @@ const ShoppingMallOrderControl = () => {
 			{
 				key: "f_catagory1",
 				title: "가구 종류",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory1"),
 			},
 			{
 				key: "f_catagory2",
 				title: "공간",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory2"),
 			},
 			{
 				key: "f_catagory3",
 				title: "스타일",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory3"),
 			},
 			{
 				key: "f_catagory4",
 				title: "소재/특징",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory4"),
 			},
 			{
 				key: "f_catagory5",
 				title: "라이프스타일",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory5"),
 			},
 			{
 				key: "furnitureproductname",
 				title: "상품",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "furnitureproductname"),
 			},
 		].filter((filter) => filter.options.length > 0);
@@ -242,6 +249,10 @@ const ShoppingMallOrderControl = () => {
 			const matchTab = data.f_dstatus === tabValue;
 			const matchFilter = Object.entries(filterBarState).every(([key, value]) => {
 				if (value === "" || value === null || value === undefined) return true;
+				if (Array.isArray(value)) {
+					if (value.length === 0) return true;
+					return value.map(String).includes(String(data[key]));
+				}
 				return data[key] === value;
 			});
 			const orderDate = dayjs(

@@ -39,8 +39,8 @@
 
 <insert id="insertDataDashboard" parameterType="com.spring.home.dto.CompanyDTO">
 	insert into company 
-	(c_id,c_name,c_kind,c_tel,c_addr,c_boss)
-	values (#{c_id}, #{c_name}, #{c_kind}, #{c_tel}, #{c_addr}, #{c_boss})
+	(c_id,c_name,c_kind,c_tel,c_addr,c_boss,c_info)
+	values (#{c_id}, #{c_name}, #{c_kind}, #{c_tel}, #{c_addr}, #{c_boss}, #{c_info})
 </insert>
 
 <update id="updateCompanyOne" parameterType="com.spring.home.dto.CompanyDTO">
