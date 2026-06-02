@@ -31,6 +31,7 @@ const InteriorList = ({ tag, value }) => {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [filterOn, setFilterOn] = useState(false);
   const [filterValue, setFilterValue] = useState(() =>
     getInitialFilterValue(tag, value),
   );
@@ -151,6 +152,7 @@ const InteriorList = ({ tag, value }) => {
             const selectedValues = Array.isArray(selectedValue)
               ? selectedValue
               : [selectedValue];
+
             const activeValues = selectedValues.filter(Boolean);
 
             if (activeValues.length === 0) {
@@ -181,6 +183,7 @@ const InteriorList = ({ tag, value }) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+
       try {
         const [companies, tagList] = await Promise.all([
           InteriorService.fetchList(),
@@ -188,6 +191,7 @@ const InteriorList = ({ tag, value }) => {
         ]);
 
         const companyList = Array.isArray(companies) ? companies : [];
+
         const listWithImages = await Promise.all(
           companyList.map(async (item) => {
             const logo = await GetImgDlr({
@@ -223,6 +227,7 @@ const InteriorList = ({ tag, value }) => {
       appliedSearch,
       appliedFilterValue,
     );
+
     const totalPage = Math.ceil(filteredCompanies.length / PAGE_SIZE);
     const nextPageNum = Math.min(pageNum, totalPage || 1);
 
@@ -232,6 +237,7 @@ const InteriorList = ({ tag, value }) => {
     }
 
     const start = (nextPageNum - 1) * PAGE_SIZE;
+
     setList(filteredCompanies.slice(start, start + PAGE_SIZE));
     setPageInfo({
       totalCount: filteredCompanies.length,
@@ -252,48 +258,53 @@ const InteriorList = ({ tag, value }) => {
     setPageNum(1);
   };
 
-  const handleFilterApply = (nextFilterValue) => {
-    const appliedValue = nextFilterValue || filterValue;
-    setFilterValue(appliedValue);
-    setAppliedFilterValue(appliedValue);
-    setPageNum(1);
-  };
-
-  const handleReset = () => {
-    setSearch("");
-    setFilterValue({});
-    setAppliedSearch("");
-    setAppliedFilterValue({});
+  const handleFilterApply = () => {
+    setAppliedFilterValue(filterValue);
     setPageNum(1);
   };
 
   return (
     <div className="interior-list-section interior-company-list-section">
       <div className="interior-list-toolbar">
-        <FilterBar
-          filterList={filterList}
-          value={filterValue}
-          onChange={setFilterValue}
-          onSubmit={handleFilterApply}
-        />
+        <div className="interior-search-group">
+          <TextFieldMui
+            name="search"
+            label="검색"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearchApply();
+              }
+            }}
+          />
 
-        <TextFieldMui
-          name="search"
-          label="검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearchApply();
-            }
-          }}
-        />
+          <Button variant="contained" onClick={handleSearchApply}>
+            검색
+          </Button>
+        </div>
 
-        <Button variant="contained" onClick={handleSearchApply}>
-          검색
-        </Button>
+        <div className="interior-filter-button-group">
+          <Button
+            variant="outlined"
+            onClick={() => setFilterOn((prev) => !prev)}
+          >
+            {filterOn ? "필터 닫기" : "필터"}
+          </Button>
 
-        <Button onClick={handleReset}>초기화</Button>
+          <Button variant="contained" onClick={handleFilterApply}>
+            적용
+          </Button>
+        </div>
+
+        {filterOn && (
+
+            <FilterBar
+              filterList={filterList}
+              value={filterValue}
+              onChange={setFilterValue}
+/>
+        )}
       </div>
 
       <Typography
@@ -311,31 +322,32 @@ const InteriorList = ({ tag, value }) => {
             cardClassName="interior-company-list-card"
           />
         ) : (
-        list.map((item) => (
-          <div
-            className="interior-company-card interior-company-list-card"
-            key={`${item.c_id}-${item.c_kind}-${item.c_name}`}
-            onClick={() => handleNext(item)}
-          >
-            {item?.logo?.result?.[0] && (
-              <img
-                className="interior-company-image"
-                src={
-                  item.logo.result.find((image) => image.img_tag === "LOGO")
-                    ?.img_name
-                }
-                alt={`${item.c_name} 로고`}
-              />
-            )}
-            <div className="interior-company-info">
-              <strong className="interior-company-name">{item.c_name}</strong>
-              <span>id: {item.c_id}</span>
-              <span>kind: {item.c_kind}</span>
-              <span>tel: {item.c_tel}</span>
-              <span>addr: {item.c_addr}</span>
+          list.map((item) => (
+            <div
+              className="interior-company-card interior-company-list-card"
+              key={`${item.c_id}-${item.c_kind}-${item.c_name}`}
+              onClick={() => handleNext(item)}
+            >
+              {item?.logo?.result?.[0] && (
+                <img
+                  className="interior-company-image"
+                  src={
+                    item.logo.result.find((image) => image.img_tag === "LOGO")
+                      ?.img_name
+                  }
+                  alt={`${item.c_name} 로고`}
+                />
+              )}
+
+              <div className="interior-company-info">
+                <strong className="interior-company-name">{item.c_name}</strong>
+                <span>id: {item.c_id}</span>
+                <span>kind: {item.c_kind}</span>
+                <span>tel: {item.c_tel}</span>
+                <span>addr: {item.c_addr}</span>
+              </div>
             </div>
-          </div>
-        ))
+          ))
         )}
       </div>
 
