@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BookingUpdate from "../components/BookingUpdate";
 import DateRangeFilter from "../components/DateRangeFilter";
 import TableMui from "../components/TableMui";
-import { Chip } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import InteriorInvoiceAdd from "../components/InteriorInvoiceAdd";
 import { GrDocumentPdf } from "react-icons/gr";
 import dayjs from "dayjs";
@@ -27,10 +27,15 @@ const InteriorBookingControl = () => {
 	const [selectedInvoiceDetailLatestList, setSelectedInvoiceDetailLatestList] = useState([]);
 	const [bookingRefreshKey, setBookingRefreshKey] = useState(0);
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const [transferListMuiLeft, setTransferListMuiLeft] = useState([]);
 	const [transferListMuiRight, setTransferListMuiRight] = useState([]);
@@ -66,6 +71,10 @@ const InteriorBookingControl = () => {
 
 	const refreshBookingList = () => {
 		setBookingRefreshKey((prev) => prev + 1);
+	};
+
+	const handleSearch = () => {
+		setAppliedDateRange(dateRange);
 	};
 
 	const invoiceTextKey = useMemo(() => ["invoice_text", "invoice_qty", "invoice_price"], []);
@@ -212,6 +221,9 @@ const InteriorBookingControl = () => {
 						onChange={setDateRange}
 						isInvalid={Boolean(isDateRangeInvalid)}
 					/>
+					<Button variant="contained" onClick={handleSearch}>
+						검색
+					</Button>
 				</div>
 
 				{isLoading ? (
@@ -229,8 +241,8 @@ const InteriorBookingControl = () => {
 							selectedInvoiceDetailList={selectedInvoiceDetailLatestList}
 							setSelectedInvoiceDetailList={setSelectedInvoiceDetailLatestList}
 							bookingRefreshKey={bookingRefreshKey}
-							dateRange={dateRange}
-							isDateRangeInvalid={Boolean(isDateRangeInvalid)}
+							dateRange={appliedDateRange}
+							isDateRangeInvalid={Boolean(isAppliedDateRangeInvalid)}
 						/>
 					</div>
 				) : (
