@@ -163,6 +163,66 @@ const ShoppingMallProductCardSkeleton = ({ count = 5 }) => (
 	</>
 );
 
+/**
+ * 쇼핑몰 대시보드 KPI 전용 스켈레톤
+ * ShoppingMallDashboard의 KPI 카드 구조와 동일한 class를 사용한다.
+ * 아이콘 영역, 라벨, 값, 하단 설명/증감률 위치를 실제 카드와 맞춘다.
+ */
+const ShoppingMallDashboardKpiSkeleton = ({ count = 6 }) => {
+	const toneList = ["blue", "orange", "blue", "red", "rose", "green"];
+
+	const labelWidthList = [42, 48, 64, 76, 68, 72];
+	const valueWidthList = [30, 54, 34, 32, 54, 54];
+	const helperWidthList = [76, 62, 62, 62, 62, 62];
+
+	return (
+		<>
+			{Array.from({ length: count }, (_, index) => {
+				const tone = toneList[index % toneList.length];
+
+				return (
+					<div
+						className="shopping-mall-dashboard-kpi shopping-mall-dashboard-kpi-skeleton"
+						key={`shopping-mall-dashboard-kpi-skeleton-${index}`}>
+						<div className={`shopping-mall-dashboard-kpi-icon ${tone}`}>
+							<Skeleton
+								variant="rounded"
+								animation="wave"
+								width={16}
+								height={16}
+								sx={{
+									borderRadius: "4px",
+									backgroundColor: "rgba(255, 255, 255, 0.75)",
+								}}
+							/>
+						</div>
+
+						<Skeleton
+							variant="text"
+							animation="wave"
+							width={labelWidthList[index] || 56}
+							height={18}
+							sx={{
+								marginTop: "4px",
+							}}
+						/>
+
+						<Skeleton
+							variant="text"
+							animation="wave"
+							width={valueWidthList[index] || 54}
+							height={34}
+						/>
+
+						<div className="shopping-mall-dashboard-kpi-foot shopping-mall-dashboard-kpi-skeleton-foot">
+							<Skeleton variant="text" animation="wave" width="78%" height={16} />
+						</div>
+					</div>
+				);
+			})}
+		</>
+	);
+};
 const InteriorMediaCardSkeleton = ({
 	count = 6,
 	groupTitle = true,
@@ -374,6 +434,10 @@ const SkeletonMui = ({ variant = "kpi", ...props }) => {
 
 	if (variant === "shoppingMallProductCard") {
 		return <ShoppingMallProductCardSkeleton {...props} />;
+	}
+
+	if (variant === "shoppingMallDashboardKpi") {
+		return <ShoppingMallDashboardKpiSkeleton {...props} />;
 	}
 
 	if (variant === "interiorMediaCard") {

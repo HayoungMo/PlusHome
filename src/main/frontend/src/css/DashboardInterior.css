@@ -1035,10 +1035,20 @@
 	background: #ffffff;
 }
 
+.interior-schedule-filter .MuiToggleButtonGroup-middleButton,
+.interior-schedule-filter .MuiToggleButtonGroup-lastButton {
+	border-left: 1px solid #d8dee8 !important;
+}
+
 .interior-schedule-filter .MuiToggleButton-root.Mui-selected {
 	border-color: #1d4ed8;
 	background: #eff6ff;
 	color: #1d4ed8;
+}
+
+.interior-schedule-filter .MuiToggleButton-root.Mui-selected.MuiToggleButtonGroup-middleButton,
+.interior-schedule-filter .MuiToggleButton-root.Mui-selected.MuiToggleButtonGroup-lastButton {
+	border-left-color: #1d4ed8 !important;
 }
 
 .interior-schedule-grid {
@@ -1537,6 +1547,10 @@
 	box-sizing: border-box;
 }
 
+.interior-example-workspace {
+	gap: 18px;
+}
+
 .interior-example-card-head {
 	display: flex;
 	align-items: center;
@@ -1560,6 +1574,15 @@
 	color: #64748b;
 }
 
+.interior-example-toolbar-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: end;
+	gap: 18px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #d8dee8;
+}
+
 .interior-example-toolbar {
 	display: flex;
 	flex-direction: column;
@@ -1581,10 +1604,20 @@
 	background: #ffffff;
 }
 
+.interior-example-toolbar .MuiToggleButtonGroup-middleButton,
+.interior-example-toolbar .MuiToggleButtonGroup-lastButton {
+	border-left: 1px solid #d8dee8 !important;
+}
+
 .interior-example-toolbar .MuiToggleButton-root.Mui-selected {
 	border-color: #1d4ed8;
 	background: #eff6ff;
 	color: #1d4ed8;
+}
+
+.interior-example-toolbar .MuiToggleButton-root.Mui-selected.MuiToggleButtonGroup-middleButton,
+.interior-example-toolbar .MuiToggleButton-root.Mui-selected.MuiToggleButtonGroup-lastButton {
+	border-left-color: #1d4ed8 !important;
 }
 
 .interior-example-toolbar .MuiTabs-root {
@@ -1620,8 +1653,60 @@
 
 .interior-example-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+	grid-template-columns: 360px minmax(0, 1fr);
 	gap: 18px;
+}
+
+.interior-example-model-grid {
+	grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.interior-example-content {
+	min-width: 0;
+}
+
+.interior-example-panel {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 16px;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #f8fafc;
+	box-sizing: border-box;
+}
+
+.interior-example-list-panel {
+	align-self: start;
+}
+
+.interior-example-model-list-panel {
+	width: 240px;
+}
+
+.interior-example-panel-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.interior-example-panel-head strong {
+	display: block;
+	font-size: 15px;
+	font-weight: 900;
+	line-height: 1.35;
+	color: #111827;
+}
+
+.interior-example-panel-head span {
+	display: block;
+	margin-top: 3px;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1.45;
+	color: #64748b;
 }
 
 .interior-example-wide {
@@ -1629,8 +1714,13 @@
 }
 
 .interior-example-table {
-	width: 100%;
+	width: 320px;
+	max-width: 100%;
 	overflow-x: auto;
+}
+
+.interior-example-model-table {
+	width: 200px;
 }
 
 .interior-example-table .MuiPaper-root {
@@ -1639,19 +1729,37 @@
 	box-shadow: none;
 }
 
+.interior-example-table .MuiTable-root {
+	min-width: 0;
+	width: 100%;
+	table-layout: fixed;
+}
+
 .interior-example-table .MuiTableCell-head {
 	background-color: #1d4ed8;
 	border-bottom-color: #1e3a8a;
 	white-space: nowrap;
 }
 
+.interior-example-table .MuiTableCell-root {
+	width: 50%;
+	padding-inline: 14px;
+}
+
 .interior-example-table .MuiTableCell-body {
 	color: #334155;
+	white-space: nowrap;
+}
+
+.interior-example-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
 
 .interior-example-image-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 	gap: 12px;
 }
 
@@ -1662,6 +1770,19 @@
 	border: 1px solid #e5eaf2;
 	border-radius: 8px;
 	background: #f8fafc;
+}
+
+.interior-example-detail-text {
+	padding: 14px 16px;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #f8fafc;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.7;
+	color: #334155;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 }
 
 .interior-example-model-viewer {

@@ -11,6 +11,7 @@ import com.spring.home.dto.CartDTO;
 import com.spring.home.dto.CompanyDTO;
 import com.spring.home.dto.DevDashBoardSummaryDTO;
 import com.spring.home.dto.FurnitureDTO;
+
 import com.spring.home.dto.UserDTO;
 
 import groovy.transform.Undefined.EXCEPTION;
@@ -66,6 +67,8 @@ public interface UserMapper {
 	public int getNotJoinedCompanyCount()throws Exception;
 	
 	public DevDashBoardSummaryDTO getDevDashboardSummary()throws Exception;
+	
+	public List<Map<String, Object>> getProductReviewStats(Map<String, Object> map) throws Exception;
 	
 	
 	

@@ -26,6 +26,7 @@ import TabsMui from "../components/TabsMui";
 import DashboardService from "../service/dashboardService";
 import "../css/DashboardShoppingMall.css";
 import dayjs from "dayjs";
+import SkeletonMui from "./../components/SkeletonMui";
 
 ChartJS.register(
 	ArcElement,
@@ -119,7 +120,8 @@ const top = (list, key, limit = 10) =>
 	[...list].sort((a, b) => num(getValue(b, [key])) - num(getValue(a, [key]))).slice(0, limit);
 
 const labelsFrom = (list, key) => list.map((item) => item[key] || "-");
-const valuesFrom = (list, keys) => list.map((item) => num(getValue(item, Array.isArray(keys) ? keys : [keys])));
+const valuesFrom = (list, keys) =>
+	list.map((item) => num(getValue(item, Array.isArray(keys) ? keys : [keys])));
 
 const hasChartData = (data) => {
 	if (!data?.datasets?.length) return false;
@@ -292,7 +294,15 @@ const ChartCard = ({ title, children, statusKeys = [], loading = false, response
 	);
 };
 
-const TableCard = ({ title, rowData, col, columns, statusKeys = [], loading = false, responses = {} }) => (
+const TableCard = ({
+	title,
+	rowData,
+	col,
+	columns,
+	statusKeys = [],
+	loading = false,
+	responses = {},
+}) => (
 	<section className="shopping-mall-dashboard-card shopping-mall-dashboard-table-card">
 		<div className="shopping-mall-dashboard-card-head">
 			<strong>{title}</strong>
@@ -306,7 +316,13 @@ const TableCard = ({ title, rowData, col, columns, statusKeys = [], loading = fa
 				{getFailedResponseMessage(responses, statusKeys)}
 			</div>
 		) : rowData?.length > 0 ? (
-			<TableMui rowData={rowData} col={col} columns={columns} defaultRowPerPage={5} pagination />
+			<TableMui
+				rowData={rowData}
+				col={col}
+				columns={columns}
+				defaultRowPerPage={5}
+				pagination
+			/>
 		) : (
 			<div className="shopping-mall-dashboard-empty table">{emptyStatsMessage}</div>
 		)}
@@ -411,7 +427,12 @@ const ShoppingMallDashboard = () => {
 				dashboardRequests.map(async ([key, request]) => {
 					try {
 						const response = await request(requestDto);
-						return [key, response?.success === false && response?.error ? { ...response, loadFailed: true } : response];
+						return [
+							key,
+							response?.success === false && response?.error
+								? { ...response, loadFailed: true }
+								: response,
+						];
 					} catch (error) {
 						return [
 							key,
@@ -481,7 +502,9 @@ const ShoppingMallDashboard = () => {
 			};
 		});
 		const hiddenProducts = displayRows.filter((item) => item.normalizedStatus === "hidden");
-		const visibleCount = displayRows.filter((item) => item.normalizedStatus === "visible").length;
+		const visibleCount = displayRows.filter(
+			(item) => item.normalizedStatus === "visible",
+		).length;
 		const hiddenCount = displayRows.length - visibleCount;
 
 		const totalRevenue = revenue.reduce((sum, item) => sum + num(item.totalPayAmount), 0);
@@ -539,8 +562,14 @@ const ShoppingMallDashboard = () => {
 					tone: "green",
 				},
 			],
-			genderOrder: makeDoughnut(["남성", "여성"], [num(orderAgeGender.male), num(orderAgeGender.female)]),
-			genderBuyer: makeDoughnut(["남성", "여성"], [num(buyerAgeGender.male), num(buyerAgeGender.female)]),
+			genderOrder: makeDoughnut(
+				["남성", "여성"],
+				[num(orderAgeGender.male), num(orderAgeGender.female)],
+			),
+			genderBuyer: makeDoughnut(
+				["남성", "여성"],
+				[num(buyerAgeGender.male), num(buyerAgeGender.female)],
+			),
 			ageCompare: {
 				labels: ageLabels,
 				datasets: [
@@ -589,10 +618,18 @@ const ShoppingMallDashboard = () => {
 			),
 			stock: makeDoughnut(
 				["정상 재고", "재고 부족", "품절"],
-				[num(overview.inStockCount), num(overview.lowStockCount), num(overview.soldOutCount)],
+				[
+					num(overview.inStockCount),
+					num(overview.lowStockCount),
+					num(overview.soldOutCount),
+				],
 				["#2563eb", "#f59e0b", "#ef4444"],
 			),
-			salesTop: makeHorizontalBar(labelsFrom(salesTop, "fName"), valuesFrom(salesTop, "saleQty"), "판매 수량"),
+			salesTop: makeHorizontalBar(
+				labelsFrom(salesTop, "fName"),
+				valuesFrom(salesTop, "saleQty"),
+				"판매 수량",
+			),
 			revenueTop: makeHorizontalBar(
 				labelsFrom(revenueTop, "fName"),
 				valuesFrom(revenueTop, "totalPayAmount"),
@@ -730,7 +767,11 @@ const ShoppingMallDashboard = () => {
 					},
 				],
 			},
-			display: makeDoughnut(["노출", "숨김"], [visibleCount, hiddenCount], ["#2563eb", "#ef4444"]),
+			display: makeDoughnut(
+				["노출", "숨김"],
+				[visibleCount, hiddenCount],
+				["#2563eb", "#ef4444"],
+			),
 			couponUse: makeDoughnut(
 				["사용", "미사용"],
 				[num(benefit.couponUseCount), num(benefit.couponNotUseCount)],
@@ -799,7 +840,10 @@ const ShoppingMallDashboard = () => {
 					<p>{"기간별 쇼핑몰 운영 통계를 확인하세요."}</p>
 				</div>
 				<div className="shopping-mall-dashboard-summary">
-					<Chip label={selectedShopName === "all" ? "전체 쇼핑몰" : selectedShopName} variant="outlined" />
+					<Chip
+						label={selectedShopName === "all" ? "전체 쇼핑몰" : selectedShopName}
+						variant="outlined"
+					/>
 					<Chip
 						label={
 							dateRange.startDate || dateRange.endDate
@@ -812,13 +856,17 @@ const ShoppingMallDashboard = () => {
 						label={
 							!categoryLevel
 								? "전체 카테고리"
-								: categoryLevelOptions.find((option) => option.value === categoryLevel)
-										?.label || `카테고리 단계 ${categoryLevel}`
+								: categoryLevelOptions.find(
+										(option) => option.value === categoryLevel,
+									)?.label || `카테고리 단계 ${categoryLevel}`
 						}
 						variant="outlined"
 					/>
 					{lastUpdatedAt && (
-						<Chip label={`마지막 갱신 ${lastUpdatedAt.toLocaleTimeString()}`} variant="outlined" />
+						<Chip
+							label={`마지막 갱신 ${lastUpdatedAt.toLocaleTimeString()}`}
+							variant="outlined"
+						/>
 					)}
 				</div>
 			</div>
@@ -846,21 +894,30 @@ const ShoppingMallDashboard = () => {
 			</section>
 
 			<section className="shopping-mall-dashboard-kpi-grid">
-				{stats.kpi.map((item) => (
-					<div className="shopping-mall-dashboard-kpi" key={item.key}>
-						<div className={`shopping-mall-dashboard-kpi-icon ${item.tone}`}>{kpiIconMap[item.key]}</div>
-						<span>{item.label}</span>
-						<strong>{item.key === "revenue" ? `${item.value}만원` : item.value}</strong>
-						<div className="shopping-mall-dashboard-kpi-foot">
-							<small>{item.helper}</small>
-							{item.changeRate !== 0 && (
-								<em className={item.changeRate > 0 ? "up" : "down"}>
-									{item.changeRate > 0 ? "▲" : "▼"} {Math.abs(item.changeRate).toFixed(1)}%
-								</em>
-							)}
+				{isInitialLoading ? (
+					<SkeletonMui variant="shoppingMallDashboardKpi" count={6} />
+				) : (
+					stats.kpi.map((item) => (
+						<div className="shopping-mall-dashboard-kpi" key={item.key}>
+							<div className={`shopping-mall-dashboard-kpi-icon ${item.tone}`}>
+								{kpiIconMap[item.key]}
+							</div>
+							<span>{item.label}</span>
+							<strong>
+								{item.key === "revenue" ? `${item.value}만원` : item.value}
+							</strong>
+							<div className="shopping-mall-dashboard-kpi-foot">
+								<small>{item.helper}</small>
+								{item.changeRate !== 0 && (
+									<em className={item.changeRate > 0 ? "up" : "down"}>
+										{item.changeRate > 0 ? "▲" : "▼"}{" "}
+										{Math.abs(item.changeRate).toFixed(1)}%
+									</em>
+								)}
+							</div>
 						</div>
-					</div>
-				))}
+					))
+				)}
 			</section>
 
 			{isInitialLoading ? (
@@ -869,148 +926,260 @@ const ShoppingMallDashboard = () => {
 				</section>
 			) : (
 				<section className="shopping-mall-dashboard-tabs">
-				<TabsMui
-					tabValue={activeDashboardTab}
-					handleTabChange={(event, newValue) => setActiveDashboardTab(newValue)}
-					tabList={dashboardTabList}
-					tabKey="key"
-					label="label"
-					value="key"
-				/>
+					<TabsMui
+						tabValue={activeDashboardTab}
+						handleTabChange={(event, newValue) => setActiveDashboardTab(newValue)}
+						tabList={dashboardTabList}
+						tabKey="key"
+						label="label"
+						value="key"
+					/>
 
-				{loading && <div className="shopping-mall-dashboard-loading">{"대시보드 데이터를 새로 불러오는 중입니다."}</div>}
+					{loading && (
+						<div className="shopping-mall-dashboard-loading">
+							{"대시보드 데이터를 새로 불러오는 중입니다."}
+						</div>
+					)}
 
-				{activeDashboardTab === "summary" && (
-					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"시간대별 장바구니 / 구매확정"} statusKeys={["cartHourly", "statusHourly"]} {...cardStatusProps}>
-							<Line data={stats.hourly} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"재고 상태"} statusKeys={["productOverview"]} {...cardStatusProps}>
-							<Doughnut data={stats.stock} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"상품별 매출 TOP 10"} statusKeys={["productRevenue"]} {...cardStatusProps}>
-							<Bar data={stats.revenueTop} options={horizontalOptions} />
-						</ChartCard>
-						<ChartCard title={"상품별 판매량 TOP 10"} statusKeys={["productSales"]} {...cardStatusProps}>
-							<Bar data={stats.salesTop} options={horizontalOptions} />
-						</ChartCard>
-						<ChartCard title={"카테고리별 매출"} statusKeys={["categoryProduct"]} {...cardStatusProps}>
-							<Bar data={stats.categoryRevenue} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"쿠폰/포인트 사용 유형"} statusKeys={["benefitUseType"]} {...cardStatusProps}>
-							<Doughnut data={stats.benefitUseType} options={baseOptions} />
-						</ChartCard>
-					</div>
-				)}
+					{activeDashboardTab === "summary" && (
+						<div className="shopping-mall-dashboard-grid two">
+							<ChartCard
+								title={"시간대별 장바구니 / 구매확정"}
+								statusKeys={["cartHourly", "statusHourly"]}
+								{...cardStatusProps}>
+								<Line data={stats.hourly} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"재고 상태"}
+								statusKeys={["productOverview"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.stock} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"상품별 매출 TOP 10"}
+								statusKeys={["productRevenue"]}
+								{...cardStatusProps}>
+								<Bar data={stats.revenueTop} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"상품별 판매량 TOP 10"}
+								statusKeys={["productSales"]}
+								{...cardStatusProps}>
+								<Bar data={stats.salesTop} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"카테고리별 매출"}
+								statusKeys={["categoryProduct"]}
+								{...cardStatusProps}>
+								<Bar data={stats.categoryRevenue} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"쿠폰/포인트 사용 유형"}
+								statusKeys={["benefitUseType"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.benefitUseType} options={baseOptions} />
+							</ChartCard>
+						</div>
+					)}
 
-				{activeDashboardTab === "customer" && (
-					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"주문 건 기준 성별 비율"} statusKeys={["orderAgeGender"]} {...cardStatusProps}>
-							<Doughnut data={stats.genderOrder} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"구매자 기준 성별 비율"} statusKeys={["buyerAgeGender"]} {...cardStatusProps}>
-							<Doughnut data={stats.genderBuyer} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"연령대 비교"} statusKeys={["orderAgeGender", "buyerAgeGender"]} {...cardStatusProps}>
-							<Bar data={stats.ageCompare} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"시간대별 장바구니 / 구매확정"} statusKeys={["cartHourly", "statusHourly"]} {...cardStatusProps}>
-							<Line data={stats.hourly} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"평균 소요 시간"} statusKeys={["orderElapsedTime"]} {...cardStatusProps}>
-							<Bar data={stats.elapsed} options={horizontalOptions} />
-						</ChartCard>
-					</div>
-				)}
+					{activeDashboardTab === "customer" && (
+						<div className="shopping-mall-dashboard-grid two">
+							<ChartCard
+								title={"주문 건 기준 성별 비율"}
+								statusKeys={["orderAgeGender"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.genderOrder} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"구매자 기준 성별 비율"}
+								statusKeys={["buyerAgeGender"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.genderBuyer} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"연령대 비교"}
+								statusKeys={["orderAgeGender", "buyerAgeGender"]}
+								{...cardStatusProps}>
+								<Bar data={stats.ageCompare} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"시간대별 장바구니 / 구매확정"}
+								statusKeys={["cartHourly", "statusHourly"]}
+								{...cardStatusProps}>
+								<Line data={stats.hourly} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"평균 소요 시간"}
+								statusKeys={["orderElapsedTime"]}
+								{...cardStatusProps}>
+								<Bar data={stats.elapsed} options={horizontalOptions} />
+							</ChartCard>
+						</div>
+					)}
 
-				{activeDashboardTab === "product" && (
-					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"재고 상태"} statusKeys={["productOverview"]} {...cardStatusProps}>
-							<Doughnut data={stats.stock} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"노출 / 숨김 상품"} statusKeys={["productDisplay"]} {...cardStatusProps}>
-							<Doughnut data={stats.display} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"상품별 판매량 TOP 10"} statusKeys={["productSales"]} {...cardStatusProps}>
-							<Bar data={stats.salesTop} options={horizontalOptions} />
-						</ChartCard>
-						<ChartCard title={"상품별 매출 TOP 10"} statusKeys={["productRevenue"]} {...cardStatusProps}>
-							<Bar data={stats.revenueTop} options={horizontalOptions} />
-						</ChartCard>
-						<ChartCard title={"매출 + 평균 결제금액"} statusKeys={["productRevenue"]} {...cardStatusProps}>
-							<Chart type="bar" data={stats.revenueMixed} options={mixedAxisOptions} />
-						</ChartCard>
-						<ChartCard title={"상품별 구매 전환율 TOP 10"} statusKeys={["productEngagementConversion"]} {...cardStatusProps}>
-							<Bar data={stats.engagementRate} options={horizontalOptions} />
-						</ChartCard>
-						<ChartCard title={"옵션 매출 / 판매 수량"} statusKeys={["productOption"]} {...cardStatusProps}>
-							<Chart type="bar" data={stats.optionMixed} options={mixedAxisOptions} />
-						</ChartCard>
-						<TableCard
-							title={"숨김 상품 현황"}
-							rowData={stats.tables.hiddenProducts}
-							col={["fName", "displayStatusText", "hideDate", "payCount", "totalPayAmount"]}
-							columns={["상품명", "상태", "숨김일", "결제", "매출"]}
-							statusKeys={["productDisplay"]}
-							{...cardStatusProps}
-						/>
-					</div>
-				)}
+					{activeDashboardTab === "product" && (
+						<div className="shopping-mall-dashboard-grid two">
+							<ChartCard
+								title={"재고 상태"}
+								statusKeys={["productOverview"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.stock} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"노출 / 숨김 상품"}
+								statusKeys={["productDisplay"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.display} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"상품별 판매량 TOP 10"}
+								statusKeys={["productSales"]}
+								{...cardStatusProps}>
+								<Bar data={stats.salesTop} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"상품별 매출 TOP 10"}
+								statusKeys={["productRevenue"]}
+								{...cardStatusProps}>
+								<Bar data={stats.revenueTop} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"매출 + 평균 결제금액"}
+								statusKeys={["productRevenue"]}
+								{...cardStatusProps}>
+								<Chart
+									type="bar"
+									data={stats.revenueMixed}
+									options={mixedAxisOptions}
+								/>
+							</ChartCard>
+							<ChartCard
+								title={"상품별 구매 전환율 TOP 10"}
+								statusKeys={["productEngagementConversion"]}
+								{...cardStatusProps}>
+								<Bar data={stats.engagementRate} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"옵션 매출 / 판매 수량"}
+								statusKeys={["productOption"]}
+								{...cardStatusProps}>
+								<Chart
+									type="bar"
+									data={stats.optionMixed}
+									options={mixedAxisOptions}
+								/>
+							</ChartCard>
+							<TableCard
+								title={"숨김 상품 현황"}
+								rowData={stats.tables.hiddenProducts}
+								col={[
+									"fName",
+									"displayStatusText",
+									"hideDate",
+									"payCount",
+									"totalPayAmount",
+								]}
+								columns={["상품명", "상태", "숨김일", "결제", "매출"]}
+								statusKeys={["productDisplay"]}
+								{...cardStatusProps}
+							/>
+						</div>
+					)}
 
-				{activeDashboardTab === "review" && (
-					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"리뷰 수 + 평균 별점"} statusKeys={["productReview"]} {...cardStatusProps}>
-							<Chart type="bar" data={stats.reviewMixed} options={mixedAxisOptions} />
-						</ChartCard>
-						<ChartCard title={"문의 답변 현황"} statusKeys={["productQuestion"]} {...cardStatusProps}>
-							<Bar data={stats.questionStacked} options={stackedOptions} />
-						</ChartCard>
-						<TableCard
-							title={"문의 TOP"}
-							rowData={stats.tables.questionTop}
-							col={["fName", "questionCount", "doneCount", "notDoneCount", "answerRate"]}
-							columns={["상품명", "총 문의", "답변 완료", "미답변", "답변률"]}
-							statusKeys={["productQuestion"]}
-							{...cardStatusProps}
-						/>
-					</div>
-				)}
+					{activeDashboardTab === "review" && (
+						<div className="shopping-mall-dashboard-grid two">
+							<ChartCard
+								title={"리뷰 수 + 평균 별점"}
+								statusKeys={["productReview"]}
+								{...cardStatusProps}>
+								<Chart
+									type="bar"
+									data={stats.reviewMixed}
+									options={mixedAxisOptions}
+								/>
+							</ChartCard>
+							<ChartCard
+								title={"문의 답변 현황"}
+								statusKeys={["productQuestion"]}
+								{...cardStatusProps}>
+								<Bar data={stats.questionStacked} options={stackedOptions} />
+							</ChartCard>
+							<TableCard
+								title={"문의 TOP"}
+								rowData={stats.tables.questionTop}
+								col={[
+									"fName",
+									"questionCount",
+									"doneCount",
+									"notDoneCount",
+									"answerRate",
+								]}
+								columns={["상품명", "총 문의", "답변 완료", "미답변", "답변률"]}
+								statusKeys={["productQuestion"]}
+								{...cardStatusProps}
+							/>
+						</div>
+					)}
 
-				{activeDashboardTab === "delivery" && (
-					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"배송 상태"} statusKeys={["productDeliveryClaim"]} {...cardStatusProps}>
-							<Bar data={stats.deliveryStacked} options={stackedOptions} />
-						</ChartCard>
-						<TableCard
-							title={"클레임 TOP"}
-							rowData={stats.tables.deliveryTop}
-							col={["fName", "claimCount", "claimRate", "cancelCount", "payCount"]}
-							columns={["상품명", "클레임 수", "클레임률", "취소", "결제"]}
-							statusKeys={["productDeliveryClaim"]}
-							{...cardStatusProps}
-						/>
-					</div>
-				)}
+					{activeDashboardTab === "delivery" && (
+						<div className="shopping-mall-dashboard-grid two">
+							<ChartCard
+								title={"배송 상태"}
+								statusKeys={["productDeliveryClaim"]}
+								{...cardStatusProps}>
+								<Bar data={stats.deliveryStacked} options={stackedOptions} />
+							</ChartCard>
+							<TableCard
+								title={"클레임 TOP"}
+								rowData={stats.tables.deliveryTop}
+								col={[
+									"fName",
+									"claimCount",
+									"claimRate",
+									"cancelCount",
+									"payCount",
+								]}
+								columns={["상품명", "클레임 수", "클레임률", "취소", "결제"]}
+								statusKeys={["productDeliveryClaim"]}
+								{...cardStatusProps}
+							/>
+						</div>
+					)}
 
-				{activeDashboardTab === "benefit" && (
-					<div className="shopping-mall-dashboard-grid two">
-						<ChartCard title={"상품별 쿠폰/포인트 TOP"} statusKeys={["productBenefitTop"]} {...cardStatusProps}>
-							<Bar data={stats.benefitTop} options={horizontalOptions} />
-						</ChartCard>
-						<ChartCard title={"쿠폰 사용률"} statusKeys={["benefitUsage"]} {...cardStatusProps}>
-							<Doughnut data={stats.couponUse} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"포인트 사용률"} statusKeys={["benefitUsage"]} {...cardStatusProps}>
-							<Doughnut data={stats.pointUse} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"쿠폰/포인트 사용 유형"} statusKeys={["benefitUseType"]} {...cardStatusProps}>
-							<Doughnut data={stats.benefitUseType} options={baseOptions} />
-						</ChartCard>
-						<ChartCard title={"쿠폰/포인트 매출 영향"} statusKeys={["benefitRevenueImpact"]} {...cardStatusProps}>
-							<Bar data={stats.benefitImpact} options={baseOptions} />
-						</ChartCard>
-					</div>
-				)}
+					{activeDashboardTab === "benefit" && (
+						<div className="shopping-mall-dashboard-grid two">
+							<ChartCard
+								title={"상품별 쿠폰/포인트 TOP"}
+								statusKeys={["productBenefitTop"]}
+								{...cardStatusProps}>
+								<Bar data={stats.benefitTop} options={horizontalOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"쿠폰 사용률"}
+								statusKeys={["benefitUsage"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.couponUse} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"포인트 사용률"}
+								statusKeys={["benefitUsage"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.pointUse} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"쿠폰/포인트 사용 유형"}
+								statusKeys={["benefitUseType"]}
+								{...cardStatusProps}>
+								<Doughnut data={stats.benefitUseType} options={baseOptions} />
+							</ChartCard>
+							<ChartCard
+								title={"쿠폰/포인트 매출 영향"}
+								statusKeys={["benefitRevenueImpact"]}
+								{...cardStatusProps}>
+								<Bar data={stats.benefitImpact} options={baseOptions} />
+							</ChartCard>
+						</div>
+					)}
 				</section>
 			)}
 		</div>

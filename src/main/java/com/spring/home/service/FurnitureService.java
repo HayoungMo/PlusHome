@@ -185,6 +185,51 @@ public class FurnitureService {
 
 	    return lists;
 	}
+//메인추천은 이미지없는 목록으로 계산하고, 마지막 4개만 이미지를 붙인다. -> 너무 리소스를 많이 잡아먹음 0602 모하영
+	public List<FurnitureDTO> getListsWithoutImages(
+	        int start,
+	        int end,
+	        String searchKey,
+	        String searchValue,
+	        String sort,
+	        String f_catagory1,
+	        String f_catagory2,
+	        String f_catagory3,
+	        String f_catagory4,
+	        String f_catagory5
+	) throws Exception {
+	    return furnitureMapper.getLists(
+	            start,
+	            end,
+	            searchKey,
+	            searchValue,
+	            sort,
+	            f_catagory1,
+	            f_catagory2,
+	            f_catagory3,
+	            f_catagory4,
+	            f_catagory5
+	    );
+	}
+
+	public void setFurnitureImages(List<FurnitureDTO> lists) {
+	    if (lists == null || lists.isEmpty()) {
+	        return;
+	    }
+
+	    for (FurnitureDTO dto : lists) {
+	        ImageQueryDTO queryDTO = new ImageQueryDTO();
+
+	        queryDTO.setA(dto.getF_code());
+	        queryDTO.setKind("FURNITURE");
+	        queryDTO.setRange("ONE");
+	        queryDTO.setIdx(-1);
+
+	        List<ImageDTO> imageList = imageService.getList(queryDTO);
+
+	        dto.setImageList(imageList);
+	    }
+	}
 	
 	public FurnitureDTO getReadData(String f_code) throws Exception{
 		

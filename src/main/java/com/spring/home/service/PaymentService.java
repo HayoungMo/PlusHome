@@ -513,6 +513,7 @@ public class PaymentService {
 						furnitureReviewMapper.getReviewByCartCode(order.getC_code());
 				
 				order.setReviewed(review != null);
+				order.setReview(review);
 			}
 			
 			

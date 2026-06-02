@@ -5,12 +5,12 @@ import SelectMui from "./../components/SelectMui";
 import TableMui from "./../components/TableMui";
 import FurnitureService from "./../service/furnitureService";
 import FurnitureReviewService from "../service/furnitureReviewService";
-import { getImgFurnitureList } from "../resources/function/GetImgDir";
-import FurnitureReview from "../components/FurnitureReview";
+import GetImgDir, { getImgFurnitureList } from "../resources/function/GetImgDir";
 import { Button, Chip } from "@mui/material";
 import TextFieldMui from "./../components/TextFieldMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
+import ImageViewer from "../components/ImageViewer";
 import "../css/DashboardShoppingMall.css";
 import dayjs from "dayjs";
 import Loading from "../components/Loading";
@@ -49,9 +49,13 @@ const ShoppingMallReviewControl = () => {
 	const [selectdFurnitureInfo, setSelectdFurnitureInfo] = useState(null);
 	const [selectedReview, setSelectedReview] = useState(initReviewAndReply);
 	const [selectedReply, setSelectedReply] = useState(initReviewAndReply);
+	const [selectedReviewImages, setSelectedReviewImages] = useState([]);
+	const [reviewViewerOpen, setReviewViewerOpen] = useState(false);
+	const [reviewViewerIndex, setReviewViewerIndex] = useState(0);
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const hasSelectedReview = Number(selectedReview?.fr_idx || 0) > 0;
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
@@ -168,6 +172,17 @@ const ShoppingMallReviewControl = () => {
 	}, [displayReviewList]);
 
 	const formatWon = (value) => `${Number(value || 0).toLocaleString()}원`;
+
+	const reviewViewerImages = selectedReviewImages.map((image) => ({
+		src: image.img_name,
+		alt: selectedReview.fr_subject || "리뷰 이미지",
+	}));
+
+	const openReviewViewer = (index = 0) => {
+		if (reviewViewerImages.length === 0) return;
+		setReviewViewerIndex(index);
+		setReviewViewerOpen(true);
+	};
 
 	const reLoadData = async (showLoading = true) => {
 		console.log("===== reLoadData =====");
@@ -337,21 +352,49 @@ const ShoppingMallReviewControl = () => {
 		setSelectedReply(findReply);
 	}, [selectedReview]);
 
+	useEffect(() => {
+		let ignore = false;
+
+		const fetchSelectedReviewImages = async () => {
+			setSelectedReviewImages([]);
+			setReviewViewerOpen(false);
+			setReviewViewerIndex(0);
+
+			if (!hasSelectedReview || !selectedReview.c_code || !selectedReview.id) return;
+
+			try {
+				const imageResult = await GetImgDir({
+					kind: "F_REVIEW",
+					returnType: "list",
+					a: selectedReview.c_code,
+					d: selectedReview.id,
+					view: false,
+				});
+
+				if (!ignore) {
+					setSelectedReviewImages(imageResult?.result || []);
+				}
+			} catch (error) {
+				console.error("리뷰 이미지 조회 실패", error);
+				if (!ignore) {
+					setSelectedReviewImages([]);
+				}
+			}
+		};
+
+		fetchSelectedReviewImages();
+
+		return () => {
+			ignore = true;
+		};
+	}, [hasSelectedReview, selectedReview.fr_idx, selectedReview.c_code, selectedReview.id]);
+
 	return (
 		<div className="shopping-mall-review-page">
 			<div className="shopping-mall-review-header">
 				<div>
 					<h3>리뷰 관리</h3>
 					<p>상품별 고객 리뷰를 확인하고 기업 답글을 등록합니다.</p>
-				</div>
-				<div className="shopping-mall-review-summary">
-					<Chip label={`리뷰 ${displayReviewList.length}건`} variant="outlined" />
-					<Chip
-						label={`평균 ${totalReviewInfo.star}점`}
-						color="primary"
-						variant="outlined"
-					/>
-					<Chip label={`구매 ${totalReviewInfo.qty}건`} variant="outlined" />
 				</div>
 			</div>
 
@@ -390,6 +433,10 @@ const ShoppingMallReviewControl = () => {
 						/>
 					</div>
 					<div className="shopping-mall-review-metrics">
+						<div className="shopping-mall-review-metric-card">
+							<span>총 리뷰</span>
+							<strong>{displayReviewList.length.toLocaleString()}건</strong>
+						</div>
 						<div className="shopping-mall-review-metric-card">
 							<span>별점 평균</span>
 							<div className="shopping-mall-review-rating-value">
@@ -457,7 +504,7 @@ const ShoppingMallReviewControl = () => {
 				</div>
 			</section>
 
-			{selectedReview.fr_idx !== 0 && (
+			{hasSelectedReview && (
 				<section className="shopping-mall-review-detail">
 					<div className="shopping-mall-review-detail-head">
 						<div>
@@ -472,11 +519,41 @@ const ShoppingMallReviewControl = () => {
 					</div>
 
 					<div className="shopping-mall-review-preview">
-						<FurnitureReview
-							key={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
-							fr_idx={selectedReview.fr_idx !== 0 ? selectedReview.fr_idx : null}
-							f_code={selectedReview.f_code}
-						/>
+						<div className="shopping-mall-review-preview-main">
+							<div className="shopping-mall-review-preview-title">
+								<strong>{selectedReview.fr_subject || "제목 없음"}</strong>
+								<RatingMui
+									value={Number(selectedReview.fr_star || 0)}
+									precision={0.5}
+									readOnly
+								/>
+							</div>
+							<div className="shopping-mall-review-preview-meta">
+								<span>작성자 {selectedReview.id || "-"}</span>
+								<span>{selectedReview.fr_createdDate || selectedReview.fr_createddate || "-"}</span>
+							</div>
+							<p>{selectedReview.fr_content || "내용이 없습니다."}</p>
+						</div>
+
+						{selectedReviewImages.length > 0 ? (
+							<div className="shopping-mall-review-preview-images">
+								{selectedReviewImages.map((image, index) => (
+									<button
+										type="button"
+										key={`${image.img_name}-${index}`}
+										onClick={() => openReviewViewer(index)}>
+										<img
+											src={image.img_name}
+											alt={selectedReview.fr_subject || "리뷰 이미지"}
+										/>
+									</button>
+								))}
+							</div>
+						) : (
+							<div className="shopping-mall-review-preview-empty">
+								등록된 리뷰 이미지가 없습니다.
+							</div>
+						)}
 					</div>
 
 					<div className="shopping-mall-review-reply">
@@ -535,6 +612,18 @@ const ShoppingMallReviewControl = () => {
 					icon={true}
 				/>
 			)}
+			<ImageViewer
+				open={reviewViewerOpen}
+				images={reviewViewerImages}
+				startIndex={reviewViewerIndex}
+				title={selectedReview.fr_subject}
+				content={selectedReview.fr_content}
+				date={selectedReview.fr_createdDate || selectedReview.fr_createddate}
+				writer={selectedReview.id}
+				star={selectedReview.fr_star}
+				reply={selectedReply.fr_idx !== 0 ? selectedReply : null}
+				onClose={() => setReviewViewerOpen(false)}
+			/>
 		</div>
 	);
 };

@@ -28,7 +28,9 @@ const getAuthHeaders = () => ({
 
 const addCart = (data) => {
 	return http.post("/cart/add", data, {
-		headers: getAuthHeaders(),
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token")}`
+		}
 	});
 };
 

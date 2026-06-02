@@ -61,6 +61,9 @@ public class CartController {
 	    @SuppressWarnings("unchecked")
 	    Map<String, Object> cartMap = (Map<String, Object>) body.get("cart");
 
+	    System.out.println("addCart body = " + body);
+	    System.out.println("addCart body options = " + body.get("options"));
+	    
 	    @SuppressWarnings("unchecked")
 	    List<Map<String, Object>> optionMaps =
 	            (List<Map<String, Object>>) body.get("options");
@@ -100,15 +103,20 @@ public class CartController {
 	        mergeCart = (Boolean) mergeCartValue;
 	    }
 
-	    String c_code = cartService.insertData(cartDTO, optionList, mergeCart);
-
-	    Map<String, Object> result = new HashMap<>();
-	    result.put("message", "장바구니에 담았습니다.");
-	    result.put("c_code", c_code);
-	    
-	    return ResponseEntity.ok(result);
+	    try {
+		    String c_code = cartService.insertData(cartDTO, optionList, mergeCart);
+	
+		    Map<String, Object> result = new HashMap<>();
+		    result.put("message", "장바구니에 담았습니다.");
+		    result.put("c_code", c_code);
+		    
+		    return ResponseEntity.ok(result);
+		} catch (RuntimeException error) {
+			return ResponseEntity
+					.badRequest()
+					.body(error.getMessage());
+		}
 	}
-
 	
 	@GetMapping
 	public ResponseEntity<?> getMyCart(

@@ -425,3 +425,102 @@
   line-height: 1.4;
   pointer-events: none;
 }
+
+.ur-tabs {
+  display: flex;
+  width: fit-content;
+  margin: 0 0 14px 0;
+  border: 1px solid #dfe3e8;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ur-tab {
+  min-width: 104px;
+  height: 36px;
+  padding: 0 15px;
+  border: 0;
+  border-right: 1px solid #dfe3e8;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ur-tab:last-child {
+  border-right: 0;
+}
+
+.ur-tab:hover {
+  background: #f8fafc;
+}
+
+.ur-tab.active {
+  background: #111827;
+  color: #fff;
+}
+
+.ur-tab-count {
+  margin-left: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ur-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin: -52px 0 18px;
+  min-height: 38px;
+}
+
+.ur-total-count {
+  display: none;
+}
+
+.ur-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ur-select-count {
+  min-width: 64px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.ur-btn {
+  min-width: 78px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #dfe3e8;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ur-btn:hover {
+  border-color: #008cff;
+  color: #008cff;
+  background: #f6fbff;
+}
+
+.ur-btn.danger {
+  border-color: #ef9a9a;
+  color: #c62828;
+}
+
+.ur-btn.danger:hover {
+  border-color: #d92d20;
+  color: #d92d20;
+  background: #fff5f5;
+}

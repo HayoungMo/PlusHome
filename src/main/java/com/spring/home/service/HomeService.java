@@ -46,7 +46,18 @@ public class HomeService {
 
 	// 추천 가구 띄우기 , 5월 19일 메인 알고리즘 숨김처리로 인해 수정함.
 	public List<FurnitureDTO> getBestFurniture(String id) throws Exception {
-		List<FurnitureDTO> lists = furnitureService.getLists(1, 9999, "f_name", "", "latest");
+	    List<FurnitureDTO> lists = furnitureService.getListsWithoutImages(
+	            1,
+	            9999,
+	            "f_name",
+	            "",
+	            "latest",
+	            "",
+	            "",
+	            "",
+	            "",
+	            ""
+	    );
 		
 		UserDTO user = null;
 		
@@ -94,7 +105,12 @@ public class HomeService {
 						.collect(Collectors.toList());
 		}
 		
-		return lists.size() <=4 ? lists : lists.subList(0, 4);
+		List<FurnitureDTO> result =  lists.size() <=4 ? lists : lists.subList(0, 4);
+		
+		furnitureService.setFurnitureImages(result);
+		
+		return result;
+		
 	}
 	
 	//알고리즘 헬퍼

@@ -219,26 +219,27 @@ const BookingUpdate = ({
 	return (
 		<div>
 			<div>
-				<TableMuiCollapse
-					selectedRow={selectedBooking}
-					setSelectedRow={setSelectedBooking}
-					rowData={displayBooking}
-					hiddenColumns={["b_answer"]}
-					columns={[
-						"예약자 ID",
-						"신청일",
-						"업체 ID",
-						"업체 구분",
-						"업체명",
-						"상담 종류",
-						"희망 기간",
-						"예약일",
-						"진행 상태",
-						"상담 내용",
-					]}
-					collapseTitle="상담 상세 정보"
-					renderCollapse={(row) => {
-						let answer = {};
+				{displayBooking?.length > 0 ? (
+					<TableMuiCollapse
+						selectedRow={selectedBooking}
+						setSelectedRow={setSelectedBooking}
+						rowData={displayBooking}
+						hiddenColumns={["b_answer"]}
+						columns={[
+							"예약자 ID",
+							"신청일",
+							"업체 ID",
+							"업체 구분",
+							"업체명",
+							"상담 종류",
+							"희망 기간",
+							"예약일",
+							"진행 상태",
+							"상담 내용",
+						]}
+						collapseTitle="상담 상세 정보"
+						renderCollapse={(row) => {
+							let answer = {};
 
 							try {
 								answer = row.b_answer ? JSON.parse(row.b_answer) : {};
@@ -246,20 +247,25 @@ const BookingUpdate = ({
 								answer = {};
 							}
 
-						return (
-							<Table size="small">
-								<TableBody>
-									{Object.keys(answer).map((key) => (
-										<TableRow key={key}>
-											<TableCell>{formatInteriorAnswerLabel(key)}</TableCell>
-											<TableCell>{formatInteriorAnswerValue(answer[key])}</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						);
-					}}
-				/>
+							return (
+								<Table size="small">
+									<TableBody>
+										{Object.keys(answer).map((key) => (
+											<TableRow key={key}>
+												<TableCell>{formatInteriorAnswerLabel(key)}</TableCell>
+												<TableCell>{formatInteriorAnswerValue(answer[key])}</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							);
+						}}
+					/>
+				) : (
+					<div className="interior-booking-guide">
+						상담 예약 데이터가 없습니다.
+					</div>
+				)}
 				{selectedBooking && (
 					<>
 						<Button variant="contained" color="secondary" onClick={onClickstartRemodel}>

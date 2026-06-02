@@ -2,14 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FurnitureService from "../service/furnitureService";
 import LikeService from "../service/likeService";
-import Loading from "../components/Loading";
-import { Snackbar } from "@mui/material";
+import { Button, Snackbar, Pagination } from "@mui/material";
 import AlertMui from "../components/AlertMui";
+import FilterBar from "../components/FilterBar";
 import {
+	customCategoryValue,
+	furnitureCategoryFields,
+	furnitureCategoryLabels,
+	furnitureCategoryOptions,
 	getFurnitureCategoryCode,
 	getFurnitureCategoryTitle,
 } from "../components/FurnitureCategorySelect";
 import SkeletonMui from "../components/SkeletonMui";
+import "../css/FurnitureList.css";
 
 const FurnitureList = () => {
 	const location = useLocation();
@@ -41,6 +46,7 @@ const FurnitureList = () => {
 		urlSearchKey === "f_catagory1" ? getFurnitureCategoryTitle(urlSearchValue) : urlSearchValue,
 	);
 	const [categoryFilters, setCategoryFilters] = useState(urlCategoryFilters);
+	const [draftCategoryFilters, setDraftCategoryFilters] = useState(urlCategoryFilters);
 
 	const [startPage, setStartPage] = useState(1);
 	const [endPage, setEndPage] = useState(1);
@@ -76,7 +82,6 @@ const FurnitureList = () => {
 	};
 
 	const [sort, setSort] = useState(urlSort);
-	const pageCount = Math.max(0, endPage - startPage + 1);
 
 	const sortOptions = [
 		{ value: "latest", label: "신상품순" },
@@ -86,6 +91,18 @@ const FurnitureList = () => {
 		{ value: "priceLow", label: "낮은 가격순" },
 		{ value: "priceHigh", label: "높은 가격순" },
 	];
+
+	const furnitureCategoryFilterGroups = furnitureCategoryFields.map((field) => ({
+		key: field,
+		title: furnitureCategoryLabels[field],
+		type: "single",
+		options: (furnitureCategoryOptions[field] || [])
+			.filter((item) => item.value !== customCategoryValue)
+			.map((item) => ({
+				value: item.value,
+				title: item.title,
+			})),
+	}));
 
 	//URL이 바뀌면 state 동기화 해줌 - 0522 모하영, 0527 모하영 수정
 	useEffect(() => {
@@ -97,6 +114,7 @@ const FurnitureList = () => {
 		);
 		setSort(urlSort);
 		setCategoryFilters(urlCategoryFilters);
+		setDraftCategoryFilters(urlCategoryFilters);
 	}, [
 		urlSearchKey,
 		urlSearchValue,
@@ -190,11 +208,11 @@ const FurnitureList = () => {
 		const submitSearchValue =
 			searchKey === "f_catagory1" ? getFurnitureCategoryCode(searchValue) : searchValue;
 
-		navigate(makeListUrl(1, submitSearchValue));
+		navigate(makeListUrl(1, submitSearchValue, draftCategoryFilters));
 	};
 
 	//근데 그 URL 문자열이 길어서 축약함수 - 0522 모하영, 0527 모하영
-	const makeListUrl = (page, nextSearchValue = searchValue) => {
+	const makeListUrl = (page, nextSearchValue = searchValue, filters = categoryFilters) => {
 		const params = new URLSearchParams({
 			page: String(page),
 			searchKey,
@@ -202,9 +220,9 @@ const FurnitureList = () => {
 			sort,
 		});
 
-		Object.keys(categoryFilters).forEach((key) => {
-			if (categoryFilters[key]) {
-				params.set(key, categoryFilters[key]);
+		Object.keys(filters).forEach((key) => {
+			if (filters[key]) {
+				params.set(key, filters[key]);
 			}
 		});
 
@@ -308,79 +326,46 @@ const FurnitureList = () => {
 	return (
 		<>
 			{feedback}
-			<div style={{ maxWidth: "1180px", margin: "0 auto", padding: "24px" }}>
-				<form
-					style={{
-						display: "flex",
-						gap: "8px",
-						alignItems: "center",
-						marginBottom: "16px",
-					}}>
-					<h3 style={{ margin: 0 }}>
-						<a
-							href="/furniture/list"
-							style={{
-								color: "#111",
-								textDecoration: "none",
-							}}>
-							가구
-						</a>
-					</h3>
-				</form>
+			<div className="furniture-list-page">
+			
+				<div className="furniture-list-heading">
+					<h2>가구</h2>
+					<p>공간에 어울리는 가구와 생활 소품을 확인해보세요.</p>
+					</div>
 
-				<form
-					onSubmit={onSearch}
-					style={{
-						display: "flex",
-						gap: "8px",
-						alignItems: "center",
-						marginBottom: "16px",
-					}}>
-					{/* 기존 검색어가 남지 않게 수정 - 0527 모하영 */}
-					<select
-						value={searchKey}
-						onChange={(evt) => {
-							setSearchKey(evt.target.value);
-							setSearchValue("");
-						}}
-						style={{
-							height: "36px",
-							border: "1px solid #ddd",
-							borderRadius: "4px",
-							padding: "0 8px",
-						}}>
-						<option value="f_name">가구명</option>
-						<option value="f_catagory1">카테고리</option>
-						<option value="c_name">업체명</option>
-					</select>
+				<div className="furniture-list-search-panel">
+					<form className="furniture-list-search" onSubmit={onSearch}>
+						<FilterBar
+							filterList={furnitureCategoryFilterGroups}
+							value={draftCategoryFilters}
+							onChange={setDraftCategoryFilters}
+						/>
 
-					<input
-						value={searchValue}
-						onChange={(evt) => setSearchValue(evt.target.value)}
-						placeholder="검색어"
-						style={{
-							height: "36px",
-							border: "1px solid #ddd",
-							borderRadius: "4px",
-							padding: "0 10px",
-						}}
-					/>
+						<input
+							value={searchValue}
+							onChange={(evt) => setSearchValue(evt.target.value)}
+							placeholder="검색"
+						/>
 
-					<button
-						type="submit"
-						style={{
-							height: "36px",
-							border: "1px solid #1976d2",
-							background: "#1976d2",
-							color: "white",
-							borderRadius: "4px",
-							padding: "0 14px",
-							cursor: "pointer",
-						}}>
-						검색
-					</button>
-				</form>
+						<Button
+							type="submit"
+							variant="contained"
+							className="furniture-list-search-btn"
+						>
+							검색
+						</Button>
 
+						<Button
+							type="button"
+							variant="text"
+							className="furniture-list-reset-btn"
+							onClick={() => navigate("/furniture/list?page=1")}
+						>
+							초기화
+						</Button>
+					</form>
+				</div>
+				
 				<div
 					style={{
 						display: "flex",
@@ -625,55 +610,29 @@ const FurnitureList = () => {
 							})}
 						</div>
 
-						<div style={{ marginTop: "28px", textAlign: "center" }}>
-							<a
-								href="#"
-								onClick={(evt) => {
-									evt.preventDefault();
-									if (pageNum <= 1) return;
-									navigate(makeListUrl(prevPage));
-								}}
+						{totalPage > 1 && (
+							<div
 								style={{
-									pointerEvents: pageNum <= 1 ? "none" : "auto",
-									color: pageNum <= 1 ? "#aaa" : "blue",
-								}}>
-								◀ 이전
-							</a>
-
-							{pageCount > 0 &&
-								Array.from({ length: pageCount }, (_, i) => startPage + i).map(
-									(p) => (
-										<a
-											key={p}
-											href="#"
-											onClick={(evt) => {
-												evt.preventDefault();
-												navigate(makeListUrl(p));
-											}}
-											style={{
-												margin: "0 8px",
-												color: p === pageNum ? "red" : "blue",
-												fontWeight: p === pageNum ? "bold" : "normal",
-											}}>
-											{p}
-										</a>
-									),
-								)}
-
-							<a
-								href="#"
-								onClick={(evt) => {
-									evt.preventDefault();
-									if (pageNum >= totalPage) return;
-									navigate(makeListUrl(nextPage));
+									marginTop: "28px",
+									display: "flex",
+									justifyContent: "center",
 								}}
-								style={{
-									pointerEvents: pageNum >= totalPage ? "none" : "auto",
-									color: pageNum >= totalPage ? "#aaa" : "blue",
-								}}>
-								다음 ▶
-							</a>
-						</div>
+							>
+
+								<Pagination
+									count={totalPage}
+									page={pageNum}
+									onChange={(event,value)=>{
+										navigate(makeListUrl(value))
+									}}
+									color="primary"
+									shape="rounded"
+									showFirstButton
+									showLastButton
+								/>	
+
+							</div>
+						)}
 					</>
 				)}
 			</div>
@@ -682,3 +641,58 @@ const FurnitureList = () => {
 };
 
 export default FurnitureList;
+
+{/* 하영언니가 말아주신 ㅣ개멋있는 검색창 수전 버전 여기에 잠들다.
+				<form
+					onSubmit={onSearch}
+					style={{
+						display: "flex",
+						gap: "8px",
+						alignItems: "center",
+						marginBottom: "16px",
+					}}>
+					 기존 검색어가 남지 않게 수정 - 0527 모하영 
+					<select
+						value={searchKey}
+						onChange={(evt) => {
+							setSearchKey(evt.target.value);
+							setSearchValue("");
+						}}
+						style={{
+							height: "36px",
+							border: "1px solid #ddd",
+							borderRadius: "4px",
+							padding: "0 8px",
+						}}>
+						<option value="f_name">가구명</option>
+						<option value="f_catagory1">카테고리</option>
+						<option value="c_name">업체명</option>
+					</select>
+
+					<input
+						value={searchValue}
+						onChange={(evt) => setSearchValue(evt.target.value)}
+						placeholder="검색어"
+						style={{
+							height: "36px",
+							border: "1px solid #ddd",
+							borderRadius: "4px",
+							padding: "0 10px",
+						}}
+					/>
+
+					<button
+						type="submit"
+						style={{
+							height: "36px",
+							border: "1px solid #1976d2",
+							background: "#1976d2",
+							color: "white",
+							borderRadius: "4px",
+							padding: "0 14px",
+							cursor: "pointer",
+						}}>
+						검색
+					</button>
+				</form> 
+*/}

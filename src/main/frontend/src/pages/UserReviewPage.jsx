@@ -44,10 +44,20 @@ const UserReviewPage = ({ user }) => {
     reply: null,
   });
 
+  const [activeTab, setActiveTab] = useState("all")
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
+  const isReviewAnswered = (item) => Boolean(item.reply)
+
+  const getReviewKey = (item) => String(item.fr_idx || item.c_code);
+
+  const filteredReviews = (reviews || []).filter((item)=>{
+    if (activeTab === "waiting") return !isReviewAnswered(item)
+    if (activeTab === "answered") return isReviewAnswered(item)
+      return true
+  })
   const startSelectMode = () => {
       setSelectMode(true);
       setSelectedIds([]);
@@ -69,21 +79,24 @@ const UserReviewPage = ({ user }) => {
 
   const openBulkDelete = () => {
       if (selectedIds.length === 0) {
-          alert("삭제할 항목을 선택해주세요.");
+          setAlert({
+            open: true,
+            severity: "warning",
+            title: "선택 필요",
+            text: "삭제할 항목을 선택해주세요.",
+          });
           return;
       }
 
       setBulkDeleteOpen(true);
   };
 
-  const getReviewKey = (item) => String(item.fr_idx || item.c_code);
-
   const toggleSelectAll = () => {
-    const allIds = (reviews || []).map((item) => getReviewKey(item));
+    const allIds = filteredReviews.map((item) => getReviewKey(item));
 
     if (
-      reviews.length > 0 &&
-      reviews.every((item) => selectedIds.includes(getReviewKey(item)))
+      allIds.length > 0 &&
+      allIds.every((id) => selectedIds.includes(id))
     ) {
       setSelectedIds([]);
       return;
@@ -589,35 +602,67 @@ const UserReviewPage = ({ user }) => {
       </Snackbar>
 
       {reviews.length > 0 && (
-        <div className="user-bulk-toolbar">
-          {selectMode ? (
-            <>
-              <span>{selectedIds.length}개 선택</span>
-
-              <button type="button" onClick={toggleSelectAll}>
-                {reviews.every((item) => selectedIds.includes(getReviewKey(item)))
-                  ? "전체해제"
-                  : "전체선택"}
+        <>
+          <div className="ur-tabs">
+            {[
+              { key: "all", label: "리뷰 내역", count: reviews.length },
+              {
+                key: "waiting",
+                label: "답변 대기",
+                count: reviews.filter((item) => !isReviewAnswered(item)).length,
+              },
+              {
+                key: "answered",
+                label: "답변 완료",
+                count: reviews.filter((item) => isReviewAnswered(item)).length,
+              },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`ur-tab ${activeTab === tab.key ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab(tab.key);
+                  setSelectedIds([]);
+                  setSelectMode(false);
+                }}
+              >
+                {tab.label}
+                <span className="ur-tab-count">{tab.count}</span>
               </button>
+            ))}
+          </div>
 
-              <button type="button" className="danger" onClick={openBulkDelete}>
-                삭제
-              </button>
+          <div className="ur-toolbar">
+            <span className="ur-total-count">
+              총 <strong>{filteredReviews.length}</strong>건
+            </span>
 
-              <button type="button" onClick={cancelSelectMode}>
-                취소
-              </button>
-            </>
-          ) : (
-            <button type="button" onClick={startSelectMode}>
-              선택삭제
-            </button>
-          )}
-        </div>
+            <div className="ur-toolbar-actions">
+              {selectMode ? (
+                <>
+                  <span className="ur-select-count">{selectedIds.length}개 선택</span>
+
+                  <button type="button" className="ur-btn danger" onClick={openBulkDelete}>
+                    삭제
+                  </button>
+
+                  <button type="button" className="ur-btn" onClick={cancelSelectMode}>
+                    취소
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="ur-btn" onClick={startSelectMode}>
+                  선택삭제
+                </button>
+              )}
+            </div>
+          </div>
+        </>
       )}
 
     <div className="user-review-list">
-      {reviews?.map((item, idx) => {
+      {filteredReviews.map((item, idx) => {
         const itemKey = getReviewKey(item);
 
         return (
