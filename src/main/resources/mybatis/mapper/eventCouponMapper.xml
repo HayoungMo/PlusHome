@@ -37,7 +37,7 @@
 		ON C.COUPON_CODE = EC.COUPON_CODE
 		AND C.ID = EC.ID
 		WHERE EC.E_ID = #{e_id}
-		AND C.COUPON_END >= SYSDATE
+		ORDER BY C.COUPON_END DESC NULLS LAST, C.COUPON_CODE
 	</select>
 
 	<select id="getCouponEventUsage" resultType="map">

@@ -36,10 +36,16 @@ const ShoppingMallOrderControl = () => {
 	const [tempState, setTempState] = useState(null);
 	const [filterBarState, setFilterBarState] = useState({});
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedFilterBarState, setAppliedFilterBarState] = useState({});
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -158,6 +164,11 @@ const ShoppingMallOrderControl = () => {
 		setTempState(null);
 	};
 
+	const handleSearch = () => {
+		setAppliedFilterBarState(filterBarState);
+		setAppliedDateRange(dateRange);
+	};
+
 	const reLoadServerData = useCallback(async () => {
 		setIsLoading(true);
 		setLoadingText("주문 목록을 불러오는 중입니다...");
@@ -247,7 +258,7 @@ const ShoppingMallOrderControl = () => {
 	useEffect(() => {
 		const displayList = orderFurnitureList.filter((data) => {
 			const matchTab = data.f_dstatus === tabValue;
-			const matchFilter = Object.entries(filterBarState).every(([key, value]) => {
+			const matchFilter = Object.entries(appliedFilterBarState).every(([key, value]) => {
 				if (value === "" || value === null || value === undefined) return true;
 				if (Array.isArray(value)) {
 					if (value.length === 0) return true;
@@ -259,19 +270,27 @@ const ShoppingMallOrderControl = () => {
 				data.cart_paydate || data.cart_statusdate || data.f_createddate,
 			);
 			const matchStart =
-				!dateRange.startDate ||
-				(orderDate.isValid() && !orderDate.isBefore(dayjs(dateRange.startDate), "day"));
+				!appliedDateRange.startDate ||
+				(orderDate.isValid() &&
+					!orderDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 			const matchEnd =
-				!dateRange.endDate ||
-				(orderDate.isValid() && !orderDate.isAfter(dayjs(dateRange.endDate), "day"));
-			const matchDateRange = !isDateRangeInvalid && matchStart && matchEnd;
+				!appliedDateRange.endDate ||
+				(orderDate.isValid() &&
+					!orderDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
+			const matchDateRange = !isAppliedDateRangeInvalid && matchStart && matchEnd;
 
 			return matchTab && matchFilter && matchDateRange;
 		});
 		console.log(displayList);
 		setTableDisplayDataList(displayList);
 		setCheckedList([]);
-	}, [orderFurnitureList, tabValue, filterBarState, dateRange, isDateRangeInvalid]);
+	}, [
+		orderFurnitureList,
+		tabValue,
+		appliedFilterBarState,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	return (
 		<div className="shopping-mall-order-page">
@@ -286,6 +305,9 @@ const ShoppingMallOrderControl = () => {
 					onChange={setDateRange}
 					isInvalid={Boolean(isDateRangeInvalid)}
 				/>
+				<Button variant="contained" onClick={handleSearch}>
+					검색
+				</Button>
 			</div>
 
 			<div className="shopping-mall-order-tabs">

@@ -32,13 +32,12 @@ function InteriorArticle() {
 
   const [article, setArticle] = useState([]);
   const [example, setExample] = useState([]);
-  const [exModel, setExModel] = useState();
 
   const [selectedExample, setSelectedExample] = useState(null);
   const [exampleImageIndex, setExampleImageIndex] = useState(0);
   const [reviewCount, setReviewCount] = useState(null);
 
-  const [bookingPossible, setBookingPossible] = useState(answers ? true : false);
+  const [bookingPossible, setBookingPossible] = useState(false);
   const [examplePossible, setExamplePossible] = useState(false);
 
   const groupInteriorTags = (list) => {
@@ -299,11 +298,14 @@ function InteriorArticle() {
               <DialogInside
                 open={bookingPossible}
                 onClose={() => setBookingPossible(false)}
+                contentClassName="interior-booking-dialog-content"
+                disableBackdropClose
               >
                 <InteriorBooking
                   company={company}
                   answers={answers}
                   setBookingPossible={setBookingPossible}
+                  onCancel={() => setBookingPossible(false)}
                 />
               </DialogInside>
             </div>

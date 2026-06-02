@@ -96,7 +96,13 @@
 
     <update id="decreaseCommentCount">
         UPDATE freeboard
-        SET commentcount = commentcount - 1
+        SET commentcount = GREATEST(commentcount - 1, 0)
+        WHERE boardid = #{boardId}
+    </update>
+
+    <update id="decreaseCommentCountBy" parameterType="map">
+        UPDATE freeboard
+        SET commentcount = GREATEST(commentcount - #{count}, 0)
         WHERE boardid = #{boardId}
     </update>
 

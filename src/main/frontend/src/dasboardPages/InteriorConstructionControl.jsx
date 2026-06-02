@@ -31,10 +31,15 @@ const InteriorConstructionControl = () => {
 	const [workStateChangeDialogOpen, setWorkStateChangeDialogOpen] = useState(false);
 	const [workStateChangeDialogInfo, setWorkStateChangeDialogInfo] = useState(dialogInfoInit);
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const filteredAllList = useMemo(() => {
 		if (!allList || allList.length === 0) return [];
@@ -42,15 +47,17 @@ const InteriorConstructionControl = () => {
 		return allList.filter((dto) => {
 			const targetDate = dayjs(dto.b_date || dto.b_createdDate);
 			const matchStart =
-				!dateRange.startDate ||
-				(targetDate.isValid() && !targetDate.isBefore(dayjs(dateRange.startDate), "day"));
+				!appliedDateRange.startDate ||
+				(targetDate.isValid() &&
+					!targetDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 			const matchEnd =
-				!dateRange.endDate ||
-				(targetDate.isValid() && !targetDate.isAfter(dayjs(dateRange.endDate), "day"));
+				!appliedDateRange.endDate ||
+				(targetDate.isValid() &&
+					!targetDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-			return !isDateRangeInvalid && matchStart && matchEnd;
+			return !isAppliedDateRangeInvalid && matchStart && matchEnd;
 		});
-	}, [allList, dateRange, isDateRangeInvalid]);
+	}, [allList, appliedDateRange, isAppliedDateRangeInvalid]);
 
 	const displayWorkingList = useMemo(
 		() => filteredAllList.filter((dto) => dto.b_status === "working"),
@@ -293,6 +300,9 @@ const InteriorConstructionControl = () => {
 
 	const tableCol = ["id", "b_date", "c_name", "b_long", "b_status", "button"];
 	const tableColumns = ["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"];
+	const handleSearch = () => {
+		setAppliedDateRange(dateRange);
+	};
 
 	useEffect(() => {
 		reloadData();
@@ -327,6 +337,9 @@ const InteriorConstructionControl = () => {
 						onChange={setDateRange}
 						isInvalid={Boolean(isDateRangeInvalid)}
 					/>
+					<Button variant="contained" onClick={handleSearch}>
+						검색
+					</Button>
 				</div>
 			</section>
 

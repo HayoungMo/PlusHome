@@ -55,11 +55,18 @@ const ShoppingMallReviewControl = () => {
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedSelectCompany, setAppliedSelectCompany] = useState("all");
+	const [appliedSelectFurniture, setAppliedSelectFurniture] = useState("all");
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 	const hasSelectedReview = Number(selectedReview?.fr_idx || 0) > 0;
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const shopCompanyOptions = useMemo(() => {
 		const shopList = companyList
@@ -122,25 +129,34 @@ const ShoppingMallReviewControl = () => {
 			const reviewDate = dayjs(data.fr_createdDate || data.fr_createddate);
 			const reviewFurniture = furnitureByCode.get(String(data.f_code));
 			const reviewCompanyName = data.c_name || reviewFurniture?.c_name;
-			const matchCompany = selectCompany === "all" || reviewCompanyName === selectCompany;
+			const matchCompany =
+				appliedSelectCompany === "all" || reviewCompanyName === appliedSelectCompany;
 			const matchFurniture =
-				selectFurniture === "all" || String(data.f_code) === String(selectFurniture);
+				appliedSelectFurniture === "all" ||
+				String(data.f_code) === String(appliedSelectFurniture);
 			const matchStart =
-				!dateRange.startDate ||
-				(reviewDate.isValid() && !reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+				!appliedDateRange.startDate ||
+				(reviewDate.isValid() &&
+					!reviewDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 			const matchEnd =
-				!dateRange.endDate ||
-				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+				!appliedDateRange.endDate ||
+				(reviewDate.isValid() && !reviewDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-			return matchCompany && matchFurniture && !isDateRangeInvalid && matchStart && matchEnd;
+			return (
+				matchCompany &&
+				matchFurniture &&
+				!isAppliedDateRangeInvalid &&
+				matchStart &&
+				matchEnd
+			);
 		});
 	}, [
 		reviewList,
 		furnitureByCode,
-		selectCompany,
-		selectFurniture,
-		dateRange,
-		isDateRangeInvalid,
+		appliedSelectCompany,
+		appliedSelectFurniture,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
 	]);
 
 	const initTotalInfo = {
@@ -326,18 +342,18 @@ const ShoppingMallReviewControl = () => {
 
 	useEffect(() => {
 		setSelectedReview(initReviewAndReply);
-		if (selectFurniture === "all") return setSelectdFurnitureInfo(null);
+		if (appliedSelectFurniture === "all") return setSelectdFurnitureInfo(null);
 
-		const selectedFurnitureInfo = filteredFurnitureList.filter(
-			(data) => data.f_code === selectFurniture,
+		const selectedFurnitureInfo = furnitureList.filter(
+			(data) => data.f_code === appliedSelectFurniture,
 		);
 
 		setSelectdFurnitureInfo(selectedFurnitureInfo[0] || null);
-	}, [filteredFurnitureList, selectFurniture]);
+	}, [furnitureList, appliedSelectFurniture]);
 
 	useEffect(() => {
 		setSelectedReview(initReviewAndReply);
-	}, [selectCompany, selectFurniture, dateRange]);
+	}, [appliedSelectCompany, appliedSelectFurniture, appliedDateRange]);
 
 	useEffect(() => {
 		if (replyList.length === 0) return setSelectedReply(initReviewAndReply);
@@ -389,6 +405,12 @@ const ShoppingMallReviewControl = () => {
 		};
 	}, [hasSelectedReview, selectedReview.fr_idx, selectedReview.c_code, selectedReview.id]);
 
+	const handleSearch = () => {
+		setAppliedSelectCompany(selectCompany);
+		setAppliedSelectFurniture(selectFurniture);
+		setAppliedDateRange(dateRange);
+	};
+
 	return (
 		<div className="shopping-mall-review-page">
 			<div className="shopping-mall-review-header">
@@ -431,6 +453,9 @@ const ShoppingMallReviewControl = () => {
 							isInvalid={Boolean(isDateRangeInvalid)}
 							className="shopping-mall-review-date-range"
 						/>
+						<Button variant="contained" onClick={handleSearch}>
+							검색
+						</Button>
 					</div>
 					<div className="shopping-mall-review-metrics">
 						<div className="shopping-mall-review-metric-card">
@@ -493,7 +518,7 @@ const ShoppingMallReviewControl = () => {
 							selectedRow={selectedReview}
 							setSelectedRow={setSelectedReview}
 							defaultRowPerPage={5}
-							resetPageKey={`${selectCompany}-${selectFurniture}-${dateRange.startDate}-${dateRange.endDate}`}
+							resetPageKey={`${appliedSelectCompany}-${appliedSelectFurniture}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
 							pagination
 						/>
 					) : (

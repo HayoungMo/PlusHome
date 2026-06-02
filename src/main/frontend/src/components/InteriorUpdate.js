@@ -10,6 +10,7 @@ import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
 } from "../resources/function/interiorAnswerFormat";
+import "../css/InteriorForm.css";
 
 const InteriorUpdate = (props) => {
   const { interiorInfo, setOpenUpdateDialog, onSuccess } = props;

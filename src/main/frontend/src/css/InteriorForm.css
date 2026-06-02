@@ -1,0 +1,160 @@
+.interior-add-card,
+.interior-update-card {
+  min-width: 520px;
+  padding: 22px;
+  border: 1px solid #d9edf8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2f3438;
+  box-shadow: 0 14px 34px rgba(38, 92, 135, 0.12);
+  box-sizing: border-box;
+}
+
+.interior-add-head,
+.interior-update-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf3f7;
+}
+
+.interior-add-head strong,
+.interior-update-head strong {
+  color: #1f2f3a;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.interior-add-head span,
+.interior-update-head span {
+  color: #60727f;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.interior-add-form,
+.interior-update-form {
+  min-width: 0;
+}
+
+.interior-add-fields,
+.interior-update-form,
+.interior-update-location {
+  display: grid;
+  gap: 14px;
+}
+
+.interior-add-fields > .MuiFormControl-root,
+.interior-add-fields > .MuiBox-root,
+.interior-update-form > .MuiFormControl-root,
+.interior-update-form > .MuiBox-root,
+.interior-update-location > .MuiFormControl-root,
+.interior-update-location > .MuiBox-root {
+  width: 100%;
+  margin: 0;
+}
+
+.interior-add-card .MuiInputBase-root,
+.interior-update-card .MuiInputBase-root {
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.interior-add-space-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #d9edf8;
+  border-radius: 8px;
+  background: #f7fbfd;
+}
+
+.interior-add-space-options > div {
+  width: auto !important;
+}
+
+.interior-add-space-options .MuiFormControl-root {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 8px;
+  border: 1px solid #e7f2f8;
+  border-radius: 8px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.interior-add-space-options > div:first-child {
+  grid-column: 1 / -1;
+}
+
+.interior-add-space-options > div:first-child .MuiFormControl-root {
+  border-color: #bfe8ff;
+  background: #eef9ff;
+}
+
+.interior-add-space-options .MuiFormGroup-root {
+  display: inline-flex;
+}
+
+.interior-add-space-options .MuiFormControlLabel-root {
+  margin: 0;
+}
+
+.interior-add-space-options .MuiCheckbox-root {
+  padding: 5px;
+  color: #9bb5c8;
+}
+
+.interior-add-space-options .MuiCheckbox-root.Mui-checked,
+.interior-add-space-options .MuiCheckbox-root.MuiCheckbox-indeterminate {
+  color: #008be8;
+}
+
+.interior-add-space-options .MuiFormLabel-root {
+  color: #3f4f5a;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  transform: none;
+}
+
+.interior-add-actions,
+.interior-update-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid #edf3f7;
+}
+
+.interior-add-actions .MuiButton-root,
+.interior-update-actions .MuiButton-root {
+  min-width: 92px;
+  min-height: 40px;
+  border-radius: 8px;
+  font-weight: 900;
+  box-shadow: none;
+}
+
+.interior-update-actions {
+  flex-wrap: wrap;
+}
+
+.interior-update-actions .MuiButton-root:first-of-type {
+  background: #008be8;
+}
+
+.interior-update-actions .MuiButton-root:first-of-type:hover {
+  background: #0078c2;
+}
+
+.MuiDialog-paper .interior-add-card,
+.MuiDialog-paper .interior-update-card {
+  min-width: 0;
+  box-shadow: none;
+}

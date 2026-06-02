@@ -573,10 +573,10 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 						<TextFieldMui label="아이디" value={id} disabled width="180px" />
 						<TextFieldMui label="이름" value={name} disabled width="180px" />
 						<TextFieldMui label="개인연락처" value={tel} disabled width="180px" />
+						<TextFieldMui label="이메일" value={email} disabled width="270px" />
 					</div>
 					<div className="dashboard-company-account-row">
-						<TextFieldMui label="이메일" value={email} disabled width="270px" />
-						<TextFieldMui label="개인주소" value={addr} disabled width="270px" />
+						<TextFieldMui label="개인주소" value={addr} disabled width="100%" />
 					</div>
 				</div>
 			</section>

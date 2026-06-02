@@ -36,8 +36,10 @@ const InteriorScheduleControl = () => {
 	const [interiorScheduleList, setInteriorScheduleList] = useState([]);
 	const [selectedSchedule, setSelectedSchedule] = useState(null);
 	const [viewDataType, setViewDataType] = useState("working");
+	const [appliedViewDataType, setAppliedViewDataType] = useState("working");
 	const [changeDate, setChangeDate] = useState(dateInit);
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 
 	const [confirmDialogInfo, setConfirmDialogInfo] = useState(dialogInit);
 	const [alertInfo, setAlertInfo] = useState(alertInit);
@@ -45,6 +47,10 @@ const InteriorScheduleControl = () => {
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const reLoadData = async (showLoading = true) => {
 		if (showLoading) {
@@ -159,7 +165,7 @@ const InteriorScheduleControl = () => {
 	const displayScheduleList = useMemo(() => {
 		let filterdList = interiorScheduleList;
 
-		if (viewDataType === "working") {
+		if (appliedViewDataType === "working") {
 			const todayStart = today.startOf("day");
 
 			filterdList = interiorScheduleList.filter((data) => {
@@ -174,17 +180,17 @@ const InteriorScheduleControl = () => {
 			});
 		}
 
-		if (viewDataType === "done") {
+		if (appliedViewDataType === "done") {
 			filterdList = interiorScheduleList.filter((data) => data.b_status === "done");
 		}
 
-		if (viewDataType === "prepared") {
+		if (appliedViewDataType === "prepared") {
 			filterdList = interiorScheduleList.filter(
 				(data) => data.b_status === "working" && today.isBefore(dayjs(data.is_startdate)),
 			);
 		}
 
-		if (viewDataType === "soon") {
+		if (appliedViewDataType === "soon") {
 			const todayStart = today.startOf("day");
 			const sevenDaysLaterEnd = today.add(7, "day").endOf("day");
 
@@ -198,7 +204,7 @@ const InteriorScheduleControl = () => {
 			});
 		}
 
-		if (viewDataType === "expired") {
+		if (appliedViewDataType === "expired") {
 			const todayStart = today.startOf("day");
 
 			filterdList = interiorScheduleList.filter((data) => {
@@ -208,22 +214,29 @@ const InteriorScheduleControl = () => {
 			});
 		}
 
-		if (viewDataType === "canceled") {
+		if (appliedViewDataType === "canceled") {
 			filterdList = interiorScheduleList.filter((data) => data.b_status === "cancel");
 		}
 		return filterdList.filter((data) => {
 			const scheduleDate = dayjs(data.is_startdate || data.b_createdDate);
 			const matchStart =
-				!dateRange.startDate ||
+				!appliedDateRange.startDate ||
 				(scheduleDate.isValid() &&
-					!scheduleDate.isBefore(dayjs(dateRange.startDate), "day"));
+					!scheduleDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 			const matchEnd =
-				!dateRange.endDate ||
-				(scheduleDate.isValid() && !scheduleDate.isAfter(dayjs(dateRange.endDate), "day"));
+				!appliedDateRange.endDate ||
+				(scheduleDate.isValid() &&
+					!scheduleDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-			return !isDateRangeInvalid && matchStart && matchEnd;
+			return !isAppliedDateRangeInvalid && matchStart && matchEnd;
 		});
-	}, [interiorScheduleList, viewDataType, today, dateRange, isDateRangeInvalid]);
+	}, [
+		interiorScheduleList,
+		appliedViewDataType,
+		today,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	const scheduleLabelMap = {
 		id: "예약자 ID",
@@ -267,6 +280,12 @@ const InteriorScheduleControl = () => {
 	const handleViewType = (event, newAlignment) => {
 		if (newAlignment === null) return;
 		setViewDataType(newAlignment);
+	};
+
+	const handleSearch = () => {
+		setAppliedViewDataType(viewDataType);
+		setAppliedDateRange(dateRange);
+		setSelectedSchedule(null);
 	};
 
 	const onClickScheduleUpdateButton = (e) => {
@@ -397,6 +416,9 @@ const InteriorScheduleControl = () => {
 						onChange={setDateRange}
 						isInvalid={Boolean(isDateRangeInvalid)}
 					/>
+					<Button variant="contained" onClick={handleSearch}>
+						검색
+					</Button>
 				</div>
 			</section>
 

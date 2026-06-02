@@ -25,7 +25,6 @@ const UserCouponPage = ({ user }) => {
   });
 
   const [tab, setTab] = useState(1);
-  const [successMessage, setSuccessMessage] = useState("")
 
   useEffect(() => {
     const fetchCoupon = async () => {
@@ -49,8 +48,6 @@ const UserCouponPage = ({ user }) => {
   };
 
   const handleChange = (e) => {
-    setSuccessMessage("")
-
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -99,7 +96,12 @@ const UserCouponPage = ({ user }) => {
       },
     ]);
 
-    setSuccessMessage("정상적으로 쿠폰이 지급되었습니다. 쿠폰함을 확인해주세요.")
+    setAlert({
+      open: true,
+      severity: "success",
+      title: "등록 완료",
+      text: "정상적으로 쿠폰이 지급되었습니다. 쿠폰함을 확인해주세요.",
+    });
   };
 
   const availableCoupons = coupon.filter((item) => item.coupon_used === "N")
@@ -154,18 +156,31 @@ const UserCouponPage = ({ user }) => {
       <Box className="user-coupon-content">
         {tab === 0 && (
           <form className="user-coupon-register-form">
-            <TextFieldMui
-              name="coupon_code"
-              label="코드 등록"
-              onChange={(e) => handleChange(e)}
-            />
-            <Button onClick={() => handleSubmit()}>등록 </Button>
-
-            {successMessage && (
-              <Box className="user-coupon-success-message">
-                {successMessage}
-              </Box>
-            )}
+            <div className="user-coupon-register-head">
+              <p>CODE</p>
+              <h4>쿠폰 코드 등록</h4>
+              <span>받은 쿠폰 코드를 입력하면 내 쿠폰함에 바로 추가됩니다.</span>
+            </div>
+            <div className="user-coupon-register-body">
+              <div className="user-coupon-code-mark">%</div>
+              <div className="user-coupon-input-wrap">
+                <TextFieldMui
+                  name="coupon_code"
+                  label="쿠폰 코드"
+                  onChange={(e) => handleChange(e)}
+                  width="100%"
+                />
+                <p>영문, 숫자, 하이픈을 포함한 코드를 그대로 입력해주세요.</p>
+              </div>
+              <Button
+                className="user-coupon-register-button"
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmit()}
+              >
+                등록
+              </Button>
+            </div>
           </form>
         )}
 
@@ -196,6 +211,13 @@ const UserCouponPage = ({ user }) => {
                     "coupon_max",
                     "coupon_info",
                   ]}
+                  columns={[
+                    "쿠폰 코드",
+                    "할인율",
+                    "사용 기한",
+                    "최대 할인 금액",
+                    "쿠폰 설명",
+                  ]}
                 />
               </div>
             )}
@@ -218,6 +240,13 @@ const UserCouponPage = ({ user }) => {
                     "coupon_used",
                     "coupon_max",
                     "coupon_info",
+                  ]}
+                  columns={[
+                    "쿠폰 코드",
+                    "할인율",
+                    "사용 여부",
+                    "최대 할인 금액",
+                    "쿠폰 설명",
                   ]}
                 />
               </div>

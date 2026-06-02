@@ -1,14 +1,15 @@
 .user-booking-layout {
   display: grid;
-  gap: 18px;
+  gap: 20px;
   width: 100%;
   min-width: 0;
   color: #2f3438;
 }
 
 .user-booking-card {
+  width: 100%;
   min-width: 0;
-  border: 1px solid #c8edff;
+  border: 1px solid #d8f1ff;
   border-radius: 8px;
   background: #ffffff;
   box-shadow: none;
@@ -20,8 +21,9 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 18px;
-  padding: 18px;
+  padding: 22px 24px;
   border-bottom: 1px solid #d8f1ff;
+  background: #fbfdff;
   text-align: left;
 }
 
@@ -59,30 +61,89 @@
 }
 
 .user-booking-table {
+  width: 100%;
   min-width: 0;
   overflow-x: auto;
+  background: #ffffff;
 }
 
 .user-booking-table .MuiPaper-root {
+  width: 100%;
+  max-width: 100%;
   border-radius: 0;
+  border: 0;
   box-shadow: none;
-  background: #fbfdff;
+  background: #ffffff;
+  overflow-x: auto;
 }
 
 .user-booking-table .MuiTable-root {
-  min-width: 720px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(1) {
+  width: 6%;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  text-align: center;
+  white-space: normal;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(2) {
+  width: 16%;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(3) {
+  width: 14%;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(4) {
+  width: 13%;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(5) {
+  width: 14%;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(6) {
+  width: 14%;
+}
+
+.user-booking-table .MuiTableCell-root:nth-of-type(7) {
+  width: 23%;
 }
 
 .user-booking-table .MuiTableHead-root .MuiTableCell-root {
+  padding: 14px 16px;
   background: #eaf8ff;
   color: #0078c2;
+  font-size: 13px;
   font-weight: 800;
+  line-height: 1.4;
   border-bottom: 1px solid #bdeeff;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .user-booking-table .MuiTableCell-root {
+  box-sizing: border-box;
+  height: 58px;
+  padding: 14px 16px;
   border-bottom-color: #d8f1ff;
   color: #2f3438;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 
 .user-booking-table .MuiTableBody-root .MuiTableRow-root:nth-of-type(even) {
@@ -93,12 +154,222 @@
   background: #f0faff;
 }
 
+.user-booking-table .MuiTableBody-root .MuiTableCell-root {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+.user-booking-table .MuiTableCell-root[colspan] {
+  height: auto;
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+  white-space: normal;
+}
+
+.user-booking-table .MuiCollapse-root .MuiBox-root,
+.user-booking-invoice .MuiCollapse-root .MuiBox-root {
+  box-sizing: border-box;
+  width: calc(99% - 28px);
+  max-width: calc(99% - 28px);
+  margin: 14px;
+  padding: 14px;
+  border: 1px solid #d8f1ff;
+  border-radius: 8px;
+  background: #fbfdff;
+  overflow-x: auto;
+}
+
+.user-booking-table .MuiTypography-h6,
+.user-booking-invoice .MuiTypography-h6 {
+  margin: 0 0 12px;
+  color: #0078c2;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.user-booking-table .MuiIconButton-root {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d8f1ff;
+  border-radius: 8px;
+  color: #00a1ff;
+  background: #ffffff;
+}
+
+.user-booking-table .MuiIconButton-root:hover {
+  background: #eaf8ff;
+}
+
+.user-booking-kind,
+.user-booking-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 96px;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-booking-kind {
+  border: 1px solid #c8edff;
+  background: #f0faff;
+  color: #0078c2;
+}
+
+.user-booking-status {
+  border: 1px solid #d8e0e6;
+  background: #f7f9fa;
+  color: #4f5f68;
+}
+
+.user-booking-status-pending {
+  border-color: #bdeeff;
+  background: #eaf8ff;
+  color: #0078c2;
+}
+
+.user-booking-status-quoting,
+.user-booking-status-confirmed {
+  border-color: #bfe6cf;
+  background: #effaf3;
+  color: #168142;
+}
+
+.user-booking-status-working {
+  border-color: #ffe1a8;
+  background: #fff8e6;
+  color: #9a6400;
+}
+
+.user-booking-status-done {
+  border-color: #d7ccff;
+  background: #f4f1ff;
+  color: #6045b8;
+}
+
+.user-booking-status-cancel,
+.user-booking-status-canceled {
+  border-color: #ffd2d2;
+  background: #fff1f1;
+  color: #c43636;
+}
+
+.user-booking-content-preview {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #3f4f5a;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.user-booking-content-preview:hover {
+  color: #0078c2;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.user-booking-content-dialog-text {
+  display: block;
+  color: #3f4f5a;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.user-booking-content-dialog .MuiPaper-root {
+  border: 1px solid #c8edff;
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(47, 52, 56, 0.18);
+  overflow: hidden;
+}
+
+.user-booking-content-dialog .MuiDialogTitle-root {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #d8f1ff;
+  background: #fbfdff;
+  color: #2f3438;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.user-booking-content-dialog .MuiDialogContent-root {
+  padding: 20px 22px;
+  background: #ffffff;
+}
+
+.user-booking-content-dialog .MuiDialogContentText-root {
+  margin: 0;
+  max-height: 360px;
+  padding: 16px;
+  border: 1px solid #eaedef;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #3f4f5a;
+  overflow-y: auto;
+}
+
+.user-booking-content-dialog .user-booking-content-dialog-text {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.75;
+}
+
+.user-booking-content-dialog .MuiDialogActions-root {
+  padding: 0 22px 20px;
+  background: #ffffff;
+}
+
+.user-booking-content-dialog .MuiDialogActions-root .MuiButton-root {
+  min-width: 88px;
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: none;
+}
+
 .user-booking-detail-table.MuiTable-root {
   min-width: 0;
+  table-layout: fixed;
   border: 1px solid #c8edff;
   border-radius: 8px;
   background: #fbfdff;
   overflow: hidden;
+}
+
+.user-booking-detail-table .MuiTableCell-root {
+  max-width: none;
+  overflow: visible;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  white-space: normal;
+  line-height: 1.6;
 }
 
 .user-booking-detail-table .MuiTableCell-root:first-of-type {
@@ -106,6 +377,11 @@
   background: #eaf8ff;
   color: #0078c2;
   font-weight: 800;
+  white-space: nowrap;
+}
+
+.user-booking-detail-table .MuiTableCell-root:last-of-type {
+  color: #3f4f5a;
 }
 
 .user-booking-empty {
@@ -123,26 +399,116 @@
 }
 
 .user-booking-invoice {
-  padding: 18px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 22px 24px;
+  border-color: #d8f1ff;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.user-booking-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.user-booking-actions .MuiButton-root {
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .user-booking-invoice > div {
   min-width: 0;
 }
 
-.user-booking-invoice > div > p:first-child {
-  margin: 0 0 14px;
+.user-invoice-panel {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.user-invoice-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eaedef;
+}
+
+.user-invoice-head h4 {
+  margin: 0;
   color: #2f3438;
   font-size: 20px;
   font-weight: 800;
   line-height: 1.35;
 }
 
+.user-invoice-eyebrow {
+  margin: 0;
+  color: #00a1ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.user-invoice-content {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
 .user-booking-invoice .MuiPaper-root {
-  border: 1px solid #c8edff;
+  width: 99%;
+  max-width: 99%;
+  border: 1px solid #d8f1ff;
   border-radius: 8px;
   box-shadow: none;
-  overflow: hidden;
+  overflow-x: auto;
+}
+
+.user-booking-invoice .MuiTable-root {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.user-booking-invoice .MuiTableCell-root:nth-of-type(1) {
+  width: 7%;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  text-align: center;
+  white-space: normal;
+}
+
+.user-booking-invoice .MuiTableCell-root:nth-of-type(2) {
+  width: 23%;
+}
+
+.user-booking-invoice .MuiTableCell-root:nth-of-type(3) {
+  width: 15%;
+}
+
+.user-booking-invoice .MuiTableCell-root:nth-of-type(4) {
+  width: 22%;
+}
+
+.user-booking-invoice .MuiTableCell-root:nth-of-type(5) {
+  width: 18%;
+}
+
+.user-booking-invoice .MuiTableCell-root:nth-of-type(6) {
+  width: 15%;
 }
 
 .user-booking-invoice .MuiTableHead-root .MuiTableCell-root {
@@ -150,10 +516,81 @@
   color: #0078c2;
   font-weight: 800;
   border-bottom: 1px solid #bdeeff;
+  text-align: center;
+}
+
+.user-booking-invoice .MuiTableCell-root {
+  box-sizing: border-box;
+  height: 56px;
+  border-bottom-color: #d8f1ff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: keep-all;
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-booking-invoice .MuiTableCell-root[colspan] {
+  height: auto;
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+  white-space: normal;
+}
+
+.user-booking-invoice .MuiCollapse-root .MuiTable-root {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.user-booking-invoice .MuiCollapse-root .MuiTableCell-root {
+  height: auto;
+  max-width: none;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.user-invoice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 8px;
+  padding: 12px 0 0;
+}
+
+.user-invoice-done-actions {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 8px;
 }
 
 .user-booking-invoice .MuiButton-root {
+  max-width: 100%;
   border-radius: 6px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.user-invoice-empty,
+.user-invoice-panel > p:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  margin: 0;
+  border: 1px dashed #d8e0e6;
+  border-radius: 8px;
+  background: #f7f9fa;
+  color: #828c94;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -164,7 +601,7 @@
   }
 
   .user-booking-head h3,
-  .user-booking-invoice > div > p:first-child {
+  .user-invoice-head h4 {
     font-size: 18px;
   }
 

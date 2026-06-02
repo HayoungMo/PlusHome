@@ -254,12 +254,21 @@ const EventArticle = () => {
           </div>
 
           <div className="coupon-article-download-list">
-            {couponList.map((coupon) => (
-              <article
-                className={`coupon-article-download-card coupon-event-download-card ${eventEnded || isCouponExpired(coupon) ? "coupon-article-download-card-disabled" : "coupon-article-download-card-available"}`}
-                key={`${coupon.coupon_code}-${coupon.id}`}
-              >
-                <div className="coupon-article-download-badge">할인</div>
+            {couponList.map((coupon) => {
+              const couponExpired = isCouponExpired(coupon);
+              const couponDisabled = eventEnded || couponExpired;
+              const downloadButtonText = eventEnded
+                ? "이벤트 종료"
+                : couponExpired
+                  ? "발급 기간 종료"
+                  : "쿠폰 받기";
+
+              return (
+                <article
+                  className={`coupon-article-download-card coupon-event-download-card ${couponDisabled ? "coupon-article-download-card-disabled" : "coupon-article-download-card-available"}`}
+                  key={`${coupon.coupon_code}-${coupon.id}`}
+                >
+                  <div className="coupon-article-download-badge">할인</div>
 
                 <div className="coupon-event-download-logo">
                   {getCouponLogo(coupon) ? (
@@ -285,13 +294,15 @@ const EventArticle = () => {
                   </div>
                 </dl>
 
-                <CouponDownload
-                  coupon={coupon}
-                  className="coupon-event-download-button"
-                  disabled={eventEnded || isCouponExpired(coupon)}
-                />
-              </article>
-            ))}
+                  <CouponDownload
+                    coupon={coupon}
+                    buttonText={downloadButtonText}
+                    className="coupon-event-download-button"
+                    disabled={couponDisabled}
+                  />
+                </article>
+              );
+            })}
           </div>
         </section>
       )}

@@ -30,12 +30,18 @@ const ShoppingMallQuestionControl = () => {
 	const [alertInfo, setAlertInfo] = useState(initAlertInfo);
 	const [answerDialogOpen, setAnswerDialogOpen] = useState(false);
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedTabValue, setAppliedTabValue] = useState("all");
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 
 	const emptyList = useMemo(() => [], []);
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -48,20 +54,27 @@ const ShoppingMallQuestionControl = () => {
 		return allQuestionList
 			.filter((record) => {
 				const questionDate = dayjs(record.question.q_createdDate);
-				const matchTab = tabValue === "all" || tabValue === record.question.c_name;
+				const matchTab =
+					appliedTabValue === "all" || appliedTabValue === record.question.c_name;
 				const matchStart =
-					!dateRange.startDate ||
+					!appliedDateRange.startDate ||
 					(questionDate.isValid() &&
-						!questionDate.isBefore(dayjs(dateRange.startDate), "day"));
+						!questionDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 				const matchEnd =
-					!dateRange.endDate ||
+					!appliedDateRange.endDate ||
 					(questionDate.isValid() &&
-						!questionDate.isAfter(dayjs(dateRange.endDate), "day"));
+						!questionDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-				return matchTab && !isDateRangeInvalid && matchStart && matchEnd;
+				return matchTab && !isAppliedDateRangeInvalid && matchStart && matchEnd;
 			})
 			.map((record, index) => ({ ...record.question, index }));
-	}, [allQuestionList, tabValue, emptyList, dateRange, isDateRangeInvalid]);
+	}, [
+		allQuestionList,
+		appliedTabValue,
+		emptyList,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	const displayImageList = useMemo(() => {
 		if (!allQuestionList || allQuestionList.length === 0) return emptyList;
@@ -71,17 +84,18 @@ const ShoppingMallQuestionControl = () => {
 		allQuestionList
 			.filter((record) => {
 				const questionDate = dayjs(record.question.q_createdDate);
-				const matchTab = tabValue === "all" || tabValue === record.question.c_name;
+				const matchTab =
+					appliedTabValue === "all" || appliedTabValue === record.question.c_name;
 				const matchStart =
-					!dateRange.startDate ||
+					!appliedDateRange.startDate ||
 					(questionDate.isValid() &&
-						!questionDate.isBefore(dayjs(dateRange.startDate), "day"));
+						!questionDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 				const matchEnd =
-					!dateRange.endDate ||
+					!appliedDateRange.endDate ||
 					(questionDate.isValid() &&
-						!questionDate.isAfter(dayjs(dateRange.endDate), "day"));
+						!questionDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-				return matchTab && !isDateRangeInvalid && matchStart && matchEnd;
+				return matchTab && !isAppliedDateRangeInvalid && matchStart && matchEnd;
 			})
 			.forEach((record, index) => {
 				(record.image || []).forEach((element) => {
@@ -90,7 +104,13 @@ const ShoppingMallQuestionControl = () => {
 			});
 
 		return resultList;
-	}, [allQuestionList, tabValue, emptyList, dateRange, isDateRangeInvalid]);
+	}, [
+		allQuestionList,
+		appliedTabValue,
+		emptyList,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	const selectedCompanyLabel =
 		tabValue === "all" ? "전체 쇼핑몰" : selectedTabCompany?.c_name || tabValue;
@@ -105,12 +125,13 @@ const ShoppingMallQuestionControl = () => {
 		setTabValue(newValue);
 		const selectedCompany = shopListState.find((record) => record.c_name === newValue);
 		setSelectedTabCompany(selectedCompany);
-		setSelectedRow(null);
 	};
 
-	useEffect(() => {
+	const handleSearch = () => {
+		setAppliedTabValue(tabValue);
+		setAppliedDateRange(dateRange);
 		setSelectedRow(null);
-	}, [dateRange]);
+	};
 
 	const reloadData = async (showLoading = true) => {
 		if (showLoading) {
@@ -286,6 +307,9 @@ const ShoppingMallQuestionControl = () => {
 						onChange={setDateRange}
 						isInvalid={Boolean(isDateRangeInvalid)}
 					/>
+					<Button variant="contained" onClick={handleSearch}>
+						검색
+					</Button>
 				</div>
 
 				<div className="shopping-mall-question-table">
@@ -306,7 +330,7 @@ const ShoppingMallQuestionControl = () => {
 							selectedRow={selectedRow}
 							setSelectedRow={setSelectedRow}
 							defaultRowPerPage={5}
-							resetPageKey={`${tabValue}-${dateRange.startDate}-${dateRange.endDate}`}
+							resetPageKey={`${appliedTabValue}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
 							pagination
 						/>
 					) : (

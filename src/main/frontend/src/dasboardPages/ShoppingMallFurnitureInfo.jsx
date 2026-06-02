@@ -51,6 +51,8 @@ const ShoppingMallFurnitureInfo = () => {
 	const [selectedFurniture, setSelectedFurniture] = useState(null);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [filterBarState, setFilterBarState] = useState({});
+	const [appliedTabValue, setAppliedTabValue] = useState("all");
+	const [appliedFilterBarState, setAppliedFilterBarState] = useState({});
 
 	const [furnitureLoading, setFurnitureLoading] = useState(false);
 	const [imageLoading, setImageLoading] = useState(false);
@@ -80,11 +82,15 @@ const ShoppingMallFurnitureInfo = () => {
 		const selectedCompany = shopListState.find((record) => record.c_name === newValue);
 		setSelectedTabCompany(selectedCompany);
 		setFilterBarState({});
-		setPage(1);
 	};
 
 	const handleFilterChange = (nextFilterValue) => {
 		setFilterBarState(nextFilterValue);
+	};
+
+	const handleSearch = () => {
+		setAppliedTabValue(tabValue);
+		setAppliedFilterBarState(filterBarState);
 		setPage(1);
 	};
 
@@ -181,6 +187,14 @@ const ShoppingMallFurnitureInfo = () => {
 		return allFurnitureImgList.filter((item) => item.c_name === tabValue);
 	}, [allFurnitureImgList, tabValue]);
 
+	const appliedTabCompanyFurnitureList = useMemo(() => {
+		if (appliedTabValue === "all") {
+			return allFurnitureImgList;
+		}
+
+		return allFurnitureImgList.filter((item) => item.c_name === appliedTabValue);
+	}, [allFurnitureImgList, appliedTabValue]);
+
 	const productFilterList = useMemo(() => {
 		return [
 			{
@@ -223,8 +237,8 @@ const ShoppingMallFurnitureInfo = () => {
 	}, [getUniqueFilterOptions, selectedTabCompanyFurnitureList]);
 
 	const filteredFurnitureList = useMemo(() => {
-		return selectedTabCompanyFurnitureList.filter((data) => {
-			return Object.entries(filterBarState).every(([key, value]) => {
+		return appliedTabCompanyFurnitureList.filter((data) => {
+			return Object.entries(appliedFilterBarState).every(([key, value]) => {
 				if (value === "" || value === null || value === undefined) return true;
 				if (Array.isArray(value)) {
 					if (value.length === 0) return true;
@@ -233,7 +247,7 @@ const ShoppingMallFurnitureInfo = () => {
 				return data[key] === value;
 			});
 		});
-	}, [selectedTabCompanyFurnitureList, filterBarState]);
+	}, [appliedTabCompanyFurnitureList, appliedFilterBarState]);
 
 	const pageCount = useMemo(() => {
 		return Math.ceil(filteredFurnitureList.length / rowsPerPage);
@@ -370,22 +384,15 @@ const ShoppingMallFurnitureInfo = () => {
 				value="c_name"
 			/>
 
-			<div>
-				{tabValue !== "all" && (
-					<div className="shopping-mall-company-summary">
-						<div>{selectedTabCompany.c_name}</div>
-						<div>{selectedTabCompany.c_addr}</div>
-						<div>{selectedTabCompany.c_boss}</div>
-						<div>{selectedTabCompany.c_tel}</div>
-					</div>
-				)}
-			</div>
 			<div className="shopping-mall-product-filter">
 				<FilterBar
 					filterList={productFilterList}
 					value={filterBarState}
 					onChange={handleFilterChange}
 				/>
+				<Button variant="contained" onClick={handleSearch}>
+					검색
+				</Button>
 			</div>
 			<div className="shopping-mall-product-list">
 				{isProductLoading ? (
@@ -396,7 +403,7 @@ const ShoppingMallFurnitureInfo = () => {
 					))
 				) : (
 					<div className="shopping-mall-empty-state">
-						{selectedTabCompanyFurnitureList.length > 0
+						{appliedTabCompanyFurnitureList.length > 0
 							? "선택한 조건에 해당하는 상품이 없습니다."
 							: "등록된 쇼핑몰 상품이 없습니다."}
 					</div>

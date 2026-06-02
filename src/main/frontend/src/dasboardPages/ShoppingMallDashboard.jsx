@@ -339,6 +339,10 @@ const ShoppingMallDashboard = () => {
 	const [selectedShopName, setSelectedShopName] = useState("all");
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
 	const [categoryLevel, setCategoryLevel] = useState(null);
+	const [appliedSelectedShopName, setAppliedSelectedShopName] = useState("all");
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedCategoryLevel, setAppliedCategoryLevel] = useState(null);
+	const [searchKey, setSearchKey] = useState(0);
 	const [activeDashboardTab, setActiveDashboardTab] = useState("summary");
 	const [loading, setLoading] = useState(false);
 	const [dashboardData, setDashboardData] = useState({});
@@ -347,6 +351,10 @@ const ShoppingMallDashboard = () => {
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -388,14 +396,20 @@ const ShoppingMallDashboard = () => {
 		() => ({
 			c_id: id,
 			c_kind: "shop",
-			c_name: selectedShopName,
+			c_name: appliedSelectedShopName,
 			period: "all",
-			startDate: dateRange.startDate,
-			endDate: dateRange.endDate,
-			categoryLevel: categoryLevel || 1,
+			startDate: appliedDateRange.startDate,
+			endDate: appliedDateRange.endDate,
+			categoryLevel: appliedCategoryLevel || 1,
 			f_dstatus: 5,
 		}),
-		[id, selectedShopName, dateRange.startDate, dateRange.endDate, categoryLevel],
+		[
+			id,
+			appliedSelectedShopName,
+			appliedDateRange.startDate,
+			appliedDateRange.endDate,
+			appliedCategoryLevel,
+		],
 	);
 
 	const fetchDashboardData = useCallback(async () => {
@@ -409,7 +423,7 @@ const ShoppingMallDashboard = () => {
 			return;
 		}
 
-		if (isDateRangeInvalid) {
+		if (isAppliedDateRangeInvalid) {
 			setDashboardData({
 				error: {
 					success: false,
@@ -452,16 +466,23 @@ const ShoppingMallDashboard = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [id, requestDto, isDateRangeInvalid]);
+	}, [id, requestDto, isAppliedDateRangeInvalid]);
 
 	const handleDashboardFilterChange = (nextValue) => {
 		setSelectedShopName(nextValue.c_name || "all");
 		setCategoryLevel(nextValue.categoryLevel || null);
 	};
 
+	const handleSearch = () => {
+		setAppliedSelectedShopName(selectedShopName);
+		setAppliedDateRange(dateRange);
+		setAppliedCategoryLevel(categoryLevel);
+		setSearchKey((prev) => prev + 1);
+	};
+
 	useEffect(() => {
 		fetchDashboardData();
-	}, [fetchDashboardData]);
+	}, [fetchDashboardData, searchKey]);
 
 	const stats = useMemo(() => {
 		const orderAgeGender = unwrap(dashboardData.orderAgeGender, {});
@@ -841,24 +862,28 @@ const ShoppingMallDashboard = () => {
 				</div>
 				<div className="shopping-mall-dashboard-summary">
 					<Chip
-						label={selectedShopName === "all" ? "전체 쇼핑몰" : selectedShopName}
+						label={
+							appliedSelectedShopName === "all"
+								? "전체 쇼핑몰"
+								: appliedSelectedShopName
+						}
 						variant="outlined"
 					/>
 					<Chip
 						label={
-							dateRange.startDate || dateRange.endDate
-								? `${dateRange.startDate || "시작일"} ~ ${dateRange.endDate || "종료일"}`
+							appliedDateRange.startDate || appliedDateRange.endDate
+								? `${appliedDateRange.startDate || "시작일"} ~ ${appliedDateRange.endDate || "종료일"}`
 								: "전체 기간"
 						}
 						variant="outlined"
 					/>
 					<Chip
 						label={
-							!categoryLevel
+							!appliedCategoryLevel
 								? "전체 카테고리"
 								: categoryLevelOptions.find(
-										(option) => option.value === categoryLevel,
-									)?.label || `카테고리 단계 ${categoryLevel}`
+										(option) => option.value === appliedCategoryLevel,
+									)?.label || `카테고리 단계 ${appliedCategoryLevel}`
 						}
 						variant="outlined"
 					/>
@@ -887,8 +912,8 @@ const ShoppingMallDashboard = () => {
 						className="shopping-mall-dashboard-date-range"
 					/>
 
-					<Button variant="contained" onClick={fetchDashboardData} disabled={loading}>
-						{loading ? "불러오는 중" : "새로고침"}
+					<Button variant="contained" onClick={handleSearch} disabled={loading}>
+						{loading ? "불러오는 중" : "검색"}
 					</Button>
 				</div>
 			</section>

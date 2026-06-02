@@ -33,7 +33,16 @@ import {
  * @returns {JSX.Element} 공통 Dialog UI
  */
 const DialogMui = (props) => {
-	const { open, onClose, title, text, buttons = [], maxWidth = "sm", fullWidth = false } = props;
+	const {
+		open,
+		onClose,
+		title,
+		text,
+		buttons = [],
+		maxWidth = "sm",
+		fullWidth = false,
+		className,
+	} = props;
 
 	const handleClose = (event, reason) => {
 		if (reason === "backdropClick") {
@@ -48,7 +57,12 @@ const DialogMui = (props) => {
 	};
 
 	return (
-		<Dialog onClose={handleClose} open={open} maxWidth={maxWidth} fullWidth={fullWidth}>
+		<Dialog
+			className={className}
+			onClose={handleClose}
+			open={open}
+			maxWidth={maxWidth}
+			fullWidth={fullWidth}>
 			{title && <DialogTitle>{title}</DialogTitle>}
 
 			<DialogContent>

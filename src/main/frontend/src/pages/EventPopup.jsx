@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventService from "../service/eventService";
-import GetImgDlr from "../resources/function/GetImgDir";
+import GetImgDir from "../resources/function/GetImgDir";
 import { Button, Dialog } from "@mui/material";
 import SkeletonMui from "../components/SkeletonMui";
 
@@ -30,7 +30,6 @@ const EventPopup = () => {
         return;
       }
 
-      setOpen(true);
       setLoading(true);
 
       const data = await EventService.selectPopupList();
@@ -48,7 +47,7 @@ const EventPopup = () => {
           )
           .map(async (item) => {
             console.log("아이템" + item);
-            const logo = await GetImgDlr({
+            const logo = await GetImgDir({
               kind: "DEV",
               returnType: "list",
               a: item.e_id,
@@ -65,14 +64,18 @@ const EventPopup = () => {
             };
           }),
       );
-      if (listWithImages.length === 0) {
+      const popupCandidates = listWithImages.filter((item) =>
+        item.logo?.result?.some((image) => image.img_tag === "THUMBNAIL"),
+      );
+
+      if (popupCandidates.length === 0) {
         setOpen(false);
         setLoading(false);
         return;
       }
 
       const randomEvent =
-        listWithImages[Math.floor(Math.random() * listWithImages.length)];
+        popupCandidates[Math.floor(Math.random() * popupCandidates.length)];
       setImageLoaded(false);
       setRandom(randomEvent);
 
