@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.home.dto.FileSaveResult;
@@ -13,6 +14,7 @@ import com.spring.home.dto.ImageDTO;
 import com.spring.home.dto.ImageQueryDTO;
 import com.spring.home.dto.OptionsDTO;
 import com.spring.home.mapper.FurnitureMapper;
+import com.spring.home.mapper.ImageMapper;
 import com.spring.home.util.FileUtilMethod;
 import com.spring.home.util.furnitureCode;
 
@@ -414,7 +416,22 @@ public class FurnitureService {
 	    return f_code;
 	}
 	
-	public void deleteData(String f_code) throws Exception{
+	@Transactional
+	public void deleteData(String f_code) throws Exception {
+		List<ImageDTO> images = furnitureMapper.getDeleteTargetImagesByFCode(f_code);
+
+		FileUtilMethod.fileDeleteFromServer(images);
+
+		furnitureMapper.deleteImagesByFCodeDeep(f_code);
+		
+		furnitureMapper.deleteOrderClaimsByFCode(f_code);
+		furnitureMapper.deleteReviewsByFCode(f_code);
+		furnitureMapper.deleteCartOptionsByFCode(f_code);
+		furnitureMapper.deleteCartsByFCode(f_code);
+		furnitureMapper.deleteLikesByFCode(f_code);
+		furnitureMapper.deleteFurnitureHideByFCode(f_code);
+		furnitureMapper.deleteOptionsByFCode(f_code);
+		furnitureMapper.deleteQuestionsByFCode(f_code);
 		furnitureMapper.deleteData(f_code);
 	}
 	

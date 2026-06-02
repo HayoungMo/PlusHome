@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.spring.home.dto.FurnitureDTO;
+import com.spring.home.dto.ImageDTO;
 
 @Mapper
 public interface FurnitureMapper {
@@ -33,6 +34,16 @@ public interface FurnitureMapper {
 	public void updateData(FurnitureDTO dto) throws Exception;
 	
 	public void deleteData(@Param("f_code") String f_code) throws Exception;
+	public void deleteOrderClaimsByFCode(@Param("f_code") String f_code);
+	public void deleteReviewsByFCode(@Param("f_code") String f_code);
+	public void deleteCartOptionsByFCode(@Param("f_code") String f_code);
+	public void deleteCartsByFCode(@Param("f_code") String f_code);
+	public void deleteLikesByFCode(@Param("f_code") String f_code);
+	public void deleteFurnitureHideByFCode(@Param("f_code") String f_code);
+	public void deleteOptionsByFCode(@Param("f_code") String f_code);
+	public void deleteQuestionsByFCode(@Param("f_code") String f_code);
+	public List<ImageDTO> getDeleteTargetImagesByFCode(@Param("f_code") String f_code);
+	public void deleteImagesByFCodeDeep(@Param("f_code") String f_code);
 	
 	public int countSearchData(
 	        @Param("searchKey") String searchKey,

@@ -1,0 +1,270 @@
+.wallet-charge-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(5px);
+}
+
+.wallet-charge-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: min(420px, 100%);
+  min-height: 278px;
+  padding: 30px 32px 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+.charge-state-title {
+  margin: 2px 0 0;
+  color: #111827;
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 900;
+  text-align: center;
+}
+
+.charge-state-caption {
+  margin: 0;
+  color: #8b95a1;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.charge-pacman-wrap {
+  position: relative;
+  width: 260px;
+  height: 92px;
+  margin-top: 4px;
+}
+
+.charge-pacman {
+  position: absolute;
+  top: 19px;
+  left: 38px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+}
+
+.charge-pacman::before,
+.charge-pacman::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 27px solid #facc15;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+
+.charge-pacman::before {
+  animation: pacman-top-bite 0.36s linear infinite;
+}
+
+.charge-pacman::after {
+  animation: pacman-bottom-bite 0.36s linear infinite;
+}
+
+.charge-dots {
+  position: absolute;
+  top: 45px;
+  left: 122px;
+  width: 118px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.charge-dots span {
+  position: absolute;
+  top: 4px;
+  right: -12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #008cff;
+  animation: dot-eat 0.9s linear infinite;
+}
+
+.charge-dots span:nth-child(2) { animation-delay: 0.18s; }
+.charge-dots span:nth-child(3) { animation-delay: 0.36s; }
+.charge-dots span:nth-child(4) { animation-delay: 0.54s; }
+
+.charge-nyancat-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 360px;
+  max-width: 100%;
+  height: 150px;
+  margin-top: 2px;
+  overflow: hidden;
+}
+
+.charge-nyancat-wrap img {
+  display: block;
+  width: min(350px, 100%);
+  max-height: 138px;
+  object-fit: contain;
+}
+
+.wallet-balance-result {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 2px;
+  padding: 18px 0 16px;
+  border-top: 1px solid #eef2f6;
+  border-bottom: 1px solid #eef2f6;
+  background: #fff;
+}
+
+.wallet-balance-result span,
+.wallet-charge-summary span {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.wallet-balance-result strong {
+  color: #111827;
+  font-size: 34px;
+  line-height: 1.12;
+  font-weight: 900;
+}
+
+.wallet-charge-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0;
+  padding: 4px 2px 0;
+  background: transparent;
+}
+
+.wallet-charge-summary strong {
+  color: #008cff;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.balance-count-close {
+  width: 100%;
+  height: 44px;
+  margin-top: 8px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background: #008cff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 140, 255, 0.2);
+}
+
+.balance-count-close:hover {
+  background: #0077d9;
+}
+
+.balance-count-close:disabled {
+  background: #d8e4f2;
+  color: #6b7280;
+  box-shadow: none;
+  cursor: wait;
+}
+
+@keyframes pacman-top-bite {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-38deg);
+  }
+}
+
+@keyframes pacman-bottom-bite {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(38deg);
+  }
+}
+
+@keyframes dot-eat {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  72% {
+    opacity: 1;
+  }
+
+  73%,
+  100% {
+    transform: translateX(-112px);
+    opacity: 0;
+  }
+}
+
+.charge-state-title {
+  margin: 2px 0 0;
+  color: #111827;
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 900;
+  text-align: center;
+  animation: charge-title-in 0.36s ease-out both;
+}
+
+@keyframes charge-title-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.charge-state-title-done {
+  animation: charge-complete-pop 0.42s cubic-bezier(0.2, 0.9, 0.2, 1.2) both;
+}
+
+@keyframes charge-complete-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
