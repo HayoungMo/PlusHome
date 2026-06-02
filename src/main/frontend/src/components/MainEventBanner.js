@@ -3,11 +3,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GetImgDir from "../resources/function/GetImgDir";
 import EventService from "../service/eventService";
+import SkeletonMui from "./SkeletonMui";
 
 const MainEventBanner = () => {
   //메인영상 옆에 이벤트 슬라이드 항목
   const [sideSlideIndex, setSideSlideIndex] = useState(0);
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const handleNext = (data) => {
     navigate(`/event/article/${data}`);
@@ -52,28 +54,33 @@ const MainEventBanner = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await EventService.selectPopupList();
+      setLoading(true);
+      try {
+        const data = await EventService.selectPopupList();
 
-      const dataList = Array.isArray(data) ? data : [];
-      const listWithImages = await Promise.all(
-        dataList.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "DEV",
-            returnType: "list",
-            a: item.e_id,
-            b: item.e_title,
-            view: false,
-          });
+        const dataList = Array.isArray(data) ? data : [];
+        const listWithImages = await Promise.all(
+          dataList.map(async (item) => {
+            const logo = await GetImgDir({
+              kind: "DEV",
+              returnType: "list",
+              a: item.e_id,
+              b: item.e_title,
+              view: false,
+            });
 
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
+            return {
+              ...item,
+              logo,
+            };
+          }),
+        );
 
-      setEvents(listWithImages);
-      setSideSlideIndex(0);
+        setEvents(listWithImages);
+        setSideSlideIndex(0);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -81,7 +88,9 @@ const MainEventBanner = () => {
 
   return (
     <div className="main-event-banner">
-      {currentBanner ? (
+      {loading ? (
+        <SkeletonMui variant="mainEventBanner" />
+      ) : currentBanner ? (
         <img
           src={currentBanner}
           alt={currentEvent?.e_title || "이벤트 배너"}
@@ -92,6 +101,7 @@ const MainEventBanner = () => {
         <p>이벤트가 없습니다</p>
       )}
 
+      {!loading && visibleEvents.length > 1 && (
       <Button
         type="button"
         onClick={() => moveSideSlide("prev")}
@@ -114,7 +124,9 @@ const MainEventBanner = () => {
       >
         {"<"}
       </Button>
+      )}
 
+      {!loading && visibleEvents.length > 1 && (
       <Button
         type="button"
         onClick={() => moveSideSlide("next")}
@@ -137,7 +149,9 @@ const MainEventBanner = () => {
       >
         {">"}
       </Button>
+      )}
 
+      {!loading && visibleEvents.length > 1 && (
       <div
         style={{
           position: "absolute",
@@ -165,6 +179,7 @@ const MainEventBanner = () => {
           />
         ))}
       </div>
+      )}
     </div>
   );
 };

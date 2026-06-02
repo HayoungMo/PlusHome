@@ -7,6 +7,7 @@ import DialogInside from "../components/DialogInside";
 import "../css/InteriorAllExample.css";
 import MultiFilterBar from "../components/MultiFilterBar";
 import Loading from "../components/Loading";
+import SkeletonMui from "../components/SkeletonMui";
 import { formatInteriorAnswerValue } from "../resources/function/interiorAnswerFormat";
 
 const PAGE_SIZE = 6;
@@ -24,6 +25,7 @@ const InteriorAllExample = () => {
   });
   const [selectedExample, setSelectedExample] = useState(null);
   const [exampleImageIndex, setExampleImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const tagOptions1 = [
     { value: "apt", title: "아파트" },
@@ -77,39 +79,45 @@ const InteriorAllExample = () => {
 
   useEffect(() => {
     const fetchExample = async () => {
-      const data = await InteriorService.fetchPagedInteriorExample({
-        pageNum,
-        pageSize: PAGE_SIZE,
-        filterType,
-        filterValue,
-      });
-      const companyList = Array.isArray(data?.list) ? data.list : [];
+      try {
+        setLoading(true);
 
-      const listWithImages = await Promise.all(
-        companyList.map(async (item) => {
-          const logo = await GetImgDir({
-            kind: "I_EXAMPLE",
-            returnType: "list",
-            a: item.c_id,
-            b: item.c_kind,
-            c: item.c_name,
-            d: item.ie_index,
-            view: false,
-          });
+        const data = await InteriorService.fetchPagedInteriorExample({
+          pageNum,
+          pageSize: PAGE_SIZE,
+          filterType,
+          filterValue,
+        });
+        const companyList = Array.isArray(data?.list) ? data.list : [];
 
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
+        const listWithImages = await Promise.all(
+          companyList.map(async (item) => {
+            const logo = await GetImgDir({
+              kind: "I_EXAMPLE",
+              returnType: "list",
+              a: item.c_id,
+              b: item.c_kind,
+              c: item.c_name,
+              d: item.ie_index,
+              view: false,
+            });
 
-      setExample(listWithImages);
-      setPageInfo({
-        totalCount: data?.totalCount || 0,
-        totalPage: data?.totalPage || 0,
-        pageSize: data?.pageSize || PAGE_SIZE,
-      });
+            return {
+              ...item,
+              logo,
+            };
+          }),
+        );
+
+        setExample(listWithImages);
+        setPageInfo({
+          totalCount: data?.totalCount || 0,
+          totalPage: data?.totalPage || 0,
+          pageSize: data?.pageSize || PAGE_SIZE,
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchExample();
@@ -119,6 +127,35 @@ const InteriorAllExample = () => {
     setFilterType("");
     setFilterValue("");
     setPageNum(1);
+  };
+
+  const handleTagClick = (filterKey, value, event) => {
+    event?.stopPropagation();
+
+    if (!value) return;
+
+    if (filterKey === "housingType") {
+      setFilterType((prev) => (prev === value ? "" : value));
+    }
+
+    if (filterKey === "spaces") {
+      setFilterValue((prev) => (prev === value ? "" : value));
+    }
+
+    setPageNum(1);
+    setSelectedExample(null);
+    setExampleImageIndex(0);
+  };
+
+  const handleCardKeyDown = (event, item) => {
+    if (event.target.closest?.(".MuiChip-root")) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleExampleOpen(item);
+    }
   };
 
   const getExampleImages = (item) => {
@@ -194,7 +231,9 @@ const InteriorAllExample = () => {
           </Typography>
         </>
       )}
-      {Object.values(groupedExamples).map((group) => (
+      {loading ? (
+        <SkeletonMui variant="interiorMediaCard" count={PAGE_SIZE} />
+      ) : Object.values(groupedExamples).map((group) => (
         <div
           className="interior-example-group"
           key={`${group.company.c_id}-${group.company.c_kind}-${group.company.c_name}`}
@@ -212,11 +251,13 @@ const InteriorAllExample = () => {
               const thumbnail = getThumbnailImage(item);
 
               return (
-                <button
+                <div
                   className="interior-example-card"
                   key={`${item.c_id}-${item.ie_index}`}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleExampleOpen(item)}
+                  onKeyDown={(event) => handleCardKeyDown(event, item)}
                 >
                   <div className="interior-example-thumb">
                     {thumbnail ? (
@@ -241,24 +282,30 @@ const InteriorAllExample = () => {
                           item?.ie_tag
                         )}
                         size="small"
+                        onClick={(event) =>
+                          handleTagClick("housingType", item?.ie_tag, event)
+                        }
                       />
                       <Chip
                         label={formatInteriorAnswerValue(item.ie_tag2)}
                         size="small"
+                        onClick={(event) =>
+                          handleTagClick("spaces", item?.ie_tag2, event)
+                        }
                       />
                     </Stack>
                     <p>{item.ie_content}</p>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
         </div>
       ))}
 
-      {example.length === 0 && <Loading />}
+      {!loading && example.length === 0 && <Loading />}
 
-      {pageInfo.totalPage > 1 && (
+      {!loading && pageInfo.totalPage > 1 && (
         <Pagination
           count={pageInfo.totalPage}
           page={pageNum}
@@ -319,9 +366,15 @@ const InteriorAllExample = () => {
                 label={
                   formatInteriorAnswerValue(selectedExample?.ie_tag)
                 }
+                onClick={(event) =>
+                  handleTagClick("housingType", selectedExample?.ie_tag, event)
+                }
               />
               <Chip
                 label={formatInteriorAnswerValue(selectedExample?.ie_tag2)}
+                onClick={(event) =>
+                  handleTagClick("spaces", selectedExample?.ie_tag2, event)
+                }
               />
             </Stack>
             <p>{selectedExample?.ie_content}</p>

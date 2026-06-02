@@ -1,0 +1,575 @@
+.furniture-add-page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 14px 18px 28px;
+  color: #1f2937;
+}
+
+.furniture-add-header {
+  display: none;
+}
+
+.furniture-add-section {
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.furniture-add-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.furniture-add-section-title h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* 기본 정보 */
+.furniture-basic-table {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.furniture-thumbnail-field {
+  min-width: 0;
+}
+
+.furniture-thumbnail-upload {
+  display: flex;
+  width: 100%;
+  height: 170px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #93c5fd;
+  border-radius: 6px;
+  background: #f8fcff;
+  color: #008cff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.furniture-thumbnail-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.furniture-upload-caption {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.furniture-upload-caption strong {
+  display: block;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.furniture-upload-caption span {
+  display: block;
+  margin-top: 3px;
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.furniture-basic-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding-top: 0;
+}
+
+.furniture-basic-name-row {
+  width: calc(((100% - 28px) / 3) * 2 + 14px);
+}
+
+.furniture-basic-price-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: calc(((100% - 28px) / 3) * 2 + 14px);
+}
+
+.furniture-basic-sub-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.furniture-basic-name-row .MuiFormControl-root,
+.furniture-basic-price-row .MuiFormControl-root,
+.furniture-basic-sub-row .MuiFormControl-root {
+  width: 100%;
+  max-width: none;
+}
+
+.furniture-unit-field {
+  position: relative;
+  min-width: 0;
+}
+
+.furniture-unit-field .MuiInputBase-input {
+  padding-right: 34px;
+}
+
+.furniture-unit-field > span {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.furniture-discount-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(((100% - 28px) / 3) * 2 + 14px);
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid #dbeafe;
+  border-radius: 5px;
+  background: #fbfdff;
+  box-sizing: border-box;
+}
+
+.furniture-discount-bar span {
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.furniture-discount-bar strong {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.furniture-readonly-field {
+  height: 36px;
+  padding: 5px 11px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #f8fcff;
+  box-sizing: border-box;
+}
+
+.furniture-readonly-field span {
+  display: block;
+  margin-bottom: 2px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.furniture-readonly-field strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+/* 카테고리 */
+.furniture-category-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.furniture-category-grid > * {
+  min-width: 0;
+}
+
+/* 옵션 */
+.furniture-option-title {
+  align-items: flex-start;
+}
+
+.furniture-option-title .MuiButton-root {
+  min-width: 96px;
+  height: 34px;
+  margin-top: 6px;
+  border-color: #008cff;
+  color: #008cff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.furniture-option-table-wrap {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.furniture-option-table {
+  width: 100%;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.furniture-option-head,
+.furniture-option-row {
+  display: grid;
+  grid-template-columns:
+    minmax(120px, 1fr)
+    minmax(160px, 1.25fr)
+    minmax(92px, 0.7fr)
+    minmax(92px, 0.7fr)
+    minmax(106px, 0.8fr)
+    44px;
+  gap: 8px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.furniture-option-head {
+  padding: 9px 10px;
+  border-bottom: 1px solid #dbeafe;
+  background: #f8fcff;
+}
+
+.furniture-option-head span {
+  min-width: 0;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.furniture-option-head span:last-child {
+  display: block;
+}
+
+.furniture-option-row {
+  padding: 9px 10px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.furniture-option-row:last-of-type {
+  border-bottom: 0;
+}
+
+.furniture-option-row > * {
+  min-width: 0;
+}
+
+.furniture-option-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  color: #111827;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.furniture-option-input::placeholder {
+  color: #9ca3af;
+}
+
+.furniture-option-row .MuiFormControl-root {
+  width: 100%;
+  min-width: 0;
+}
+
+.furniture-option-row .MuiInputBase-root {
+  width: 100%;
+  min-width: 0;
+}
+
+.furniture-option-remove {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #ef4444;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.furniture-option-remove:hover {
+  background: #fff1f2;
+}
+
+.furniture-option-add-row {
+  width: 100%;
+  height: 36px;
+  border: 0;
+  border-top: 1px solid #e5eef7;
+  background: #fbfdff;
+  color: #008cff;
+  font-size: 21px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.furniture-option-add-row:hover {
+  background: #f3faff;
+}
+
+/* 이미지 정보 */
+.furniture-image-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.furniture-image-row {
+  overflow: visible;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  background: #fbfdff;
+}
+
+.furniture-image-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.furniture-image-row-header h4 {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.furniture-image-add-button {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid #93c5fd;
+  border-radius: 5px;
+  background: #fff;
+  color: #008cff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.furniture-image-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 82px;
+  overflow: visible;
+}
+
+.furniture-image-strip img {
+  flex: 0 0 82px;
+  width: 82px;
+  height: 82px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  object-fit: cover;
+}
+
+/* 최종 요약 */
+.furniture-final-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  background: #fbfdff;
+}
+
+.furniture-final-summary-item {
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid #e5eef7;
+  border-radius: 5px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.furniture-final-summary-item span {
+  display: block;
+  margin-bottom: 5px;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.furniture-final-summary-item strong {
+  color: #111827;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+/* 하단 버튼 */
+.furniture-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-bottom: 0;
+}
+
+.furniture-add-actions .MuiButton-root {
+  min-width: 88px;
+  height: 36px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: none;
+}
+
+.furniture-add-actions .MuiButton-contained {
+  background: #008cff;
+}
+
+.furniture-add-actions .MuiButton-contained:hover {
+  background: #0077d9;
+  box-shadow: none;
+}
+
+/* MUI 입력창 공통 */
+.furniture-add-page .MuiInputBase-root {
+  min-height: 36px;
+  height: 36px;
+  font-size: 13px;
+}
+
+.furniture-add-page .MuiInputBase-input {
+  height: 36px;
+  padding: 0 11px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.furniture-add-page .MuiInputLabel-root {
+  font-size: 12px;
+  transform: translate(12px, 9px) scale(1);
+}
+
+.furniture-add-page .MuiInputLabel-shrink {
+  transform: translate(12px, -7px) scale(0.75);
+}
+
+.furniture-add-page .MuiOutlinedInput-notchedOutline {
+  border-radius: 4px;
+}
+
+@media screen and (max-width: 760px) {
+  .furniture-basic-table {
+    grid-template-columns: 1fr;
+  }
+
+  .furniture-basic-inputs {
+    gap: 10px;
+    padding-top: 0;
+  }
+
+  .furniture-basic-name-row,
+  .furniture-basic-price-row,
+  .furniture-discount-bar {
+    width: 100%;
+  }
+
+  .furniture-basic-price-row,
+  .furniture-basic-sub-row,
+  .furniture-final-summary,
+  .furniture-category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .furniture-option-table-wrap {
+    overflow-x: auto;
+  }
+
+  .furniture-option-table {
+    min-width: 660px;
+  }
+}
+
+.furniture-unit-field .Mui-disabled {
+  background: #f8fafc;
+}
+
+.furniture-unit-field .MuiInputBase-input.Mui-disabled {
+  color: #374151;
+  -webkit-text-fill-color: #374151;
+}
+
+.furniture-image-item {
+  position: relative;
+  flex: 0 0 82px;
+  width: 82px;
+  height: 82px;
+}
+
+.furniture-image-item img {
+  width: 82px;
+  height: 82px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  object-fit: cover;
+  box-sizing: border-box;
+}
+
+.furniture-image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.7);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.furniture-image-remove:hover {
+  background: rgba(220, 38, 38, 0.9);
+}

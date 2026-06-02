@@ -2175,3 +2175,111 @@
 	color: #94a3b8;
 	line-height: 1.35;
 }
+
+.interior-update-page {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	padding: 20px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-update-card {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	padding: 20px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+	box-sizing: border-box;
+}
+
+.interior-update-head {
+	padding-bottom: 14px;
+	border-bottom: 1px solid #e5eaf2;
+}
+
+.interior-update-head strong {
+	display: block;
+	font-size: 18px;
+	font-weight: 800;
+	color: #111827;
+}
+
+.interior-update-head span {
+	display: block;
+	margin-top: 5px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #64748b;
+}
+
+.interior-update-form,
+.interior-update-location {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(180px, 1fr));
+	gap: 14px;
+}
+
+.interior-update-form > .MuiFormControl-root,
+.interior-update-location > .MuiFormControl-root {
+	width: 100%;
+}
+
+.interior-update-actions {
+	display: flex;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding-top: 4px;
+}
+
+.interior-update-actions .MuiButton-root {
+	min-width: 90px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-update-actions .MuiButton-root:hover {
+	box-shadow: none;
+}
+
+@media (max-width: 760px) {
+	.interior-update-card {
+		padding: 16px;
+	}
+
+	.interior-update-form,
+	.interior-update-location {
+		grid-template-columns: 1fr;
+	}
+
+	.interior-update-actions {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.interior-update-actions .MuiButton-root {
+		width: 100%;
+	}
+}
+
+/* DialogMui 안쪽 박스까지 강제로 radius 통일 */
+.MuiDialog-paper {
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+
+/* InteriorUpdate 카드가 Dialog 안에 있을 때 이중 테두리 방지 */
+.MuiDialog-paper .interior-update-card {
+	border: none;
+	box-shadow: none;
+	border-radius: 8px;
+}

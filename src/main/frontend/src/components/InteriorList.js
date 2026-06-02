@@ -9,7 +9,7 @@ import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
 } from "../resources/function/interiorAnswerFormat";
-import Loading from "./Loading";
+import SkeletonMui from "./SkeletonMui";
 
 const PAGE_SIZE = 9;
 const MULTI_FILTER_KEYS = ["housingType", "spaces"];
@@ -29,6 +29,7 @@ const InteriorList = ({ tag, value }) => {
   const [list, setList] = useState([]);
   const [originList, setOriginList] = useState([]);
   const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterValue, setFilterValue] = useState(() =>
     getInitialFilterValue(tag, value),
@@ -179,33 +180,38 @@ const InteriorList = ({ tag, value }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [companies, tagList] = await Promise.all([
-        InteriorService.fetchList(),
-        InteriorService.fetchArticleList(),
-      ]);
+      setLoading(true);
+      try {
+        const [companies, tagList] = await Promise.all([
+          InteriorService.fetchList(),
+          InteriorService.fetchArticleList(),
+        ]);
 
-      const companyList = Array.isArray(companies) ? companies : [];
-      const listWithImages = await Promise.all(
-        companyList.map(async (item) => {
-          const logo = await GetImgDlr({
-            kind: "LOGO",
-            returnType: "list",
-            a: item.c_id,
-            b: item.c_kind,
-            c: item.c_name,
-            d: "Logo",
-            view: false,
-          });
+        const companyList = Array.isArray(companies) ? companies : [];
+        const listWithImages = await Promise.all(
+          companyList.map(async (item) => {
+            const logo = await GetImgDlr({
+              kind: "LOGO",
+              returnType: "list",
+              a: item.c_id,
+              b: item.c_kind,
+              c: item.c_name,
+              d: "Logo",
+              view: false,
+            });
 
-          return {
-            ...item,
-            logo,
-          };
-        }),
-      );
+            return {
+              ...item,
+              logo,
+            };
+          }),
+        );
 
-      setOriginList(listWithImages);
-      setTags(Array.isArray(tagList) ? tagList : []);
+        setOriginList(listWithImages);
+        setTags(Array.isArray(tagList) ? tagList : []);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -298,7 +304,14 @@ const InteriorList = ({ tag, value }) => {
       </Typography>
 
       <div className="interior-company-grid interior-company-list-grid">
-        {list.map((item) => (
+        {loading ? (
+          <SkeletonMui
+            variant="interiorCompanyCard"
+            count={PAGE_SIZE}
+            cardClassName="interior-company-list-card"
+          />
+        ) : (
+        list.map((item) => (
           <div
             className="interior-company-card interior-company-list-card"
             key={`${item.c_id}-${item.c_kind}-${item.c_name}`}
@@ -322,12 +335,17 @@ const InteriorList = ({ tag, value }) => {
               <span>addr: {item.c_addr}</span>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
 
-      {list.length === 0 && <Loading />}
+      {!loading && list.length === 0 && (
+        <Typography className="interior-company-list-empty">
+          조건에 맞는 업체가 없습니다.
+        </Typography>
+      )}
 
-      {pageInfo.totalPage > 1 && (
+      {!loading && pageInfo.totalPage > 1 && (
         <Pagination
           count={pageInfo.totalPage}
           page={pageNum}

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TextFieldMui from "../components/TextFieldMui";
+import FurnitureService from "../service/furnitureService";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import ImageService from "../service/imageService";
 import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
@@ -14,6 +15,8 @@ const FurnitureAddReview = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const c_code = location.state?.c_code;
+  const routeFurniture = location.state?.furniture || null;
+  const routeThumbnail = location.state?.thumbnail || null;
   const localUserData = localStorage.getItem("user");
   const userData = JSON.parse(localUserData);
   const {
@@ -32,6 +35,9 @@ const FurnitureAddReview = () => {
   const {f_code} = useParams();
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);
+  const [reviewFurniture, setReviewFurniture] = useState(routeFurniture);
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   const handleOpen = () => {
     setOpen(true);
@@ -50,6 +56,36 @@ const FurnitureAddReview = () => {
 
   const [form, setForm] = useState({ id: id, f_code: f_code, c_code: c_code });
   const [preview, setPreview] = useState([]);
+
+  useEffect(() => {
+    if (reviewFurniture || !f_code) return;
+
+    const fetchFurniture = async () => {
+      try {
+        const data = await FurnitureService.getFurnitureItem(f_code);
+        setReviewFurniture(data);
+      } catch (error) {
+        console.error("리뷰 상품 정보 조회 실패", error);
+      }
+    };
+
+    fetchFurniture();
+  }, [f_code, reviewFurniture]);
+
+  const getReviewFurnitureThumbnail = () => {
+    const thumbnail =
+      routeThumbnail ||
+      reviewFurniture?.thumbnail ||
+      reviewFurniture?.imageList?.find((image) => image.img_tag === "THUMBNAIL")
+        ?.img_name ||
+      reviewFurniture?.imageList?.[0]?.img_name;
+
+    if (!thumbnail) return null;
+    if (thumbnail.startsWith("/api/images")) return thumbnail;
+    return `/api/images/FURNITURE/${thumbnail}`;
+  };
+
+  const furnitureThumbnail = getReviewFurnitureThumbnail();
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -57,6 +93,8 @@ const FurnitureAddReview = () => {
     });
   };
   const handleSubmit = async (e) => {
+    if (submittingRef.current) return;
+
     if (!c_code) {
       setAlert({
         open: true,
@@ -67,6 +105,9 @@ const FurnitureAddReview = () => {
 
       return;
     }
+
+    submittingRef.current = true;
+    setSubmitting(true);
 
     const result2 = await onClickInsert();
     const result =
@@ -82,37 +123,53 @@ const FurnitureAddReview = () => {
 
       navigate(`/userpage?menu=orders`);
     } else {
+      submittingRef.current = false;
+      setSubmitting(false);
       setAlert({
         open: true,
         severity: "error",
-        title: `에러 (${result.status || "이미지 누락"})`,
-        text: result.message || "이미지를 1개 이상 넣어주세요.",
+        title: `에러 (${result?.status || "이미지 누락"})`,
+        text: result?.message || result2.log || "이미지를 1개 이상 넣어주세요.",
       });
     }
   };
-  const onClickAdd = () => {
+  const onClickAdd = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isSameFile = (item) =>
+      item.file?.name === file.name &&
+      item.file?.size === file.size &&
+      item.file?.lastModified === file.lastModified;
+
+    if (sendList.some(isSameFile)) {
+      e.target.value = "";
+      return;
+    }
+
     const insertForm2 = document.getElementsByName("imageInsertTestForm")[0];
-    setSendList([
-      ...sendList,
+    setSendList((prev) => [
+      ...prev,
       {
         img_kind: insertForm2.img_kind.value,
-        img_tag: insertForm2.img_tag.value,
+        img_tag: prev.length === 0 ? "THUMBNAIL" : "OTHER",
         dir_a: insertForm2.dir_a.value,
         //dir_b: insertForm2.dir_b.value,
         //dir_c: insertForm2.dir_c.value,
         dir_d: insertForm2.dir_d.value,
         // dir_e: insertForm.dir_e.value,
-        img_idx: sendList.length,
-        file: insertForm2.file.files[0],
+        img_idx: prev.length,
+        file,
       },
     ]);
     setPreview((prev) => [
       ...prev,
-      URL.createObjectURL(insertForm2.file.files[0]),
+      URL.createObjectURL(file),
     ]);
+    e.target.value = "";
   };
 
-  const onClickInsert = () => {
+  const onClickInsert = async () => {
     if (!sendList || sendList.length === 0) {
       console.log("보낼 이미지 없음");
       return {
@@ -120,8 +177,8 @@ const FurnitureAddReview = () => {
         log: "보낼 이미지 없음",
       };
     }
-    ImageService.insertImage(sendList);
-    return { success: true };
+    const result = await ImageService.insertImage(sendList);
+    return { success: Boolean(result?.data?.success ?? result?.success) };
   };
 
   return (
@@ -162,6 +219,30 @@ const FurnitureAddReview = () => {
           <p>구매한 상품의 별점과 후기를 남겨주세요.</p>
         </div>
 
+        <div className="furniture-review-product">
+          <div className="furniture-review-product-image-wrap">
+            {furnitureThumbnail ? (
+              <img
+                className="furniture-review-product-image"
+                src={furnitureThumbnail}
+                alt={reviewFurniture?.f_name || f_code}
+              />
+            ) : (
+              <div className="furniture-review-product-image-empty">
+                이미지 없음
+              </div>
+            )}
+          </div>
+
+          <div className="furniture-review-product-info">
+            <span>리뷰 작성 상품</span>
+            <strong>{reviewFurniture?.f_name || f_code}</strong>
+            {reviewFurniture?.f_price && (
+              <p>{Number(reviewFurniture.f_price).toLocaleString()}원</p>
+            )}
+          </div>
+        </div>
+
         <form name="review" className="furniture-review-form">
           <div className="furniture-review-rating">
             <RatingMui
@@ -182,7 +263,7 @@ const FurnitureAddReview = () => {
               label="content"
               onChange={handleChange}
             />
-            <Button onClick={() => handleOpen()}>제출</Button>
+            <Button disabled={submitting} onClick={() => handleOpen()}>제출</Button>
           </div>
           <DialogMui
             open={open}
@@ -198,9 +279,10 @@ const FurnitureAddReview = () => {
               {
                 title: "제출",
                 variant: "outlined",
-                onClick: (e) => {
+                disabled: submitting,
+                onClick: async (e) => {
                   console.log("제출 실행");
-                  handleSubmit(e);
+                  await handleSubmit(e);
                   handleClose();
                 },
               },
@@ -268,7 +350,7 @@ const FurnitureAddReview = () => {
                 type="file"
                 hidden
                 name="file"
-                onChange={() => onClickAdd()}
+                onChange={onClickAdd}
               />
             </Button>
           </form>

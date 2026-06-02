@@ -1,21 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventService from "../service/eventService";
 import GetImgDlr from "../resources/function/GetImgDir";
 import { Button, Dialog } from "@mui/material";
+import SkeletonMui from "../components/SkeletonMui";
 
 const EventPopup = () => {
   const navigate = useNavigate();
   const [random, setRandom] = useState([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const handleNext = (data) => {
     navigate(`/event/article/${data}`);
   };
- 
+  const popupRef = useRef(false);
 
   useEffect(() => {
+    if (popupRef.current) return;
+
+    popupRef.current = true;
+
     const fetchData = async () => {
-      const data = await EventService.selectPopupList();      
+      const hidden = localStorage.getItem("hideEventPopup");
+      const today = new Date().toDateString();
+
+      if (hidden === today) {
+        setOpen(false);
+        return;
+      }
+
+      setOpen(true);
+      setLoading(true);
+
+      const data = await EventService.selectPopupList();
 
       const dataList = Array.isArray(data) ? data : [];
       const listWithImages = await Promise.all(
@@ -49,19 +67,17 @@ const EventPopup = () => {
       );
       if (listWithImages.length === 0) {
         setOpen(false);
+        setLoading(false);
         return;
       }
 
       const randomEvent =
         listWithImages[Math.floor(Math.random() * listWithImages.length)];
+      setImageLoaded(false);
       setRandom(randomEvent);
 
-      const hidden = localStorage.getItem("hideEventPopup");
-      const today = new Date().toDateString();
-
-      if (hidden !== today) {
-        setOpen(true);
-      }
+      setOpen(true);
+      setLoading(false);
     };
 
     fetchData();
@@ -75,18 +91,40 @@ const EventPopup = () => {
     setOpen(false);
   };
 
+  const popupImage = random?.logo?.result?.find(
+    (item) => item.img_tag === "THUMBNAIL",
+  )?.img_name;
+  const showSkeleton = loading || (popupImage && !imageLoaded);
+
   return (
-    <Dialog open={open}>
-      <img
-        src={
-          random?.logo?.result?.find((item) => item.img_tag === "THUMBNAIL")
-            ?.img_name
-        }
-        alt=""
-        onClick={() => handleNext(random.e_id)}
-      />
+    <Dialog
+      open={open}
+      PaperProps={{ className: "event-popup-dialog" }}
+    >
+      {showSkeleton && (
+        <SkeletonMui variant="eventPopup" />
+      )}
+
+      {!loading && popupImage && (
+        <div
+          className={`event-popup-content ${
+            imageLoaded ? "" : "event-popup-content-hidden"
+          }`}
+        >
+          <img
+            className="event-popup-image"
+            src={popupImage}
+            alt=""
+            onClick={() => handleNext(random.e_id)}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setOpen(false)}
+          />
+          <div className="event-popup-actions">
       <Button onClick={() => setOpen(false)}>닫기</Button>
       <Button onClick={() => handleClose(true)}>오늘 하루 보지 않기</Button>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 };

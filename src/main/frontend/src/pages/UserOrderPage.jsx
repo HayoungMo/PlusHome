@@ -5,8 +5,6 @@ import { Snackbar } from "@mui/material";
 import PaymentService from "../service/paymentService";
 import CartService from "../service/cartService";
 import FurnitureService from "../service/furnitureService";
-import FurnitureReviewService from "../service/furnitureReviewService";
-import OrderClaimService from "../service/orderClaimService";
 import ImageService from "../service/imageService";
 
 import Loading from "../components/Loading";
@@ -15,6 +13,7 @@ import DialogMui from "../components/DialogMui";
 
 import OrderClaimInfo from "./OrderClaimInfo";
 import OrderClaimModal from "./OrderClaimModal";
+import ImageViewer from "../components/ImageViewer";
 
 const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const navigate = useNavigate()
@@ -30,6 +29,82 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         title: "",
         text: "",
     });
+
+    const [reviewViewerOpen, setReviewViewerOpen] = useState(false);
+    const [reviewViewerImages, setReviewViewerImages] = useState([]);
+    const [reviewViewerIndex, setReviewViewerIndex] = useState(0);
+    const [reviewViewerInfo, setReviewViewerInfo] = useState({
+        title: "",
+        content: "",
+        date: "",
+        writer: "",
+        star: 0,
+        reply: null,
+    });
+
+    const openReviewViewer = async (item) => {
+        const review = item.review;
+
+        if (!review) {
+            navigate(`/furniture/article/${item.f_code}?tab=review`);
+            return;
+        }
+
+        const imageList = await ImageService.getImageData({
+            kind: "F_REVIEW",
+            a: item.c_code,
+            d: item.id,
+            idx: -1,
+        })
+
+        const images = (imageList || []).map((img) => ({
+            src: img.img_name?.startsWith("/api/")
+                ? img.img_name
+                : `/api/images/F_REVIEW/${img.img_name}`,
+            alt: review.fr_subject || "리뷰 이미지",
+        }));
+
+        setReviewViewerImages(
+            images.length > 0
+                ? images
+                : [{ src: "/no-image.png", alt: "리뷰 이미지 없음" }]
+        );
+
+        setReviewViewerIndex(0);
+        setReviewViewerInfo({
+            title: review.fr_subject || "제목 없음",
+            content: review.fr_content || "",
+            date: formatOrderDate(
+                review.fr_createdDate ||
+                review.fr_createddate ||
+                review.fr_date ||
+                review.createdAt
+            ),
+            writer: review.id || item.id || "",
+            star: review.fr_star || 0,
+            reply: review.reply || null,
+        });
+
+        setReviewViewerOpen(true);
+    };
+
+    const isClaimRejected = (item) => Number(item.claim_status) === -1;
+
+    const canShowClaimActions = (item) =>
+        [4, 6, -2].includes(Number(item.f_dstatus));
+
+    const canRequestExchange = (item) =>
+        canShowClaimActions(item) &&
+        (!item.claimed || isClaimRejected(item) || [6, -2].includes(Number(item.f_dstatus)));
+
+    const canRequestReturn = (item) =>
+        Number(item.f_dstatus) === 4 &&
+        (!item.claimed || isClaimRejected(item));
+
+    const canConfirmOrder = (item) =>
+        [4, 6, -2].includes(Number(item.f_dstatus)) &&
+        (!item.claimed || isClaimRejected(item));
+
     const [confirmDialog, setConfirmDialog] = useState({
         open: false,
         title: "",
@@ -271,6 +346,8 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
 
     const getStatusText = (status) => {
         switch (Number(status)) {
+            case -2:
+                return "반품 거절";
             case -1:
                 return "주문취소";
             case 0:
@@ -285,6 +362,8 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                 return "배송완료";
             case 5:
                 return "구매확정";
+            case 6:
+                return "교환 완료";
             default:
                 return "상태확인중";
         }
@@ -418,7 +497,10 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         try {
             setActionLoading(true)
 
-            await CartService.addCart({
+            console.log("다시담기 item", item)
+            console.log("다시담기 item.options", item.options)
+
+            const payload = {
                 cart: {
                     f_code: item.f_code,
                     f_count: item.f_count,
@@ -426,15 +508,19 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                     f_name: item.f_name || user?.name || "",
                     f_tel: item.f_tel || user?.tel || "",
                     f_price: item.f_price,
-                    f_point: item.f_point
+                    f_point: item.f_point,
                 },
-                options: (item.options || []).map(option => ({
+                options: (item.options || []).map((option) => ({
                     co_select: option.co_select,
                     co_text: option.co_text,
                     co_count: option.co_count || item.f_count,
-                    co_price: option.co_price
-                }))
-            });
+                    co_price: option.co_price || 0,
+                })),
+            };
+
+            console.log("다시담기 payload", JSON.stringify(payload, null, 2));
+
+            await CartService.addCart(payload);
 
             showAlert({
                 severity: "success",
@@ -442,13 +528,27 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                 text: "장바구니에 다시 담았습니다.",
             });
             navigate("/cart");
+
         } catch (error) {
             console.error("장바구니 담기 실패", error);
+
+            const errorMessage =
+                typeof error.response?.data === "string"
+                    ? error.response.data
+                    : error.response?.data?.message || "장바구니 담기에 실패했습니다.";
+
             showAlert({
                 severity: "error",
                 title: "담기 실패",
-                text: "장바구니 담기에 실패했습니다.",
+                text: errorMessage,
             });
+
+            if (errorMessage.includes("옵션")) {
+                setTimeout(() => {
+                    navigate(`/furniture/article/${item.f_code}`);
+                }, 1000);
+            }
+            
         } finally {
             setActionLoading(false)
         }
@@ -812,7 +912,17 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             </div>
 
                             <div style={{ display: "flex", gap: "8px" }}>
-                            {Number(item.f_dstatus) === -1 && (
+                            {Number(item.f_dstatus) === -1 && (() => {
+                                const hasOptions = (item.options || []).length > 0
+                                const isSoldOut = 
+                                    !hasOptions &&
+                                    Number(item.furniture?.f_count ?? item.f_count ?? 0) <= 0
+                                
+                                return isSoldOut ? (
+                                <button type="button" disabled>
+                                    품절
+                                </button>
+                                ) : (
                                 <button
                                     type="button"
                                     disabled={actionLoading}
@@ -820,7 +930,8 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 >
                                     다시 장바구니 담기
                                 </button>
-                            )}
+                                )
+                            })()}
 
                             {[0, 1].includes(Number(item.f_dstatus)) && (
                                 <button
@@ -832,13 +943,11 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 </button>
                             )}
 
-                            {Number(item.f_dstatus) === 4 && (
-                            item.claimed ? (
+                            {canShowClaimActions(item) && (
+                            item.claimed && !isClaimRejected(item) ? (
                                 <button type="button" disabled>
                                     {Number(item.claim_type) === 1 ? "교환" : "반품(환불)"}{" "}
-                                    {Number(item.claim_status) === -1
-                                        ? "거절"
-                                        : Number(item.claim_status) === 0
+                                    {Number(item.claim_status) === 0
                                         ? "신청완료"
                                         : Number(item.claim_status) === 1
                                         ? "접수완료"
@@ -850,13 +959,17 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 </button>
                             ) : (
                                 <>
-                                    <button type="button" onClick={() => openClaimModal(item, 1)}>
-                                        교환신청
-                                    </button>
+                                    {canRequestExchange(item) && (
+                                        <button type="button" onClick={() => openClaimModal(item, 1)}>
+                                            교환신청
+                                        </button>
+                                    )}
 
-                                    <button type="button" onClick={() => openClaimModal(item, 2)}>
-                                        반품/환불 신청
-                                    </button>
+                                    {canRequestReturn(item) && (
+                                        <button type="button" onClick={() => openClaimModal(item, 2)}>
+                                            반품/환불 신청
+                                        </button>
+                                    )}
                                 </>
                             )
                         )}
@@ -867,10 +980,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 </button>
                             )}
 
-                            {Number(item.f_dstatus) === 4 && 
-                            (!item.claimed || 
-                                Number(item.claim_status) === -1) 
-                            && (
+                            {canConfirmOrder(item) && (
                                 <button
                                     type="button"
                                     disabled={actionLoading}
@@ -891,7 +1001,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                             item.reviewed ? (
                                 <button
                                     type="button"
-                                    onClick={() => navigate(`/furniture/article/${item.f_code}`)}
+                                    onClick={() => openReviewViewer(item)}
                                     style={{
                                         background: "white",
                                         color: "black",
@@ -906,7 +1016,11 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 <button
                                     type="button"
                                     onClick={() => navigate(`/furniture/review/${item.f_code}`, {
-                                        state: { c_code: item.c_code }
+                                        state: {
+                                            c_code: item.c_code,
+                                            furniture: item.furniture,
+                                            thumbnail: item.thumbnail,
+                                        }
                                     })}
                                     style={{
                                         background: "black",
@@ -936,6 +1050,19 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                 onClose={closeClaimModal}
                 onSuccess={handleClaimSuccess}
                 onError={handleClaimError}
+            />
+
+            <ImageViewer
+                open={reviewViewerOpen}
+                images={reviewViewerImages}
+                startIndex={reviewViewerIndex}
+                title={reviewViewerInfo.title}
+                content={reviewViewerInfo.content}
+                date={reviewViewerInfo.date}
+                writer={reviewViewerInfo.writer}
+                star={reviewViewerInfo.star}
+                reply={reviewViewerInfo.reply}
+                onClose={() => setReviewViewerOpen(false)}
             />
 
         </div>

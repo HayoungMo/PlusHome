@@ -42,6 +42,8 @@ public class CartDTO {
 	private List<CartOptionDTO> options;
 	private FurnitureDTO furniture;
 	private boolean reviewed;
+	private FurnitureReviewDTO review;
+	
 	private boolean claimed;
 	private Integer claim_type;
 	private Integer claim_status;

@@ -133,6 +133,18 @@ const getSummary = async () =>{
     return res.data
 }
 
-const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode,insertCouponUser,getSummary };
+const getProductReviewStats = async(data)=>{
+    const res = await http.post("/dev/getProductReviewStats",data)
+
+    return res.data
+}
+
+const getInteriorCustomerStats = async(data)=>{
+    const res = await http.post("/dev/getInteriorCustomerStats",data)
+
+    return res.data
+}
+
+const userService = { userGetAll,deleteUser,restoreUser,updateUser,updateCompany, getCatagoryStatistics,sendCode,checkCode,insertCouponUser,getSummary,getProductReviewStats,getInteriorCustomerStats };
 
 export default userService;

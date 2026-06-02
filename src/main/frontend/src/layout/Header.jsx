@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { GiShoppingCart } from "react-icons/gi";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import WidgetsIcon from "@mui/icons-material/Widgets";
+import { GiPartyPopper } from "react-icons/gi";
+import { FcCloseUpMode } from "react-icons/fc";
 
 const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 	const navigate = useNavigate();
@@ -90,14 +92,15 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 				</form>
 
 				<div className="shop-user">
-					<Link
-						to="/event"
-						className="shop-icon-link"
-						title="Event"
+					<Link 
+						to="/event" 
+						className="shop-icon-link" 
+						title="Event" 
 						aria-label="Event"
 					>
-						<EventAvailableIcon fontSize="medium" />
+  						<FcCloseUpMode size={24}/>
 					</Link>
+
 
 					<Link
 						to="/component"

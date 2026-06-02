@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
@@ -14,6 +14,9 @@ import {
     Stack,
         } from '@mui/material';
 import {
+    customCategoryValue,
+    furnitureCategoryFields,
+    furnitureCategoryLabels,
     furnitureCategoryOptions,
     getFurnitureCategoryCode,
     getFurnitureCategoryTitle,
@@ -32,7 +35,11 @@ const SearchPage = () => {
     const page = Number(searchParams.get("page")|| 1 );
     
     //URL 필터값 읽기
-    const category = searchParams.get("category") || "";
+    const f_catagory1 = searchParams.get("f_catagory1") || "";
+    const f_catagory2 = searchParams.get("f_catagory2") || "";
+    const f_catagory3 = searchParams.get("f_catagory3") || "";
+    const f_catagory4 = searchParams.get("f_catagory4") || "";
+    const f_catagory5 = searchParams.get("f_catagory5") || "";
     const priceRange = searchParams.get("priceRange") || "";
     const discount = searchParams.get("discount") || "";
     const freeDelivery = searchParams.get("freeDelivery") || "";
@@ -46,12 +53,18 @@ const SearchPage = () => {
     const budget = searchParams.get("budget") || "";
 
     //필터 임시 state
-    const [draftFurnitureFilter, setDraftFurnitureFilter] = useState({
-        category,
+    const appliedFurnitureFilter = {
+        f_catagory1,
+        f_catagory2,
+        f_catagory3,
+        f_catagory4,
+        f_catagory5,
         priceRange,
         discount,
         freeDelivery,
-    });
+    };
+
+    const [draftFurnitureFilter, setDraftFurnitureFilter] = useState(appliedFurnitureFilter);
 
     const [draftInteriorFilter, setDraftInteriorFilter] = useState({
         interiorRegion,
@@ -64,13 +77,17 @@ const SearchPage = () => {
 
     //url이 바뀌면 임시 필터도 맞춰줘야함
     useEffect(() => {
-        setDraftFurnitureFilter({
-            category,
-            priceRange,
-            discount,
-            freeDelivery,
-        });
-    }, [category, priceRange, discount, freeDelivery]);
+        setDraftFurnitureFilter(appliedFurnitureFilter);
+    }, [
+        f_catagory1,
+        f_catagory2,
+        f_catagory3,
+        f_catagory4,
+        f_catagory5,
+        priceRange,
+        discount,
+        freeDelivery,
+    ]);
 
     useEffect(() => {
         setDraftInteriorFilter({
@@ -159,7 +176,24 @@ const SearchPage = () => {
     //검색 실행 의존성 useEffect 입니다. 지우지마
     useEffect(() => {
         getSearchResult();
-    }, [keyword, type, category, priceRange, discount, freeDelivery,interiorRegion, housingType, areaSize, purpose, spaces, budget]);
+    }, [
+        keyword,
+        type,
+        f_catagory1,
+        f_catagory2,
+        f_catagory3,
+        f_catagory4,
+        f_catagory5,
+        priceRange,
+        discount,
+        freeDelivery,
+        interiorRegion,
+        housingType,
+        areaSize,
+        purpose,
+        spaces,
+        budget,
+    ]);
 
     //검색 조건 바뀔 때 캐러셀 초기화 추가
     useEffect(() => {
@@ -168,7 +202,19 @@ const SearchPage = () => {
             interior: 0,
             freeBoard: 0,
         });
-    },[keyword, type, category, priceRange, discount, freeDelivery, interiorRegion]);
+    },[
+        keyword,
+        type,
+        f_catagory1,
+        f_catagory2,
+        f_catagory3,
+        f_catagory4,
+        f_catagory5,
+        priceRange,
+        discount,
+        freeDelivery,
+        interiorRegion,
+    ]);
 
     const priceOptions = [
         { value: "", title: "전체 가격" },
@@ -257,15 +303,19 @@ const SearchPage = () => {
     ];
 
     //검색 필터 정리
-    const furnitureFilterGroups = [
-        {
-            key: "category",
-            label: "카테고리",
-            options: furnitureCategoryOptions.f_catagory1.map((item) => ({
+    const categoryFilterGroups = furnitureCategoryFields.map((field) => ({
+        key: field,
+        label: furnitureCategoryLabels[field],
+        options: (furnitureCategoryOptions[field] || [])
+            .filter((item) => item.value !== customCategoryValue)
+            .map((item) => ({
                 value: item.value,
                 title: item.title,
             })),
-        },
+    }));
+
+    const furnitureFilterGroups = [
+        ...categoryFilterGroups,
         {
             key: "priceRange",
             label: "가격",
@@ -367,8 +417,13 @@ const SearchPage = () => {
                 item.f_deliveryPrice ?? item.f_deliveryprice ?? 0
             );
 
-            const matchCategory =
-                !category || getFurnitureCategoryCode(item.f_catagory1) === category;
+            const matchCategories = furnitureCategoryFields.every((field) => {
+                const selectedValue = appliedFurnitureFilter[field];
+
+                if (!selectedValue) return true;
+
+                return getFurnitureCategoryCode(item[field]) === selectedValue;
+            });
 
 
             const matchMinPrice =
@@ -384,7 +439,7 @@ const SearchPage = () => {
                 freeDelivery !== "Y" || price >= 50000 || deliveryPrice === 0;
 
             return (
-                matchCategory &&
+                matchCategories &&
                 matchMinPrice &&
                 matchMaxPrice &&
                 matchDiscount &&
@@ -556,7 +611,11 @@ const SearchPage = () => {
             keyword: keyword.trim(),
             type,
             page: nextPage,
-            category,
+            f_catagory1,
+            f_catagory2,
+            f_catagory3,
+            f_catagory4,
+            f_catagory5,
             priceRange,
             discount,
             freeDelivery,
@@ -916,7 +975,11 @@ const SearchPage = () => {
                                     onChange={setDraftFurnitureFilter}
                                     onReset={() =>
                                         setDraftFurnitureFilter({
-                                            category: "",
+                                            f_catagory1: "",
+                                            f_catagory2: "",
+                                            f_catagory3: "",
+                                            f_catagory4: "",
+                                            f_catagory5: "",
                                             priceRange: "",
                                             discount: "",
                                             freeDelivery: "",

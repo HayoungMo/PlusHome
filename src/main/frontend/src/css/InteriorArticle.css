@@ -250,6 +250,12 @@
   padding: 16px;
 }
 
+.interior-article-ai-skeleton {
+  display: grid;
+  gap: 6px;
+  padding: 2px 0;
+}
+
 .review-customer-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
