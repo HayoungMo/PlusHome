@@ -1,67 +1,112 @@
 .interior-review-page {
-  max-width: 900px;
-  min-height: calc(100vh - 160px);
-  margin: 0 auto;
-  padding: 40px 24px 64px;
-  color: #1f2937;
+  min-height: calc(100vh - 140px);
+  padding: 44px 24px 68px;
+  background: #f6fbff;
+  color: #2f3438;
+  box-sizing: border-box;
 }
 
 .interior-review-card {
-  padding: 28px;
-  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 880px);
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid #d9edf8;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(38, 92, 135, 0.1);
+  overflow: hidden;
 }
 
 .interior-review-header {
-  margin-bottom: 24px;
+  order: 1;
+  padding: 26px 30px 22px;
+  border-bottom: 1px solid #e7f2f8;
+  background:
+    linear-gradient(90deg, #eef9ff 0, #ffffff 64%),
+    #ffffff;
 }
 
 .interior-review-header h2 {
   margin: 0 0 8px;
+  color: #1f2f3a;
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.3;
+  letter-spacing: 0;
 }
 
 .interior-review-header p {
+  max-width: 620px;
   margin: 0;
-  color: #6b7280;
+  color: #60727f;
   font-size: 15px;
-  line-height: 1.6;
+  font-weight: 700;
+  line-height: 1.65;
 }
 
 .interior-review-form {
-  margin-bottom: 28px;
+  order: 5;
+  padding: 8px 30px 30px;
 }
 
 .interior-review-field {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
 }
 
 .interior-review-field .MuiFormControl-root {
-  flex: 1 1 420px;
+  width: 100%;
+  margin: 0;
+}
+
+.interior-review-field .MuiInputBase-root {
+  border-radius: 8px;
+  background: #fbfdff;
+  align-items: flex-start;
+}
+
+.interior-review-field textarea {
+  line-height: 1.65;
 }
 
 .interior-review-field button,
 .interior-review-upload-form button {
-  min-height: 40px;
+  min-height: 44px;
+  border-radius: 8px;
+  font-weight: 900;
   white-space: nowrap;
+  box-shadow: none;
+}
+
+.interior-review-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.interior-review-actions .MuiButton-root {
+  min-width: 96px;
+}
+
+.interior-review-card > p {
+  order: 2;
+  margin: 28px 30px 12px;
+  color: #1f2f3a;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .interior-review-upload {
-  padding-top: 24px;
-  border-top: 1px solid #eef2f7;
-}
-
-.interior-review-upload p {
-  margin: 0 0 12px;
-  font-size: 18px;
-  font-weight: 800;
+  order: 3;
+  margin: 0 30px;
+  padding: 22px;
+  border: 1px dashed #acd8f0;
+  border-radius: 8px;
+  background: #f7fbfd;
 }
 
 .interior-review-upload-form {
@@ -71,31 +116,64 @@
   align-items: center;
 }
 
+.interior-review-upload-form::after {
+  content: "첫 번째 이미지는 대표 이미지로 등록됩니다.";
+  color: #60727f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .interior-review-preview-grid {
+  order: 4;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 14px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 22px 30px 18px;
+}
+
+.interior-review-preview-item {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d9edf8;
+  border-radius: 8px;
+  background: #edf3f7;
+  box-shadow: 0 8px 18px rgba(38, 92, 135, 0.08);
 }
 
 .interior-review-preview-image {
+  display: block;
   width: 100%;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  background: #f3f4f6;
+  aspect-ratio: 16 / 11;
   object-fit: cover;
 }
 
-@media (max-width: 768px) {
-  .interior-review-page {
-    padding: 28px 16px 48px;
-  }
+.interior-review-preview-delete.MuiButton-root {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  min-width: 64px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
 
-  .interior-review-card {
-    padding: 20px;
-  }
+.interior-review-preview-grid:empty {
+  display: block;
+  min-height: 110px;
+  margin: 22px 30px 30px;
+  padding: 34px 20px;
+  border: 1px solid #e7f2f8;
+  border-radius: 8px;
+  background: #fbfdff;
+  text-align: center;
+}
 
-  .interior-review-header h2 {
-    font-size: 24px;
-  }
+.interior-review-preview-grid:empty::before {
+  content: "아직 추가된 이미지가 없습니다.";
+  color: #8a9aa5;
+  font-size: 14px;
+  font-weight: 800;
 }

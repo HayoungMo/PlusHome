@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import UserBookingLists from "./UserBookingLists";
 import InteriorMyReview from "./InteriorMyReview";
 import { useNavigate } from "react-router-dom";
-import { Tabs, Tab, Box } from "@mui/material";
+import { Tabs, Tab, Box, Button } from "@mui/material";
 import LikeService from "../service/likeService";
 import GetImgDir from "../resources/function/GetImgDir";
 import "../css/InteriorMyPage.css";
@@ -10,26 +10,53 @@ import "../css/InteriorMyPage.css";
 const InteriorMyPage = ({ user }) => {
   const navigate = useNavigate();
   const [likes, setLikes] = useState([]);
-  	const localUserData = localStorage.getItem("user");
-    const userData = JSON.parse(localUserData);
-    const {
-      addr,
-      birth,
-      code,
-      email,
-      gender,
-      id,
-      name,
-      tel,
-      type,
-      companyList = [],
-    } = userData;
+  const localUserData = localStorage.getItem("user");
+  const userData = JSON.parse(localUserData);
+  const {
+    addr,
+    birth,
+    code,
+    email,
+    gender,
+    id,
+    name,
+    tel,
+    type,
+    companyList = [],
+  } = userData;
 
   const handleNext = (data) => {
     navigate("/interior/article", {
       state: { company: data },
     });
   };
+
+  const onToggleLike = (company) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+
+    LikeService.toggleInteriorLike(
+      company.c_id + "_" + company.c_name + "_" + company.c_kind,
+    )
+      .then((res) => {
+        setLikes(res.data?.liked || false);
+      })
+      .catch((error) => {
+        console.error("찜 처리 실패", error);
+        alert("찜 처리에 실패했습니다.");
+      });
+  };
+
+  const likesAllDelete = async() =>{
+    await likes.map((item)=>{
+      onToggleLike(item);
+    })
+  }
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -94,6 +121,12 @@ const InteriorMyPage = ({ user }) => {
           <div className="interior-wishlist-panel">
             {Array.isArray(likes) && likes.length > 0 ? (
               <div className="interior-wishlist-grid">
+                <Button
+                  className="interior-wishlist-delete-all"
+                  onClick={() => likesAllDelete()}
+                >
+                  찜목록 모두 삭제
+                </Button>
                 {likes.map((item, idx) => {
                   const profileImage = item?.logo?.result?.find(
                     (image) => image.img_tag === "LOGO",
@@ -123,9 +156,11 @@ const InteriorMyPage = ({ user }) => {
                 })}
               </div>
             ) : (
-              <p className="interior-wishlist-empty">
-                찜 목록에 업체가 없습니다
-              </p>
+              <>
+                <p className="interior-wishlist-empty">
+                  찜 목록에 업체가 없습니다
+                </p>
+              </>
             )}
           </div>
         )}
