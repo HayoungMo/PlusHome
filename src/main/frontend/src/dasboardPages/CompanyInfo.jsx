@@ -329,7 +329,9 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 			setSelectedCompany(
 				reloadResult.companyList.find(
 					(company) => makeCompanyKey(company) === makeCompanyKey(addForm),
-				) || reloadResult.companyList[0] || null,
+				) ||
+					reloadResult.companyList[0] ||
+					null,
 			);
 
 			if (logoError) {
@@ -356,7 +358,11 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 
 	const handleSaveCompany = async () => {
 		if (!selectedCompany) {
-			showAlert({ severity: "warning", title: "선택 확인", text: "수정할 업체를 선택하세요." });
+			showAlert({
+				severity: "warning",
+				title: "선택 확인",
+				text: "수정할 업체를 선택하세요.",
+			});
 			return;
 		}
 
@@ -390,7 +396,9 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 					const imageResult = await updateCompanyLogo();
 					if (imageResult?.success === false || imageResult?.data?.success === false) {
 						logoError = new Error(
-							imageResult?.message || imageResult?.data?.message || "Logo update failed",
+							imageResult?.message ||
+								imageResult?.data?.message ||
+								"Logo update failed",
 						);
 					}
 				} catch (error) {
@@ -434,7 +442,11 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 
 	const handleDeleteCompany = async () => {
 		if (!selectedCompany) {
-			showAlert({ severity: "warning", title: "선택 확인", text: "삭제할 업체를 선택하세요." });
+			showAlert({
+				severity: "warning",
+				title: "선택 확인",
+				text: "삭제할 업체를 선택하세요.",
+			});
 			return;
 		}
 
@@ -477,7 +489,11 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 
 	const startEdit = () => {
 		if (!selectedCompany) {
-			showAlert({ severity: "warning", title: "선택 확인", text: "수정할 업체를 선택하세요." });
+			showAlert({
+				severity: "warning",
+				title: "선택 확인",
+				text: "수정할 업체를 선택하세요.",
+			});
 			return;
 		}
 
@@ -539,7 +555,11 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 				<div className="dashboard-company-summary">
 					<Chip label={`전체 ${companyList.length}개`} variant="outlined" />
 					<Chip label={`쇼핑몰 ${shopCount}개`} color="primary" variant="outlined" />
-					<Chip label={`인테리어 ${interiorCount}개`} color="secondary" variant="outlined" />
+					<Chip
+						label={`인테리어 ${interiorCount}개`}
+						color="secondary"
+						variant="outlined"
+					/>
 				</div>
 			</section>
 
@@ -549,11 +569,15 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 					<span>로그인한 기업 회원의 기본 정보입니다.</span>
 				</div>
 				<div className="dashboard-company-account-grid">
-					<TextFieldMui label="아이디" value={id} disabled />
-					<TextFieldMui label="이름" value={name} disabled />
-					<TextFieldMui label="개인주소" value={addr} disabled />
-					<TextFieldMui label="개인연락처" value={tel} disabled />
-					<TextFieldMui label="이메일" value={email} disabled />
+					<div className="dashboard-company-account-row">
+						<TextFieldMui label="아이디" value={id} disabled width="180px" />
+						<TextFieldMui label="이름" value={name} disabled width="180px" />
+						<TextFieldMui label="개인연락처" value={tel} disabled width="180px" />
+						<TextFieldMui label="이메일" value={email} disabled width="270px" />
+					</div>
+					<div className="dashboard-company-account-row">
+						<TextFieldMui label="개인주소" value={addr} disabled width="100%" />
+					</div>
 				</div>
 			</section>
 
@@ -565,23 +589,23 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 				<div className="dashboard-company-toolbar">
 					<Button
 						variant={tabValue === "all" ? "contained" : "outlined"}
-						onClick={() => handleTabChange("all")}
-					>
+						onClick={() => handleTabChange("all")}>
 						전체
 					</Button>
 					<Button
 						variant={tabValue === "shop" ? "contained" : "outlined"}
-						onClick={() => handleTabChange("shop")}
-					>
+						onClick={() => handleTabChange("shop")}>
 						쇼핑몰
 					</Button>
 					<Button
 						variant={tabValue === "interior" ? "contained" : "outlined"}
-						onClick={() => handleTabChange("interior")}
-					>
+						onClick={() => handleTabChange("interior")}>
 						인테리어
 					</Button>
-					<Button color="success" variant="contained" onClick={() => openAddPanel(tabValue === "all" ? "" : tabValue)}>
+					<Button
+						color="success"
+						variant="contained"
+						onClick={() => openAddPanel(tabValue === "all" ? "" : tabValue)}>
 						사업체 등록
 					</Button>
 				</div>
@@ -599,7 +623,9 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 				) : (
 					<div className="dashboard-company-empty">
 						<p>등록된 사업체 데이터가 없습니다.</p>
-						<Button variant="contained" onClick={() => openAddPanel(tabValue === "all" ? "" : tabValue)}>
+						<Button
+							variant="contained"
+							onClick={() => openAddPanel(tabValue === "all" ? "" : tabValue)}>
 							등록하기
 						</Button>
 					</div>
@@ -617,9 +643,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 							{selectedLogoSrc ? (
 								<img src={selectedLogoSrc} alt="업체 로고" />
 							) : (
-								<div className="dashboard-company-logo-empty">
-									Logo
-								</div>
+								<div className="dashboard-company-logo-empty">Logo</div>
 							)}
 							<div className="dashboard-company-profile-text">
 								<strong>{selectedCompany.c_name}</strong>
@@ -628,15 +652,14 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 							</div>
 						</div>
 
-						<div className="dashboard-company-form-grid">
-							<TextFieldMui name="c_name" label="업체명" value={editForm.c_name || ""} disabled />
-							<TextFieldMui name="c_kind" label="업체 구분" value={editForm.c_kind || ""} disabled />
+						<div className="dashboard-company-form-grid dashboard-company-detail-fields">
 							<TextFieldMui
 								name="c_tel"
 								label="전화번호"
 								value={editForm.c_tel || ""}
 								disabled={!isEditing}
 								onChange={isEditing ? handleEditFormChange : undefined}
+								width="180px"
 							/>
 							<TextFieldMui
 								name="c_addr"
@@ -644,13 +667,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 								value={editForm.c_addr || ""}
 								disabled={!isEditing}
 								onChange={isEditing ? handleEditFormChange : undefined}
-							/>
-							<TextFieldMui
-								name="c_info"
-								label="소개"
-								value={editForm.c_info || ""}
-								disabled={!isEditing}
-								onChange={isEditing ? handleEditFormChange : undefined}
+								width="250px"
 							/>
 							<TextFieldMui
 								name="c_boss"
@@ -658,17 +675,38 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 								value={editForm.c_boss || ""}
 								disabled={!isEditing}
 								onChange={isEditing ? handleEditFormChange : undefined}
+								width="180px"
+							/>
+							<TextFieldMui
+								name="c_info"
+								label="소개"
+								value={editForm.c_info || ""}
+								disabled={!isEditing}
+								onChange={isEditing ? handleEditFormChange : undefined}
+								multiline
+								rows={5}
+								width="640px"
 							/>
 						</div>
 
 						<div className="dashboard-company-actions">
 							{isEditing ? (
 								<>
-									<Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+									<Button
+										component="label"
+										variant="contained"
+										startIcon={<CloudUploadIcon />}>
 										로고 변경
-										<input type="file" hidden onChange={handleUpdateLogoChange} />
+										<input
+											type="file"
+											hidden
+											onChange={handleUpdateLogoChange}
+										/>
 									</Button>
-									<Button color="primary" variant="contained" onClick={() => setSaveConfirmOpen(true)}>
+									<Button
+										color="primary"
+										variant="contained"
+										onClick={() => setSaveConfirmOpen(true)}>
 										저장
 									</Button>
 									<Button color="inherit" variant="outlined" onClick={cancelEdit}>
@@ -680,7 +718,10 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 									<Button color="primary" variant="contained" onClick={startEdit}>
 										수정
 									</Button>
-									<Button color="error" variant="contained" onClick={() => setDeleteConfirmOpen(true)}>
+									<Button
+										color="error"
+										variant="contained"
+										onClick={() => setDeleteConfirmOpen(true)}>
 										삭제
 									</Button>
 								</>
@@ -742,7 +783,12 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 						/>
 						<Button variant="contained" color="secondary" component="label">
 							로고 등록
-							<input type="file" hidden name="logoFileInput" onChange={handleAddLogoChange} />
+							<input
+								type="file"
+								hidden
+								name="logoFileInput"
+								onChange={handleAddLogoChange}
+							/>
 						</Button>
 					</div>
 					{addLogoPreview && (

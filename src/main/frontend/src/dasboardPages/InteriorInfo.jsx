@@ -95,21 +95,20 @@ const InteriorInfo = () => {
     }
   };
 
-  const interiorControlButtonGroupList = [
-    { title: "조회", onClick: () => handleTabChange("info") },
-    {
-      title: "등록",
-      onClick: () => {
-        handleTabChange("add");
-      },
-    },
-    {
-      title: "수정 / 삭제",
-      onClick: () => {
-        handleTabChange("update");
-      },
-    },
-  ];
+	const interiorControlButtonGroupList = [
+		{
+			title: "등록",
+			onClick: () => {
+				handleTabChange("add");
+			},
+		},
+		{
+			title: "수정 / 삭제",
+			onClick: () => {
+				handleTabChange("update");
+			},
+		},
+	];
 
   useEffect(() => {
     if (!selectedCompany) return setInteriorDisplayList([]);

@@ -604,7 +604,7 @@ const UserQuestionPage = ({ user, setQuestionCount }) => {
                         </div>
 
                         {filteredQuestions.length === 0 ? (
-                            <p className="uq-empty">해당하는 문의가 없습니다.</p>
+                            <p className="uq-empty">작성한 문의 내역이 없습니다.</p>
                         ) : (
                           <table className="uq-table">
                             <thead>

@@ -479,6 +479,9 @@ const InteriorDashboard = () => {
 
 	const [selectedInteriorName, setSelectedInteriorName] = useState("all");
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedSelectedInteriorName, setAppliedSelectedInteriorName] = useState("all");
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
+	const [searchKey, setSearchKey] = useState(0);
 	const [activeDashboardTab, setActiveDashboardTab] = useState("summary");
 	const [loading, setLoading] = useState(false);
 	const [dashboardData, setDashboardData] = useState({});
@@ -487,6 +490,10 @@ const InteriorDashboard = () => {
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 	const dashboardFilterList = useMemo(
 		() => [
 			{
@@ -508,12 +515,12 @@ const InteriorDashboard = () => {
 		() => ({
 			c_id: id,
 			c_kind: "interior",
-			c_name: selectedInteriorName,
+			c_name: appliedSelectedInteriorName,
 			period: "all",
-			startDate: dateRange.startDate,
-			endDate: dateRange.endDate,
+			startDate: appliedDateRange.startDate,
+			endDate: appliedDateRange.endDate,
 		}),
-		[id, selectedInteriorName, dateRange.startDate, dateRange.endDate],
+		[id, appliedSelectedInteriorName, appliedDateRange.startDate, appliedDateRange.endDate],
 	);
 
 	const fetchDashboardData = useCallback(async () => {
@@ -527,7 +534,7 @@ const InteriorDashboard = () => {
 			return;
 		}
 
-		if (isDateRangeInvalid) {
+		if (isAppliedDateRangeInvalid) {
 			setDashboardData({
 				error: {
 					success: false,
@@ -570,15 +577,21 @@ const InteriorDashboard = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [id, requestDto, isDateRangeInvalid]);
+	}, [id, requestDto, isAppliedDateRangeInvalid]);
 
 	const handleDashboardFilterChange = (nextValue) => {
 		setSelectedInteriorName(nextValue.c_name || "all");
 	};
 
+	const handleSearch = () => {
+		setAppliedSelectedInteriorName(selectedInteriorName);
+		setAppliedDateRange(dateRange);
+		setSearchKey((prev) => prev + 1);
+	};
+
 	useEffect(() => {
 		fetchDashboardData();
-	}, [fetchDashboardData]);
+	}, [fetchDashboardData, searchKey]);
 
 	const stats = useMemo(() => {
 		const bookingOverview = unwrap(dashboardData.bookingOverview, {});
@@ -607,13 +620,14 @@ const InteriorDashboard = () => {
 		const riskList = unwrap(dashboardData.riskList, []);
 
 		const selectedProfile =
-			selectedInteriorName === "all"
+			appliedSelectedInteriorName === "all"
 				? aggregateProfileCompletion(profileCompletion)
-				: profileCompletion.find((item) => item.cName === selectedInteriorName) || {};
+				: profileCompletion.find((item) => item.cName === appliedSelectedInteriorName) ||
+					{};
 		const selectedInterest =
-			selectedInteriorName === "all"
+			appliedSelectedInteriorName === "all"
 				? aggregateInterest(interest)
-				: interest.find((item) => item.cName === selectedInteriorName) || {};
+				: interest.find((item) => item.cName === appliedSelectedInteriorName) || {};
 
 		const housingRows = answerType.filter((item) => item.answerType === "housingType");
 		const purposeRows = answerType.filter((item) => item.answerType === "purpose");
@@ -954,7 +968,7 @@ const InteriorDashboard = () => {
 				},
 			],
 		};
-	}, [dashboardData, selectedInteriorName]);
+	}, [dashboardData, appliedSelectedInteriorName]);
 
 	const isInitialLoading = loading && !hasAnyResponse(dashboardData);
 	const cardStatusProps = { loading, responses: dashboardData };
@@ -968,13 +982,17 @@ const InteriorDashboard = () => {
 				</div>
 				<div className="interior-dashboard-summary">
 					<Chip
-						label={selectedInteriorName === "all" ? "전체 업체" : selectedInteriorName}
+						label={
+							appliedSelectedInteriorName === "all"
+								? "전체 업체"
+								: appliedSelectedInteriorName
+						}
 						variant="outlined"
 					/>
 					<Chip
 						label={
-							dateRange.startDate || dateRange.endDate
-								? `${dateRange.startDate || "시작일"} ~ ${dateRange.endDate || "종료일"}`
+							appliedDateRange.startDate || appliedDateRange.endDate
+								? `${appliedDateRange.startDate || "시작일"} ~ ${appliedDateRange.endDate || "종료일"}`
 								: "전체 기간"
 						}
 						variant="outlined"
@@ -1004,8 +1022,8 @@ const InteriorDashboard = () => {
 						className="interior-dashboard-date-range"
 					/>
 
-					<Button variant="contained" onClick={fetchDashboardData} disabled={loading}>
-						{loading ? "불러오는 중" : "새로고침"}
+					<Button variant="contained" onClick={handleSearch} disabled={loading}>
+						{loading ? "불러오는 중" : "검색"}
 					</Button>
 				</div>
 			</section>

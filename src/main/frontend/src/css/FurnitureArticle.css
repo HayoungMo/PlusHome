@@ -1,7 +1,7 @@
 .furniture-article-page {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 28px 20px 64px;
+  padding: 1px 20px 64px;
   color: #111827;
 }
 
@@ -14,10 +14,6 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
-}
-
-.furniture-article-gallery {
-  min-width: 0;
 }
 
 .furniture-image-area {
@@ -55,7 +51,6 @@
 }
 
 .furniture-main-image-wrap {
-  position: relative;
   overflow: hidden;
   border-radius: 8px;
   background: #f6f7f8;
@@ -70,45 +65,75 @@
 
 .furniture-article-info {
   min-width: 0;
-  padding-top: 2px;
+  padding-top: 4px;
 }
 
 .furniture-article-info-top {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
   align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+}
+
+.furniture-article-info-top > div:first-child {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
 }
 
 .furniture-company-name {
-  margin: 2px 0 6px;
-  color: #6b7280;
-  font-size: 14px;
+  display: block;
+  margin: 0 0 4px;
   text-align: left;
+  color: #6b7280;
+  font-size: 13px;
 }
 
 .furniture-article-info h2 {
   margin: 0;
-  color: #111827;
-  font-size: 25px;
-  line-height: 1.35;
-  font-weight: 900;
   text-align: left;
+  color: #020617;
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 900;
 }
 
 .furniture-article-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.furniture-article-actions button {
+.article-icon-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  cursor: pointer;
+}
+
+.article-icon-action svg {
+  width: 22px;
+  height: 22px;
+}
+
+.article-icon-action.active-like {
+  color: #ef4444;
+}
+
+.manager-action-btn {
+  display: inline-flex;
+  align-items: center;
   gap: 5px;
-  height: 34px;
-  padding: 0 11px;
+  height: 32px;
+  padding: 0 10px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   background: #fff;
@@ -118,79 +143,84 @@
   cursor: pointer;
 }
 
+.manager-action-btn.danger {
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
 .furniture-article-actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.furniture-article-actions .danger {
-  border-color: #fecaca;
-  color: #ef4444;
-}
-
-.furniture-article-actions .active-like {
-  color: #ef4444;
-  border-color: #fecaca;
-  background: #fff5f5;
-}
-
 .furniture-review-line {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  margin-top: 10px;
-  color: #4b5563;
-  font-size: 13px;
+  gap: 7px;
+  margin-top: 12px;
 }
 
 .furniture-review-line .stars {
-  color: #008cff;
-  letter-spacing: 1px;
+  display: inline-flex;
+  gap: 1px;
+  color: #cbd5e1;
+  font-size: 18px;
+  line-height: 1;
 }
 
-.furniture-review-line strong {
-  color: #111827;
+.furniture-review-line .stars span.active {
+  color: #008cff;
 }
 
 .furniture-review-line button {
+  padding: 0;
   border: 0;
   background: transparent;
-  color: #6b7280;
+  color: #008cff;
   font-size: 13px;
+  font-weight: 900;
   cursor: pointer;
 }
 
 .furniture-price-area {
-  margin-top: 24px;
-  text-align: right;
+  margin-top: 10px;
+  text-align: left;
 }
 
-.furniture-price-area > strong {
-  display: block;
-  color: #111827;
-  font-size: 30px;
-  line-height: 1.1;
-  font-weight: 900;
-}
-
-.furniture-price-area div {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
+.furniture-price-sub {
+  margin-bottom: 2px;
 }
 
 .original-price {
-  color: #9ca3af;
+  color: #b5bdc7;
   font-size: 14px;
   text-decoration: line-through;
 }
 
-.discount-rate {
+.furniture-price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.furniture-price-main strong {
+  color: #020617;
+  font-size: 31px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.furniture-price-main span {
+  color: #020617;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.furniture-price-main em {
+  margin-left: 8px;
   color: #ef4444;
   font-size: 14px;
+  font-style: normal;
   font-weight: 900;
 }
 
@@ -201,14 +231,16 @@
   gap: 14px;
   margin-top: 20px;
   padding: 14px 16px;
-  border-radius: 7px;
-  background: #f8fafc;
+  border: 1px solid #eef2f6;
+  border-radius: 8px;
+  background: #fbfcfd;
 }
 
 .furniture-coupon-box strong {
   display: block;
   color: #111827;
   font-size: 14px;
+  text-align: left;
 }
 
 .furniture-coupon-box span {
@@ -216,12 +248,13 @@
   margin-top: 3px;
   color: #6b7280;
   font-size: 12px;
+  text-align: left;
 }
 
 .furniture-coupon-box button {
   height: 34px;
   padding: 0 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e1e6ec;
   border-radius: 6px;
   background: #fff;
   color: #111827;
@@ -230,37 +263,78 @@
   cursor: pointer;
 }
 
+.furniture-coupon-box.disabled {
+  justify-content: flex-start;
+  background: #fafafa;
+}
+
+.furniture-coupon-box.disabled strong {
+  color: #6b7280;
+}
+
+.furniture-coupon-box.disabled span {
+  color: #9ca3af;
+}
+
 .furniture-benefit-list {
   display: grid;
-  gap: 14px;
-  margin-top: 22px;
-  padding: 0;
+  width: 268px;
+  margin-top: 18px;
+  margin-left: 40px;
+  border-top: 1px solid #eef2f6;
+  border-bottom: 1px solid #eef2f6;
 }
 
 .furniture-benefit-item {
   display: grid;
-  grid-template-columns: 28px 1fr;
-  gap: 10px;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
   align-items: center;
+  min-height: 64px;
+  padding: 11px 0;
 }
 
-.furniture-benefit-item svg {
-  width: 22px;
-  height: 22px;
-  color: #111827;
+.furniture-benefit-item + .furniture-benefit-item {
+  border-top: 1px solid #eef2f6;
 }
 
-.furniture-benefit-item strong {
+.benefit-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.benefit-icon svg {
+  font-size: 24px !important;
+}
+
+.benefit-copy {
+  min-width: 0;
+  text-align: left;
+}
+
+.benefit-copy span {
   display: block;
-  color: #111827;
-  font-size: 14px;
+  margin-bottom: 1px;
+  color: #8b95a1;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 700;
 }
 
-.furniture-benefit-item span {
+.benefit-copy strong {
+  font-size: 15px;
+}
+
+.benefit-copy small {
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
   color: #6b7280;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 .furniture-soldout-box {
@@ -274,7 +348,7 @@
 }
 
 .furniture-option-area {
-  margin-top: 22px;
+  margin-top: 24px;
   padding-top: 18px;
   border-top: 1px solid #e5e7eb;
 }
@@ -285,54 +359,96 @@
   margin-bottom: 10px;
 }
 
+.furniture-option-set.quantity-only {
+  margin-bottom: 0;
+}
+
 .furniture-option-set select {
   width: 100%;
   height: 48px;
-  padding: 0 14px;
+  padding: 0 42px 0 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  background: #fff;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23111827' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px 14px;
   color: #111827;
   font-size: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .furniture-quantity-row {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
-.furniture-quantity-row button {
-  min-width: 34px;
+.furniture-quantity-stepper {
+  display: inline-grid;
+  grid-template-columns: 30px 34px 30px;
+  align-items: center;
   height: 34px;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 4px;
   background: #fff;
+  overflow: hidden;
+}
+
+.furniture-quantity-stepper button {
+  width: 30px;
+  height: 32px;
+  border: 0;
+  background: transparent;
   color: #111827;
-  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 400;
   cursor: pointer;
 }
 
-.furniture-quantity-row span {
-  min-width: 28px;
+.furniture-quantity-stepper span {
+  color: #111827;
   text-align: center;
-  font-weight: 900;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .furniture-quantity-row .remove-option-set {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   margin-left: auto;
-  padding: 0 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.furniture-quantity-row .remove-option-set:hover {
+  background: #f3f4f6;
   color: #ef4444;
-  border-color: #fecaca;
 }
 
 .add-option-set {
-  width: 100%;
-  height: 38px;
-  border: 1px dashed #93c5fd;
-  border-radius: 6px;
-  background: #f8fbff;
+  display: block;
+  width: fit-content;
+  height: 34px;
+  margin: 8px auto 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
   color: #008cff;
+  font-size: 14px;
   font-weight: 900;
   cursor: pointer;
 }
@@ -342,18 +458,19 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 18px;
-  padding-top: 18px;
+  padding-top: 22px;
   border-top: 1px solid #e5e7eb;
 }
 
 .furniture-order-total span {
   color: #111827;
+  font-size: 16px;
   font-weight: 900;
 }
 
 .furniture-order-total strong {
   color: #111827;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 900;
 }
 
@@ -361,13 +478,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .furniture-buy-actions button {
-  height: 52px;
+  height: 54px;
   border: 1px solid #d1d5db;
-  border-radius: 7px;
+  border-radius: 6px;
   background: #fff;
   color: #111827;
   font-size: 15px;
@@ -392,46 +509,67 @@
   margin-top: 12px;
   border: 0;
   background: transparent;
-  color: #6b7280;
+  color: #8b95a1;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .furniture-article-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
-  gap: 10px;
-  margin-top: 28px;
-  border-bottom: none;
+  gap: 0;
+  margin-top: 32px;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #111827;
+  background: #fff;
 }
 
 .furniture-article-tabs button {
+  position: relative;
   flex: 1;
-  height: 50px;
+  height: 54px;
   min-width: 0;
   border: 0;
-  border-radius: 6px;
-  background: #f3f4f6;
-  color: #374151;
+  border-right: 1px solid #e5e7eb;
+  border-radius: 0;
+  background: #fff;
+  color: #6b7280;
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 800;
   cursor: pointer;
 }
 
+.furniture-article-tabs button:last-child {
+  border-right: 0;
+}
+
 .furniture-article-tabs button.active {
+  color: #111827;
+  background: #fff;
+  font-weight: 900;
+}
+
+.furniture-article-tabs button.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
   background: #111827;
-  color: #fff;
 }
 
 .furniture-article-content {
-  margin-top: 34px;
-  padding-top: 0;
+  margin-top: 28px;
 }
 
 .furniture-article-content img {
   display: block;
   width: 100%;
-  max-width: 900px;
+  max-width: 720.furniture-article-contentpx;
   margin: 0 auto 20px;
 }
 
@@ -464,6 +602,11 @@
   .furniture-main-image {
     aspect-ratio: 1 / 1;
   }
+
+  .furniture-benefit-list {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 560px) {
@@ -482,4 +625,38 @@
   .furniture-buy-actions {
     grid-template-columns: 1fr;
   }
+}
+
+.furniture-breadcrumb {
+  width: 100%;
+  margin: 0 0 12px;
+  text-align: left;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.furniture-breadcrumb button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.furniture-breadcrumb button:hover {
+  color: #6b7280;
+}
+
+.furniture-breadcrumb-skeleton {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
 }

@@ -82,17 +82,45 @@
 	text-align: right;
 }
 
-.dashboard-company-account-grid,
 .dashboard-company-form-grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(180px, 1fr));
 	gap: 14px;
 	align-items: start;
 }
 
-.dashboard-company-account-grid .MuiFormControl-root,
 .dashboard-company-form-grid .MuiFormControl-root {
 	width: 100%;
+}
+
+.dashboard-company-account-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.dashboard-company-account-row {
+	display: flex;
+	/* gap: 14px; */
+	align-items: flex-start;
+	width: 100%;
+	justify-content: space-between;
+}
+
+.dashboard-company-account-row .MuiFormControl-root {
+	width: 100%;
+}
+
+.dashboard-company-detail-fields {
+	grid-template-columns: 180px 250px 180px;
+	justify-content: start;
+}
+
+.dashboard-company-detail-fields > div {
+	max-width: 100%;
+}
+
+.dashboard-company-detail-fields > div:nth-child(4) {
+	grid-column: 1 / -1;
 }
 
 .dashboard-company-toolbar {
@@ -251,9 +279,12 @@
 }
 
 @media (max-width: 1024px) {
-	.dashboard-company-account-grid,
 	.dashboard-company-form-grid {
 		grid-template-columns: repeat(2, minmax(180px, 1fr));
+	}
+
+	.dashboard-company-detail-fields {
+		grid-template-columns: 180px 250px 180px;
 	}
 }
 
@@ -278,9 +309,18 @@
 		padding: 16px;
 	}
 
-	.dashboard-company-account-grid,
 	.dashboard-company-form-grid {
 		grid-template-columns: 1fr;
+	}
+
+	.dashboard-company-detail-fields {
+		grid-template-columns: 1fr;
+	}
+
+	.dashboard-company-detail-fields > div,
+	.dashboard-company-detail-fields > div:nth-child(4) {
+		grid-column: 1;
+		width: 100%;
 	}
 
 	.dashboard-company-empty {

@@ -36,10 +36,16 @@ const ShoppingMallOrderControl = () => {
 	const [tempState, setTempState] = useState(null);
 	const [filterBarState, setFilterBarState] = useState({});
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedFilterBarState, setAppliedFilterBarState] = useState({});
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -68,6 +74,7 @@ const ShoppingMallOrderControl = () => {
 			{
 				key: "c_name",
 				title: "판매처",
+				type: "multi",
 				options: shopListState
 					.filter((shop) => shop.c_name !== "all")
 					.map((shop) => ({ value: shop.c_name, title: shop.c_name })),
@@ -75,31 +82,37 @@ const ShoppingMallOrderControl = () => {
 			{
 				key: "f_catagory1",
 				title: "가구 종류",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory1"),
 			},
 			{
 				key: "f_catagory2",
 				title: "공간",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory2"),
 			},
 			{
 				key: "f_catagory3",
 				title: "스타일",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory3"),
 			},
 			{
 				key: "f_catagory4",
 				title: "소재/특징",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory4"),
 			},
 			{
 				key: "f_catagory5",
 				title: "라이프스타일",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "f_catagory5"),
 			},
 			{
 				key: "furnitureproductname",
 				title: "상품",
+				type: "multi",
 				options: getUniqueFilterOptions(orderFurnitureList, "furnitureproductname"),
 			},
 		].filter((filter) => filter.options.length > 0);
@@ -149,6 +162,11 @@ const ShoppingMallOrderControl = () => {
 		setTabValue(tempState);
 		setTabChangeConfirmOpen(false);
 		setTempState(null);
+	};
+
+	const handleSearch = () => {
+		setAppliedFilterBarState(filterBarState);
+		setAppliedDateRange(dateRange);
 	};
 
 	const reLoadServerData = useCallback(async () => {
@@ -240,27 +258,39 @@ const ShoppingMallOrderControl = () => {
 	useEffect(() => {
 		const displayList = orderFurnitureList.filter((data) => {
 			const matchTab = data.f_dstatus === tabValue;
-			const matchFilter = Object.entries(filterBarState).every(([key, value]) => {
+			const matchFilter = Object.entries(appliedFilterBarState).every(([key, value]) => {
 				if (value === "" || value === null || value === undefined) return true;
+				if (Array.isArray(value)) {
+					if (value.length === 0) return true;
+					return value.map(String).includes(String(data[key]));
+				}
 				return data[key] === value;
 			});
 			const orderDate = dayjs(
 				data.cart_paydate || data.cart_statusdate || data.f_createddate,
 			);
 			const matchStart =
-				!dateRange.startDate ||
-				(orderDate.isValid() && !orderDate.isBefore(dayjs(dateRange.startDate), "day"));
+				!appliedDateRange.startDate ||
+				(orderDate.isValid() &&
+					!orderDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 			const matchEnd =
-				!dateRange.endDate ||
-				(orderDate.isValid() && !orderDate.isAfter(dayjs(dateRange.endDate), "day"));
-			const matchDateRange = !isDateRangeInvalid && matchStart && matchEnd;
+				!appliedDateRange.endDate ||
+				(orderDate.isValid() &&
+					!orderDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
+			const matchDateRange = !isAppliedDateRangeInvalid && matchStart && matchEnd;
 
 			return matchTab && matchFilter && matchDateRange;
 		});
 		console.log(displayList);
 		setTableDisplayDataList(displayList);
 		setCheckedList([]);
-	}, [orderFurnitureList, tabValue, filterBarState, dateRange, isDateRangeInvalid]);
+	}, [
+		orderFurnitureList,
+		tabValue,
+		appliedFilterBarState,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	return (
 		<div className="shopping-mall-order-page">
@@ -275,6 +305,9 @@ const ShoppingMallOrderControl = () => {
 					onChange={setDateRange}
 					isInvalid={Boolean(isDateRangeInvalid)}
 				/>
+				<Button variant="contained" onClick={handleSearch}>
+					검색
+				</Button>
 			</div>
 
 			<div className="shopping-mall-order-tabs">

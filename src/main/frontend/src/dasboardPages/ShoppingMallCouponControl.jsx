@@ -6,7 +6,7 @@ import DateRangeFilter from "../components/DateRangeFilter";
 import CouponService from "./../service/couponService";
 import CouponAdd from "../components/CouponAdd";
 import ToggleButtonMui from "../components/ToggleButtonMui";
-import { Chip } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import dayjs from "dayjs";
 import Loading from "../components/Loading";
 import "../css/DashboardShoppingMall.css";
@@ -23,6 +23,9 @@ const ShoppingMallCouponControl = () => {
 	const [allCouponList, setAllCouponList] = useState([]);
 	const [viewDataType, setViewDataType] = useState("all");
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedTabValue, setAppliedTabValue] = useState("all");
+	const [appliedViewDataType, setAppliedViewDataType] = useState("all");
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingText, setLoadingText] = useState("쿠폰 목록을 불러오는 중입니다...");
 
@@ -32,6 +35,10 @@ const ShoppingMallCouponControl = () => {
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const shopListState = useMemo(() => {
 		const shopList = companyList.filter((data) => data.c_kind === "shop");
@@ -43,25 +50,37 @@ const ShoppingMallCouponControl = () => {
 		if (!allCouponList || allCouponList.length === 0) return emptyList;
 
 		return allCouponList.filter((record) => {
-			const matchTab = tabValue === "all" || tabValue === record.c_name;
+			const matchTab = appliedTabValue === "all" || appliedTabValue === record.c_name;
 			const couponEnd = dayjs(record.coupon_end).startOf("day");
 			const matchViewType =
-				viewDataType === "all" ||
-				(viewDataType === "available" &&
+				appliedViewDataType === "all" ||
+				(appliedViewDataType === "available" &&
 					couponEnd.isValid() &&
 					!couponEnd.isBefore(today)) ||
-				(viewDataType === "expired" && couponEnd.isValid() && couponEnd.isBefore(today));
+				(appliedViewDataType === "expired" &&
+					couponEnd.isValid() &&
+					couponEnd.isBefore(today));
 			const matchStart =
-				!dateRange.startDate ||
-				(couponEnd.isValid() && !couponEnd.isBefore(dayjs(dateRange.startDate), "day"));
+				!appliedDateRange.startDate ||
+				(couponEnd.isValid() &&
+					!couponEnd.isBefore(dayjs(appliedDateRange.startDate), "day"));
 			const matchEnd =
-				!dateRange.endDate ||
-				(couponEnd.isValid() && !couponEnd.isAfter(dayjs(dateRange.endDate), "day"));
-			const matchDateRange = !isDateRangeInvalid && matchStart && matchEnd;
+				!appliedDateRange.endDate ||
+				(couponEnd.isValid() &&
+					!couponEnd.isAfter(dayjs(appliedDateRange.endDate), "day"));
+			const matchDateRange = !isAppliedDateRangeInvalid && matchStart && matchEnd;
 
 			return matchTab && matchViewType && matchDateRange;
 		});
-	}, [allCouponList, tabValue, emptyList, viewDataType, today, dateRange, isDateRangeInvalid]);
+	}, [
+		allCouponList,
+		appliedTabValue,
+		emptyList,
+		appliedViewDataType,
+		today,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	const couponStats = useMemo(() => {
 		const available = allCouponList.filter((record) => {
@@ -87,6 +106,12 @@ const ShoppingMallCouponControl = () => {
 		if (newAlignment === null) return;
 
 		setViewDataType(newAlignment);
+	};
+
+	const handleSearch = () => {
+		setAppliedTabValue(tabValue);
+		setAppliedViewDataType(viewDataType);
+		setAppliedDateRange(dateRange);
 	};
 
 	const reLoadData = async (showLoading = true) => {
@@ -209,6 +234,9 @@ const ShoppingMallCouponControl = () => {
 							isInvalid={Boolean(isDateRangeInvalid)}
 							className="shopping-mall-coupon-date-range"
 						/>
+						<Button variant="contained" onClick={handleSearch}>
+							검색
+						</Button>
 					</div>
 				</div>
 
@@ -238,7 +266,7 @@ const ShoppingMallCouponControl = () => {
 								"사용 여부",
 								"사용자",
 							]}
-							resetPageKey={`${tabValue}-${viewDataType}-${dateRange.startDate}-${dateRange.endDate}`}
+							resetPageKey={`${appliedTabValue}-${appliedViewDataType}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
 						/>
 					) : (
 						<div className="shopping-mall-empty-state">

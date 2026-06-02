@@ -1,106 +1,94 @@
 /* =====================================================
    FreeBoardWritePage.css
    자유게시판 글쓰기 / 수정 페이지 전용 스타일
-
-   색상 팔레트 (모노크로매틱 블루)
-   --blue-dark:   #1e3a8a  딥 네이비    – 타이틀
-   --blue-mid:    #4b6bbb  미디엄 블루  – 취소버튼 텍스트
-   --blue-light:  #aec4ed  라이트 블루  – 취소버튼 테두리·헬퍼텍스트
-   --blue-bg:     #eef2fa  연한 블루 배경 – 취소버튼 호버
-   --blue-border: #c5d4f0  블루 경계선  – 구분선
    ===================================================== */
 
-/* ── 페이지 래퍼 ──────────────────────────────────── */
-.freeboard-write-wrapper {
-    animation: slideInUp 0.3s ease;
+/* ── 공통 브랜드 변수 ──────────────────────────────── */
+.fb-write-page {
+    --fb-blue:   #00a1ff;
+    --fb-blue-h: #0090e8;
+    --fb-dark:   #1e3a8a;
+    --fb-mid:    #4b6bbb;
+    --fb-light:  #aec4ed;
+    --fb-bg:     #eef2fa;
+    --fb-border: #c5d4f0;
+
+    animation: fb-slideInUp 0.3s ease;
+    margin-top: 32px;
+    margin-bottom: 32px;
 }
 
-/* ── 폼 카드 ──────────────────────────────────────── */
-.freeboard-write-card {
-    border-radius: 14px !important;
+/* ── 폼 카드 ────────────────────────────────────────── */
+.fb-write-card.MuiPaper-root {
+    border-radius: 12px !important;
     box-shadow: 0 2px 12px rgba(30, 58, 138, 0.08) !important;
-    padding: 32px !important;
+    padding: 32px;
 }
 
-/* ── 페이지 타이틀 ────────────────────────────────── */
-.freeboard-write-title {
+/* ── 페이지 타이틀 ──────────────────────────────────── */
+.fb-write-title.MuiTypography-root {
     font-size: 1.35rem !important;
     font-weight: 700 !important;
-    color: #1e3a8a;
+    color: var(--fb-dark) !important;
     margin-bottom: 4px !important;
 }
 
-.freeboard-write-divider {
+/* ── 구분선 ─────────────────────────────────────────── */
+.fb-write-divider.MuiDivider-root {
     margin-bottom: 24px !important;
-    border-color: #c5d4f0 !important;
+    border-color: var(--fb-border) !important;
 }
 
-/* ── 카테고리 셀렉트 ──────────────────────────────── */
-.freeboard-write-category-select {
-    border-radius: 8px;
+/* ── 폼 필드 ────────────────────────────────────────── */
+.fb-write-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
-/* ── 제목 입력창 ──────────────────────────────────── */
-.freeboard-write-title-input .MuiOutlinedInput-root {
-    border-radius: 8px;
-    font-size: 1rem;
-}
-
-.freeboard-write-title-input .MuiFormHelperText-root {
+/* ── 헬퍼 텍스트 (글자 수) ──────────────────────────── */
+.fb-write-field-title .MuiFormHelperText-root {
     text-align: right;
     margin-right: 4px;
     font-size: 0.72rem;
-    color: #aec4ed;
+    color: var(--fb-light);
 }
 
-/* ── 내용 입력창 ──────────────────────────────────── */
-.freeboard-write-content-input .MuiOutlinedInput-root {
-    border-radius: 8px;
-    font-size: 0.97rem;
-    line-height: 1.75;
-}
-
-/* ── 버튼 영역 ────────────────────────────────────── */
-.freeboard-write-actions {
+/* ── 버튼 영역 ──────────────────────────────────────── */
+.fb-write-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 28px;
+    margin-top: 32px;
 }
 
-.freeboard-write-cancel-btn {
+/* 취소 버튼 */
+.fb-write-cancel-btn.MuiButton-root {
+    color: var(--fb-mid) !important;
+    border-color: var(--fb-light) !important;
     border-radius: 8px !important;
     padding: 8px 20px !important;
-    color: #4b6bbb !important;
-    border-color: #aec4ed !important;
     transition: all 0.15s ease !important;
 }
-
-.freeboard-write-cancel-btn:hover {
-    background-color: #eef2fa !important;
-    border-color: #4b6bbb !important;
+.fb-write-cancel-btn.MuiButton-root:hover {
+    background-color: var(--fb-bg) !important;
+    border-color: var(--fb-mid) !important;
 }
 
-.freeboard-write-submit-btn {
+/* 등록/수정 버튼 */
+.fb-write-submit-btn.MuiButton-root {
     border-radius: 8px !important;
     padding: 8px 24px !important;
     font-weight: 600 !important;
     transition: all 0.15s ease !important;
 }
-
-.freeboard-write-submit-btn:hover {
+.fb-write-submit-btn.MuiButton-root:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25) !important;
 }
 
-/* ── 애니메이션 ───────────────────────────────────── */
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* ── 애니메이션 ─────────────────────────────────────── */
+@keyframes fb-slideInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
 }

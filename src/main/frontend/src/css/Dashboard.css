@@ -42,17 +42,23 @@
 
 .company-body {
 	display: flex;
+	width: 100%;
 	min-height: calc(100vh - 64px);
+	overflow: hidden;
 }
 
 .leftbar {
+	flex: 0 0 240px;
 	width: 240px;
+	min-width: 240px;
+	max-width: 240px;
 	background-color: #222831;
 	color: white;
 	padding: 24px 16px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 }
 
 .leftbar ul {
@@ -65,6 +71,9 @@
 	padding: 12px 8px;
 	cursor: pointer;
 	border-radius: 6px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .leftbar li:hover {
@@ -72,15 +81,20 @@
 }
 
 .company-content {
-	flex: 1;
+	flex: 1 1 auto;
+	min-width: 0;
 	padding: 32px;
 	box-sizing: border-box;
+	overflow-x: auto;
 }
 
 .left-menu {
 	padding: 12px 8px;
 	cursor: pointer;
 	border-radius: 6px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .left-menu:hover {
@@ -186,6 +200,27 @@
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
+}
+
+.shopping-mall-product-filter {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.shopping-mall-product-filter .MuiButton-root {
+	border-radius: 6px;
+	font-weight: 800;
+	box-shadow: none;
+}
+
+.shopping-mall-product-filter .MuiButton-root:hover {
+	box-shadow: none;
 }
 
 .shopping-mall-product-card {

@@ -6,7 +6,7 @@ import TableMui from "./../components/TableMui";
 import TextFieldMui from "../components/TextFieldMui";
 import AlertMui from "../components/AlertMui";
 import { getImgDirSimple } from "../resources/function/GetImgDir";
-import { Chip } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import dayjs from "dayjs";
 import Loading from "../components/Loading";
 import "../css/DashboardInterior.css";
@@ -25,9 +25,11 @@ const InteriorReviewControl = () => {
 	const [alertInfo, setAlertInfo] = useState(false);
 	const [filterBarState, setFilterBarState] = useState({});
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedFilterBarState, setAppliedFilterBarState] = useState({});
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
 
 	const emptyList = useMemo(() => [], []);
-	const selectedCompanyName = filterBarState.c_name || "all";
+	const selectedCompanyName = appliedFilterBarState.c_name || "all";
 	const reviewFilterList = useMemo(
 		() =>
 			[
@@ -48,6 +50,14 @@ const InteriorReviewControl = () => {
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
+	const handleSearch = () => {
+		setAppliedFilterBarState(filterBarState);
+		setAppliedDateRange(dateRange);
+	};
 
 	const intreiorMuiDisplayList = useMemo(() => {
 		if (!intreiorReviewList || intreiorReviewList.length === 0) return emptyList;
@@ -58,21 +68,28 @@ const InteriorReviewControl = () => {
 				const matchCompany =
 					selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
 				const matchStart =
-					!dateRange.startDate ||
+					!appliedDateRange.startDate ||
 					(reviewDate.isValid() &&
-						!reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+						!reviewDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 				const matchEnd =
-					!dateRange.endDate ||
-					(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+					!appliedDateRange.endDate ||
+					(reviewDate.isValid() &&
+						!reviewDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-				return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
+				return matchCompany && !isAppliedDateRangeInvalid && matchStart && matchEnd;
 			})
 			.map((record, index) => {
 				return { ...record.review, index };
 			});
 
 		return rowIndexList;
-	}, [intreiorReviewList, emptyList, selectedCompanyName, dateRange, isDateRangeInvalid]);
+	}, [
+		intreiorReviewList,
+		emptyList,
+		selectedCompanyName,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	const onlyImageList = useMemo(() => {
 		if (!intreiorReviewList || intreiorReviewList.length === 0) return emptyList;
@@ -85,14 +102,15 @@ const InteriorReviewControl = () => {
 				const matchCompany =
 					selectedCompanyName === "all" || record.review?.c_name === selectedCompanyName;
 				const matchStart =
-					!dateRange.startDate ||
+					!appliedDateRange.startDate ||
 					(reviewDate.isValid() &&
-						!reviewDate.isBefore(dayjs(dateRange.startDate), "day"));
+						!reviewDate.isBefore(dayjs(appliedDateRange.startDate), "day"));
 				const matchEnd =
-					!dateRange.endDate ||
-					(reviewDate.isValid() && !reviewDate.isAfter(dayjs(dateRange.endDate), "day"));
+					!appliedDateRange.endDate ||
+					(reviewDate.isValid() &&
+						!reviewDate.isAfter(dayjs(appliedDateRange.endDate), "day"));
 
-				return matchCompany && !isDateRangeInvalid && matchStart && matchEnd;
+				return matchCompany && !isAppliedDateRangeInvalid && matchStart && matchEnd;
 			})
 			.forEach((record, index) => {
 				if (record.image.length !== 0) {
@@ -103,7 +121,13 @@ const InteriorReviewControl = () => {
 			});
 
 		return resultList;
-	}, [intreiorReviewList, emptyList, selectedCompanyName, dateRange, isDateRangeInvalid]);
+	}, [
+		intreiorReviewList,
+		emptyList,
+		selectedCompanyName,
+		appliedDateRange,
+		isAppliedDateRangeInvalid,
+	]);
 
 	const reloadData = async (showLoading = true) => {
 		if (showLoading) {
@@ -233,6 +257,9 @@ const InteriorReviewControl = () => {
 						onChange={setDateRange}
 						isInvalid={Boolean(isDateRangeInvalid)}
 					/>
+					<Button variant="contained" onClick={handleSearch}>
+						검색
+					</Button>
 				</div>
 			</section>
 

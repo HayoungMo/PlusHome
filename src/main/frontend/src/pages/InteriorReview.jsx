@@ -129,6 +129,18 @@ const InteriorReview = () => {
     ]);
   };
 
+  const handlePreviewDelete = (index) => {
+    setPreview((prev) => {
+      if (prev[index]) {
+        URL.revokeObjectURL(prev[index]);
+      }
+
+      return prev.filter((_, idx) => idx !== index);
+    });
+
+    setSendList((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
   return (
     <div className="interior-review-page">
       <Snackbar
@@ -171,12 +183,20 @@ const InteriorReview = () => {
           <div className="interior-review-field">
             <TextFieldMui
               name="ir_content"
-              label="content"
+              label="리뷰 내용"
               onChange={handleChange}
+              multiline
+              minRows={6}
+              width="100%"
             />
-            <Button onClick={handleOpen} variant="contained">
-              제출
-            </Button>
+            <div className="interior-review-actions">
+              <Button variant="outlined" color="inherit" onClick={handleBack}>
+                취소
+              </Button>
+              <Button onClick={handleOpen} variant="contained">
+                제출
+              </Button>
+            </div>
             <DialogMui
               open={open}
               onClose={handleClose}
@@ -277,12 +297,21 @@ const InteriorReview = () => {
         <div className="interior-review-preview-grid">
           {preview &&
             preview.map((item, idx) => (
-              <img
-                key={idx}
-                className="interior-review-preview-image"
-                src={item}
-                alt=""
-              />
+              <div className="interior-review-preview-item" key={item}>
+                <img
+                  className="interior-review-preview-image"
+                  src={item}
+                  alt=""
+                />
+                <Button
+                  className="interior-review-preview-delete"
+                  variant="contained"
+                  color="error"
+                  onClick={() => handlePreviewDelete(idx)}
+                >
+                  삭제
+                </Button>
+              </div>
             ))}
         </div>
       </div>
