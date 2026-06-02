@@ -1,7 +1,97 @@
-import { Card, CardContent, Grid, Typography, useScrollTrigger } from '@mui/material';
+import { Box, Card, CardContent, Grid, Typography, useScrollTrigger } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import userService from '../service/userService';
 import { Doughnut } from 'react-chartjs-2';
+import PersonIcon from "@mui/icons-material/Person";
+import BusinessIcon from "@mui/icons-material/Business";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
+import BlockIcon from "@mui/icons-material/Block";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+
+const KpiCard = ({
+    icon,
+    label,
+    value,
+    unit,
+    helper,
+}) => (
+    <Card
+    sx={{
+        height: 160,
+        borderRadius: "12px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        border: "1px solid #eef2f7",
+    }}
+>
+            <CardContent
+                sx={{
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 3,
+                    px: 3,
+                }}
+            >
+            <Box
+                sx={{
+                    width: 86,
+                    height: 86,
+                    borderRadius: "50%",
+                    backgroundColor: "#edf4ff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                }}
+            >
+                {icon}
+            </Box>
+
+            <Box
+                sx={{
+                    flex: 1,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+
+                <Typography
+                sx={{
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    color: "#111827",
+                    textAlign: "center",
+                    
+                }}
+            >
+                {label}
+            </Typography>
+
+            <Typography
+                sx={{
+                    fontSize: "2.4rem",
+                    fontWeight: 800,
+                    lineHeight: 1,
+                    color: "#111827",
+                    textAlign: "center",
+                    mt: 0.5,
+                }}
+            >
+                {value}
+            </Typography>
+
+        </Box>
+        </CardContent>
+    </Card>
+);
+
+
+
+
 
 const DashboardDevHome = () => {
 
@@ -13,6 +103,57 @@ const DashboardDevHome = () => {
         notJoinedCompanyCount:"",
     })
 
+    const meberKpiCard = [
+    {
+        key: "user",
+        label: "일반 회원",
+        value: summary.userCount || 0,
+        icon: <PersonIcon
+                sx={{
+                    fontSize: 42,
+                    color: "#2563eb",
+                }}
+            />,
+        tone: "blue",
+    },
+    {
+        key: "company",
+        label: "기업 회원",
+        value: summary.companyCount || 0,
+        icon: <BusinessIcon 
+                sx={{
+                    fontSize: 42,
+                    color: "#10b981",
+                }}
+            />,
+        tone: "green",
+    },
+    {
+        key: "leaveUser",
+        label: "탈퇴 일반",
+        value: summary.notJoinedUserCount || 0,
+        icon: <PersonOffIcon 
+                sx={{
+                    fontSize: 42,
+                    color: "#ef4444",
+                }}
+            />,
+        tone: "red",
+    },
+    {
+        key: "leaveCompany",
+        label: "탈퇴 기업",
+        value: summary.notJoinedCompanyCount || 0,
+        icon: <BlockIcon 
+                sx={{
+                    fontSize: 42,
+                    color: "#ef4444",
+                }}
+            />,
+        tone: "orange",
+    },
+];
+
     const getSummary = async () =>{
         const res = await userService.getSummary();
         console.log("요약 결과:",res)
@@ -23,37 +164,22 @@ const DashboardDevHome = () => {
         getSummary()
     },[])
 
-    const membercards = [
+    
 
-        {
-            title: "일반 회원",
-            value: summary.userCount || 0,
-
-        },
-        {
-            title: "기업 회원",
-            value: summary.companyCount || 0,
-
-        },
-        {
-            title: "탈퇴 일반 회원",
-            value: summary.notJoinedUserCount  || 0,
-
-        },
-        {
-            title: "탈퇴 기업 회원",
-            value: summary.notJoinedCompanyCount  || 0,
-
-        },
-    ]
-
-    const operationCards=[
-        {
-            title: "쿠폰 발급",
-            value: summary.couponCount  || 0,
-
-        },
-    ]
+    const operationCards = [
+    {
+        title: "쿠폰 발급",
+        value: summary.couponCount || 0,
+        icon: (
+            <ConfirmationNumberIcon
+                sx={{
+                    fontSize: 40,
+                    color: "#f59e0b",
+                }}
+            />
+        ),
+    },
+];
 
     const memberChartData = {
     labels: ["일반회원", "기업회원"],
@@ -106,56 +232,26 @@ const chartOptions = {
     return (
     <div>       
 
-        <Typography variant='h5' sx={{mb:2}}>
+        <Typography
+            sx={{
+                fontSize: "2rem",
+                fontWeight: 800,
+                mb: 4,
+            }}
+        >
             회원 현황
         </Typography>
 
         <Grid container spacing={3}>
 
-            {membercards.map((card) => (
+            {meberKpiCard.map((item) => (
+    <Grid item xs={12} sm={6} md={3} key={item.key}>
+        <KpiCard {...item} />
+    </Grid>
+))}
+</Grid>                
 
-                <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={3}
-                    key={card.title}
-                >
-
-                    <Card
-                        sx={{
-                            textAlign: "center",
-                            borderRadius: 3,
-                            boxShadow: 3,
-                        }}
-                    >
-
-                        <CardContent>
-
-                            <Typography
-                                variant="h6"
-                            >
-                                {card.title}
-                            </Typography>
-
-                            <Typography
-                                variant="h4"
-                                fontWeight="bold"
-                            >
-                                {card.value}
-                            </Typography>
-
-                        </CardContent>
-
-                    </Card>
-
-                </Grid>
-
-            ))}
-
-        </Grid>
-
-        <Grid container spacing={3} sx={{ mt: 3 }}>
+        
 
     {/* 차트 영역 */}
 <Grid container spacing={3} sx={{ mt: 3 }}>
@@ -163,19 +259,34 @@ const chartOptions = {
     <Grid item xs={12} md={6}>
         <Card
             sx={{
-                p: 2,
-                borderRadius: 3,
-                boxShadow: 3,
+                height: 420,
+                borderRadius: "20px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                border: "1px solid #eef2f7",
+                p: 3,
             }}
         >
-            <Typography
-                variant="h5"
-                gutterBottom
+           <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 2,
+                }}
             >
-                회원 구성 비율
-            </Typography>
 
-            <div style={{ height: "300px" }}>
+                <Typography
+                    sx={{
+                        fontSize: "1.8rem",
+                        fontWeight: 700,
+                        mb: 3,
+                    }}
+                >
+                    회원 구성 비율
+                </Typography>
+            </Box>
+
+            <div style={{ height: "320px" }}>
                 <Doughnut
                     data={memberChartData}
                     options={chartOptions}
@@ -188,19 +299,24 @@ const chartOptions = {
     <Grid item xs={12} md={6}>
         <Card
             sx={{
-                p: 2,
-                borderRadius: 3,
-                boxShadow: 3,
+                height: 420,
+                borderRadius: "12px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                border: "1px solid #eef2f7",
+                p: 3,
             }}
         >
             <Typography
-                variant="h5"
-                gutterBottom
-            >
+                    sx={{
+                        fontSize: "1.8rem",
+                        fontWeight: 700,
+                        mb: 3,
+                    }}
+                >
                 가입 / 탈퇴 현황
             </Typography>
 
-            <div style={{ height: "300px" }}>
+            <div style={{ height: "320px" }}>
                 <Doughnut
                     data={statusChartData}
                     options={chartOptions}
@@ -243,20 +359,39 @@ const chartOptions = {
                 }}
             >
 
-                <CardContent>
+            <CardContent>
 
-                    <Typography variant="h6">
-                        {card.title}
-                    </Typography>
+    <Grid
+        container
+        alignItems="center"
+        spacing={2}
+    >
 
-                    <Typography
-                        variant="h4"
-                        fontWeight="bold"
-                    >
-                        {card.value}
-                    </Typography>
+        <Grid item>
+            {card.icon}
+        </Grid>
 
-                </CardContent>
+        <Grid item>
+
+            <Typography
+                variant="h6"
+                fontWeight="bold"
+            >
+                {card.title}
+            </Typography>
+
+            <Typography
+                variant="h4"
+                fontWeight="bold"
+            >
+                {card.value}
+            </Typography>
+
+        </Grid>
+
+    </Grid>
+
+</CardContent>
 
             </Card>
 
@@ -267,7 +402,6 @@ const chartOptions = {
 </Grid>
 
 
-</Grid>
 
 
 

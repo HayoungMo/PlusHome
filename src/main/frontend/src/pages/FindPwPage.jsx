@@ -208,7 +208,7 @@ const FindPwPage = () => {
                                         onClick={()=>setShowPw(!showPw)}
                                         edge="end">
 
-                                            {showPw ? <VisibilityOff/> : <Visibility/>}
+                                            {showPw ? <Visibility/> : <VisibilityOff/>}
 
                                     </IconButton>
 
@@ -227,7 +227,23 @@ const FindPwPage = () => {
                      )}
 
                      <div className='input-group'>
-                     <TextField fullWidth type='password' name='pwCheck' label='비밀번호 확인' onChange={onChange}/>
+                     <TextField fullWidth type='password' name='pwCheck' label='비밀번호 확인' onChange={onChange}InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton 
+                                        onClick={()=>setShowPw(!showPw)}
+                                        edge="end">
+
+                                            {showPw ? <Visibility/> : <VisibilityOff/>}
+
+                                    </IconButton>
+
+
+                                </InputAdornment>
+                            )
+                        }}
+
+                        />
                      
                     </div>
 

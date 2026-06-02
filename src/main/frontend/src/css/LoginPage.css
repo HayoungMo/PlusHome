@@ -6,7 +6,7 @@
     justify-content:center;
     align-items:center;
 
-    background:#f7f7f5
+    background:#ffffff
 }
 
 .login-box{
@@ -255,4 +255,31 @@
 
 .find-links span{
     color:#cbd5e1;
+}
+
+.home-link{
+    margin-top:20px;
+
+    padding-top:18px;
+
+    border-top:1px solid #dcdfe5;
+
+    text-align:center;
+}
+
+.home-link a{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+
+    color:#2583ff;
+
+    font-size:15px;
+    font-weight:700;
+
+    text-decoration:none;
+}
+
+.home-link a:hover{
+    opacity:0.8;
 }
