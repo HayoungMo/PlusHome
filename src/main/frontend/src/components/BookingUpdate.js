@@ -217,13 +217,14 @@ const BookingUpdate = ({
 	useEffect(() => {}, [selectedBooking]);
 
 	return (
-		<div>
-			<div>
+		<div className="booking-update">
+			<div className="booking-update-table-area">
 				{displayBooking?.length > 0 ? (
-					<TableMuiCollapse
-						selectedRow={selectedBooking}
-						setSelectedRow={setSelectedBooking}
-						rowData={displayBooking}
+						<TableMuiCollapse
+							selectedRow={selectedBooking}
+							setSelectedRow={setSelectedBooking}
+							selectedColor="#eff6ff"
+							rowData={displayBooking}
 						hiddenColumns={["b_answer"]}
 						columns={[
 							"예약자 ID",
@@ -267,7 +268,7 @@ const BookingUpdate = ({
 					</div>
 				)}
 				{selectedBooking && (
-					<>
+					<div className="booking-update-actions">
 						<Button variant="contained" color="secondary" onClick={onClickstartRemodel}>
 							시공 시작
 						</Button>
@@ -294,7 +295,7 @@ const BookingUpdate = ({
 								},
 							]}
 						/>
-					</>
+					</div>
 				)}
 			</div>
 			{dialogInfo.open && (

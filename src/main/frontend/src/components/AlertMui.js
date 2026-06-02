@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Alert, AlertTitle } from "@mui/material";
+import { Alert, AlertTitle, Portal } from "@mui/material";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
@@ -24,7 +24,17 @@ import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
  * @returns {JSX.Element} 상태 메시지를 표시하는 Alert UI
  */
 const AlertMui = (props) => {
-	const { severity, variant, title, text, onClose, icon, autoHideDuration } = props;
+	const {
+		severity,
+		variant,
+		title,
+		text,
+		onClose,
+		icon,
+		autoHideDuration,
+		floating = true,
+		zIndex = 10000,
+	} = props;
 
 	const alertSeverity = severity ? severity : "info";
 	const alertVariant = variant ? variant : "standard";
@@ -54,15 +64,36 @@ const AlertMui = (props) => {
 		}
 	}, [autoHideDuration, onClose]);
 
-	return (
+	const alertElement = (
 		<Alert
 			severity={alertSeverity}
 			variant={alertVariant}
 			onClose={onClose}
-			icon={getIcon(icon)}>
+			icon={getIcon(icon)}
+			sx={{ minWidth: 280, maxWidth: "calc(100vw - 32px)", boxShadow: 3 }}>
 			{title && <AlertTitle>{title}</AlertTitle>}
 			{text}
 		</Alert>
+	);
+
+	if (!floating) {
+		return alertElement;
+	}
+
+	return (
+		<Portal>
+			<div
+				style={{
+					position: "fixed",
+					top: 24,
+					left: "50%",
+					transform: "translateX(-50%)",
+					zIndex,
+					pointerEvents: "none",
+				}}>
+				<div style={{ pointerEvents: "auto" }}>{alertElement}</div>
+			</div>
+		</Portal>
 	);
 };
 

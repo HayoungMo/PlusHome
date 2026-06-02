@@ -113,7 +113,7 @@ const CouponAdd = ({ onCreated }) => {
     }
   };
   return (
-    <div>
+    <div className="coupon-add">
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -144,7 +144,7 @@ const CouponAdd = ({ onCreated }) => {
           {alert.text}
         </Alert>
       </Snackbar>
-      <form name="coupon">
+      <form className="coupon-add-form" name="coupon">
         <NumberField
           name="discount"
           label="할인률"
@@ -197,7 +197,7 @@ const CouponAdd = ({ onCreated }) => {
           />
         )}
 
-        <Button variant="contained" onClick={(e) => handleSubmit(e)}>
+        <Button className="coupon-add-submit" variant="contained" onClick={(e) => handleSubmit(e)}>
           발급
         </Button>
       </form>

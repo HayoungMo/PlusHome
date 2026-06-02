@@ -23,9 +23,11 @@ const EmptyCompanyGuide = ({ type, onClick }) => {
 	const text = textMap[type];
 
 	return (
-		<div>
-			<h2>{text.title}</h2>
-			<p>{text.desc}</p>
+		<div className="empty-company-guide">
+			<div>
+				<h2>{text.title}</h2>
+				<p>{text.desc}</p>
+			</div>
 			<Button variant="contained" onClick={onClick}>
 				{text.button}
 			</Button>

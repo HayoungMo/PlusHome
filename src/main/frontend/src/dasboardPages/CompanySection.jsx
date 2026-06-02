@@ -42,8 +42,8 @@ const CompanySection = ({
   ];
 
   return (
-    <div style={{ marginTop: "24px" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+    <div className="company-section">
+      <Box className="company-section-tabs" sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="전체" value="all" />
           <Tab label="쇼핑몰" value="shop" />
@@ -51,7 +51,7 @@ const CompanySection = ({
         </Tabs>
       </Box>
 
-      <h2>{tabTitle.filter((item) => item.value === tabValue)[0].label}</h2>
+      <h2 className="company-section-title">{tabTitle.filter((item) => item.value === tabValue)[0].label}</h2>
 
       {/* <h2>{title}</h2> */}
 

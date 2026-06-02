@@ -395,6 +395,10 @@
 	flex-wrap: wrap;
 }
 
+.shopping-mall-review-date-range {
+	align-items: flex-start;
+}
+
 .shopping-mall-review-filter-main {
 	display: flex;
 	align-items: flex-start;
@@ -912,6 +916,19 @@
 	grid-template-columns: repeat(3, minmax(180px, 1fr));
 	gap: 14px;
 	align-items: start;
+}
+
+.shopping-mall-coupon-create .coupon-add {
+	width: 100%;
+}
+
+.shopping-mall-coupon-create .coupon-add-form > .MuiFormControl-root,
+.shopping-mall-coupon-create .coupon-add-form > .MuiBox-root {
+	width: 100%;
+}
+
+.shopping-mall-coupon-create .coupon-add-submit {
+	width: 100%;
 }
 
 .shopping-mall-coupon-create form > button,

@@ -1,26 +1,34 @@
 import React from "react";
-import TextFieldMui from "../components/TextFieldMui";
 
-const DashboardHome = ({userData}) => {
-	const { addr, birth, code, email, gender, id, name, tel, type, companyList } = userData;
-	//  c_addr, c_boss, c_id, c_info, c_kind, c_name, c_tel
-	console.log(userData);
-	console.log(companyList);
+const DashboardHome = ({ userData = {} }) => {
+	const { name, companyList = [] } = userData;
 
 	return (
-		<div>
-			{name} 님의 사업체 정보
-			{companyList?.map((record, index) => {
-				return (
-					<div>
-						{index}
-						<div>
-							{record.c_kind} & {record.c_name}
+		<div className="dashboard-home">
+			<div className="dashboard-home-header">
+				<div>
+					<h3>{name || "사용자"}님의 사업체 정보</h3>
+					<p>등록된 사업체를 한눈에 확인합니다.</p>
+				</div>
+				<span>{companyList.length}개</span>
+			</div>
+
+			<div className="dashboard-home-company-grid">
+				{companyList.length > 0 ? (
+					companyList.map((record, index) => (
+						<div
+							className="dashboard-home-company-card"
+							key={`${record.c_id || record.c_name || "company"}-${index}`}>
+							<span>{index + 1}</span>
+							<strong>{record.c_name || "이름 없음"}</strong>
+							<p>{record.c_kind || "-"}</p>
+							<p>{record.c_addr || "주소 정보가 없습니다."}</p>
 						</div>
-						<div>{record.c_addr}</div>
-					</div>
-				);
-			})}
+					))
+				) : (
+					<div className="dashboard-home-empty">등록된 사업체가 없습니다.</div>
+				)}
+			</div>
 		</div>
 	);
 };

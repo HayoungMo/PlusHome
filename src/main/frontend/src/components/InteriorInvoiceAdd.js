@@ -5,7 +5,6 @@ import TextFieldMui from "./TextFieldMui";
 import { Button } from "@mui/material";
 import TableMuiCollapse from "./TableMuiCollapse";
 import AlertMui from "./AlertMui";
-import TransferListMui from "./TransferListMui";
 import DialogMui from "./DialogMui";
 
 const InteriorInvoiceAdd = ({
@@ -15,7 +14,6 @@ const InteriorInvoiceAdd = ({
 	selectedInvoiceDetailList = null,
 	setSelectedInvoiceDetailList = null,
 	listData = [],
-	textKey = [],
 	left = [],
 	setLeft = null,
 	right = [],
@@ -35,6 +33,7 @@ const InteriorInvoiceAdd = ({
 		text: "",
 	});
 	const [selectedItem, setSelectedItem] = useState({});
+	const [selectedTransferSide, setSelectedTransferSide] = useState("");
 	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
 	const emptyDetail = { invoice_text: "", invoice_qty: "", invoice_price: "" };
@@ -43,6 +42,59 @@ const InteriorInvoiceAdd = ({
 	const resetDetailForm = () => {
 		setDetail(emptyDetail);
 		setSelectedItem({});
+		setSelectedTransferSide("");
+	};
+
+	const getItemKey = (item) =>
+		[item?.rowIndex, item?.invoice_text, item?.invoice_qty, item?.invoice_price].join("_");
+
+	const isSameItem = (itemA, itemB) => getItemKey(itemA) === getItemKey(itemB);
+
+	const formatPrice = (value) => Number(value || 0).toLocaleString();
+
+	const selectTransferItem = (item, side) => {
+		setSelectedItem(item);
+		setSelectedTransferSide(side);
+	};
+
+	const moveSelectedToRight = () => {
+		if (!setLeft || !setRight) return;
+		if (!selectedItem?.invoice_text || selectedTransferSide !== "left") return;
+		if (right.some((item) => isSameItem(item, selectedItem))) return;
+
+		setRight([...right, selectedItem]);
+		setLeft(left.filter((item) => !isSameItem(item, selectedItem)));
+		resetDetailForm();
+	};
+
+	const moveSelectedToLeft = () => {
+		if (!setLeft || !setRight) return;
+		if (!selectedItem?.invoice_text || selectedTransferSide !== "right") return;
+		if (left.some((item) => isSameItem(item, selectedItem))) return;
+
+		setLeft([...left, selectedItem]);
+		setRight(right.filter((item) => !isSameItem(item, selectedItem)));
+		resetDetailForm();
+	};
+
+	const renderInvoiceItem = (item, side) => {
+		const selected = selectedTransferSide === side && isSameItem(selectedItem, item);
+		const lineTotal = Number(item?.invoice_qty || 0) * Number(item?.invoice_price || 0);
+
+		return (
+			<button
+				type="button"
+				className={`interior-invoice-item${selected ? " selected" : ""}`}
+				key={`${side}-${getItemKey(item)}`}
+				onClick={() => selectTransferItem(item, side)}>
+				<span className="interior-invoice-item-check" />
+				<span className="interior-invoice-item-body">
+					<strong>{item.invoice_text || "항목 없음"}</strong>
+					<span>{formatPrice(item.invoice_qty)}개</span>
+					<em>{formatPrice(lineTotal)}원</em>
+				</span>
+			</button>
+		);
 	};
 
 	const replaceDetailByRowIndex = (list, nextDetail) =>
@@ -242,13 +294,22 @@ const InteriorInvoiceAdd = ({
 	}, [invoiceWithDetails, setSelectedInvoiceDetailList]);
 
 	useEffect(() => {
+		if (!setLeft || !setRight) return;
+
+		setLeft(listData || []);
+		setRight([]);
+		setSelectedItem({});
+		setSelectedTransferSide("");
+	}, [listData, setLeft, setRight]);
+
+	useEffect(() => {
 		if (!selectedItem || !selectedItem.invoice_text) return;
 
 		setDetail(selectedItem);
 	}, [selectedItem]);
 
 	return (
-		<div>
+		<div className="interior-invoice-add">
 			{alert.open && (
 				<AlertMui
 					severity={alert.severity}
@@ -263,14 +324,13 @@ const InteriorInvoiceAdd = ({
 					}
 				/>
 			)}
-			<div>
-				<p>인테리어 견적 추가</p>
-
-				{setSelectedInvoice && (
-					invoiceWithDetails.length > 0 ? (
+			<div className="interior-invoice-add-body">
+				{setSelectedInvoice &&
+					(invoiceWithDetails.length > 0 ? (
 						<TableMuiCollapse
 							rowData={invoiceWithDetails}
 							hiddenColumns={["detail", "details"]}
+							selectedColor="#eff6ff"
 							collapseKey="detail"
 							collapseTitle="견적 상세 내역"
 							collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
@@ -282,72 +342,129 @@ const InteriorInvoiceAdd = ({
 						<div className="interior-booking-guide">
 							등록된 견적서 데이터가 없습니다.
 						</div>
-					)
-				)}
+					))}
 
-				{(booking?.b_status === "pending" || booking?.b_status === "quoting") && (
-					<div>
-						<CheckboxMui
-							name="kind"
-							label="완료 여부"
-							checked={kind[booking.b_createdDate] === "Y"}
-							onChange={(e) => {
-								setKind({
-									...kind,
-									[booking.b_createdDate]: e.target.checked ? "Y" : "N",
-								});
-							}}
+				<div className="interior-invoice-form-head">
+					<p className="interior-invoice-add-title">인테리어 견적 추가</p>
+					{(booking?.b_status === "pending" || booking?.b_status === "quoting") && (
+						<div className="interior-invoice-kind-row">
+							<CheckboxMui
+								name="kind"
+								label="완료 여부"
+								checked={kind[booking.b_createdDate] === "Y"}
+								onChange={(e) => {
+									setKind({
+										...kind,
+										[booking.b_createdDate]: e.target.checked ? "Y" : "N",
+									});
+								}}
+							/>
+						</div>
+					)}
+				</div>
+				<div className="interior-invoice-detail-form">
+					<div className="interior-invoice-detail-inputs">
+						<TextFieldMui
+							name="invoice_text"
+							label="항목"
+							value={detail.invoice_text}
+							onChange={handleDetailChange}
+							width="100%"
+						/>
+
+						<TextFieldMui
+							name="invoice_qty"
+							label="개수"
+							value={detail.invoice_qty}
+							onChange={handleDetailChange}
+							width="100%"
+						/>
+
+						<TextFieldMui
+							name="invoice_price"
+							label="가격"
+							value={detail.invoice_price}
+							onChange={handleDetailChange}
+							width="100%"
 						/>
 					</div>
-				)}
-				<div>
-					<TextFieldMui
-						name="invoice_text"
-						label="항목"
-						value={detail.invoice_text}
-						onChange={(e) => handleDetailChange(e)}
-					/>
 
-					<TextFieldMui
-						name="invoice_qty"
-						label="개수"
-						value={detail.invoice_qty}
-						onChange={(e) => handleDetailChange(e)}
-					/>
+					<div className="interior-invoice-detail-actions">
+						{isEditingDetail && (
+							<Button color="inherit" variant="outlined" onClick={resetDetailForm}>
+								수정 취소
+							</Button>
+						)}
 
-					<TextFieldMui
-						name="invoice_price"
-						label="가격"
-						value={detail.invoice_price}
-						onChange={(e) => handleDetailChange(e)}
-					/>
+						<Button
+							className="interior-invoice-add-button"
+							variant="contained"
+							onClick={addDetail}>
+							{isEditingDetail ? "항목 수정" : "항목 추가"}
+						</Button>
+					</div>
 				</div>
-				<Button onClick={addDetail}>{isEditingDetail ? "수정" : "ADD"}</Button>
-				{isEditingDetail && (
-					<Button color="inherit" onClick={resetDetailForm}>
-						수정 취소
-					</Button>
-				)}
 
-				<TransferListMui
-					key="transferListMui_invoiceDetailTransferListData"
-					listData={listData}
-					textKey={textKey}
-					left={left}
-					setLeft={setLeft}
-					right={right}
-					setRight={setRight}
-					selectedItem={selectedItem}
-					setSelectedItem={setSelectedItem}
-				/>
-				<Button
-					color="success"
-					variant="contained"
-					onClick={() => {
-						setSaveDialogOpen(!saveDialogOpen);
-					}}>
-					추가
-				</Button>
+				<div className="interior-invoice-builder">
+					<section className="interior-invoice-list-panel">
+						<div className="interior-invoice-list-head">
+							<strong>등록된 항목</strong>
+							<span>{left.length}개</span>
+						</div>
+						<div className="interior-invoice-list">
+							{left.length > 0 ? (
+								left.map((item) => renderInvoiceItem(item, "left"))
+							) : (
+								<div className="interior-invoice-list-empty">
+									추가할 항목이 없습니다.
+								</div>
+							)}
+						</div>
+					</section>
+
+					<div className="interior-invoice-move-actions">
+						<Button
+							variant="contained"
+							onClick={moveSelectedToRight}
+							disabled={selectedTransferSide !== "left"}>
+							추가
+						</Button>
+						<Button
+							variant="outlined"
+							onClick={moveSelectedToLeft}
+							disabled={selectedTransferSide !== "right"}>
+							제거
+						</Button>
+					</div>
+
+					<section className="interior-invoice-list-panel target">
+						<div className="interior-invoice-list-head">
+							<strong>최종 견적 항목</strong>
+							<span>{right.length}개</span>
+						</div>
+						<div className="interior-invoice-list">
+							{right.length > 0 ? (
+								right.map((item) => renderInvoiceItem(item, "right"))
+							) : (
+								<div className="interior-invoice-list-empty">
+									견적에 포함할 항목을 선택하세요.
+								</div>
+							)}
+						</div>
+					</section>
+				</div>
+				<div className="interior-invoice-footer">
+					<Button
+						className="interior-invoice-save-button"
+						color="success"
+						variant="contained"
+						disabled={right.length === 0}
+						onClick={() => {
+							setSaveDialogOpen(!saveDialogOpen);
+						}}>
+						견적 저장
+					</Button>
+				</div>
 			</div>
 
 			{saveDialogOpen && (

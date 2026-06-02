@@ -201,6 +201,10 @@
 	gap: 16px;
 }
 
+.dashboard-company-detail-card {
+	min-height: 220px;
+}
+
 .dashboard-company-profile {
 	display: flex;
 	align-items: center;
@@ -265,6 +269,10 @@
 .dashboard-company-preview {
 	display: block;
 	margin-top: 2px;
+}
+
+.updateFile {
+	width: 100%;
 }
 
 .dashboard-company-create .dashboard-company-form-grid .MuiButton-root {
