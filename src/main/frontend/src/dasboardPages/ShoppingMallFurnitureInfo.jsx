@@ -21,6 +21,7 @@ import FilterBar from "../components/FilterBar";
 import TabsMui from "../components/TabsMui";
 import dayjs from "dayjs";
 import SkeletonMui from "../components/SkeletonMui";
+import { getFurnitureCategoryTitle } from "../components/FurnitureCategorySelect";
 
 const ShoppingMallFurnitureInfo = () => {
 	const localUserData = localStorage.getItem("user");
@@ -97,7 +98,10 @@ const ShoppingMallFurnitureInfo = () => {
 	const getUniqueFilterOptions = useCallback((list, key) => {
 		return [...new Set(list.map((item) => item[key]).filter(Boolean))].map((item) => ({
 			value: item,
-			title: item,
+			// 0602 모하영: DB에는 영어 카테고리 코드를 유지하고, 필터 화면에는 한글 라벨로 표시함.
+			title: key.startsWith("f_catagory")
+				? getFurnitureCategoryTitle(item)
+				: item,
 		}));
 	}, []);
 
