@@ -279,7 +279,7 @@ const InvoiceDocument = (props) => {
 					<View style={styles.paymentBox}>
 						<Text style={styles.label}>결제 안내</Text>
 						<Text style={styles.smallText}>
-							PlusHome Wallet에 충전된 금액으로 안전하게 결제됩니다.
+							PlusHome은 결제를 책임지지 않습니다.
 						</Text>
 					</View>
 

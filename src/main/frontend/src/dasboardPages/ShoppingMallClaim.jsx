@@ -127,6 +127,9 @@ const ShoppingMallClaim = () => {
 	const [claimStatus, setClaimStatus] = useState("all");
 	const [filterBarState, setFilterBarState] = useState({});
 	const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+	const [appliedFilterBarState, setAppliedFilterBarState] = useState({});
+	const [appliedDateRange, setAppliedDateRange] = useState({ startDate: "", endDate: "" });
+	const [searchKey, setSearchKey] = useState(0);
 	const [alertInfo, setAlertInfo] = useState(alertInit);
 	const [claimList, setClaimList] = useState([]);
 	const [statusCounts, setStatusCounts] = useState({});
@@ -167,31 +170,35 @@ const ShoppingMallClaim = () => {
 		[shopFilterOptions],
 	);
 
-	const selectedCompanyName = filterBarState.c_name || "all";
-	const claimType = filterBarState.claim_type || "all";
+	const selectedCompanyName = appliedFilterBarState.c_name || "all";
+	const claimType = appliedFilterBarState.claim_type || "all";
 	const isDateRangeInvalid =
 		dateRange.startDate &&
 		dateRange.endDate &&
 		dayjs(dateRange.startDate).isAfter(dayjs(dateRange.endDate));
+	const isAppliedDateRangeInvalid =
+		appliedDateRange.startDate &&
+		appliedDateRange.endDate &&
+		dayjs(appliedDateRange.startDate).isAfter(dayjs(appliedDateRange.endDate));
 
 	const requestParams = useMemo(
 		() => ({
 			c_id: id,
 			c_name: selectedCompanyName,
 			claimType,
-			startDate: dateRange.startDate,
-			endDate: dateRange.endDate,
+			startDate: appliedDateRange.startDate,
+			endDate: appliedDateRange.endDate,
 			page: 1,
 			size: 100,
 		}),
-		[id, selectedCompanyName, claimType, dateRange.startDate, dateRange.endDate],
+		[id, selectedCompanyName, claimType, appliedDateRange.startDate, appliedDateRange.endDate],
 	);
 
 	useEffect(() => {
 		setSelectedNewClaim({});
 		setSelectedManagedClaim({});
 		setCheckedClaimCodes([]);
-	}, [filterBarState, dateRange]);
+	}, [appliedFilterBarState, appliedDateRange]);
 
 	const newClaimList = useMemo(
 		() =>
@@ -233,7 +240,7 @@ const ShoppingMallClaim = () => {
 			}
 
 			try {
-				if (isDateRangeInvalid) {
+				if (isAppliedDateRangeInvalid) {
 					setClaimList([]);
 					setStatusCounts({});
 					setTotalCount(0);
@@ -334,12 +341,18 @@ const ShoppingMallClaim = () => {
 				}
 			}
 		},
-		[isDateRangeInvalid, requestParams],
+		[isAppliedDateRangeInvalid, requestParams],
 	);
+
+	const handleSearch = () => {
+		setAppliedFilterBarState(filterBarState);
+		setAppliedDateRange(dateRange);
+		setSearchKey((prev) => prev + 1);
+	};
 
 	useEffect(() => {
 		reloadData();
-	}, [reloadData]);
+	}, [reloadData, searchKey]);
 
 	useEffect(() => {
 		const managedClaimCodeSet = new Set(managedClaimList.map((record) => record.claim_code));
@@ -527,6 +540,9 @@ const ShoppingMallClaim = () => {
 						endLabel={TEXT.endDate}
 						resetLabel={TEXT.dateReset}
 					/>
+					<Button variant="contained" onClick={handleSearch} disabled={isLoading}>
+						검색
+					</Button>
 				</div>
 			</section>
 
@@ -549,7 +565,7 @@ const ShoppingMallClaim = () => {
 							buttonCol={["accept"]}
 							buttonColumns={[TEXT.accept]}
 							pagination={true}
-							resetPageKey={`new-${selectedCompanyName}-${claimType}-${dateRange.startDate}-${dateRange.endDate}`}
+							resetPageKey={`new-${selectedCompanyName}-${claimType}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
 							selectedRow={selectedNewClaim}
 							setSelectedRow={setSelectedNewClaim}
 							onRowClick={() => setSelectedManagedClaim({})}
@@ -615,7 +631,7 @@ const ShoppingMallClaim = () => {
 							checkedList={checkedClaimCodes}
 							setCheckedList={setCheckedClaimCodes}
 							pagination={true}
-							resetPageKey={`managed-${selectedCompanyName}-${claimStatus}-${claimType}-${dateRange.startDate}-${dateRange.endDate}`}
+							resetPageKey={`managed-${selectedCompanyName}-${claimStatus}-${claimType}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
 							selectedRow={selectedManagedClaim}
 							setSelectedRow={setSelectedManagedClaim}
 							onRowClick={() => setSelectedNewClaim({})}
