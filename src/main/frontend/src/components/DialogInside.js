@@ -7,11 +7,17 @@ const DialogInside = ({
   maxWidth,
   fullWidth,
   contentClassName,
+  disableBackdropClose = false,
 }) => {
+  const handleClose = (event, reason) => {
+    if (disableBackdropClose && reason === "backdropClick") return;
+    onClose?.(event, reason);
+  };
+
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
     >

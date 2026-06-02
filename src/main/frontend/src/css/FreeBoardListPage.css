@@ -1,129 +1,277 @@
 /* =====================================================
    FreeBoardListPage.css
    자유게시판 목록 페이지 전용 스타일
-
-   색상 팔레트 (모노크로매틱 블루)
-   --blue-dark:   #1e3a8a  딥 네이비    – 제목·강조
-   --blue-mid:    #4b6bbb  미디엄 블루  – 보조 텍스트
-   --blue-light:  #aec4ed  라이트 블루  – 날짜·아이콘
-   --blue-bg:     #eef2fa  연한 블루 배경 – 테이블 헤드·호버
-   --blue-border: #c5d4f0  블루 경계선
    ===================================================== */
 
-/* ── 페이지 래퍼 ──────────────────────────────────── */
-.freeboard-list-wrapper {
-    animation: fadeInUp 0.3s ease;
+/* ── 공통 브랜드 변수 ──────────────────────────────── */
+.fb-list-page {
+    --fb-blue:      #00a1ff;
+    --fb-blue-h:    #0090e8;
+    --fb-dark:      #1e3a8a;
+    --fb-mid:       #4b6bbb;
+    --fb-light:     #aec4ed;
+    --fb-bg:        #eef2fa;
+    --fb-border:    #c5d4f0;
+    --fb-text:      #0f1d3d;
+    --fb-list-btn:  #00a1ff;
+
+    animation: fb-fadeInUp 0.3s ease;
+    margin-top: 32px;
+    margin-bottom: 32px;
 }
 
-/* ── 상단 타이틀 영역 ─────────────────────────────── */
-.freeboard-list-header {
+/* ── 그리드 레이아웃 ───────────────────────────────── */
+.fb-list-grid {
+    display: grid;
+    gap: 16px;
+    align-items: flex-start;
+}
+@media (min-width: 900px) {
+    .fb-list-grid { grid-template-columns: minmax(0, 1fr) 240px; }
+}
+
+.fb-list-left { min-width: 0; }
+
+.fb-list-side {
+    position: sticky;
+    top: 16px;
+}
+
+/* ── 헤더 (타이틀 + 버튼) ─────────────────────────── */
+.fb-list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
 }
 
-.freeboard-list-title {
-    font-size: 1.4rem;
+.fb-list-title {
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    color: var(--fb-dark) !important;
+}
+
+.fb-header-btns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 글쓰기 버튼 */
+.fb-write-btn.MuiButton-root {
+    background-color: var(--fb-list-btn) !important;
+}
+.fb-write-btn.MuiButton-root:hover {
+    background-color: var(--fb-list-btn) !important;
+    opacity: 0.9;
+}
+
+/* ── 검색 필터 박스 ────────────────────────────────── */
+.fb-search-paper.MuiPaper-root {
+    padding: 16px;
+    margin-bottom: 24px;
+    border: 1px solid var(--fb-border) !important;
+    box-shadow: none !important;
+}
+
+.fb-search-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 날짜 아이콘 버튼 */
+.fb-date-icon-btn.MuiIconButton-root {
+    position: relative;
+    border: 1px solid var(--fb-border);
+    border-radius: 4px !important;
+    padding: 6px;
+    color: var(--fb-light);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+.fb-date-icon-btn.MuiIconButton-root.is-active {
+    color: var(--fb-blue);
+    border-color: var(--fb-mid) !important;
+    background-color: var(--fb-bg);
+}
+
+.fb-date-active-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--fb-blue);
+    pointer-events: none;
+}
+
+/* 검색 버튼 */
+.fb-search-btn.MuiButton-root {
+    background-color: var(--fb-blue) !important;
+    flex-shrink: 0;
+}
+.fb-search-btn.MuiButton-root:hover {
+    background-color: var(--fb-blue-h) !important;
+}
+
+/* 날짜 활성 표시줄 */
+.fb-date-active-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.fb-date-active-label {
+    font-size: 0.72rem !important;
+    color: var(--fb-mid) !important;
+}
+
+.fb-date-reset-btn.MuiButton-root {
+    color: var(--fb-light) !important;
+    font-size: 0.72rem !important;
+    padding: 0 !important;
+    min-width: 0 !important;
+}
+
+/* 날짜 팝오버 내부 */
+.fb-date-popover-title {
     font-weight: 700;
-    color: #1e3a8a;
-    letter-spacing: -0.3px;
+    margin-bottom: 12px;
+    display: block;
+    font-size: 0.75rem;
 }
 
-/* ── 검색 영역 ────────────────────────────────────── */
-.freeboard-search-bar {
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 4px rgba(30, 58, 138, 0.08);
+.fb-popover-btn-row {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
 }
 
-/* ── 테이블 ───────────────────────────────────────── */
-.freeboard-table-container {
+.fb-popover-clear-btn.MuiButton-root {
+    color: var(--fb-light) !important;
+}
+
+.fb-popover-search-btn.MuiButton-root {
+    background-color: var(--fb-blue) !important;
+}
+.fb-popover-search-btn.MuiButton-root:hover {
+    background-color: var(--fb-blue-h) !important;
+}
+
+/* ── 테이블 ────────────────────────────────────────── */
+.fb-table-container.MuiTableContainer-root {
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(30, 58, 138, 0.1);
+    box-shadow: 0 1px 6px rgba(30, 58, 138, 0.1) !important;
 }
 
-.freeboard-table-head {
-    background-color: #eef2fa;
+.fb-table-head.MuiTableHead-root {
+    background-color: var(--fb-bg);
 }
-
-.freeboard-table-head th {
+.fb-table-head th.MuiTableCell-root {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #1e3a8a;
-    border-bottom: 2px solid #c5d4f0;
+    color: var(--fb-dark);
+    border-bottom: 2px solid var(--fb-border);
+    text-align: center;
     padding: 10px 12px;
 }
 
-.freeboard-table-row {
+.fb-table-row.MuiTableRow-root {
     transition: background-color 0.15s ease;
 }
-
-.freeboard-table-row:hover {
-    background-color: #eef2fa !important;
+.fb-table-row.MuiTableRow-root:hover {
+    background-color: var(--fb-bg) !important;
     cursor: pointer;
 }
-
-.freeboard-table-row.hidden-post {
-    opacity: 0.55;
+.fb-table-row.MuiTableRow-root.is-hidden {
+    background-color: rgba(0, 0, 0, 0.03);
+    opacity: 0.7;
 }
 
-/* ── NEW 뱃지 ─────────────────────────────────────── */
-.freeboard-new-badge {
-    font-size: 0.55rem !important;
-    font-weight: 800 !important;
-    height: 16px !important;
-    padding: 0 4px !important;
-    border-radius: 4px !important;
-    vertical-align: middle;
-    flex-shrink: 0;
+/* 제목 셀 */
+.fb-title-cell.MuiTableCell-root {
+    min-width: 200px;
+    max-width: 300px;
+    cursor: pointer;
+}
+.fb-title-cell.MuiTableCell-root.is-hidden {
+    text-decoration: line-through;
+    color: rgba(0, 0, 0, 0.38);
 }
 
-/* ── 카테고리 칩 ──────────────────────────────────── */
-.freeboard-category-chip {
-    height: 20px !important;
-    font-size: 0.68rem !important;
-    font-weight: 600 !important;
+.fb-title-inner {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
 }
 
-/* ── 페이지네이션 ─────────────────────────────────── */
-.freeboard-pagination {
+.fb-title-text.MuiTypography-root {
+    flex: 1;
+    min-width: 0;
+}
+.fb-title-text.MuiTypography-root.is-notice {
+    font-weight: 700 !important;
+}
+.fb-title-text.MuiTypography-root.is-hidden {
+    text-decoration: line-through;
+    color: rgba(0, 0, 0, 0.38) !important;
+}
+
+/* 작성자 셀 */
+.fb-author-cell.MuiTableCell-root {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* 수치 셀 (조회/좋아요/댓글) */
+.fb-stat-cell.MuiTableCell-root {
+    font-size: 0.85rem;
+    color: var(--fb-mid);
+    text-align: center;
+}
+
+/* 날짜 셀 */
+.fb-date-cell.MuiTableCell-root {
+    font-size: 0.85rem;
+    color: var(--fb-light);
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* 빈 목록 */
+.fb-empty-cell.MuiTableCell-root {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+    text-align: center;
+}
+
+/* ── 페이지네이션 ───────────────────────────────────── */
+.fb-pagination-wrap {
     display: flex;
     justify-content: center;
-    margin-top: 28px;
-    padding-bottom: 12px;
+    margin-top: 32px;
 }
 
-/* ── 사이드 패널 (sticky 고정) ───────────────────── */
-.freeboard-side-panel {
-    position: sticky;
-    top: 16px;
+.fb-pagination .MuiPaginationItem-root.Mui-selected {
+    background-color: var(--fb-list-btn);
+    color: #fff;
+}
+.fb-pagination .MuiPaginationItem-root.Mui-selected:hover {
+    background-color: #1a317a;
+}
+.fb-pagination .MuiPaginationItem-root:hover {
+    background-color: var(--fb-bg);
 }
 
-/* ── 통계 숫자 (조회/좋아요/댓글) ────────────────── */
-.freeboard-stat-cell {
-    font-size: 0.82rem;
-    color: #4b6bbb;
-}
-
-/* ── 날짜 셀 ─────────────────────────────────────── */
-.freeboard-date-cell {
-    font-size: 0.78rem;
-    color: #aec4ed;
-    white-space: nowrap;
-}
-
-/* ── 애니메이션 ───────────────────────────────────── */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* ── 애니메이션 ─────────────────────────────────────── */
+@keyframes fb-fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }

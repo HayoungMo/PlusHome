@@ -1,0 +1,113 @@
+.interior-booking {
+  width: 100%;
+  min-width: 0;
+  color: #2f3438;
+}
+
+.interior-booking-dialog-content.MuiDialogContent-root {
+  padding: 0;
+}
+
+.interior-booking-form {
+  width: 100%;
+  max-width: 760px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.interior-booking-head {
+  padding: 20px 22px 18px;
+  border-bottom: 1px solid #d8f1ff;
+  background: #fbfdff;
+  text-align: left;
+}
+
+.interior-booking-head h3 {
+  margin: 2px 0 6px;
+  color: #2f3438;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.interior-booking-head p {
+  margin: 0;
+  color: #828c94;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+
+.interior-booking-eyebrow {
+  margin: 0 0 4px !important;
+  color: #00a1ff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.interior-booking-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 22px;
+  text-align: left;
+}
+
+.interior-booking-fields > * {
+  min-width: 0;
+}
+
+.interior-booking-fields > :nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+.interior-booking-actions {
+  grid-column: 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.interior-booking-actions .MuiButton-root {
+  justify-self: end;
+  min-width: 132px;
+  min-height: 42px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.interior-booking-fields .MuiFormControl-root,
+.interior-booking-fields .MuiTextField-root {
+  width: 100%;
+  background: #ffffff;
+}
+
+.interior-booking-fields .MuiOutlinedInput-root {
+  border-radius: 8px;
+  color: #2f3438;
+  font-weight: 700;
+}
+
+.interior-booking-fields .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #8bdcff;
+}
+
+.interior-booking-fields .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #00a1ff;
+  border-width: 1px;
+}
+
+.interior-booking-fields .MuiInputLabel-root.Mui-focused {
+  color: #0078c2;
+}
+
+.interior-booking-fields textarea {
+  line-height: 1.65;
+}

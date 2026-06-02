@@ -13,10 +13,10 @@ import {
 } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
-import TextFieldMui from "./TextFieldMui";
 import AlertMui from "./AlertMui";
-import DialogMui from "./DialogMui";
 import WalletService from "../service/walletService";
+import {WalletBalanceCounting} from "./WalletBalanceCounting.js";
+import "../css/Wallet.css";
 
 const chargeAmounts = [10000, 30000, 50000, 100000, 300000, 500000];
 const MAX_WALLET_MONEY = 100000000;
@@ -32,10 +32,17 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
     const remainChargeLimit = Math.max(0, MAX_WALLET_MONEY - currentMoney);
     const isOverWalletLimit = afterChargeMoney > MAX_WALLET_MONEY;
 
-    const [confirmOpen, setConfirmOpen] = useState(false);
     const [alertInfo, setAlertInfo] = useState(null);
     const [charging, setCharging] = useState(false);
 
+    const [chargeStep, setChargeStep] = useState(null)
+    // null | "processing" | "conuting" | "done"
+
+    const [chargeResult, setChargeResult] = useState({
+        before: 0,
+        charged: 0,
+        after: 0,
+    })
     useEffect(() => {
         if (open && user?.id) {
             loadWallet();
@@ -99,7 +106,7 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
     const closeWalletModal = () => {
         setMoney("")
         setAlertInfo(null)
-        setConfirmOpen(false)
+        setChargeStep(null)
         onClose?.();
     };
 
@@ -134,14 +141,23 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
             return;
         }
 
-        setConfirmOpen(true);
+        onSubmit();
     };
+
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
     const onSubmit = async () => {
         const chargeMoney = Number(money);
+        const beforeMoney = currentMoney;
 
         try {
             setCharging(true);
+            setChargeResult({
+                before: beforeMoney,
+                charged: chargeMoney,
+                after: beforeMoney + chargeMoney
+            })
+            setChargeStep("processing")
 
             await WalletService.chargeWallet({
                 id: user.id,
@@ -149,13 +165,29 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
             });
 
             const updatedWallet = await WalletService.getMyWallet(user.id);
+            const afterMoney = Number(updatedWallet?.money || beforeMoney + chargeMoney)
+
+            setChargeResult({
+                before: beforeMoney,
+                charged: chargeMoney,
+                after: afterMoney
+            })
+
+            await wait(950)
+
             setWallet(updatedWallet);
             onCharged?.(updatedWallet);
             setMoney("");
-            setConfirmOpen(false);
-            showAlert("success", "충전 완료", "지갑 충전이 완료되었습니다.");
+            
+            setChargeStep("counting")
+
+            await wait(950)
+
+            setChargeStep("done")
+
         } catch (error) {
             console.error("충전 실패", error);
+            setChargeStep(null);
             showAlert("error", "충전 실패", "충전에 실패했습니다.");
         } finally {
             setCharging(false);
@@ -344,30 +376,15 @@ const WalletChargeMui = ({ user, onCharged, open = true, onClose }) => {
                 </DialogContent>
             </Dialog>
 
-            <DialogMui
-                open={confirmOpen}
-                onClose={() => setConfirmOpen(false)}
-                title="충전하시겠습니까?"
-                text={`${Number(money || 0).toLocaleString()}원을 지갑에 충전합니다.`}
-                buttons={[
-                    {
-                        title: "충전",
-                        color: "primary",
-                        variant: "contained",
-                        disabled: charging,
-                        onClick: onSubmit,
-                    },
-                    {
-                        title: "취소",
-                        color: "inherit",
-                        variant: "outlined",
-                        disabled: charging,
-                        onClick: () => setConfirmOpen(false),
-                    },
-                ]}
-                maxWidth="xs"
-                fullWidth
-            />
+            {["processing", "counting", "done"].includes(chargeStep) && (
+                <WalletBalanceCounting
+                    before={chargeResult.before}
+                    after={chargeResult.after}
+                    charged={chargeResult.charged}
+                    step={chargeStep}
+                    onClose={() => setChargeStep(null)}
+                />
+            )}
         </>
     );
 };

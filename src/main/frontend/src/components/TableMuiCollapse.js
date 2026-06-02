@@ -60,6 +60,7 @@ const TableMuiCollapse = ({
 	buttonData = [],
 	collapseColumns,
 	collapseColumnLabels = [],
+	selectedColor = "#b0d2ec",
 }) => {
 	const rows = Array.isArray(rowData) ? rowData : [rowData];
 
@@ -108,6 +109,7 @@ const TableMuiCollapse = ({
 								setSelectedRow={setSelectedRow}
 								isSelected={isSelected}
 								buttonData={buttonData}
+								selectedColor={selectedColor}
 							/>
 						);
 					})}
@@ -164,6 +166,7 @@ const CollapseRow = ({
 	isSelected,
 	setSelectedRow,
 	buttonData = [],
+	selectedColor,
 }) => {
 	const [open, setOpen] = useState(false);
 
@@ -196,7 +199,7 @@ const CollapseRow = ({
 			<StyledTableRow>
 				<StyledTableCell
 					sx={{
-						backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
+						backgroundColor: isSelected ? `${selectedColor} !important` : undefined,
 						cursor: setSelectedRow ? "pointer" : "default",
 					}}>
 					<IconButton size="small" onClick={() => setOpen(!open)}>
@@ -211,7 +214,7 @@ const CollapseRow = ({
 							align="right"
 							onClick={onClickCollapseRow}
 							sx={{
-								backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
+								backgroundColor: isSelected ? `${selectedColor} !important` : undefined,
 								cursor: setSelectedRow ? "pointer" : "default",
 							}}>
 							{renderCell ? renderCell(row, column) : renderValue(row[column])}
@@ -225,7 +228,7 @@ const CollapseRow = ({
 						align="center"
 						
 						sx={{
-							backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
+							backgroundColor: isSelected ? `${selectedColor} !important` : undefined,
 							cursor: setSelectedRow ? "pointer" : "default",
 						}}>
 						<Button color={data.color} variant={data.variant} onClick={() => data.onClick(row)}>

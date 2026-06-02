@@ -5,8 +5,9 @@ import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
 import InteriorService from "../service/interiorService";
 import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
+import "../css/InteriorBooking.css";
 
-const InteriorBooking = ({ company, answers, setBookingPossible }) => {
+const InteriorBooking = ({ company, answers, setBookingPossible, onCancel }) => {
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -120,7 +121,7 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
     }
   };
   return (
-    <div style={{ display: "flex" }}>
+    <div className="interior-booking-form">
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -151,25 +152,54 @@ const InteriorBooking = ({ company, answers, setBookingPossible }) => {
           {alert.text}
         </Alert>
       </Snackbar>
-      <form onSubmit={handleSubmit}>
+      <form className="interior-booking-head" onSubmit={handleSubmit}>
         <div>
+          <p className="interior-booking-eyebrow">BOOKING</p>
+          <h3>상담 예약</h3>
+          <p>
+            희망하는 상담 방식과 일정을 남겨주시면 업체가 예약 내용을
+            확인합니다.
+          </p>
+        </div>
+        <div className="interior-booking-fields">
           <SelectMui
+            label="상담 방식"
             name="kind"
             value={data.kind}
             onChange={handleChange}
             option={option}
             required
+            width="100%"
           />
-          <TextFieldMui name="long" label="long" onChange={handleChange} />
-          <DatePickerMui value={data.date} onChange={handleDateChange} />
+          <TextFieldMui
+            name="long"
+            label="희망 기간"
+            onChange={handleChange}
+            width="100%"
+          />
+          <DatePickerMui
+            value={data.date}
+            onChange={handleDateChange}
+            sx={{ width: "100%" }}
+          />
           <TextFieldMui
             name="content"
-            label="content"
+            label="상담 내용"
             onChange={handleChange}
+            width="100%"
+            multiline
+            minRows={4}
           />
-          <Button variant="contained" color="primary" onClick={handleOpen}>
-            제출
-          </Button>
+          <div className="interior-booking-actions">
+            {onCancel && (
+              <Button variant="outlined" color="inherit" onClick={onCancel}>
+                취소
+              </Button>
+            )}
+            <Button variant="contained" color="primary" onClick={handleOpen}>
+              제출
+            </Button>
+          </div>
           <DialogMui
             open={open}
             onClose={handleClose}

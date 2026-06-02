@@ -13,13 +13,13 @@ import { getFurnitureCategoryCode } from "../components/FurnitureCategorySelect"
 
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
-import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { FaShareAlt } from "react-icons/fa";
+import { FaPen } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
+import { GoHomeFill } from "react-icons/go";
+import { FiShoppingBag } from "react-icons/fi";
 
 import {Snackbar} from "@mui/material";
 import AlertMui from "../components/AlertMui";
@@ -68,6 +68,14 @@ const FurnitureArticle = () => {
         ...prev,
         open: false,
       }));
+    };
+
+    const onGoHome = () => {
+        navigate("/");
+    };
+
+    const onGoShopping = () => {
+        navigate(`/furniture/list`);
     };
 
     const location = useLocation();
@@ -669,6 +677,11 @@ const FurnitureArticle = () => {
     const isManager = canManageFurniture(furniture);
     const showUserActions = !isCompanyUser;
 
+    console.log("loginUser", loginUser);
+    console.log("furniture c_id", furniture?.c_id);
+    console.log("company", getLoginFurnitureCompany());
+    console.log("isManager", isManager);
+
     const articleOrderTotal = selectedOptionSets.reduce((sum, optionSet) => {
         const selectedOptionList = getSelectedOptionListBySet(optionSet);
         const optionTotal = selectedOptionList.reduce(
@@ -678,6 +691,69 @@ const FurnitureArticle = () => {
 
         return sum + (Number(furniture.f_dprice || 0) + optionTotal) * Number(optionSet.quantity || 1);
     }, 0);
+
+    const reviewList = furniture.reviewList || furniture.reviews || [];
+
+    const calculatedReviewAverage =
+        reviewList.length > 0
+            ? reviewList.reduce(
+                (sum, review) => sum + Number(review.fr_star || review.star || 0),
+                0
+            ) / reviewList.length
+            : 0;
+
+    const reviewAverage = Number(
+        furniture.reviewAverage ??
+        furniture.reviewAvg ??
+        furniture.avgStar ??
+        furniture.fr_star_avg ??
+        calculatedReviewAverage ??
+        0
+    );
+
+    const reviewCount = Number(
+        furniture.reviewCount ??
+        furniture.review_count ??
+        furniture.fr_review_count ??
+        reviewList.length ??
+        0
+    );
+
+    const qnaCount = Number(
+        furniture.questionCount ??
+        furniture.qnaCount ??
+        furniture.qna_count ??
+        0
+    );
+
+    const roundedStar = Math.round(reviewAverage);
+
+    const hasCoupon =
+        furniture.hasCoupon === true ||
+        furniture.couponAvailable === true ||
+        Number(furniture.couponCount ?? furniture.coupon_count ?? 0) > 0;
+
+    const onShare = async () => {
+        const shareUrl = window.location.href;
+
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+
+            showAlert({
+                severity: "success",
+                title: "링크 복사 완료",
+                text: "현재 상품 주소가 복사되었습니다.",
+            });
+        } catch (error) {
+            console.error("주소 복사 실패", error);
+
+            showAlert({
+                severity: "error",
+                title: "복사 실패",
+                text: "주소 복사에 실패했습니다.",
+            });
+        }
+    };
 
     return (
       <>
@@ -721,398 +797,415 @@ const FurnitureArticle = () => {
         ]}
       />
 
-      <div className="furniture-article-page">
-        <DialogInside
-            open={couponDialog}
-            onClose={() => setCouponDialog(false)}
-        >
-            <CouponArticleDownload
-                c_id={furniture.c_id}
-                catagory={getFurnitureCategoryCode(furniture.f_catagory1)}
-            />
-        </DialogInside>
+        <div className="furniture-article-page">
+            <DialogInside
+                open={couponDialog}
+                onClose={() => setCouponDialog(false)}
+            >
+                <CouponArticleDownload
+                    c_id={furniture.c_id}
+                    catagory={getFurnitureCategoryCode(furniture.f_catagory1)}
+                />
+            </DialogInside>
 
-        <div className="furniture-article-card">
-            <div className="furniture-article-gallery">
-                <div className="furniture-image-area">
-                    <div className="furniture-thumb-list">
-                        {orderedThumbInfo.map((image, index) => (
-                            <button
-                                type="button"
-                                key={index}
-                                className={
-                                    mainImage?.img_name === image.img_name
-                                        ? "furniture-thumb active"
-                                        : "furniture-thumb"
+            <nav className="furniture-breadcrumb" aria-label="쇼핑 경로">
+                <button type="button" onClick={onGoHome}>
+                    <GoHomeFill/> 홈
+                </button>
+                /
+                <button type="button" onClick={onGoShopping}>
+                    쇼핑 
+                </button>
+                / {furniture.f_name}
+            </nav>
+
+            <div className="furniture-article-card">
+                <div className="furniture-article-gallery">
+                    <div className="furniture-image-area">
+                        <div className="furniture-thumb-list">
+                            {orderedThumbInfo.map((image, index) => (
+                                <button
+                                    type="button"
+                                    key={index}
+                                    className={
+                                        mainImage?.img_name === image.img_name
+                                            ? "furniture-thumb active"
+                                            : "furniture-thumb"
+                                    }
+                                    onClick={() => setMainImage(image)}
+                                >
+                                    <img
+                                        src={`/api/images/FURNITURE/${image.img_name}`}
+                                        alt=""
+                                    />
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="furniture-main-image-wrap">
+                            <img
+                                src={
+                                    mainImage?.img_name
+                                        ? `/api/images/FURNITURE/${mainImage.img_name}`
+                                        : "/no-image.png"
                                 }
-                                onClick={() => setMainImage(image)}
-                            >
-                                <img
-                                    src={`/api/images/FURNITURE/${image.img_name}`}
-                                    alt=""
-                                />
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="furniture-main-image-wrap">
-                        <img
-                            src={
-                                mainImage?.img_name
-                                    ? `/api/images/FURNITURE/${mainImage.img_name}`
-                                    : "/no-image.png"
-                            }
-                            className="furniture-main-image"
-                            alt={furniture.f_name}
-                        />
+                                className="furniture-main-image"
+                                alt={furniture.f_name}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="furniture-article-info">
-                <div className="furniture-article-info-top">
-                    <div>
-                        <p className="furniture-company-name">{furniture.c_name}</p>
-                        <h2>{furniture.f_name}</h2>
-                    </div>
+                <div className="furniture-article-info">
+                    <div className="furniture-article-info-top">
+                        <div>
+                            <p className="furniture-company-name">{furniture.c_name}</p>
+                            <h2>{furniture.f_name}</h2>
+                        </div>
 
-                    <div className="furniture-article-actions">
-                        {isManager && (
+                       <div className="furniture-article-actions">
+                        {isManager ? (
                             <>
-                                <button type="button" onClick={onUpdate}>
-                                    <EditOutlinedIcon fontSize="small" />
-                                    수정
+                                <button
+                                    type="button"
+                                    onClick={onUpdate}
+                                    className="article-icon-action manager-icon-action"
+                                    aria-label="상품 수정"
+                                    title="상품 수정"
+                                >
+                                    <FaPen />
                                 </button>
 
                                 <button
                                     type="button"
-                                    className="danger"
+                                    className="article-icon-action manager-icon-action danger"
                                     onClick={() => setDeleteDialogOpen(true)}
+                                    aria-label="상품 삭제"
+                                    title="상품 삭제"
                                 >
-                                    <DeleteOutlineOutlinedIcon fontSize="small" />
-                                    삭제
+                                    <FaTrashAlt />
                                 </button>
                             </>
-                        )}
+                        ) : (
+                            showUserActions && (
+                                <>
+                                    <button
+                                        type="button"
+                                        disabled={liking}
+                                        onClick={onToggleLike}
+                                        className={liked ? "article-icon-action active-like" : "article-icon-action"}
+                                    >
+                                        {liked ? (
+                                            <FavoriteOutlinedIcon fontSize="small" />
+                                        ) : (
+                                            <FavoriteBorderOutlinedIcon fontSize="small" />
+                                        )}
+                                    </button>
 
-                        {!isManager && showUserActions && (
-                            <>
-                                <button
-                                    type="button"
-                                    disabled={liking}
-                                    onClick={onToggleLike}
-                                    className={liked ? "active-like" : ""}
-                                >
-                                    {liked ? (
-                                        <FavoriteOutlinedIcon fontSize="small" />
-                                    ) : (
-                                        <FavoriteBorderOutlinedIcon fontSize="small" />
-                                    )}
-                                    찜
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => navigator.clipboard?.writeText(window.location.href)}
-                                >
-                                    <ShareOutlinedIcon fontSize="small" />
-                                    공유
-                                </button>
-                            </>
+                                    <button
+                                        type="button"
+                                        className="article-icon-action"
+                                        onClick={onShare}
+                                    >
+                                        <FaShareAlt />
+                                    </button>
+                                </>
+                            )
                         )}
                     </div>
-                </div>
+                    </div>
 
-                <div className="furniture-review-line">
-                    <span className="stars">★★★★★</span>
-                    <strong>4.8</strong>
-                    <span>(0)</span>
-                    <button type="button" onClick={() => setTab("review")}>
-                        리뷰보기
-                    </button>
-                </div>
+                    <div className="furniture-review-line">
+                        <span className="stars">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <span
+                                    key={star}
+                                    className={star <= roundedStar ? "active" : ""}
+                                >
+                                    ★
+                                </span>
+                            ))}
+                        </span>
+
+                        <button type="button" onClick={() => setTab("review")}>
+                            {reviewCount.toLocaleString()}개 리뷰
+                        </button>
+                    </div>
 
                 <div className="furniture-price-area">
-                    <strong>{Number(furniture.f_dprice || 0).toLocaleString()}원</strong>
-
-                    <div>
+                    <div className="furniture-price-sub">
                         <span className="original-price">
                             {Number(furniture.f_price || 0).toLocaleString()}원
                         </span>
+                    </div>
 
-                        <span className="discount-rate">
-                            {furniture.f_discount}%
+                    <div className="furniture-price-main">
+                        <strong>{Number(furniture.f_dprice || 0).toLocaleString()}</strong>
+                        <span>원</span>
+                        <em>{furniture.f_discount}%</em>
+                    </div>
+                </div>
+
+                <div className={hasCoupon ? "furniture-coupon-box" : "furniture-coupon-box disabled"}>
+                    <div>
+                        <strong>{hasCoupon ? "쿠폰이 있어요" : "적용 가능한 쿠폰이 없습니다"}</strong>
+                        <span>
+                            {hasCoupon
+                                ? "사용 가능한 할인 쿠폰을 확인해보세요."
+                                : "현재 이 상품에 사용할 수 있는 쿠폰이 없습니다."}
                         </span>
                     </div>
-                </div>
 
-                <div className="furniture-coupon-box">
-                    <div>
-                        <strong>쿠폰이 있어요</strong>
-                        <span>사용 가능한 할인 쿠폰을 확인해보세요.</span>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={() => setCouponDialog(true)}
-                    >
-                        쿠폰 모두받기
-                    </button>
-                </div>
-
-                <div className="furniture-benefit-list">
-                    <div className="furniture-benefit-item">
-                        <LocalShippingOutlinedIcon />
-                        <div>
-                            <strong>{deliveryPrice === 0 ? "무료배송" : "배송비"}</strong>
-                            <span>
-                                {deliveryPrice === 0
-                                    ? "2~5일 내 배송"
-                                    : `${deliveryPrice.toLocaleString()}원`}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="furniture-benefit-item">
-                        <Inventory2OutlinedIcon />
-                        <div>
-                            <strong>안심 포장</strong>
-                            <span>파손 걱정 없는 안심 포장</span>
-                        </div>
-                    </div>
-
-                    <div className="furniture-benefit-item">
-                        <ReplayOutlinedIcon />
-                        <div>
-                            <strong>14일 이내</strong>
-                            <span>단순변심 OK</span>
-                        </div>
-                    </div>
-
-                    <div className="furniture-benefit-item">
-                        <SavingsOutlinedIcon />
-                        <div>
-                            <strong>최대 {Number(furniture.f_point || 0).toLocaleString()}P 적립</strong>
-                            <span>구매 확정 시 적립</span>
-                        </div>
-                    </div>
-                </div>
-
-                {isSoldOut && (
-                    <div className="furniture-soldout-box">
-                        현재 품절된 상품입니다.
-                    </div>
-                )}
-
-                <div className="furniture-option-area">
-                    {hasOptions ? (
-                        <>
-                            {selectedOptionSets.map((optionSet, setIndex) => (
-                                <div key={setIndex} className="furniture-option-set">
-                                    {Object.entries(optionGroups).map(([groupName, groupOptions]) => (
-                                        <select
-                                            key={groupName}
-                                            value={optionSet.selectedOptions[groupName] || ""}
-                                            onChange={(evt) =>
-                                                changeOptionSet(setIndex, groupName, evt.target.value)
-                                            }
-                                        >
-                                            <option value="">{groupName}을 선택해주세요</option>
-
-                                            {groupOptions.map((option) => (
-                                                <option
-                                                    key={option.o_code}
-                                                    value={option.o_code}
-                                                    disabled={Number(option.o_count) <= 0}
-                                                >
-                                                    {option.o_text}
-                                                    {Number(option.o_price) > 0
-                                                        ? ` (+${Number(option.o_price).toLocaleString()}원)`
-                                                        : ""}
-                                                    {Number(option.o_count) <= 0 ? " 품절" : ""}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    ))}
-
-                                    <div className="furniture-quantity-row">
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                changeOptionSetQuantity(setIndex, optionSet.quantity - 1)
-                                            }
-                                        >
-                                            -
-                                        </button>
-
-                                        <span>{optionSet.quantity}</span>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const limit = getOptionSetStockLimit(optionSet);
-
-                                                if (optionSet.quantity >= limit) {
-                                                    showAlert({
-                                                        severity: "warning",
-                                                        title: "재고 초과",
-                                                        text: "재고 수량을 초과할 수 없습니다.",
-                                                    });
-                                                    return;
-                                                }
-
-                                                changeOptionSetQuantity(setIndex, optionSet.quantity + 1);
-                                            }}
-                                        >
-                                            +
-                                        </button>
-
-                                        {selectedOptionSets.length > 1 && (
-                                            <button
-                                                type="button"
-                                                className="remove-option-set"
-                                                onClick={() => removeOptionSet(setIndex)}
-                                            >
-                                                삭제
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-
-                            <button
-                                type="button"
-                                className="add-option-set"
-                                onClick={addOptionSet}
-                            >
-                                옵션 추가
-                            </button>
-                        </>
-                    ) : (
-                        <div className="furniture-option-set">
-                            <div className="furniture-quantity-row">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        changeOptionSetQuantity(0, selectedOptionSets[0].quantity - 1)
-                                    }
-                                >
-                                    -
-                                </button>
-
-                                <span>{selectedOptionSets[0].quantity}</span>
-
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const limit = getOptionSetStockLimit(selectedOptionSets[0]);
-
-                                        if (selectedOptionSets[0].quantity >= limit) {
-                                            showAlert({
-                                                severity: "warning",
-                                                title: "재고 초과",
-                                                text: "재고 수량을 초과할 수 없습니다.",
-                                            });
-                                            return;
-                                        }
-
-                                        changeOptionSetQuantity(0, selectedOptionSets[0].quantity + 1);
-                                    }}
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div>
+                    {hasCoupon && (
+                        <button type="button" onClick={() => setCouponDialog(true)}>
+                            쿠폰 모두받기
+                        </button>
                     )}
                 </div>
 
-                <div className="furniture-order-total">
-                    <span>주문금액</span>
-                    <strong>{articleOrderTotal.toLocaleString()}원</strong>
-                </div>
+                    <div className="furniture-benefit-list">
+                        <div className="furniture-benefit-item">
+                            <div className="benefit-icon">
+                                <LocalShippingOutlinedIcon />
+                            </div>
 
-                <div className="furniture-buy-actions">
-                    <button
-                        type="button"
-                        disabled={isSoldOut || addingCart}
-                        onClick={onAddCart}
-                    >
-                        장바구니 담기
-                    </button>
+                            <div className="benefit-copy">
+                                <span>배송비</span>
+                                <strong>
+                                    {deliveryPrice === 0
+                                        ? "무료배송"
+                                        : `${deliveryPrice.toLocaleString()}원`}
+                                </strong>
+                                <small>일반택배</small>
+                            </div>
+                        </div>
 
-                    <button
-                        type="button"
-                        className="primary"
-                        disabled={isSoldOut || buyingNow}
-                        onClick={onPayment}
-                    >
-                        바로 구매하기
-                    </button>
+                        <div className="furniture-benefit-item">
+                            <div className="benefit-icon">
+                                <SavingsOutlinedIcon />
+                            </div>
+
+                            <div className="benefit-copy">
+                                <span>구매 확정 시 적립</span>
+                                <strong>
+                                    최대 {Number(furniture.f_point || 0).toLocaleString()}P 적립
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {isSoldOut && (
+                        <div className="furniture-soldout-box">
+                            현재 품절된 상품입니다.
+                        </div>
+                    )}
+
+                    <div className="furniture-option-area">
+                        {hasOptions ? (
+                            <>
+                                {selectedOptionSets.map((optionSet, setIndex) => (
+                                    <div key={setIndex} className="furniture-option-set">
+                                        {Object.entries(optionGroups).map(([groupName, groupOptions]) => (
+                                            <select
+                                                key={groupName}
+                                                value={optionSet.selectedOptions[groupName] || ""}
+                                                onChange={(evt) =>
+                                                    changeOptionSet(setIndex, groupName, evt.target.value)
+                                                }
+                                            >
+                                                <option value="">{groupName}을 선택해주세요</option>
+
+                                                {groupOptions.map((option) => (
+                                                    <option
+                                                        key={option.o_code}
+                                                        value={option.o_code}
+                                                        disabled={Number(option.o_count) <= 0}
+                                                    >
+                                                        {option.o_text}
+                                                        {Number(option.o_price) > 0
+                                                            ? ` (+${Number(option.o_price).toLocaleString()}원)`
+                                                            : ""}
+                                                        {Number(option.o_count) <= 0 ? " 품절" : ""}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ))}
+
+                                        <div className="furniture-quantity-row">
+                                            <div className="furniture-quantity-stepper">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        changeOptionSetQuantity(setIndex, optionSet.quantity - 1)
+                                                    }
+                                                >
+                                                    −
+                                                </button>
+
+                                                <span>{optionSet.quantity}</span>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const limit = getOptionSetStockLimit(optionSet);
+
+                                                        if (optionSet.quantity >= limit) {
+                                                            showAlert({
+                                                                severity: "warning",
+                                                                title: "재고 초과",
+                                                                text: "재고 수량을 초과할 수 없습니다.",
+                                                            });
+                                                            return;
+                                                        }
+
+                                                        changeOptionSetQuantity(setIndex, optionSet.quantity + 1);
+                                                    }}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+
+                                            {selectedOptionSets.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="remove-option-set"
+                                                    onClick={() => removeOptionSet(setIndex)}
+                                                    aria-label="옵션 삭제"
+                                                    title="옵션 삭제"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className="add-option-set"
+                                    onClick={addOptionSet}
+                                >
+                                    옵션 추가
+                                </button>
+                            </>
+                        ) : (
+                            <div className="furniture-option-set quantity-only">
+                               <div className="furniture-quantity-row">
+                                <div className="furniture-quantity-stepper">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            changeOptionSetQuantity(0, selectedOptionSets[0].quantity - 1)
+                                        }
+                                    >
+                                        −
+                                    </button>
+
+                                    <span>{selectedOptionSets[0].quantity}</span>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const limit = getOptionSetStockLimit(selectedOptionSets[0]);
+
+                                            if (selectedOptionSets[0].quantity >= limit) {
+                                                showAlert({
+                                                    severity: "warning",
+                                                    title: "재고 초과",
+                                                    text: "재고 수량을 초과할 수 없습니다.",
+                                                });
+                                                return;
+                                            }
+
+                                            changeOptionSetQuantity(0, selectedOptionSets[0].quantity + 1);
+                                        }}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="furniture-order-total">
+                        <span>주문금액</span>
+                        <strong>{articleOrderTotal.toLocaleString()}원</strong>
+                    </div>
+
+                    <div className="furniture-buy-actions">
+                        <button
+                            type="button"
+                            disabled={isSoldOut || addingCart}
+                            onClick={onAddCart}
+                        >
+                            장바구니 담기
+                        </button>
+
+                        <button
+                            type="button"
+                            className="primary"
+                            disabled={isSoldOut || buyingNow}
+                            onClick={onPayment}
+                        >
+                            바로 구매하기
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            <div className="furniture-article-tabs">
+                <button
+                    type="button"
+                    onClick={() => setTab("detail")}
+                    className={tab === "detail" ? "active" : ""}
+                >
+                    상세보기
+                </button>
 
                 <button
                     type="button"
-                    className="furniture-back-link"
-                    onClick={onBack}
+                    onClick={() => setTab("review")}
+                    className={tab === "review" ? "active" : ""}
                 >
-                    목록으로 돌아가기
+                    리뷰 {reviewCount.toLocaleString()}
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setTab("qna")}
+                    className={tab === "qna" ? "active" : ""}
+                >
+                    문의 {qnaCount.toLocaleString()}
                 </button>
             </div>
+
+            <div className="furniture-article-content">
+                {tab === "detail" && (
+                    <div>
+                        {othersImages.map((img, idx) => (
+                            <img
+                                key={idx}
+                                src={`/api/images/FURNITURE/${img.img_name}`}
+                                alt=""
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {tab === "review" && (
+                    <div className="furniture-article-panel">
+                        <FurnitureReview f_code={f_code} />
+                    </div>
+                )}
+
+                {tab === "qna" && (
+                    <div className="furniture-article-panel">
+                        <Question f_code={f_code} furniture={furniture} />
+                    </div>
+                )}
+            </div>
         </div>
-
-        <div className="furniture-article-tabs">
-            <button
-                type="button"
-                onClick={() => setTab("detail")}
-                className={tab === "detail" ? "active" : ""}
-            >
-                상세보기
-            </button>
-
-            <button
-                type="button"
-                onClick={() => setTab("review")}
-                className={tab === "review" ? "active" : ""}
-            >
-                리뷰
-            </button>
-
-            <button
-                type="button"
-                onClick={() => setTab("qna")}
-                className={tab === "qna" ? "active" : ""}
-            >
-                문의
-            </button>
-        </div>
-
-        <div className="furniture-article-content">
-            {tab === "detail" && (
-                <div>
-                    {othersImages.map((img, idx) => (
-                        <img
-                            key={idx}
-                            src={`/api/images/FURNITURE/${img.img_name}`}
-                            alt=""
-                        />
-                    ))}
-                </div>
-            )}
-
-            {tab === "review" && (
-                <div className="furniture-article-panel">
-                    <FurnitureReview f_code={f_code} />
-                </div>
-            )}
-
-            {tab === "qna" && (
-                <div className="furniture-article-panel">
-                    <Question f_code={f_code} furniture={furniture} />
-                </div>
-            )}
-        </div>
-
-  </div>
 
     </>
     );
@@ -1120,4 +1213,3 @@ const FurnitureArticle = () => {
 
 export default FurnitureArticle;
 
-//문의랑 리뷰 지워라 죽고 싶지 않으면

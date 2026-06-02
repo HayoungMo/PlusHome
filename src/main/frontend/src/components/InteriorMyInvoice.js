@@ -5,6 +5,7 @@ import { Button } from "@mui/material";
 import InteriorBooking from "./InteriorBooking";
 import TableMuiCollapse from "./TableMuiCollapse";
 import DialogInside from "./DialogInside";
+import InteriorService from "../service/interiorService";
 
 const InteriorMyInvoice = ({ booking }) => {
   const navigate = useNavigate();
@@ -22,6 +23,37 @@ const InteriorMyInvoice = ({ booking }) => {
 
   const BookingAgain = () => {
     setReBooking(!reBooking);
+  };
+
+  const getInvoiceTotal = (invoiceItem) => {
+    return (invoiceItem?.detail || []).reduce(
+      (sum, item) =>
+        sum + Number(item.invoice_qty || 0) * Number(item.invoice_price || 0),
+      0,
+    );
+  };
+
+  const makePdfData = async (data) => {
+    if (!data) return;
+
+    try {
+      const company = await InteriorService.fetchCompany(data);
+
+      const pdfData = {
+        invoice: data,
+        invoiceDetail: data.detail ?? [],
+        company: company,
+        orderBy: "insert",
+      };
+
+      console.log("pdfData:", pdfData);
+
+      sessionStorage.setItem("exportPDFData", JSON.stringify(pdfData));
+
+      window.open("/ExportPDFViewPage", "_blank", "width=1200,height=900");
+    } catch (err) {
+      console.error("PDF 데이터 생성 실패:", err);
+    }
   };
 
   useEffect(() => {
@@ -62,11 +94,14 @@ const InteriorMyInvoice = ({ booking }) => {
   }, [invoice]);
 
   return (
-    <div>
-      <p>견적서 목록</p>
+    <div className="user-invoice-panel">
+      <div className="user-invoice-head">
+        <p className="user-invoice-eyebrow">INVOICE</p>
+        <h4>견적서 목록</h4>
+      </div>
 
       {Array.isArray(invoice) && invoice.length > 0 ? (
-        <div>
+        <div className="user-invoice-content">
           <TableMuiCollapse
             rowData={invoiceWithDetails}
             hiddenColumns={[
@@ -83,18 +118,26 @@ const InteriorMyInvoice = ({ booking }) => {
               "업체 ID",
               "상담 신청일",
               "견적서 순서",
-              "완료 여부"
+              "완료 여부",
             ]}
             collapseKey="detail"
             collapseTitle="견적 상세 내역"
             collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
             collapseColumnLabels={["항목", "수량", "금액"]}
           />
-          {invoice.map((invoiceItem, invoiceIdx) => (
-            <div key={invoiceIdx}>
+          {invoiceWithDetails.map((invoiceItem, invoiceIdx) => (
+            <div className="user-invoice-actions" key={invoiceIdx}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => makePdfData(invoiceItem)}
+              >
+                pdf뽑기
+              </Button>
+
               {booking?.b_status === "done" &&
                 invoiceItem.invoice_kind === "Y" && (
-                  <div>
+                  <div className="user-invoice-done-actions">
                     <Button
                       variant="contained"
                       color="secondary"

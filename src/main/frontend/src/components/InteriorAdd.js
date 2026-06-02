@@ -9,6 +9,7 @@ import {
   formatInteriorAnswerLabel,
   formatInteriorAnswerValue,
 } from "../resources/function/interiorAnswerFormat";
+import "../css/InteriorForm.css";
 
 const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
   const [sendList, setSendList] = useState([]);
@@ -253,7 +254,7 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
   };
 
   return (
-    <div>
+    <div className="interior-add-card">
       {alert.open && (
         <AlertMui
           severity={alert.severity}
@@ -268,9 +269,12 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
           }
         />
       )}
-      <p>인테리어 업체 정보 추가</p>
-      <form name="article" onSubmit={handleSubmit}>
-        <div>
+      <div className="interior-add-head">
+        <strong>인테리어 업체 정보 추가</strong>
+        <span>업체 상세에 노출할 조건과 값을 선택해주세요.</span>
+      </div>
+      <form className="interior-add-form" name="article" onSubmit={handleSubmit}>
+        <div className="interior-add-fields">
           <SelectMui
             name="tag"
             value={form.tag}
@@ -281,7 +285,7 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
           {form.tag !== "location" ? (
             <>
               {selectedQuestion?.multi ? (
-                <div>
+                <div className="interior-add-space-options">
                   <CheckboxMui
                     name="spaces-all"
                     label="전체 선택"
@@ -331,16 +335,18 @@ const InteriorAdd = ({ company, setOpenAddDialog, onSuccess }) => {
               />
             </>
           )}
-          <Button
-            onClick={() => setOpenAddDialog(false)}
-            color="error"
-            variant="contained"
-          >
-            취소
-          </Button>
-          <Button type="submit" variant="contained">
-            제출
-          </Button>
+          <div className="interior-add-actions">
+            <Button
+              onClick={() => setOpenAddDialog(false)}
+              color="inherit"
+              variant="outlined"
+            >
+              취소
+            </Button>
+            <Button type="submit" variant="contained">
+              제출
+            </Button>
+          </div>
         </div>
       </form>
     </div>

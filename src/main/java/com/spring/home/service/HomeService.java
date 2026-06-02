@@ -44,7 +44,7 @@ public class HomeService {
 	@Autowired
 	private UserService userService;
 
-	// 추천 가구 띄우기 , 5월 19일 메인 알고리즘 숨김처리로 인해 수정함.
+	// 추천 가구 띄우기 , 5월 19일 메인 알고리즘 숨김처리로 인해 수정함.6월 2일 수정
 	public List<FurnitureDTO> getBestFurniture(String id) throws Exception {
 	    List<FurnitureDTO> lists = furnitureService.getListsWithoutImages(
 	            1,
