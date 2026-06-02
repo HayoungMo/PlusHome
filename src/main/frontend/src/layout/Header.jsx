@@ -80,6 +80,7 @@ const Header = ({ loginUser, setLoginUser, setLoginInfo }) => {
 					<nav className="shop-primary-tabs">
 						<NavLink to="/furniture/list">쇼핑</NavLink>
 						<NavLink to="/interior/list">인테리어</NavLink>
+						<NavLink to="/freeboard/list">자유게시판</NavLink>
 					</nav>
 				</div>
 				<form className="shop-search" onSubmit={onSearch}>

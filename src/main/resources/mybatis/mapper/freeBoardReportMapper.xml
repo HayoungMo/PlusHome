@@ -32,10 +32,15 @@
     </select>
 
     <select id="existsPostReport" resultType="int">
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM freeboard_report
         WHERE targetId = #{targetId} AND reporterId = #{reporterId}
     </select>
+
+    <delete id="deletePostReport">
+        DELETE FROM freeboard_report
+        WHERE targetId = #{targetId} AND reporterId = #{reporterId}
+    </delete>
 
     <select id="getReportedPosts" resultType="map">
         SELECT 
@@ -81,10 +86,15 @@
     </select>
 
     <select id="existsCommentReport" resultType="int">
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM freeboard_comment_report
         WHERE targetId = #{targetId} AND reporterId = #{reporterId}
     </select>
+
+    <delete id="deleteCommentReport">
+        DELETE FROM freeboard_comment_report
+        WHERE targetId = #{targetId} AND reporterId = #{reporterId}
+    </delete>
 
     <select id="getReportedComments" resultType="map">
         SELECT 

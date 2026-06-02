@@ -1,30 +1,29 @@
 import http from "../http-common";
-
-/**
- * 토큰이 있을 때만 Authorization 헤더를 첨부한다.
- * (없을 때 'Bearer null' 을 보내면 백엔드 JWT 파싱이 예외에 의존하게 됨)
- */
-const authHeader = () => {
-    const token = localStorage.getItem("token");
-    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-};
+import authHeader from "./authHeader";
 
 const FreeBoardService = {
-    // ── 조회 ──────────────────────────────────────────────────────
-    getLists:        async (params)   => (await http.get("/freeboard/list", { params })).data,
-    getFreeBoard:    async (boardId)  => (await http.get(`/freeboard/article/${boardId}`)).data,
-    incrementView:   async (boardId)  => http.put(`/freeboard/article/${boardId}/view`),
-    getNav:          async (boardId)  => (await http.get(`/freeboard/article/${boardId}/nav`)).data,
+    // 조회
+    getLists:        (params)   => http.get("/freeboard/list", { params }).then(r => r.data),
+    getFreeBoard:    (boardId)  => http.get(`/freeboard/article/${boardId}`).then(r => r.data),
+    incrementView:   (boardId)  => http.put(`/freeboard/article/${boardId}/view`),
+    getNav:          (boardId)  => http.get(`/freeboard/article/${boardId}/nav`).then(r => r.data),
 
-    // ── 작성 / 수정 / 삭제 ────────────────────────────────────────
-    insertFreeBoard: async (dto)      => http.post("/freeboard/write",        dto,        authHeader()),
-    updateFreeBoard: async (dto)      => http.put("/freeboard/update",        dto,        authHeader()),
-    deleteFreeBoard: async (boardId)  => http.delete(`/freeboard/delete/${boardId}`,      authHeader()),
-    deleteMulti:     async (boardIds) => (await http.post("/freeboard/delete-multi", { boardIds }, authHeader())).data,
+    // 작성 / 수정 / 삭제
+    insertFreeBoard: (dto)      => http.post("/freeboard/write",           dto, authHeader()),
+    updateFreeBoard: (dto)      => http.put("/freeboard/update",            dto, authHeader()),
+    deleteFreeBoard: (boardId)  => http.delete(`/freeboard/delete/${boardId}`, authHeader()),
+    deleteMulti:     (boardIds) => http.post("/freeboard/delete-multi", { boardIds }, authHeader()).then(r => r.data),
 
-    // ── 좋아요 ────────────────────────────────────────────────────
-    likeFreeBoard:   async (boardId)  => (await http.put(`/freeboard/like/${boardId}`,   {}, authHeader())).data,
-    unlikeFreeBoard: async (boardId)  => (await http.put(`/freeboard/unlike/${boardId}`, {}, authHeader())).data,
+    // 좋아요
+    checkLike:       (boardId)  => http.get(`/freeboard/like/${boardId}/check`, authHeader()).then(r => r.data),
+    likeFreeBoard:   (boardId)  => http.put(`/freeboard/like/${boardId}`,    {}, authHeader()).then(r => r.data),
+    unlikeFreeBoard: (boardId)  => http.put(`/freeboard/unlike/${boardId}`,  {}, authHeader()).then(r => r.data),
+
+    // 신고 / 취소
+    reportPost:        (boardId, reason)   => http.post(`/freeboard/report/post/${boardId}`,      { reason }, authHeader()).then(r => r.data),
+    cancelPostReport:  (boardId)           => http.delete(`/freeboard/report/post/${boardId}`,                authHeader()).then(r => r.data),
+    reportComment:     (commentId, reason) => http.post(`/freeboard/report/comment/${commentId}`, { reason }, authHeader()).then(r => r.data),
+    cancelCommentReport: (commentId)       => http.delete(`/freeboard/report/comment/${commentId}`,           authHeader()).then(r => r.data),
 };
 
 export default FreeBoardService;

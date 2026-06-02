@@ -136,16 +136,32 @@
     </update>
 
     <update id="updateLikeCount" parameterType="long">
-        UPDATE freeboard 
-        SET likeCount = likeCount + 1 
+        UPDATE freeboard
+        SET likeCount = likeCount + 1
         WHERE boardId = #{boardId}
     </update>
 
     <update id="unlikeCount" parameterType="long">
-        UPDATE freeboard 
-        SET likeCount = GREATEST(likeCount - 1, 0) 
+        UPDATE freeboard
+        SET likeCount = GREATEST(likeCount - 1, 0)
         WHERE boardId = #{boardId}
     </update>
+
+    <!-- 좋아요 테이블 (FREEBOARD_LIKE) 관련 -->
+    <insert id="insertLike">
+        INSERT INTO FREEBOARD_LIKE (boardId, userId, createdAt)
+        VALUES (#{boardId}, #{userId}, SYSDATE)
+    </insert>
+
+    <delete id="deleteLike">
+        DELETE FROM FREEBOARD_LIKE
+        WHERE boardId = #{boardId} AND userId = #{userId}
+    </delete>
+
+    <select id="checkLike" resultType="int">
+        SELECT COUNT(*) FROM FREEBOARD_LIKE
+        WHERE boardId = #{boardId} AND userId = #{userId}
+    </select>
 
     <update id="updateHiddenStatus" parameterType="map">
         UPDATE freeboard 
@@ -180,62 +196,8 @@
         ) WHERE rownum = 1
     </select>
 
-    <select id="getLatestPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM (
-            SELECT 
-                f.boardId, 
-                CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
-                f.userName, 
-                f.category, 
-                f.title, 
-                f.viewCount, 
-                f.likeCount, 
-                f.commentCount, 
-                f.hidden, 
-                f.createdAt 
-            FROM freeboard f
-            LEFT JOIN users u ON f.userId = u.id
-            ORDER BY f.createdAt DESC
-        ) WHERE rownum &lt;= 5
-    </select>
-
-    <select id="getTopLikedPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM (
-            SELECT 
-                f.boardId, 
-                CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
-                f.userName, 
-                f.category, 
-                f.title, 
-                f.viewCount, 
-                f.likeCount, 
-                f.commentCount, 
-                f.hidden, 
-                f.createdAt 
-            FROM freeboard f
-            LEFT JOIN users u ON f.userId = u.id
-            ORDER BY f.likeCount DESC
-        ) WHERE rownum &lt;= 5
-    </select>
-
-    <select id="getTopCommentedPosts" resultType="com.spring.home.dto.FreeBoardDTO">
-        SELECT * FROM (
-            SELECT 
-                f.boardId, 
-                CASE WHEN u.joined = 'N' THEN '탈퇴한 회원' ELSE f.userId END as userId, 
-                f.userName, 
-                f.category, 
-                f.title, 
-                f.viewCount, 
-                f.likeCount, 
-                f.commentCount, 
-                f.hidden, 
-                f.createdAt 
-            FROM freeboard f
-            LEFT JOIN users u ON f.userId = u.id
-            ORDER BY f.commentCount DESC
-        ) WHERE rownum &lt;= 5
-    </select>
+    <!-- getLatestPosts / getTopLikedPosts / getTopCommentedPosts 제거
+         → FreeBoardStatsMapper(selectAllLatest 등)에서 동일 데이터 제공 -->
 
     <!-- ※ 신고 관련 쿼리는 freeBoardReportMapper.xml / freeBoardStatsMapper.xml 에서 관리 -->
 
