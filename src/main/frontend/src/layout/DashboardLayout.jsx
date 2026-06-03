@@ -43,10 +43,10 @@ const DashboardLayout = () => {
 		alert("권한이 없습니다.");
 	}
 
-	const interior = companyList.filter((data) => data.c_kind === "interior") ?? [];
+	const interior = companyList?.filter((data) => data.c_kind === "interior") ?? [];
 	const hasInterior = interior.length > 0;
 
-	const shoppingMall = companyList.filter((data) => data.c_kind === "shop") ?? [];
+	const shoppingMall = companyList?.filter((data) => data.c_kind === "shop") ?? [];
 	const hasShoppingMall = shoppingMall.length > 0;
 
 	const menuMap = {

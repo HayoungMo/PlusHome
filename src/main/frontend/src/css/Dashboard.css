@@ -536,6 +536,57 @@
 	padding-top: 2px;
 }
 
+.shopping-mall-product-empty-guide {
+	min-height: 220px;
+	flex-direction: column;
+	gap: 10px;
+	padding: 28px 32px;
+	border-style: solid;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+	text-align: center;
+}
+
+.shopping-mall-product-empty-guide strong {
+	display: block;
+	font-size: 18px;
+	font-weight: 900;
+	line-height: 1.35;
+	color: #111827;
+}
+
+.shopping-mall-product-empty-guide span {
+	display: block;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.5;
+	color: #64748b;
+}
+
+.shopping-mall-product-empty-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.shopping-mall-product-empty-actions .MuiFormControl-root {
+	background-color: #ffffff;
+}
+
+.shopping-mall-product-empty-actions .MuiButton-root {
+	min-height: 40px;
+	min-width: 104px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.shopping-mall-product-empty-actions .MuiButton-root:hover {
+	box-shadow: none;
+}
+
 .shopping-mall-order-page {
 	width: 100%;
 	display: flex;

@@ -266,7 +266,7 @@ public class InteriorService {
 	}
 
 	private BookingDTO findBookingForInvoice(InvoiceDTO invoice) throws Exception {
-		List<BookingDTO> bookingList = interiorMapper.getBookings(toBookingDTO(invoice));
+		List<BookingDTO> bookingList = interiorMapper.getBookingsByBooking(toBookingDTO(invoice));
 
 		for (BookingDTO booking : bookingList) {
 			if (booking.getB_createdDate() != null

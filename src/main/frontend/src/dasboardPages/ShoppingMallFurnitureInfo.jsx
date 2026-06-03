@@ -19,9 +19,63 @@ import FurnitureUpdatePage from "./../pages/FurnitureUpdatePage";
 import DialogMui from "../components/DialogMui";
 import FilterBar from "../components/FilterBar";
 import TabsMui from "../components/TabsMui";
+import SelectMui from "./../components/SelectMui";
 import dayjs from "dayjs";
 import SkeletonMui from "../components/SkeletonMui";
 import { getFurnitureCategoryTitle } from "../components/FurnitureCategorySelect";
+
+const FurnitureIsEmpty = ({
+	hasShopCompanies,
+	hasAnyProducts,
+	hasTabProducts,
+	companyOptions,
+	selectedCompanyName,
+	onCompanyChange,
+	onAddClick,
+}) => {
+	if (!hasShopCompanies) {
+		return (
+			<div className="shopping-mall-empty-state shopping-mall-product-empty-guide">
+				<strong>등록된 쇼핑몰 업체가 없습니다.</strong>
+				<span>상품을 등록하려면 먼저 사업체 관리에서 쇼핑몰 업체를 등록해주세요.</span>
+			</div>
+		);
+	}
+
+	if (!hasTabProducts) {
+		return (
+			<div className="shopping-mall-empty-state shopping-mall-product-empty-guide">
+				<strong>
+					{hasAnyProducts
+						? "선택한 업체에 등록된 상품이 없습니다."
+						: "등록된 쇼핑몰 상품이 없습니다."}
+				</strong>
+				<span>업체를 선택한 뒤 새 상품을 등록할 수 있습니다.</span>
+				<div className="shopping-mall-product-empty-actions">
+					<SelectMui
+						size="small"
+						name="product-empty-company"
+						label="쇼핑몰 업체"
+						value={selectedCompanyName}
+						option={companyOptions}
+						onChange={onCompanyChange}
+						width="260px"
+					/>
+					<Button variant="contained" color="primary" onClick={onAddClick}>
+						상품 등록
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="shopping-mall-empty-state shopping-mall-product-empty-guide">
+			<strong>선택한 조건에 해당하는 상품이 없습니다.</strong>
+			<span>필터 조건을 바꾸거나 검색 조건을 초기화해 다시 확인해주세요.</span>
+		</div>
+	);
+};
 
 const ShoppingMallFurnitureInfo = () => {
 	const localUserData = localStorage.getItem("user");
@@ -62,6 +116,22 @@ const ShoppingMallFurnitureInfo = () => {
 	const [rowsPerPage, setRowsPerPage] = useState(5);
 
 	const isProductLoading = furnitureLoading || imageLoading;
+	const shopCompanyList = useMemo(() => {
+		return shopListState.filter((company) => company.c_name !== "all");
+	}, [shopListState]);
+	const shopCompanyOptions = useMemo(() => {
+		return shopCompanyList.map((company) => ({
+			title: company.c_name,
+			value: company.c_name,
+		}));
+	}, [shopCompanyList]);
+	const currentAddCompany = useMemo(() => {
+		if (selectedTabCompany?.c_kind === "shop") {
+			return selectedTabCompany;
+		}
+
+		return shopCompanyList[0] || null;
+	}, [selectedTabCompany, shopCompanyList]);
 
 	const dialogDeleteConfirmButtonList = [
 		{
@@ -80,9 +150,43 @@ const ShoppingMallFurnitureInfo = () => {
 
 	const handleTabChange = (event, newValue) => {
 		setTabValue(newValue);
-		const selectedCompany = shopListState.find((record) => record.c_name === newValue);
+		const selectedCompany =
+			shopListState.find((record) => record.c_name === newValue) ||
+			shopListState[0];
 		setSelectedTabCompany(selectedCompany);
 		setFilterBarState({});
+	};
+
+	const handleEmptyCompanyChange = (event) => {
+		const companyName = event.target.value;
+		const selectedCompany = shopCompanyList.find(
+			(record) => record.c_name === companyName,
+		);
+
+		if (!selectedCompany) return;
+
+		setTabValue(companyName);
+		setAppliedTabValue(companyName);
+		setSelectedTabCompany(selectedCompany);
+		setFilterBarState({});
+		setAppliedFilterBarState({});
+		setPage(1);
+	};
+
+	const handleAddDialogOpen = () => {
+		if (!currentAddCompany) {
+			setAlertInfo({
+				severity: "warning",
+				title: "등록 불가",
+				text: "상품을 등록할 쇼핑몰 업체를 먼저 등록해주세요.",
+			});
+			setAlertOpen(true);
+			return;
+		}
+
+		setSelectedTabCompany(currentAddCompany);
+		setTabValue(currentAddCompany.c_name);
+		setAddDialogOpen(true);
 	};
 
 	const handleFilterChange = (nextFilterValue) => {
@@ -406,11 +510,15 @@ const ShoppingMallFurnitureInfo = () => {
 						<FurnitureInfoDiv key={record.f_code} furniture={record} />
 					))
 				) : (
-					<div className="shopping-mall-empty-state">
-						{appliedTabCompanyFurnitureList.length > 0
-							? "선택한 조건에 해당하는 상품이 없습니다."
-							: "등록된 쇼핑몰 상품이 없습니다."}
-					</div>
+					<FurnitureIsEmpty
+						hasShopCompanies={shopCompanyList.length > 0}
+						hasAnyProducts={allFurnitureImgList.length > 0}
+						hasTabProducts={appliedTabCompanyFurnitureList.length > 0}
+						companyOptions={shopCompanyOptions}
+						selectedCompanyName={currentAddCompany?.c_name || ""}
+						onCompanyChange={handleEmptyCompanyChange}
+						onAddClick={handleAddDialogOpen}
+					/>
 				)}
 			</div>
 			{!isProductLoading && filteredFurnitureList.length > 0 && (
@@ -427,11 +535,11 @@ const ShoppingMallFurnitureInfo = () => {
 				</div>
 			)}
 			<div className="shopping-mall-product-footer">
-				{tabValue !== "all" && (
+				{tabValue !== "all" && currentAddCompany && (
 					<Button
 						variant="contained"
 						color="primary"
-						onClick={() => setAddDialogOpen(true)}>
+						onClick={handleAddDialogOpen}>
 						상품 등록
 					</Button>
 				)}
@@ -457,7 +565,8 @@ const ShoppingMallFurnitureInfo = () => {
 
 					<DialogContent>
 						<FurnitureAddPage
-							cName={selectedTabCompany?.c_name || ""}
+							key={`${currentAddCompany?.c_id || ""}-${currentAddCompany?.c_name || ""}`}
+							company={currentAddCompany}
 							onSuccess={async () => {
 								await reloadFurnitureList();
 								setAddDialogOpen(false);

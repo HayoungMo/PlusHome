@@ -1,14 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Chip } from "@mui/material";
+import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import TextFieldMui from "../components/TextFieldMui";
-import RadioMui from "../components/RadioMui";
 import TableMui from "../components/TableMui";
 import CompanyService from "../service/companyService";
 import ImageService from "../service/imageService";
-import GetImgDir from "../resources/function/GetImgDir";
+import GetImgDir, { getImgDirSimple } from "../resources/function/GetImgDir";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
+import AddressSearchForm from "../maps/AddressSearchForm";
+import UserPageService from "../service/userPageService";
 import "../css/DashboardCompany.css";
 
 const makeCompanyKey = (row) => {
@@ -21,7 +30,7 @@ const getChangedCompanyPayload = (origin, edited) => {
 
 	const changedFields = {};
 	Object.keys(edited).forEach((key) => {
-		if (key === "rowIndex") return;
+		if (["rowIndex", "c_addr1", "c_addr2"].includes(key)) return;
 		if (edited[key] !== origin[key]) {
 			changedFields[key] = edited[key];
 		}
@@ -36,6 +45,61 @@ const getChangedCompanyPayload = (origin, edited) => {
 		...changedFields,
 	};
 };
+
+const COMPANY_ADDRESS_SEPARATOR = "__";
+
+const parseCompanyAddress = (address) => {
+	if (!address) return { c_addr1: "", c_addr2: "" };
+
+	const [baseAddress = "", ...detailParts] = String(address).split(COMPANY_ADDRESS_SEPARATOR);
+
+	return {
+		c_addr1: baseAddress,
+		c_addr2: detailParts.join(COMPANY_ADDRESS_SEPARATOR),
+	};
+};
+
+const buildCompanyAddress = (baseAddress, detailAddress) => {
+	return [baseAddress, detailAddress]
+		.filter((value) => value && String(value).trim())
+		.join(COMPANY_ADDRESS_SEPARATOR);
+};
+
+const formatAddress = (address) => {
+	if (!address) return "";
+	const { c_addr1, c_addr2 } = parseCompanyAddress(address);
+	return [c_addr1, c_addr2].filter(Boolean).join(" ");
+};
+
+// const removeUnderBar = (address) => {if (!address) return "";return address.replace(/__(.*)/, " ( $1 ) ");};
+
+const createCompanyFormFromRow = (row, fallbackInfo) => {
+	const source = row || fallbackInfo;
+	return {
+		...fallbackInfo,
+		...source,
+		...parseCompanyAddress(source?.c_addr),
+	};
+};
+
+const isValidCompanyRow = (row) => {
+	return !!(row?.c_id && row?.c_name && row?.c_kind);
+};
+
+const companyTypeOptions = [
+	{
+		value: "shop",
+		title: "쇼핑몰",
+		description: "온라인 쇼핑몰 운영 업체",
+		Icon: StorefrontOutlinedIcon,
+	},
+	{
+		value: "interior",
+		title: "인테리어",
+		description: "인테리어 시공 및 디자인 업체",
+		Icon: ApartmentOutlinedIcon,
+	},
+];
 
 const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => {
 	const localUserData = localStorage.getItem("user");
@@ -55,6 +119,8 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 		c_kind: "",
 		c_tel: "",
 		c_addr: "",
+		c_addr1: "",
+		c_addr2: "",
 		c_info: "",
 		c_boss: "",
 	};
@@ -65,14 +131,10 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 		text: "",
 	};
 
-	const radioList = [
-		{ value: "shop", title: "쇼핑몰" },
-		{ value: "interior", title: "인테리어" },
-	];
-
 	const [companyList, setCompanyList] = useState(initialCompanyList);
 	const [imageList, setImageList] = useState([]);
 	const [imageVersion, setImageVersion] = useState(0);
+	const [profileImage, setProfileImage] = useState(null);
 
 	const [tabValue, setTabValue] = useState("all");
 	const [selectedCompany, setSelectedCompany] = useState(null);
@@ -179,28 +241,94 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 		}
 	};
 
+	const selectedCompanyDetail = useMemo(() => {
+		if (!isValidCompanyRow(selectedCompany)) return null;
+
+		return (
+			companyList.find(
+				(company) => makeCompanyKey(company) === makeCompanyKey(selectedCompany),
+			) || selectedCompany
+		);
+	}, [companyList, selectedCompany]);
+
 	const selectedImage = useMemo(() => {
 		return imageList
 			?.flatMap((logo) => logo?.result || [])
 			.find(
 				(item) =>
-					item.dir_b === selectedCompany?.c_kind &&
-					item.dir_c === selectedCompany?.c_name,
+					String(item.dir_a) === String(selectedCompanyDetail?.c_id) &&
+					item.dir_b === selectedCompanyDetail?.c_kind &&
+					item.dir_c === selectedCompanyDetail?.c_name,
 			);
-	}, [imageList, selectedCompany]);
+	}, [imageList, selectedCompanyDetail]);
 
 	const selectedLogoSrc = useMemo(() => {
 		if (updateLogoPreview) return updateLogoPreview;
 		return selectedImage ? `${selectedImage.img_name}?v=${imageVersion}` : "";
 	}, [selectedImage, updateLogoPreview, imageVersion]);
+	const accountProfileImageSrc = profileImage?.img_name
+		? getImgDirSimple({
+				kind: profileImage.img_kind,
+				name: profileImage.img_name,
+			})
+		: "";
 
 	const filteredCompanyList = useMemo(() => {
-		if (tabValue === "all") return companyList;
-		return companyList.filter((company) => company.c_kind === tabValue);
+		const baseList =
+			tabValue === "all"
+				? companyList
+				: companyList.filter((company) => company.c_kind === tabValue);
+
+		return baseList.map((company) => ({
+			...company,
+			c_addr_display: formatAddress(company.c_addr) || "-",
+		}));
 	}, [companyList, tabValue]);
 
-	const shopCount = companyList.filter((company) => company.c_kind === "shop").length;
-	const interiorCount = companyList.filter((company) => company.c_kind === "interior").length;
+	const shopCount = companyList?.filter((company) => company.c_kind === "shop").length ?? 0;
+	const interiorCount =
+		companyList?.filter((company) => company.c_kind === "interior").length ?? 0;
+	const accountStats = [
+		{
+			label: "등록 사업체",
+			value: `${companyList?.length ?? 0}개`,
+			Icon: AssignmentOutlinedIcon,
+		},
+		{
+			label: "쇼핑몰",
+			value: `${shopCount}개`,
+			Icon: StorefrontOutlinedIcon,
+		},
+		{
+			label: "인테리어",
+			value: `${interiorCount}개`,
+			Icon: ApartmentOutlinedIcon,
+		},
+	];
+	const accountInfoRows = [
+		{ label: "아이디", value: id || "-", Icon: PersonOutlinedIcon },
+		{ label: "이름", value: name || "-", Icon: PersonOutlinedIcon },
+		{ label: "개인연락처", value: tel || "-", Icon: PhoneOutlinedIcon },
+		{ label: "이메일", value: email || "-", Icon: EmailOutlinedIcon },
+	];
+	const addCompanyType = companyTypeOptions.find((option) => option.value === addForm.c_kind);
+	const addPreviewName = addForm.c_name?.trim() || "업체명을 입력하세요";
+	const addPreviewInfo = addForm.c_info?.trim() || "소개를 입력해 주세요";
+	const addPreviewTel = addForm.c_tel?.trim() || "전화번호를 입력하세요";
+	const editCompanyType = companyTypeOptions.find((option) => option.value === editForm.c_kind);
+	const editPreviewName = editForm.c_name?.trim() || "업체명을 입력하세요";
+	const editPreviewInfo = editForm.c_info?.trim() || "소개를 입력해 주세요";
+	const editPreviewTel = editForm.c_tel?.trim() || "전화번호를 입력하세요";
+	const editPreviewLogo = updateLogoPreview || selectedLogoSrc;
+	const selectedCompanyType = companyTypeOptions.find(
+		(option) => option.value === selectedCompanyDetail?.c_kind,
+	);
+	const selectedCompanyKindLabel =
+		selectedCompanyType?.title || selectedCompanyDetail?.c_kind || "업체 구분 없음";
+	const selectedCompanyAddress = formatAddress(selectedCompanyDetail?.c_addr) || "주소 정보 없음";
+	const selectedCompanyTel = selectedCompanyDetail?.c_tel || "전화번호 정보 없음";
+	const selectedCompanyBoss = selectedCompanyDetail?.c_boss || "대표자 정보 없음";
+	const selectedCompanyIntro = selectedCompanyDetail?.c_info || "등록된 소개가 없습니다.";
 
 	const resetAddForm = (kind = "") => {
 		setAddForm({ ...initCompanyInfo, c_kind: kind });
@@ -221,7 +349,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	};
 
 	const handleSelectCompany = (row) => {
-		setSelectedCompany(row);
+		setSelectedCompany(isValidCompanyRow(row) ? row : null);
 		setIsEditing(false);
 		resetUpdateLogo();
 	};
@@ -234,6 +362,10 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	const handleAddFormChange = (e) => {
 		const { name, value } = e.target;
 		setAddForm((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleAddKindSelect = (kind) => {
+		setAddForm((prev) => ({ ...prev, c_kind: kind }));
 	};
 
 	const handleAddLogoChange = (e) => {
@@ -278,7 +410,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	};
 
 	const updateCompanyLogo = async () => {
-		if (!selectedCompany || !updateLogoFile) return null;
+		if (!selectedCompanyDetail || !updateLogoFile) return null;
 
 		if (selectedImage?.img_originalName) {
 			return ImageService.updateImage([
@@ -289,32 +421,59 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 			]);
 		}
 
-		return insertCompanyLogo(selectedCompany, updateLogoFile);
+		return insertCompanyLogo(selectedCompanyDetail, updateLogoFile);
 	};
 
-	const validateCompanyForm = (form) => {
+	const validateCompanyForm = (form, mode = "create", options = {}) => {
+		const { hasLogo = false } = options;
+
 		if (!form.c_name?.trim()) return "업체명을 입력하세요.";
 		if (!form.c_kind) return "업체 구분을 선택하세요.";
 		if (!form.c_tel?.trim()) return "전화번호를 입력하세요.";
 		if (!form.c_addr?.trim()) return "주소를 입력하세요.";
+
+		if (mode === "create") {
+			if (!form.c_addr1?.trim()) return "지도에서 주소를 선택하세요.";
+			if (!form.c_addr2?.trim()) return "상세주소를 입력하세요.";
+		}
+
 		if (!form.c_boss?.trim()) return "대표자명을 입력하세요.";
+		if (!form.c_info?.trim()) return "소개를 입력하세요.";
+		if (!hasLogo) return "로고 이미지를 등록하세요.";
 		return "";
 	};
 
 	const handleAddCompany = async () => {
-		const validationMessage = validateCompanyForm(addForm);
+		const nextAddress = buildCompanyAddress(addForm.c_addr1, addForm.c_addr2);
+		const nextAddForm = {
+			...addForm,
+			c_addr: nextAddress || addForm.c_addr,
+		};
+		const validationMessage = validateCompanyForm(nextAddForm, "create", {
+			hasLogo: !!addLogoFile,
+		});
 		if (validationMessage) {
 			showAlert({ severity: "warning", title: "입력 확인", text: validationMessage });
 			return;
 		}
 
+		const insertPayload = {
+			c_id: nextAddForm.c_id,
+			c_name: nextAddForm.c_name,
+			c_kind: nextAddForm.c_kind,
+			c_tel: nextAddForm.c_tel,
+			c_addr: nextAddForm.c_addr,
+			c_info: nextAddForm.c_info,
+			c_boss: nextAddForm.c_boss,
+		};
+
 		try {
-			await CompanyService.insertCompany(addForm);
+			await CompanyService.insertCompany(insertPayload);
 			let logoError = null;
 
 			if (addLogoFile) {
 				try {
-					await insertCompanyLogo(addForm, addLogoFile);
+					await insertCompanyLogo(insertPayload, addLogoFile);
 				} catch (error) {
 					logoError = error;
 				}
@@ -323,12 +482,12 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 			const reloadResult = await reloadDataFunc();
 			if (!reloadResult.success) return;
 
-			setCompanyAddInfo?.({ open: false, type: addForm.c_kind });
+			setCompanyAddInfo?.({ open: false, type: nextAddForm.c_kind });
 			resetAddForm();
-			setTabValue(addForm.c_kind || "all");
+			setTabValue(nextAddForm.c_kind || "all");
 			setSelectedCompany(
 				reloadResult.companyList.find(
-					(company) => makeCompanyKey(company) === makeCompanyKey(addForm),
+					(company) => makeCompanyKey(company) === makeCompanyKey(insertPayload),
 				) ||
 					reloadResult.companyList[0] ||
 					null,
@@ -357,7 +516,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	};
 
 	const handleSaveCompany = async () => {
-		if (!selectedCompany) {
+		if (!selectedCompanyDetail) {
 			showAlert({
 				severity: "warning",
 				title: "선택 확인",
@@ -366,14 +525,22 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 			return;
 		}
 
-		const validationMessage = validateCompanyForm(editForm);
+		const nextAddress = buildCompanyAddress(editForm.c_addr1, editForm.c_addr2);
+		const nextEditForm = {
+			...editForm,
+			c_addr: nextAddress || editForm.c_addr,
+		};
+		const validationMessage = validateCompanyForm(nextEditForm, "edit", {
+			hasLogo: !!selectedLogoSrc || !!updateLogoFile,
+		});
 		if (validationMessage) {
 			showAlert({ severity: "warning", title: "입력 확인", text: validationMessage });
+			setSaveConfirmOpen(false);
 			return;
 		}
 
 		try {
-			const changedPayload = getChangedCompanyPayload(selectedCompany, editForm);
+			const changedPayload = getChangedCompanyPayload(selectedCompanyDetail, nextEditForm);
 			let result = { success: true, message: "수정되었습니다." };
 
 			if (changedPayload) {
@@ -441,7 +608,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	};
 
 	const handleDeleteCompany = async () => {
-		if (!selectedCompany) {
+		if (!selectedCompanyDetail) {
 			showAlert({
 				severity: "warning",
 				title: "선택 확인",
@@ -451,7 +618,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 		}
 
 		try {
-			const deletePayload = { ...selectedCompany };
+			const deletePayload = { ...selectedCompanyDetail };
 			delete deletePayload.rowIndex;
 			const result = await CompanyService.deleteCompany([deletePayload]);
 
@@ -488,7 +655,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	};
 
 	const startEdit = () => {
-		if (!selectedCompany) {
+		if (!selectedCompanyDetail) {
 			showAlert({
 				severity: "warning",
 				title: "선택 확인",
@@ -497,18 +664,27 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 			return;
 		}
 
-		setEditForm({ ...selectedCompany });
+		setCompanyAddInfo?.({ open: false, type: "" });
+		resetAddForm();
+		setEditForm(createCompanyFormFromRow(selectedCompanyDetail, initCompanyInfo));
 		resetUpdateLogo();
 		setIsEditing(true);
 	};
 
 	const cancelEdit = () => {
-		setEditForm(selectedCompany ? { ...selectedCompany } : initCompanyInfo);
+		setEditForm(
+			selectedCompanyDetail
+				? createCompanyFormFromRow(selectedCompanyDetail, initCompanyInfo)
+				: initCompanyInfo,
+		);
 		resetUpdateLogo();
 		setIsEditing(false);
 	};
 
 	const openAddPanel = (kind = "") => {
+		setIsEditing(false);
+		setSaveConfirmOpen(false);
+		resetUpdateLogo();
 		setCompanyAddInfo?.({ open: true, type: kind });
 		resetAddForm(kind);
 	};
@@ -523,13 +699,36 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 	}, [id]);
 
 	useEffect(() => {
-		if (!selectedCompany) {
+		let ignore = false;
+
+		const loadProfileImage = async () => {
+			try {
+				const response = await UserPageService.getProfileImage();
+				if (!ignore) {
+					setProfileImage(response?.data || null);
+				}
+			} catch (error) {
+				if (!ignore) {
+					setProfileImage(null);
+				}
+			}
+		};
+
+		loadProfileImage();
+
+		return () => {
+			ignore = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!selectedCompanyDetail) {
 			setEditForm(initCompanyInfo);
 			return;
 		}
 
-		setEditForm({ ...selectedCompany });
-	}, [selectedCompany]);
+		setEditForm(createCompanyFormFromRow(selectedCompanyDetail, initCompanyInfo));
+	}, [selectedCompanyDetail]);
 
 	useEffect(() => {
 		if (companyAddInfo?.open) {
@@ -553,7 +752,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 					<p>등록된 사업체 정보와 로고를 관리합니다.</p>
 				</div>
 				<div className="dashboard-company-summary">
-					<Chip label={`전체 ${companyList.length}개`} variant="outlined" />
+					<Chip label={`전체 ${companyList?.length ?? 0}개`} variant="outlined" />
 					<Chip label={`쇼핑몰 ${shopCount}개`} color="primary" variant="outlined" />
 					<Chip
 						label={`인테리어 ${interiorCount}개`}
@@ -563,20 +762,57 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 				</div>
 			</section>
 
-			<section className="dashboard-company-card">
-				<div className="dashboard-company-card-head">
+			<section className="dashboard-company-card dashboard-company-account-card">
+				<div className="dashboard-company-card-head dashboard-company-account-head">
 					<strong>계정 정보</strong>
 					<span>로그인한 기업 회원의 기본 정보입니다.</span>
 				</div>
 				<div className="dashboard-company-account-grid">
-					<div className="dashboard-company-account-row">
-						<TextFieldMui label="아이디" value={id} disabled width="180px" />
-						<TextFieldMui label="이름" value={name} disabled width="180px" />
-						<TextFieldMui label="개인연락처" value={tel} disabled width="180px" />
-						<TextFieldMui label="이메일" value={email} disabled width="270px" />
-					</div>
-					<div className="dashboard-company-account-row">
-						<TextFieldMui label="개인주소" value={addr} disabled width="100%" />
+					<aside className="company-account-profile-card">
+						<div className="company-account-avatar">
+							{accountProfileImageSrc ? (
+								<img src={accountProfileImageSrc} alt="계정 프로필" />
+							) : (
+								<PersonOutlinedIcon />
+							)}
+						</div>
+						<span className="company-account-badge">기업 회원</span>
+
+						<div className="company-account-stat-list">
+							{accountStats.map(({ label, value, Icon }) => (
+								<div className="company-account-stat" key={label}>
+									<span className="company-account-stat-icon">
+										<Icon />
+									</span>
+									<p>{label}</p>
+									<strong>{value}</strong>
+								</div>
+							))}
+						</div>
+					</aside>
+
+					<div className="company-account-info-panel">
+						<div className="company-account-info-list">
+							{accountInfoRows.map(({ label, value, Icon }) => (
+								<div className="company-account-info-row" key={label}>
+									<span className="company-account-info-icon">
+										<Icon />
+									</span>
+									<strong>{label}</strong>
+									<p>{value}</p>
+								</div>
+							))}
+						</div>
+
+						<div className="company-account-address-box">
+							<span className="company-account-info-icon">
+								<LocationOnOutlinedIcon />
+							</span>
+							<div>
+								<strong>개인주소</strong>
+								<p>{formatAddress(addr) || "-"}</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -603,6 +839,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 						인테리어
 					</Button>
 					<Button
+						className="dashboard-company-add-button"
 						color="success"
 						variant="contained"
 						onClick={() => openAddPanel(tabValue === "all" ? "" : tabValue)}>
@@ -614,7 +851,7 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 					<div className="dashboard-company-table">
 						<TableMui
 							rowData={filteredCompanyList}
-							col={["c_name", "c_kind", "c_tel", "c_addr", "c_boss"]}
+							col={["c_name", "c_kind", "c_tel", "c_addr_display", "c_boss"]}
 							columns={["업체명", "구분", "연락처", "주소", "대표자"]}
 							selectedRow={selectedCompany}
 							setSelectedRow={handleSelectCompany}
@@ -634,74 +871,210 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 
 			<section className="dashboard-company-card dashboard-company-detail-card">
 				<div className="dashboard-company-card-head">
-					<strong>선택 사업체 상세</strong>
-					<span>연락처, 주소, 소개, 대표자명과 로고를 관리합니다.</span>
+					<div>
+						<strong>선택 사업체 상세</strong>
+						<span>연락처, 주소, 소개, 대표자명과 로고를 관리합니다.</span>
+					</div>
+					{selectedCompanyDetail && !isEditing && (
+						<div className="dashboard-company-detail-head-actions">
+							<Button color="primary" variant="contained" onClick={startEdit}>
+								수정
+							</Button>
+							<Button
+								color="error"
+								variant="contained"
+								onClick={() => setDeleteConfirmOpen(true)}>
+								삭제
+							</Button>
+						</div>
+					)}
 				</div>
-				{selectedCompany ? (
+				{selectedCompanyDetail ? (
 					<div className="dashboard-company-detail">
-						<div className="dashboard-company-profile">
-							{selectedLogoSrc ? (
-								<img src={selectedLogoSrc} alt="업체 로고" />
-							) : (
-								<div className="dashboard-company-logo-empty">Logo</div>
-							)}
-							<div className="dashboard-company-profile-text">
-								<strong>{selectedCompany.c_name}</strong>
-								<div>{selectedCompany.c_kind}</div>
-								<div>{selectedCompany.c_addr}</div>
-							</div>
-						</div>
+						{isEditing ? (
+							<div className="dashboard-company-edit-shell">
+								<div className="dashboard-company-create-layout">
+									<div className="dashboard-company-create-main">
+										<section className="dashboard-company-create-section">
+											<div className="dashboard-company-create-section-title">
+												기본 정보
+											</div>
 
-						<div className="dashboard-company-form-grid dashboard-company-detail-fields">
-							<TextFieldMui
-								name="c_tel"
-								label="전화번호"
-								value={editForm.c_tel || ""}
-								disabled={!isEditing}
-								onChange={isEditing ? handleEditFormChange : undefined}
-								width="180px"
-							/>
-							<TextFieldMui
-								name="c_addr"
-								label="주소"
-								value={editForm.c_addr || ""}
-								disabled={!isEditing}
-								onChange={isEditing ? handleEditFormChange : undefined}
-								width="250px"
-							/>
-							<TextFieldMui
-								name="c_boss"
-								label="대표자명"
-								value={editForm.c_boss || ""}
-								disabled={!isEditing}
-								onChange={isEditing ? handleEditFormChange : undefined}
-								width="180px"
-							/>
-							<TextFieldMui
-								name="c_info"
-								label="소개"
-								value={editForm.c_info || ""}
-								disabled={!isEditing}
-								onChange={isEditing ? handleEditFormChange : undefined}
-								multiline
-								rows={5}
-								width="640px"
-							/>
-						</div>
+											<div className="dashboard-company-create-form">
+												<div className="company-create-field full">
+													<TextFieldMui
+														name="c_name"
+														label="업체명"
+														value={editForm.c_name || ""}
+														disabled
+														width="100%"
+													/>
+												</div>
 
-						<div className="dashboard-company-actions">
-							{isEditing ? (
-								<>
-									<Button
-										component="label"
-										variant="contained"
-										startIcon={<CloudUploadIcon />}>
-										로고 변경
-										<input
-											type="file"
-											hidden
-											onChange={handleUpdateLogoChange}
-										/>
+												<div className="company-create-field full">
+													<div className="company-create-label">
+														업체 구분 <span>*</span>
+													</div>
+													<div className="company-type-card-group">
+														{companyTypeOptions.map(
+															({
+																value,
+																title,
+																description,
+																Icon,
+															}) => (
+																<button
+																	type="button"
+																	key={value}
+																	disabled
+																	className={`company-type-card readonly${
+																		editForm.c_kind === value
+																			? " selected"
+																			: ""
+																	}`}>
+																	<span className="company-type-icon">
+																		<Icon />
+																	</span>
+																	<span className="company-type-text">
+																		<strong>{title}</strong>
+																		<em>{description}</em>
+																	</span>
+																	<span className="company-type-check" />
+																</button>
+															),
+														)}
+													</div>
+												</div>
+
+												<div className="company-create-field">
+													<TextFieldMui
+														name="c_tel"
+														label="전화번호"
+														value={editForm.c_tel || ""}
+														onChange={handleEditFormChange}
+														width="100%"
+													/>
+												</div>
+
+												<div className="company-create-field">
+													<TextFieldMui
+														name="c_boss"
+														label="대표자명"
+														value={editForm.c_boss || ""}
+														onChange={handleEditFormChange}
+														width="100%"
+													/>
+												</div>
+
+												<div className="company-create-field full">
+													<div className="company-create-label">
+														주소 <span>*</span>
+													</div>
+													<AddressSearchForm
+														form={editForm}
+														setForm={setEditForm}
+														mapHeight="260px"
+														compact
+													/>
+												</div>
+											</div>
+										</section>
+
+										<section className="dashboard-company-create-section">
+											<div className="dashboard-company-create-section-title">
+												업체 소개 및 로고
+											</div>
+
+											<div className="dashboard-company-create-form">
+												<div className="company-create-field full">
+													<TextFieldMui
+														name="c_info"
+														label="소개"
+														value={editForm.c_info || ""}
+														onChange={handleEditFormChange}
+														multiline
+														rows={4}
+														width="100%"
+													/>
+													<div className="company-create-counter">
+														{(editForm.c_info || "").length} / 500
+													</div>
+												</div>
+
+												<div className="company-create-field full">
+													<Button
+														variant="outlined"
+														component="label"
+														className="company-logo-dropzone">
+														{editPreviewLogo ? (
+															<img
+																src={editPreviewLogo}
+																alt="업체 로고 미리보기"
+															/>
+														) : (
+															<span className="company-logo-dropzone-empty">
+																<CloudUploadIcon />
+																<strong>
+																	이미지를 드래그하거나 클릭하여
+																	업로드하세요.
+																</strong>
+																<em>JPG, PNG · 최대 5MB</em>
+															</span>
+														)}
+														<input
+															type="file"
+															hidden
+															onChange={handleUpdateLogoChange}
+														/>
+													</Button>
+												</div>
+											</div>
+										</section>
+									</div>
+
+									<aside className="dashboard-company-create-preview-card">
+										<div className="dashboard-company-create-section-title">
+											수정 미리보기
+										</div>
+										<div className="company-preview-card">
+											<div className="company-preview-logo">
+												{editPreviewLogo ? (
+													<img
+														src={editPreviewLogo}
+														alt="업체 로고 미리보기"
+													/>
+												) : (
+													<ApartmentOutlinedIcon />
+												)}
+											</div>
+											<strong className="company-preview-name">
+												{editPreviewName}
+											</strong>
+											<span className="company-preview-kind">
+												{editCompanyType
+													? `${editCompanyType.title} 업체`
+													: "업체 구분 선택"}
+											</span>
+											<div className="company-preview-divider" />
+											<div className="company-preview-info">
+												<span>소개</span>
+												<p>{editPreviewInfo}</p>
+											</div>
+											<div className="company-preview-divider" />
+											<div className="company-preview-info">
+												<span>전화번호</span>
+												<p>{editPreviewTel}</p>
+											</div>
+										</div>
+										<div className="company-preview-note">
+											업체명과 업체 구분은 기존 데이터 기준으로 유지됩니다.
+										</div>
+									</aside>
+								</div>
+
+								<div className="dashboard-company-create-footer">
+									<Button color="inherit" variant="outlined" onClick={cancelEdit}>
+										취소
 									</Button>
 									<Button
 										color="primary"
@@ -709,24 +1082,87 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 										onClick={() => setSaveConfirmOpen(true)}>
 										저장
 									</Button>
-									<Button color="inherit" variant="outlined" onClick={cancelEdit}>
-										취소
-									</Button>
-								</>
-							) : (
-								<>
-									<Button color="primary" variant="contained" onClick={startEdit}>
-										수정
-									</Button>
-									<Button
-										color="error"
-										variant="contained"
-										onClick={() => setDeleteConfirmOpen(true)}>
-										삭제
-									</Button>
-								</>
-							)}
-						</div>
+								</div>
+							</div>
+						) : (
+							<>
+								<div className="dashboard-company-detail-read">
+									<div className="company-detail-hero">
+										<div className="company-detail-logo-frame">
+											{selectedLogoSrc ? (
+												<img src={selectedLogoSrc} alt="업체 로고" />
+											) : (
+												<div className="company-detail-logo-placeholder">
+													<ApartmentOutlinedIcon />
+													<span>Logo</span>
+												</div>
+											)}
+										</div>
+
+										<div className="company-detail-hero-content">
+											<div className="company-detail-title-row">
+												<strong>{selectedCompanyDetail.c_name}</strong>
+												<span>{selectedCompanyKindLabel}</span>
+											</div>
+											<div className="company-detail-meta company-detail-address">
+												<LocationOnOutlinedIcon />
+												<p>{selectedCompanyAddress}</p>
+											</div>
+											<div className="company-detail-meta-group">
+												<div className="company-detail-meta">
+													<PhoneOutlinedIcon />
+													<p>{selectedCompanyTel}</p>
+												</div>
+												<div className="company-detail-meta divider">
+													<PersonOutlinedIcon />
+													<p>대표자명: {selectedCompanyBoss}</p>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div className="company-detail-info-grid">
+										<section className="company-detail-panel">
+											<div className="company-detail-panel-title">
+												<AssignmentOutlinedIcon />
+												<strong>기본 정보</strong>
+											</div>
+											<div className="company-detail-row">
+												<span className="company-detail-row-icon">
+													<PhoneOutlinedIcon />
+												</span>
+												<strong>전화번호</strong>
+												<p>{selectedCompanyTel}</p>
+											</div>
+											<div className="company-detail-row">
+												<span className="company-detail-row-icon">
+													<LocationOnOutlinedIcon />
+												</span>
+												<strong>주소</strong>
+												<p>{selectedCompanyAddress}</p>
+											</div>
+											<div className="company-detail-row">
+												<span className="company-detail-row-icon">
+													<PersonOutlinedIcon />
+												</span>
+												<strong>대표자명</strong>
+												<p>{selectedCompanyBoss}</p>
+											</div>
+										</section>
+
+										<section className="company-detail-panel company-detail-intro-panel">
+											<div className="company-detail-panel-title">
+												<ArticleOutlinedIcon />
+												<strong>업체 소개</strong>
+											</div>
+											<div className="company-detail-intro-box">
+												{selectedCompanyIntro}
+											</div>
+										</section>
+									</div>
+								</div>
+							</>
+						)}
 					</div>
 				) : (
 					<p className="dashboard-company-guide">
@@ -738,72 +1174,189 @@ const CompanyInfo = ({ companyAddInfo, setCompanyAddInfo, refreshUserData }) => 
 			</section>
 
 			{companyAdd && (
-				<section className="dashboard-company-card dashboard-company-create">
-					<div className="dashboard-company-card-head">
-						<strong>사업체 등록</strong>
-						<span>새로 관리할 쇼핑몰 또는 인테리어 업체 정보를 입력합니다.</span>
+				<section className="dashboard-company-create-shell">
+					<div className="dashboard-company-create-head">
+						<div>
+							<strong>사업체 등록</strong>
+							<span>새로운 쇼핑몰 또는 인테리어 업체 정보를 등록합니다.</span>
+						</div>
 					</div>
-					<div className="dashboard-company-form-grid">
-						<TextFieldMui
-							onChange={handleAddFormChange}
-							name="c_name"
-							label="업체명"
-							value={addForm.c_name || ""}
-						/>
-						<RadioMui
-							label="업체 구분"
-							name="c_kind"
-							value={addForm.c_kind || ""}
-							onChange={handleAddFormChange}
-							labelList={radioList}
-						/>
-						<TextFieldMui
-							onChange={handleAddFormChange}
-							name="c_tel"
-							label="전화번호"
-							value={addForm.c_tel || ""}
-						/>
-						<TextFieldMui
-							onChange={handleAddFormChange}
-							name="c_addr"
-							label="주소"
-							value={addForm.c_addr || ""}
-						/>
-						<TextFieldMui
-							onChange={handleAddFormChange}
-							name="c_info"
-							label="소개"
-							value={addForm.c_info || ""}
-						/>
-						<TextFieldMui
-							onChange={handleAddFormChange}
-							name="c_boss"
-							label="대표자명"
-							value={addForm.c_boss || ""}
-						/>
-						<Button variant="contained" color="secondary" component="label">
-							로고 등록
-							<input
-								type="file"
-								hidden
-								name="logoFileInput"
-								onChange={handleAddLogoChange}
-							/>
-						</Button>
+
+					<div className="dashboard-company-create-layout">
+						<div className="dashboard-company-create-main">
+							<section className="dashboard-company-create-section">
+								<div className="dashboard-company-create-section-title">
+									기본 정보
+								</div>
+
+								<div className="dashboard-company-create-form">
+									<div className="company-create-field full">
+										<TextFieldMui
+											onChange={handleAddFormChange}
+											name="c_name"
+											label="업체명"
+											value={addForm.c_name || ""}
+											width="100%"
+										/>
+									</div>
+
+									<div className="company-create-field full">
+										<div className="company-create-label">
+											업체 구분 <span>*</span>
+										</div>
+										<div className="company-type-card-group">
+											{companyTypeOptions.map(
+												({ value, title, description, Icon }) => (
+													<button
+														type="button"
+														key={value}
+														className={`company-type-card${
+															addForm.c_kind === value
+																? " selected"
+																: ""
+														}`}
+														onClick={() => handleAddKindSelect(value)}>
+														<span className="company-type-icon">
+															<Icon />
+														</span>
+														<span className="company-type-text">
+															<strong>{title}</strong>
+															<em>{description}</em>
+														</span>
+														<span className="company-type-check" />
+													</button>
+												),
+											)}
+										</div>
+									</div>
+
+									<div className="company-create-field">
+										<TextFieldMui
+											onChange={handleAddFormChange}
+											name="c_tel"
+											label="전화번호"
+											value={addForm.c_tel || ""}
+											width="100%"
+										/>
+									</div>
+
+									<div className="company-create-field">
+										<TextFieldMui
+											onChange={handleAddFormChange}
+											name="c_boss"
+											label="대표자명"
+											value={addForm.c_boss || ""}
+											width="100%"
+										/>
+									</div>
+
+									<div className="company-create-field full">
+										<div className="company-create-label">
+											주소 <span>*</span>
+										</div>
+										<AddressSearchForm
+											form={addForm}
+											setForm={setAddForm}
+											mapHeight="260px"
+											compact
+										/>
+									</div>
+								</div>
+							</section>
+
+							<section className="dashboard-company-create-section">
+								<div className="dashboard-company-create-section-title">
+									업체 소개 및 로고
+								</div>
+
+								<div className="dashboard-company-create-form">
+									<div className="company-create-field full">
+										<TextFieldMui
+											onChange={handleAddFormChange}
+											name="c_info"
+											label="소개"
+											value={addForm.c_info || ""}
+											multiline
+											rows={4}
+											width="100%"
+										/>
+										<div className="company-create-counter">
+											{(addForm.c_info || "").length} / 500
+										</div>
+									</div>
+
+									<div className="company-create-field full">
+										<Button
+											variant="outlined"
+											component="label"
+											className="company-logo-dropzone">
+											{addLogoPreview ? (
+												<img
+													src={addLogoPreview}
+													alt="업체 로고 미리보기"
+												/>
+											) : (
+												<span className="company-logo-dropzone-empty">
+													<CloudUploadIcon />
+													<strong>
+														이미지를 드래그하거나 클릭하여 업로드하세요.
+													</strong>
+													<em>JPG, PNG · 최대 5MB</em>
+												</span>
+											)}
+											<input
+												type="file"
+												hidden
+												name="logoFileInput"
+												onChange={handleAddLogoChange}
+											/>
+										</Button>
+									</div>
+								</div>
+							</section>
+						</div>
+
+						<aside className="dashboard-company-create-preview-card">
+							<div className="dashboard-company-create-section-title">
+								등록 미리보기
+							</div>
+							<div className="company-preview-card">
+								<div className="company-preview-logo">
+									{addLogoPreview ? (
+										<img src={addLogoPreview} alt="업체 로고 미리보기" />
+									) : (
+										<ApartmentOutlinedIcon />
+									)}
+								</div>
+								<strong className="company-preview-name">{addPreviewName}</strong>
+								<span className="company-preview-kind">
+									{addCompanyType
+										? `${addCompanyType.title} 업체`
+										: "업체 구분 선택"}
+								</span>
+								<div className="company-preview-divider" />
+								<div className="company-preview-info">
+									<span>소개</span>
+									<p>{addPreviewInfo}</p>
+								</div>
+								<div className="company-preview-divider" />
+								<div className="company-preview-info">
+									<span>전화번호</span>
+									<p>{addPreviewTel}</p>
+								</div>
+							</div>
+							<div className="company-preview-note">
+								입력한 내용은 저장 전까지 미리보기로만 표시됩니다.
+							</div>
+						</aside>
 					</div>
-					{addLogoPreview && (
-						<img
-							src={addLogoPreview}
-							alt="업체 로고 미리보기"
-							className="dashboard-company-preview"
-						/>
-					)}
-					<div className="dashboard-company-actions">
-						<Button variant="contained" color="primary" onClick={handleAddCompany}>
-							등록
-						</Button>
-						<Button color="error" variant="outlined" onClick={closeAddPanel}>
+
+					<div className="dashboard-company-create-footer">
+						<Button color="inherit" variant="outlined" onClick={closeAddPanel}>
 							취소
+						</Button>
+						<Button variant="contained" color="primary" onClick={handleAddCompany}>
+							사업체 등록
 						</Button>
 					</div>
 				</section>

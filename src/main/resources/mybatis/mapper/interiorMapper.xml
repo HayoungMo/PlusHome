@@ -4,6 +4,40 @@
 
 <mapper namespace="com.spring.home.mapper.InteriorMapper">
 
+	<sql id="bookingSelectColumns">
+	    id,
+	    b_createddate,
+	    c_id,
+	    c_kind,
+	    c_name,
+	    b_kind,
+	    b_long,
+	    b_date,
+	    b_status,
+	    b_content,
+	    b_answer
+	</sql>
+	
+	<sql id="bookingWhere">
+	    <where>
+	        <if test="id != null and id != ''">
+	            AND id = #{id}
+	        </if>
+	
+	        <if test="c_id != null and c_id != ''">
+	            AND c_id = #{c_id}
+	        </if>
+	
+	        <if test="c_kind != null and c_kind != ''">
+	            AND c_kind = #{c_kind}
+	        </if>
+	
+	        <if test="c_name != null and c_name != ''">
+	            AND c_name = #{c_name}
+	        </if>
+	    </where>
+	</sql>
+
 	<!-- 데이터 베이스 테스트 -->
 
 	<insert id="insertInteriorData"
@@ -300,37 +334,14 @@
 	</select>
 
 
-	<select id="getBookings" parameterType="hashMap"
-		resultType="com.spring.home.dto.BookingDTO">
-		SELECT id,
-		b_createddate,
-		c_id,
-		c_kind,
-		c_name,
-		b_kind,
-		b_long,
-		b_date,
-		b_status,
-		b_content,
-		b_answer
-		FROM booking
-		<where>
-			<if test="id != null and id != ''">
-				AND id = #{id}
-			</if>
-
-			<if test="c_id != null and c_id != ''">
-				AND c_id = #{c_id}
-			</if>
-
-			<if test="c_kind != null and c_kind != ''">
-				AND c_kind = #{c_kind}
-			</if>
-
-			<if test="c_name != null and c_name != ''">
-				AND c_name = #{c_name}
-			</if>
-		</where>
+	<select id="getBookings" resultType="com.spring.home.dto.BookingDTO">
+	    SELECT <include refid="bookingSelectColumns" />
+	    FROM booking <include refid="bookingWhere" />
+	</select>
+	
+	<select id="getBookingsByBooking" resultType="com.spring.home.dto.BookingDTO">
+	    SELECT <include refid="bookingSelectColumns" />
+	    FROM booking <include refid="bookingWhere" />
 	</select>
 
 

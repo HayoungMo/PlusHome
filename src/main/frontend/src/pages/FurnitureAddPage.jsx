@@ -13,13 +13,14 @@ import TextFieldMui from "../components/TextFieldMui";
 import SelectMui from "../components/SelectMui";
 import "../css/FurnitureAdd.css";
 
-const FurnitureAddPage = ({ onSuccess }) => {
+const FurnitureAddPage = ({ company: selectedCompany, onSuccess }) => {
 	const localUserData = localStorage.getItem("user");
 	const userData = localUserData ? JSON.parse(localUserData) : {};
 
-	const { id, companyList } = userData;
+	const { id, companyList = [] } = userData;
 
 	const company =
+		(selectedCompany?.c_kind === "shop" ? selectedCompany : null) ||
 		companyList?.find((item) => item.c_kind === "shop") ||
 		companyList?.[0];
 
@@ -57,6 +58,15 @@ const FurnitureAddPage = ({ onSuccess }) => {
 		f_count: "0",
 		f_deliveryPrice: "0"
 	});
+
+	useEffect(() => {
+		setData((prev) => ({
+			...prev,
+			c_id: company?.c_id || id || "",
+			c_kind: company?.c_kind || "shop",
+			c_name: company?.c_name || "",
+		}));
+	}, [company?.c_id, company?.c_kind, company?.c_name, id]);
 
 	//카테고리 - 0515 모하영 
 	const [customCategory, setCustomCategory] = useState({

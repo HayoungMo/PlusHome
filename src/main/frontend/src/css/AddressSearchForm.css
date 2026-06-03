@@ -1,0 +1,362 @@
+.company-address-search {
+	width: 100%;
+	padding: 16px;
+	border: 1px solid #d9dee8;
+	border-radius: 16px;
+	background: #ffffff;
+	box-sizing: border-box;
+}
+
+.company-address-search.compact {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+.company-address-search-inner {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.company-address-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.company-address-title-area {
+	min-width: 0;
+}
+
+.company-address-title-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.company-address-title-icon {
+	font-size: 18px !important;
+	color: #4f46e5;
+	flex-shrink: 0;
+}
+
+.company-address-title {
+	font-size: 14px;
+	font-weight: 800;
+	color: #111827;
+	line-height: 1.35;
+}
+
+.company-address-required {
+	margin-left: 3px;
+	color: #ef4444;
+	font-weight: 800;
+}
+
+.company-address-description {
+	margin: 3px 0 0;
+	font-size: 11.5px;
+	color: #6b7280;
+	line-height: 1.45;
+}
+
+.company-address-selected-chip {
+	display: inline-flex;
+	align-items: center;
+	height: 24px;
+	padding: 0 10px;
+	border: 1px solid #6366f1;
+	border-radius: 999px;
+	color: #4f46e5;
+	background-color: #eef2ff;
+	font-size: 11px;
+	font-weight: 700;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.company-address-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+}
+
+.company-address-base-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+}
+
+.company-address-base-row .company-address-base-field {
+	flex: 1;
+	min-width: 0;
+}
+
+.company-address-search .MuiOutlinedInput-root {
+	border-radius: 10px;
+	background: #ffffff;
+}
+
+.company-address-base-field .MuiOutlinedInput-root {
+	background: #f9fafb;
+}
+
+.company-address-detail-field .MuiOutlinedInput-root {
+	background: #ffffff;
+}
+
+.company-address-input-icon {
+	margin-right: 7px;
+	font-size: 18px !important;
+	color: #9ca3af;
+}
+
+.company-address-search-toggle-btn {
+	height: 40px !important;
+	min-width: 92px !important;
+	border-radius: 10px !important;
+	font-size: 13px !important;
+	font-weight: 700 !important;
+	white-space: nowrap !important;
+}
+
+.company-address-map-area {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.company-address-map-box {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	background: #f8fafc;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.company-address-map-box .default-maps {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.company-address-map-box .default-maps-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.company-address-map-box .search-box-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.company-address-map-box .search-box-input {
+	flex: 1;
+	min-width: 0;
+	height: 36px;
+	padding: 0 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	background: #ffffff;
+	font-size: 13px;
+	color: #111827;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.company-address-map-box .search-box-input:focus {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.company-address-map-box .search-box-button {
+	flex-shrink: 0;
+	height: 36px;
+	padding: 0 14px;
+	border: none;
+	border-radius: 10px;
+	background: #2563eb;
+	color: #ffffff;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	white-space: nowrap;
+	box-sizing: border-box;
+}
+
+.company-address-map-box .search-box-button:hover {
+	background: #1d4ed8;
+}
+
+.company-address-map-box .default-maps-canvas {
+	width: 100%;
+	flex: 1;
+	min-height: 130px;
+	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	background: #eef2f7;
+	box-sizing: border-box;
+}
+
+.company-address-map-box .default-maps-canvas > div {
+	width: 100%;
+	height: 100%;
+}
+
+.company-address-result-box {
+	max-height: 170px;
+	overflow-y: auto;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	background: #ffffff;
+}
+
+.company-address-result-item {
+	width: 100%;
+	padding: 10px 12px;
+	border: 0;
+	border-bottom: 1px solid #f1f5f9;
+	background: #ffffff;
+	text-align: left;
+	cursor: pointer;
+	font-family: inherit;
+	transition: background-color 0.15s ease;
+}
+
+.company-address-result-item:last-child {
+	border-bottom: 0;
+}
+
+.company-address-result-item:hover {
+	background: #f8fafc;
+}
+
+.company-address-result-content {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.company-address-result-icon {
+	margin-top: 2px;
+	font-size: 17px !important;
+	color: #4f46e5;
+	flex-shrink: 0;
+}
+
+.company-address-result-text {
+	min-width: 0;
+}
+
+.company-address-result-main {
+	display: block;
+	font-size: 13px;
+	font-weight: 700;
+	color: #111827;
+	line-height: 1.4;
+}
+
+.company-address-result-sub {
+	display: block;
+	margin-top: 3px;
+	font-size: 12px;
+	color: #6b7280;
+	line-height: 1.4;
+}
+
+.company-address-bottom {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.company-address-save-guide {
+	margin: 0;
+	font-size: 11.5px;
+	color: #6b7280;
+	line-height: 1.45;
+}
+
+.company-address-save-guide strong {
+	color: #1f2937;
+	font-weight: 800;
+}
+
+.company-address-clear-btn {
+	border-radius: 999px !important;
+	font-size: 12px !important;
+	padding: 4px 12px !important;
+	min-height: 28px !important;
+}
+
+.company-address-result-box::-webkit-scrollbar {
+	width: 7px;
+}
+
+.company-address-result-box::-webkit-scrollbar-thumb {
+	border-radius: 999px;
+	background-color: #cbd5e1;
+}
+
+.company-address-result-box::-webkit-scrollbar-track {
+	background-color: #f8fafc;
+}
+
+@media (max-width: 768px) {
+	.company-address-search {
+		padding: 14px;
+		border-radius: 14px;
+	}
+
+	.company-address-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.company-address-selected-chip {
+		align-self: flex-start;
+	}
+
+	.company-address-base-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.company-address-search-toggle-btn {
+		width: 100%;
+	}
+
+	.company-address-map-box {
+		padding: 8px;
+	}
+
+	.company-address-map-box .search-box-container {
+		gap: 6px;
+	}
+
+	.company-address-map-box .search-box-button {
+		padding: 0 10px;
+		font-size: 12px;
+	}
+
+	.company-address-bottom {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
