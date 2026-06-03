@@ -9,6 +9,25 @@ import dayjs from "dayjs";
 import Loading from "../components/Loading";
 import "../css/DashboardInterior.css";
 
+const COMPANY_ADDRESS_SEPARATOR = "__";
+
+const parseCompanyAddress = (address) => {
+	if (!address) return { c_addr1: "", c_addr2: "" };
+
+	const [baseAddress = "", ...detailParts] = String(address).split(COMPANY_ADDRESS_SEPARATOR);
+
+	return {
+		c_addr1: baseAddress,
+		c_addr2: detailParts.join(COMPANY_ADDRESS_SEPARATOR),
+	};
+};
+
+const formatAddress = (address) => {
+	if (!address) return "";
+	const { c_addr1, c_addr2 } = parseCompanyAddress(address);
+	return [c_addr1, c_addr2].filter(Boolean).join(" ");
+};
+
 const InteriorBookingControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = useMemo(() => JSON.parse(localUserData), [localUserData]);
@@ -53,8 +72,13 @@ const InteriorBookingControl = () => {
 					id: index,
 				}));
 
+				const addrSettingList = setIndexToCompanyList.map((company) => ({
+					...company,
+					c_addr_display: formatAddress(company.c_addr) || "-",
+				}));
+
 				setSelectedCompany(null);
-				setInteriorCompanyList(setIndexToCompanyList);
+				setInteriorCompanyList(addrSettingList);
 			} catch (error) {
 				console.error(error);
 
@@ -189,7 +213,7 @@ const InteriorBookingControl = () => {
 							selectedRow={selectedCompany}
 							setSelectedRow={setSelectedCompany}
 							rowData={interiorCompanyList}
-							col={["c_name", "c_tel", "c_addr", "c_boss"]}
+							col={["c_name", "c_tel", "c_addr_display", "c_boss"]}
 							columns={["업체명", "연락처", "주소", "대표자"]}
 						/>
 					) : (
