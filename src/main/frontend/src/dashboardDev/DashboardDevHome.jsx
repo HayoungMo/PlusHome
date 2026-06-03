@@ -7,84 +7,86 @@ import BusinessIcon from "@mui/icons-material/Business";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import BlockIcon from "@mui/icons-material/Block";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import { HiOutlineShoppingBag } from 'react-icons/hi2';
+import { FaWonSign } from 'react-icons/fa';
+import { IoDocument } from "react-icons/io5";
+import { red } from '@mui/material/colors';
 
 const KpiCard = ({
     icon,
     label,
     value,
-    unit,
-    helper,
 }) => (
     <Card
-    sx={{
-        height: 160,
-        borderRadius: "12px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-        border: "1px solid #eef2f7",
-    }}
->
-            <CardContent
-                sx={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 3,
-                    px: 3,
-                }}
-            >
+        sx={{
+            height: 155,
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            border: "1px solid #eef2f7",
+        }}
+    >
+        <CardContent
+            sx={{
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                px: 3,
+                py: 0,
+                "&:last-child": {
+                    pb: 0,
+                },
+            }}
+        >
+
+            {/* 아이콘 영역 */}
             <Box
                 sx={{
-                    width: 86,
-                    height: 86,
+                    width: 72,
+                    height: 72,
                     borderRadius: "50%",
                     backgroundColor: "#edf4ff",
                     display: "flex",
-                    alignItems: "center",
                     justifyContent: "center",
+                    alignItems: "center",
                     flexShrink: 0,
                 }}
             >
                 {icon}
             </Box>
 
+            {/* 텍스트 영역 */}
             <Box
                 sx={{
-                    flex: 1,
-                    height: "100%",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
-                    alignItems: "center",
+                    alignItems: "flex-start",
+                    mt:-0.5,
                 }}
             >
+                <Typography
+                    sx={{
+                        fontSize: "1rem",
+                        fontWeight: 700,
+                        color: "#111827",
+                        mb: 1,
+                    }}
+                >
+                    {label}
+                </Typography>
 
                 <Typography
-                sx={{
-                    fontSize: "1rem",
-                    fontWeight: 700,
-                    color: "#111827",
-                    textAlign: "center",
-                    
-                }}
-            >
-                {label}
-            </Typography>
-
-            <Typography
-                sx={{
-                    fontSize: "2.4rem",
-                    fontWeight: 800,
-                    lineHeight: 1,
-                    color: "#111827",
-                    textAlign: "center",
-                    mt: 0.5,
-                }}
-            >
-                {value}
-            </Typography>
-
-        </Box>
+                    sx={{
+                        fontSize: "2.5rem",
+                        fontWeight: 800,
+                        lineHeight: 1,
+                        color: "#111827",
+                    }}
+                >
+                    {value}
+                </Typography>
+            </Box>
         </CardContent>
     </Card>
 );
@@ -101,9 +103,13 @@ const DashboardDevHome = () => {
         couponCount:"",
         notJoinedUserCount:"",
         notJoinedCompanyCount:"",
+        bookingCount:"",
+        totalPrice:"",
+        totalCount:"",
+        
     })
 
-    const meberKpiCard = [
+    const memberKpiCard = [
     {
         key: "user",
         label: "일반 회원",
@@ -168,7 +174,8 @@ const DashboardDevHome = () => {
 
     const operationCards = [
     {
-        title: "쿠폰 발급",
+        key: "couponCount",
+        label:"쿠폰 발급",
         value: summary.couponCount || 0,
         icon: (
             <ConfirmationNumberIcon
@@ -176,6 +183,45 @@ const DashboardDevHome = () => {
                     fontSize: 40,
                     color: "#f59e0b",
                 }}
+            />
+        ),
+    },
+
+    {
+        key:"bookingCount",
+        label: "예약 건수",
+        value: summary.bookingCount || 0,
+        icon: (
+            <IoDocument
+                size={40}
+                color='#2563eb'
+                
+            />
+        ),
+    },
+
+    {
+        key:"totalPrice",
+        label: "총 매출액",
+        value: Number(summary.totalPrice || 0).toLocaleString(),
+        icon: (
+            <FaWonSign
+                size={40}
+                color='#2563eb'
+                
+            />
+        ),
+    },
+
+    {
+        key:"totalCount",
+        label: "총 판매건수",
+        value: Number(summary.totalCount || 0).toLocaleString(),
+        icon: (
+            <HiOutlineShoppingBag
+                size={40}
+                color='#ee412a'
+                
             />
         ),
     },
@@ -223,7 +269,7 @@ const chartOptions = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            position: "bottom",
+            position: "top",
         },
     },
 };
@@ -237,6 +283,7 @@ const chartOptions = {
                 fontSize: "2rem",
                 fontWeight: 800,
                 mb: 4,
+                textAlign: "center"
             }}
         >
             회원 현황
@@ -244,7 +291,7 @@ const chartOptions = {
 
         <Grid container spacing={3}>
 
-            {meberKpiCard.map((item) => (
+            {memberKpiCard.map((item) => (
     <Grid item xs={12} sm={6} md={3} key={item.key}>
         <KpiCard {...item} />
     </Grid>
@@ -260,7 +307,7 @@ const chartOptions = {
         <Card
             sx={{
                 height: 420,
-                borderRadius: "20px",
+                borderRadius: "12px",
                 boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                 border: "1px solid #eef2f7",
                 p: 3,
@@ -269,17 +316,16 @@ const chartOptions = {
            <Box
                 sx={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 2,
+                    justifyContent: "center",
+                    mb: 3,
                 }}
             >
-
                 <Typography
                     sx={{
                         fontSize: "1.8rem",
                         fontWeight: 700,
-                        mb: 3,
+                        textAlign: "center",
+                        width: "100%",
                     }}
                 >
                     회원 구성 비율
@@ -306,15 +352,24 @@ const chartOptions = {
                 p: 3,
             }}
         >
-            <Typography
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    mb: 3,
+                }}
+            >
+                <Typography
                     sx={{
                         fontSize: "1.8rem",
                         fontWeight: 700,
-                        mb: 3,
+                        textAlign: "center",
+                        width: "100%",
                     }}
                 >
-                가입 / 탈퇴 현황
-            </Typography>
+                    가입 / 탈퇴 현황
+                </Typography>
+            </Box>
 
             <div style={{ height: "320px" }}>
                 <Doughnut
@@ -328,78 +383,42 @@ const chartOptions = {
 
 </Grid>
 
-{/* 운영 현황 */}
-<Typography
-    variant="h5"
-    sx={{
-        mt: 4,
-        mb: 2,
-    }}
->
-    운영 현황
-</Typography>
+        {/* 운영 현황 */}
+        <Typography
+            sx={{
+                fontSize: "2rem",
+                fontWeight: 800,
+                mt: 6,
+                mb: 4,
+                textAlign: "center",
+            }}
+        >
+            운영 현황
+        </Typography>
 
-<Grid container spacing={3}>
 
-    {operationCards.map((card) => (
 
+    <Grid container spacing={3}>
+
+    {operationCards.map((item) => (
         <Grid
             item
             xs={12}
             sm={6}
             md={3}
-            key={card.title}
+            key={item.key}
         >
-
-            <Card
-                sx={{
-                    textAlign: "center",
-                    borderRadius: 3,
-                    boxShadow: 3,
-                }}
-            >
-
-            <CardContent>
-
-    <Grid
-        container
-        alignItems="center"
-        spacing={2}
-    >
-
-        <Grid item>
-            {card.icon}
+            <KpiCard
+                icon={item.icon}
+                label={item.label}
+                value={item.value}
+            />
         </Grid>
-
-        <Grid item>
-
-            <Typography
-                variant="h6"
-                fontWeight="bold"
-            >
-                {card.title}
-            </Typography>
-
-            <Typography
-                variant="h4"
-                fontWeight="bold"
-            >
-                {card.value}
-            </Typography>
-
-        </Grid>
-
-    </Grid>
-
-</CardContent>
-
-            </Card>
-
-        </Grid>
-
     ))}
 
 </Grid>
+
+
 
 
 

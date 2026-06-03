@@ -2,7 +2,7 @@ import React from "react";
 
 const DevDashboardHeader = ({ activeTab, setActiveTab }) => {
     const tabs = [
-        { key: "user", label: "계정 관리" },
+        { key: "user", label: "현황 관리" },
         { key: "shop", label: "쇼핑몰 관리" },
         { key: "interior", label: "인테리어 관리" },
     ];
