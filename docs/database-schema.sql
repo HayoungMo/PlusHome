@@ -14,11 +14,16 @@ create sequence SEQ_FREEBOARD_REPORT_ID
 create sequence SEQ_FREEBOARD_CREPORT_ID
 /
 
+create sequence SEQ_EVENT_IDX
+/
+
 create sequence SEQ_I_EXAMPLE_INDEX
 /
 
 -- PlusHome Oracle schema for SQL generation.
--- Full DDL snapshots were provided in chat on 2026-05-18, 2026-05-22, and 2026-05-27.
+-- Final integrated DDL snapshot is stored at docs/PlusHome_final.sql.
+-- Full DDL snapshots were provided in chat on 2026-05-18, 2026-05-22, 2026-05-27,
+-- and finalized from C:\Users\human-18\Desktop\for_project_3\sql\PlusHome_final.sql on 2026-06-04.
 -- This file stores the schema context Codex should use when generating project SQL.
 -- Key domains:
 -- USERS / COMPANY / INTERIOR: account and company profile data.
@@ -42,6 +47,15 @@ create sequence SEQ_I_EXAMPLE_INDEX
 -- COUPON.COUPON_CATAGORY is VARCHAR2(200), and COUPON_USED was added with default 'N'.
 -- QUESTION.ID is nullable, Q_IDX is the single primary key, and guest question fields Q_GUESTPHONE/Q_PW were added.
 -- IMG has IDX_IMG_KIND_DIRA_TAG on (IMG_KIND, DIR_A, IMG_TAG) and IDX_IMG_NAME on IMG_NAME.
+-- Final 2026-06-04 generator notes:
+-- USERS has STATUS default 'ACTIVE'.
+-- Added SEQ_EVENT_IDX and TRI_EVENT_IDX for EVENT.E_INDEX.
+-- Added FREEBOARD_LIKE and IDX_FREEBOARD_LIKE_USER.
+-- FREEBOARD has USER_TYPE.
+-- CART.F_DSTATUS accepts NULL and -2, -1, 0, 1, 2, 3, 4, 5, 6.
+-- QUESTION.Q_CONTENT and Q_ANSWER are VARCHAR2(2000).
+-- COUPON primary key order is (ID, COUPON_CODE); EVENT_COUPON FK follows that order.
+-- Use docs/PlusHome_final.sql as the source of truth when exact DDL is needed.
 -- 2026-05-28 schema update notes:
 -- CART now has CART_CREATEDDATE and CART_PAYDATE for dashboard/order statistics.
 -- CART.CART_CREATEDDATE stores the time an item was added to cart.

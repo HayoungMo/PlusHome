@@ -4,6 +4,7 @@ import TableMuiCollapse from "./TableMuiCollapse";
 import {
 	Button,
 	Dialog,
+	DialogActions,
 	DialogContent,
 	DialogTitle,
 	Table,
@@ -300,40 +301,50 @@ const BookingUpdate = ({
 			</div>
 			{dialogInfo.open && (
 				<Dialog
+					className="booking-start-dialog"
 					open={dialogInfo.open}
 					onClose={() => setDialogInfo({ ...dialogInfo, open: false })}
-					maxWidth="md"
+					maxWidth="sm"
 					fullWidth>
-					<DialogTitle>{dialogInfo.title}</DialogTitle>
+					<DialogTitle className="booking-start-dialog-title">
+						<span>{dialogInfo.title}</span>
+					</DialogTitle>
 
-					<DialogContent>
-						{dialogInfo.text}
+					<DialogContent className="booking-start-dialog-content">
+						<div className="booking-start-dialog-message">{dialogInfo.text}</div>
 
-						<DatePickerMui
-							value={workingDateInfo.is_startdate}
-							onChange={(e) => {
-								setWorkingDateInfo({ ...workingDateInfo, is_startdate: e });
-							}}
-							label="시공 시작일"
-						/>
-						<DatePickerMui
-							value={workingDateInfo.is_enddate}
-							onChange={(e) => {
-								setWorkingDateInfo({ ...workingDateInfo, is_enddate: e });
-							}}
-							label="시공 종료일"
-						/>
-
-						<Button variant="outlined" color="error" onClick={onClickHandleCloseDialog}>
+						<div className="booking-start-date-grid">
+							<DatePickerMui
+								value={workingDateInfo.is_startdate}
+								onChange={(e) => {
+									setWorkingDateInfo({ ...workingDateInfo, is_startdate: e });
+								}}
+								label="시공 시작일"
+								slotProps={{ textField: { size: "small", fullWidth: true } }}
+								sx={{ width: "100%" }}
+							/>
+							<DatePickerMui
+								value={workingDateInfo.is_enddate}
+								onChange={(e) => {
+									setWorkingDateInfo({ ...workingDateInfo, is_enddate: e });
+								}}
+								label="시공 종료일"
+								slotProps={{ textField: { size: "small", fullWidth: true } }}
+								sx={{ width: "100%" }}
+							/>
+						</div>
+					</DialogContent>
+					<DialogActions className="booking-start-dialog-actions">
+						<Button variant="outlined" color="inherit" onClick={onClickHandleCloseDialog}>
 							취소
 						</Button>
 						<Button
-							variant="outlined"
+							variant="contained"
 							color="primary"
 							onClick={() => onClickConfirmBookingStateChange(dialogInfo.type)}>
 							확인
 						</Button>
-					</DialogContent>
+					</DialogActions>
 				</Dialog>
 			)}
 			{alertInfo?.open && (
