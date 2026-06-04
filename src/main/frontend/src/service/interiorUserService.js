@@ -53,28 +53,6 @@ const fetchInvoiceDetails = async (data) => {
 	}
 };
 
-const payFinalInvoice = async (data) => {
-	try {
-		const res = await http.post("interior/pay/invoice", {
-			id: data.id,
-			c_id: data.c_id,
-			c_kind: data.c_kind,
-			c_name: data.c_name,
-			b_createdDate: data.b_createdDate,
-			invoice_no: data.invoice_no,
-			invoice_kind: data.invoice_kind,
-		});
-
-		return res.data;
-	} catch (err) {
-		console.error("寃ъ쟻??寃곗젣 ?먮윭:", err);
-		return {
-			success: false,
-			message: err.response?.data?.message || "寃곗젣 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.",
-		};
-	}
-};
-
 const fetchInteriorReview = async (id) => {
 	try {
 		const res = await http.post("interior/userreview", {
@@ -167,7 +145,6 @@ const InteriorUserService = {
 	fetchBookingList,
 	fetchInvoice,
 	fetchInvoiceDetails,
-	payFinalInvoice,
 	fetchInteriorReview,
 	AddInteriorReview,
 	UpdateInteriorReview,
