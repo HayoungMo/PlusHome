@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import UserPageService from '../service/userPageService';
-import Address from "../maps/Address";
-import { useNavigate } from 'react-router-dom';
+import AddressSearchForm from "../maps/AddressSearchForm"
 import { Snackbar } from "@mui/material";
 import AlertMui from "../components/AlertMui";
 
@@ -351,20 +350,17 @@ const UserProfilePage = ({
               <span>주소</span>
 
               <div className="user-address">
-                <Address isC={false} form={form} setForm={setForm} mapHeight="360px" />
+                <AddressSearchForm
+                  title="주소"
+                  description="주소 검색 버튼을 눌러 주소를 선택하고 상세주소를 입력하세요."
+                  form={form}
+                  setForm={setForm}
+                  mapHeight="260px"
+                  compact
+                  addressKeys={{ base: "addr1", detail: "addr2", full: "addr" }}
+                />
               </div>
 
-              <input
-                className="user-address-detail-input"
-                name="addr2"
-                value={form.addr2 || ""}
-                onChange={onChange}
-                placeholder="상세주소"
-              />
-
-              <p className="user-address-help-text">
-                아파트 이름이 다를 경우 상세주소를 수정해주세요.
-              </p>
             </div>
           </div>
 

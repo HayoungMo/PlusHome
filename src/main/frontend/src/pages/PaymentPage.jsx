@@ -29,7 +29,8 @@ import CartService from "../service/cartService";
 
 import WalletChargeMui from "../components/WalletChargeMui";
 import TextFieldMui from "../components/TextFieldMui";
-import Address from "../maps/Address";
+import AddressSearchForm from "../maps/AddressSearchForm"
+
 import {
     getFurnitureCategoryCode,
     getFurnitureCategoryTitle,
@@ -562,19 +563,14 @@ const PaymentPage = () => {
                         p: 1,
                       }}
                     >
-                      <Address
-                        isC={false}
+                      <AddressSearchForm
+                        title="배송지"
+                        description="배송받을 주소를 검색하고 상세주소를 입력하세요."
                         form={newReceiver}
                         setForm={setNewReceiver}
-                      />
-
-                      <TextFieldMui
-                        label="상세주소"
-                        name="addr2"
-                        value={newReceiver.addr2 || ""}
-                        onChange={changeNewReceiver}
-                        width="100%"
-                        size="small"
+                        mapHeight="220px"
+                        compact
+                        addressKeys={{ base: "addr1", detail: "addr2", full: "addr" }}
                       />
                     </Box>
                   </Stack>
