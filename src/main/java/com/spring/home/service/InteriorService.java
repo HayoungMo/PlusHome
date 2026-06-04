@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.spring.home.dto.BookingDTO;
@@ -19,8 +18,6 @@ import com.spring.home.dto.InteriorScheduleDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.mapper.InteriorMapper;
-import com.spring.home.mapper.WalletMapper;
-import com.spring.home.dto.WalletDTO;
 
 @Service
 public class InteriorService {	
@@ -28,9 +25,6 @@ public class InteriorService {
 	@Autowired
 	private InteriorMapper interiorMapper;
 
-	@Autowired
-	private WalletMapper walletMapper;
-	
 	public void insertInteriorData(InteriorDTO dto) throws Exception{
 		interiorMapper.insertInteriorData(dto);
 	}
@@ -191,6 +185,7 @@ public class InteriorService {
 		interiorMapper.updateBooking(dto);
 	}
 
+<<<<<<< Updated upstream
 	@Transactional
 	public Map<String, Object> payFinalInvoice(InvoiceDTO dto) throws Exception {
 		Map<String, Object> result = new HashMap<>();
@@ -279,6 +274,8 @@ public class InteriorService {
 		return null;
 	}
 
+=======
+>>>>>>> Stashed changes
 	public void updateInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {
 		interiorMapper.updateInteriorReview(dto);
 	}
