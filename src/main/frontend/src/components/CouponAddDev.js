@@ -147,6 +147,7 @@ const CouponAddDev= (data) => {
           {alert.text}
         </Alert>
       </Snackbar>
+      <div className="coupon-issue-toolbar">
       <form name="coupon">
         <NumberField
           name="discount"
@@ -198,6 +199,7 @@ const CouponAddDev= (data) => {
 
         <Button onClick={(e) => handleSubmit(e)}>발급</Button>
       </form>
+    </div>
     </div>
   );
 };

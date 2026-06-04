@@ -73,7 +73,7 @@ const CouponDownDev = (data) => {
 
 	return (
 		<>
-			<Button variant="contained" disabled={loading} onClick={handleDownload}>
+			<Button className="user-coupon-give-button" variant="outlined" disabled={loading} onClick={handleDownload}>
 				{loading ? "발급 중..." : "쿠폰 지급"}
 			</Button>
 			<Snackbar

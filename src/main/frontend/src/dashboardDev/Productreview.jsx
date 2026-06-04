@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import userService from '../service/userService';
 import TableMui from '../components/TableMui';
+import Loading from '../components/Loading';
 
 const Productreview = () => {
+
+    const [loading, setLoading] = useState(false);
 
     const [reviewStats,setReviewStats] = useState([])
 
@@ -12,9 +15,19 @@ const Productreview = () => {
 
     console.log("상품별 리뷰 데이터가 들어오나유?",result)
 
-    if(result.success){
+    try {
+        setLoading(true)
+
+        if(result.success){
         setReviewStats(result.list)
     }
+        
+    } catch (error) {
+         console.log(error);
+    }finally{
+        setLoading(false)
+    }
+    
 }   
 
     useEffect(()=>{
@@ -38,16 +51,18 @@ const Productreview = () => {
 
     return (
         <div>
-            <TableMui
+
+            {loading? (<Loading variant='table' count={5}/>
+            ):(<TableMui
                 rowData={reviewTableData}
                 columns={[
-                    "fName",
-                    "reviewCount",
-                    "avgStar",
-                    "maxStar",
-                    "minStar",
-                    "confirmCount",
-                    "reviewWriteRate",
+                    "상품명",
+                    "리뷰수",
+                    "평균별점",
+                    "최고별점",
+                    "최저별점",
+                    "구매건수",
+                    "리뷰작성률",
                 ]}
                 
                 col={[
@@ -60,7 +75,8 @@ const Productreview = () => {
                     "리뷰작성률",
                 ]}
 
-                />
+                />)}
+            
 
             
         </div>

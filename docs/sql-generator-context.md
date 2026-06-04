@@ -2,6 +2,8 @@
 
 이 문서는 PlusHome 프로젝트에서 SQL을 생성할 때 참고할 DB 스키마 컨텍스트입니다.
 
+최종 실행용 DDL 원본은 `docs/PlusHome_final.sql`입니다. 정확한 컬럼 타입, 제약조건, 트리거 본문이 필요하면 이 파일을 우선 기준으로 삼습니다.
+
 ## DB
 
 - Oracle SQL 문법 기준
@@ -17,6 +19,7 @@
 - `SEQ_FREEBOARD_COMMENT_ID`
 - `SEQ_FREEBOARD_REPORT_ID`
 - `SEQ_FREEBOARD_CREPORT_ID`
+- `SEQ_EVENT_IDX`: `EVENT.E_INDEX` 자동 발번
 - `SEQ_I_EXAMPLE_INDEX`: `I_EXAMPLE.IE_INDEX` 자동 발번
 
 ## 핵심 테이블 관계
@@ -32,11 +35,13 @@
 - `OPTIONS`, `QUESTION`, `CART`, `CART_OPTION`, `F_REVIEW`, `FURNITUREHIDE`는 `FURNITURE.F_CODE`와 연결
 - `"LIKE".LIKE_CODE`는 찜 대상 코드이며, 가구는 `F_CODE`, 인테리어는 `C_ID/C_NAME/C_KIND` 조합 문자열을 의미
 - `CART.C_CODE`는 주문/장바구니 식별용 unique 값이며 `CART_OPTION.C_CODE`가 참조
-- `EVENT_COUPON`은 `EVENT.E_ID`와 `COUPON(COUPON_CODE, ID)`를 연결
+- `EVENT_COUPON`은 `EVENT.E_ID`와 `COUPON(ID, COUPON_CODE)`를 연결
+- 최종 DDL 기준 `COUPON` PK는 `(ID, COUPON_CODE)`이며, `EVENT_COUPON` FK도 `(ID, COUPON_CODE)` 순서로 참조
 - `FREEBOARD.USERID`는 `USERS.ID` 참조
 - `FREEBOARD_COMMENT.BOARDID`는 `FREEBOARD.BOARDID` 참조, 게시글 삭제 시 cascade
 - `FREEBOARD_REPORT.TARGETID`는 `FREEBOARD.BOARDID` 참조, 삭제 시 cascade
 - `FREEBOARD_COMMENT_REPORT.TARGETID`는 `FREEBOARD_COMMENT.COMMENTID` 참조, 삭제 시 cascade
+- `FREEBOARD_LIKE`는 `(BOARDID, USERID)` PK로 자유게시판 게시글 좋아요를 저장하며, `BOARDID`는 `FREEBOARD` 참조 후 cascade 삭제
 
 ## 주요 인덱스
 
@@ -50,12 +55,14 @@
 - `IDX_FB_REPORT_TARGET`: `FREEBOARD_REPORT(TARGETID)`
 - `IDX_FB_CREPORT_TARGET`: `FREEBOARD_COMMENT_REPORT(TARGETID)`
 - `EVENT_E_INDEX_INDEX`: `EVENT(E_INDEX)`
+- `IDX_FREEBOARD_LIKE_USER`: `FREEBOARD_LIKE(USERID)`
 
 ## SQL 생성 시 주의
 
 - `USERS.TYPE`: `user`, `company`, `admin`
 - `USERS.GENDER`: `male`, `female`, `none`, `NULL`
 - `USERS.JOINED`: `Y`, `N`
+- `USERS.STATUS`: 기본값 `ACTIVE`
 - `COMPANY.C_KIND`: `shop`, `interior`
 - `BOOKING.B_STATUS`: `pending`, `quoting`, `confirmed`, `working`, `done`, `cancel`
 - `INVOICE.INVOICE_KIND`: `Y`, `N`
@@ -63,8 +70,8 @@
 - `QUESTION.Q_IDX`: 최신 DDL 기준 단일 PK이며, `ID`는 비회원 문의를 위해 nullable
 - `QUESTION.Q_GUESTPHONE`, `QUESTION.Q_PW`: 비회원 문의 식별/비밀번호 용도
 - `CART.F_STATUS`: `Y`, `N`
-- `CART.F_DSTATUS`: `-1`, `0`, `1`, `2`, `3`, `4`, `5`
-- `CART.F_DSTATUS` meanings: `-1` order cancelled, `0` payment complete/order received, `1` delivery received/waiting for shipment, `2` shipped, `3` in delivery, `4` delivered, `5` purchase confirmed
+- `CART.F_DSTATUS`: `NULL`, `-2`, `-1`, `0`, `1`, `2`, `3`, `4`, `5`, `6`
+- `CART.F_DSTATUS` meanings: final DDL allows a wider range; existing comments say `-1` order cancelled, `0` payment complete/order received, `1` delivery received/waiting for shipment, `2` shipped, `3` in delivery, `4` delivered, `5` purchase confirmed
 - `CART.CART_CREATEDDATE`: time an item was added to cart; use for cart-hour statistics
 - `CART.CART_PAYDATE`: payment completion time; use for payment-hour and cart-to-payment elapsed-time statistics
 - `CART.CART_STATUSDATE`: latest `F_DSTATUS` change time; when current `F_DSTATUS = 5`, treat as purchase-confirmed time
@@ -78,7 +85,7 @@
 
 ## 대표 컬럼 메모
 
-- `USERS`: `ID`, `PW`, `TYPE`, `CODE`, `NAME`, `EMAIL`, `BIRTH`, `TEL`, `GENDER`, `ADDR`, `JOINED`
+- `USERS`: `ID`, `PW`, `TYPE`, `CODE`, `NAME`, `EMAIL`, `BIRTH`, `TEL`, `GENDER`, `ADDR`, `STATUS`, `JOINED`
 - `COMPANY`: `C_ID`, `C_NAME`, `C_KIND`, `C_TEL`, `C_ADDR`, `C_INFO`, `C_BOSS`
 - `INTERIOR`: `C_ID`, `I_TAG`, `I_TEXT`, `C_KIND`, `C_NAME`
 - `BOOKING`: `ID`, `B_CREATEDDATE`, `C_ID`, `C_KIND`, `C_NAME`, `B_KIND`, `B_LONG`, `B_DATE`, `B_STATUS`, `B_CONTENT`, `B_ANSWER`
@@ -90,7 +97,7 @@
 - `OPTIONS`: `F_CODE`, `O_SELECT`, `O_TEXT`, `O_COUNT`, `O_PRICE`, `O_IMPORTANT`, `O_CODE`
 - `COUPON`: `COUPON_CODE`, `DISCOUNT`, `COUPON_END`, `COUPON_MAX`, `ID`, `COUPON_INFO`, `COUPON_TYPE`, `COUPON_CATAGORY`, `COUPON_USED`
 - `WALLET`: `ID`, `MONEY`
-- `QUESTION`: `ID`, `F_CODE`, `Q_IDX`, `Q_STATUS`, `Q_CONTENT`, `Q_CREATEDDATE`, `Q_TITLE`, `Q_ANSWER`, `Q_ANSWERDATE`, `Q_SECRET`, `Q_GUESTPHONE`, `Q_PW`
+- `QUESTION`: `ID`, `F_CODE`, `Q_IDX`, `Q_STATUS`, `Q_CONTENT`, `Q_CREATEDDATE`, `Q_TITLE`, `Q_ANSWER`, `Q_ANSWERDATE`, `Q_SECRET`, `Q_PW`, `Q_GUESTPHONE`
 - `CART`: `ID`, `F_CODE`, `F_STATUS`, `F_DSTATUS`, `F_COUNT`, `F_ADDR`, `F_NAME`, `F_TEL`, `F_PRICE`, `F_POINT`, `CART_STATUSDATE`, `C_CODE`, `PAY_TOTAL`, `USE_POINT`, `SAVE_POINT`, `COUPON_DISCOUNT`, `CART_CREATEDDATE`, `CART_PAYDATE`
 - `"LIKE"`: `ID`, `LIKE_CODE`, `LIKE_TAG`
 - `CART_OPTION`: `ID`, `F_CODE`, `CO_SELECT`, `CO_TEXT`, `CO_COUNT`, `CO_PRICE`, `C_CODE`
@@ -101,10 +108,11 @@
 - `I_SCHEDULE`: `ID`, `B_CREATEDDATE`, `C_ID`, `C_KIND`, `C_NAME`, `IS_STARTDATE`, `IS_ENDDATE`
 - `EVENT`: `E_TITLE`, `E_INDEX`, `E_CONTENT`, `E_ENDDATE`, `E_CREATEDDATE`, `E_ID`, `E_TYPE`, `E_STARTDATE`, `E_POPUP`
 - `EVENT_COUPON`: `COUPON_CODE`, `E_ID`, `ID`
-- `FREEBOARD`: `BOARDID`, `USERID`, `USERNAME`, `CATEGORY`, `TITLE`, `CONTENT`, `VIEWCOUNT`, `LIKECOUNT`, `COMMENTCOUNT`, `HIDDEN`, `CREATEDAT`, `UPDATEDAT`
+- `FREEBOARD`: `BOARDID`, `USERID`, `USERNAME`, `CATEGORY`, `TITLE`, `CONTENT`, `VIEWCOUNT`, `LIKECOUNT`, `COMMENTCOUNT`, `CREATEDAT`, `UPDATEDAT`, `HIDDEN`, `USER_TYPE`
 - `FREEBOARD_COMMENT`: `COMMENTID`, `BOARDID`, `USERID`, `USERNAME`, `CONTENT`, `PARENTID`, `HIDDEN`, `CREATEDAT`, `UPDATEDAT`
 - `FREEBOARD_REPORT`: `REPORTID`, `TARGETID`, `REPORTERID`, `REASON`, `DETAIL`, `CREATEDAT`
 - `FREEBOARD_COMMENT_REPORT`: `REPORTID`, `TARGETID`, `REPORTERID`, `REASON`, `DETAIL`, `CREATEDAT`
+- `FREEBOARD_LIKE`: `BOARDID`, `USERID`, `CREATEDAT`
 
 ## 이미지 디렉터리 규칙 메모
 
@@ -129,12 +137,15 @@
 ## 트리거/프로시저 메모
 
 - `TRG_USER_WITHDRAW`: `USERS.JOINED`가 `Y`에서 `N`으로 바뀌면 `DELETE_USER_DATA(:OLD.ID, :OLD.TYPE)` 호출
+- `TRG_USERS_JOINED_FREEBOARD`: 회원 탈퇴 시 해당 회원 게시글의 작성자 표시를 탈퇴 회원 형태로 변경
+- `TRG_USERS_JOINED_FREEBOARD_CMT`: 회원 탈퇴 시 해당 회원 댓글의 작성자 표시를 탈퇴 회원 형태로 변경
 - `TRG_INVOICE_KIND_CHECK`: 확정 견적서(`INVOICE_KIND = 'Y'`)는 같은 예약에 1건만 허용
 - `TRG_INVOICE_STATUS`: 견적서 생성 시 `BOOKING.B_STATUS`를 `pending`에서 `quoting`으로 변경
 - `TRG_BOOKING_STATUS`: 확정 견적서 생성/수정 시 `BOOKING.B_STATUS`를 `confirmed`로 변경
 - `TRG_QUESTION_IDX`: `QUESTION.Q_IDX`가 `NULL`이면 `SEQ_GLOBAL.NEXTVAL`
 - `TRG_F_REVIEW_IDX`: `F_REVIEW.FR_IDX`가 `NULL`이면 `SEQ_GLOBAL.NEXTVAL`
 - `TRI_IE_INDEX`: `I_EXAMPLE.IE_INDEX`가 `NULL`이면 `SEQ_I_EXAMPLE_INDEX.NEXTVAL`
+- `TRI_EVENT_IDX`: `EVENT.E_INDEX`가 `NULL`이면 `SEQ_EVENT_IDX.NEXTVAL`
 - `DELETE_USER_DATA`: 기업 탈퇴 시 관련 인테리어/견적/상담/이미지/회사 데이터를 삭제
 
 ## Dashboard Schema Notes

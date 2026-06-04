@@ -8,6 +8,7 @@ import SkeletonMui from "../components/SkeletonMui";
 import { TbMessageDots } from "react-icons/tb";
 import { FaWonSign } from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi2";
+import Loading from "../components/Loading";
 
 const KpiCard = ({ icon, label, value, unit, helper, tone = "blue" }) => (
 	<div className="interior-dashboard-kpi">
@@ -70,6 +71,8 @@ const Saleslist = () => {
 	const [category2SelectedRow, setCategory2SelectedRow] = useState(null);
 	const [category3SelectedRow, setCategory3SelectedRow] = useState(null);
 	const [category4SelectedRow, setCategory4SelectedRow] = useState(null);
+
+	
 
 	const requestDto = useMemo(() => ({ f_catagory1: "y" }), []);
 
@@ -239,6 +242,10 @@ const Saleslist = () => {
 		};
 	}, [dashboardData]);
 	const isInitialLoading = loading && !hasAnyResponse(dashboardData);
+
+	if (loading) {
+    return <Loading variant="table" count={5} />;
+}
 
 	return (
 		<div>

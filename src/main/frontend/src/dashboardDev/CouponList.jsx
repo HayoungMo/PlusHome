@@ -7,6 +7,8 @@ import CouponDev from "../dashboardDev/CouponDev";
 import TextFieldMui from "../components/TextFieldMui";
 import SelectMui from "../components/SelectMui";
 import CouponDownDev from "./CouponDownDev";
+import Loading from "../components/Loading";
+
 
 const CouponList = () => {
 	const [userList, setUserList] = useState([]);
@@ -17,6 +19,8 @@ const CouponList = () => {
 	const [reloadFunc, setReloadFunc] = useState(null);
 
 	const userColumns = ["id", "type", "code", "name", "email", "tel", "gender", "addr"];
+
+	const [loading,setLoading] = useState(false)
 
 	const [couponData, setCouponData] = useState({
 		coupon_code: "",
@@ -31,7 +35,8 @@ const CouponList = () => {
 	const getUserList = async () => {
 		console.log("회원 조회");
 
-		const res = await userService.userGetAll(userType);
+		try {
+			const res = await userService.userGetAll(userType);
 		console.log(res);
 
 		if (res.success) {
@@ -39,6 +44,13 @@ const CouponList = () => {
 
 			console.log("유저조회결과:", res.list);
 		}
+		} catch (error) {
+			console.log(error)
+		}finally{
+			setLoading(false)
+		}
+
+		
 	};
 
 	const onChangeSearchState = (e) => {
@@ -104,14 +116,8 @@ const CouponList = () => {
 				reloadFunc={reloadFunc}
 				setReloadFunc={setReloadFunc}
 			/>
-
-			<div
-				style={{
-					display: "flex",
-					width: "550px",
-					justifyContent: "space-around",
-					margin: "15px",
-				}}>
+		<div className="user-coupon-action-row">
+			 <div className="user-coupon-search-area">
 				<SelectMui
 					label="검색 조건"
 					name="searchKey"
@@ -124,12 +130,14 @@ const CouponList = () => {
 				/>
 				<TextFieldMui
 					name="searchText"
+					placeholder="검색어를 입력하세요."
 					onChange={onChangeSearchState}
 					value={searchInfo.searchText}
 				/>
 				<Button variant="contained" color="primary" onClick={userSearchFunction}>
 					검색
 				</Button>
+				
 			</div>
 			<CouponDownDev
 				selectedUserKeys={selectedUserKeys}
@@ -137,6 +145,11 @@ const CouponList = () => {
 				setSelectedCouponKeys={setSelectedCouponKeys}
 				setSelectedUserKeys={setSelectedUserKeys}
 			/>
+		</div>
+		{loading ? (
+        <Loading variant="table" count={5} />
+    ) : (
+			
 			<TableChkMui
 				rowData={userList}
 				columns={userColumns}
@@ -145,6 +158,7 @@ const CouponList = () => {
                 pagination={true}
                 defaultRowPerPage={5}
 			/>
+	)}
 		</div>
 	);
 };
