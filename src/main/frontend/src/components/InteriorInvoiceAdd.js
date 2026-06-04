@@ -377,7 +377,10 @@ const InteriorInvoiceAdd = ({
 							label="개수"
 							value={detail.invoice_qty}
 							onChange={handleDetailChange}
-							width="100%"
+							width="140px"
+							style={{
+								minWidth:'140px'
+							}}
 						/>
 
 						<TextFieldMui
@@ -471,8 +474,8 @@ const InteriorInvoiceAdd = ({
 				<DialogMui
 					open={saveDialogOpen}
 					onClose={() => setSaveDialogOpen(!saveDialogOpen)}
-					title="배송 상태 변경"
-					text="현재 선택한 주문들의 상태를 변경합니다. 저장하시겠습니까?"
+					title="견적 발행"
+					text="현재 선택한 내용으로 견적서를 발행합니다. 발행하시겠습니까?"
 					buttons={[
 						{
 							title: "Cancel",

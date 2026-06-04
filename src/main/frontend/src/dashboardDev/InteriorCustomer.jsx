@@ -2,54 +2,88 @@ import React, { useEffect, useState } from 'react';
 import userService from '../service/userService';
 import { Card, CardContent, Grid, Typography } from '@mui/material';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import DevDashboard from '../css/DevDashboard.css'
+import PeopleIcon from '@mui/icons-material/People';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import MaleIcon from '@mui/icons-material/Male';
+import FemaleIcon from '@mui/icons-material/Female';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import Loading from '../components/Loading';
 
 
 
 
-const InteriorCustomer = () => {
+const InteriorCustomer = ({refreshKey }) => {
+
+    const [loading,setLoading] = useState(false)
 
     const [customerStats,setCustomerStats] = useState({})
     const getInteriorCustomerStats = async()=>{
-        const result = await userService.getInteriorCustomerStats({})
+
+        try {
+
+            setLoading(true)
+            const result = await userService.getInteriorCustomerStats({})
        
         console.log("고객 스탯",result)
 
         if(result.success){
             setCustomerStats(result.list)
         }
+        } catch (error) {
+            console.log(error)
+        }finally{
+            setLoading(false)
+        }
+
+        
     }
 
     useEffect(()=>{
         getInteriorCustomerStats()
-    },[])
+    },[refreshKey])
 
     const noneGenderCount = (customerStats.totalCustomerCount || 0)
                             -(customerStats.maleCount || 0)
                             -(customerStats.femaleCount || 0)
-                            
+       
+    
 
-    const cards =[
-        {
-            title:"전체 상담 고객",
-            value:customerStats.totalCustomerCount || 0,
-        },
-        {
-            title:"계약 고객",
-            value:customerStats.contractCustomerCount  || 0,
-        },
-        {
-            title:"남성 고객",
-            value:customerStats.maleCount  || 0,
-        },
-        {
-            title:"여성 고객",
-            value:customerStats.femaleCount  || 0,
-        },
-        {
-            title:"성별 미선택 고객",
-            value:noneGenderCount  || 0,
-        },
-    ]
+    const cards = [
+    {
+        title: "전체 상담 고객",
+        value: customerStats.totalCustomerCount || 0,
+        icon: <PeopleIcon />,
+        colorClass: "total",
+    },
+    {
+        title: "계약 고객",
+        value: customerStats.contractCustomerCount || 0,
+        icon: <AssignmentTurnedInIcon />,
+        colorClass: "contract",
+    },
+    {
+        title: "남성 고객",
+        value: customerStats.maleCount || 0,
+        icon: <MaleIcon />,
+        colorClass: "male",
+    },
+    {
+        title: "여성 고객",
+        value: customerStats.femaleCount || 0,
+        icon: <FemaleIcon />,
+        colorClass: "female",
+    },
+    {
+        title: "성별 미선택 고객",
+        value: noneGenderCount || 0,
+        icon: <HelpOutlineIcon />,
+        colorClass: "none",
+    },
+];
+
+    const topCards = cards.slice(0, 2);
+    const bottomCards = cards.slice(2);
 
     const genderChartData={
         labels:["남성","여성","알 수 없음"],
@@ -62,9 +96,9 @@ const InteriorCustomer = () => {
                     noneGenderCount,
                 ],
                 backgroundColor:[
-                    "#ff0000",
-                    "#33ff00",
-                    "#a200ff",
+                    "#2cddce",
+                    "#fa5f05",
+                    "#8f8c8e",
                 ],
 
                 borderWidth:0,
@@ -116,62 +150,102 @@ const InteriorCustomer = () => {
         }
     }
 
+    const genderChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "58%",
+    plugins: {
+        legend: {
+            position: "top",
+            labels: {
+                boxWidth: 36,
+                boxHeight: 10,
+                padding: 14,
+                font: {
+                    size: 12,
+                },
+            },
+        },
+    },
+};
+
+if (loading) {
+    return <Loading variant="kpi" count={5} />;
+}
+
    return (
-    <div>
+    <div className="interior-customer-page">
+        <div className="customer-summary-section">
+            <div className="customer-summary-row top">
+                {cards.slice(0, 2).map((card) => (
+                    <Card className="summary-card" key={card.title}>
+                        <CardContent className="summary-card-content">
+                            <div className={`summary-icon ${card.colorClass}`}>
+                                {card.icon}
+                            </div>
 
-        {/* 카드 영역 */}
-        <Grid container spacing={3}>
-            {cards.map((card) => (
-                <Grid item xs={12} sm={6} md={3} key={card.title}>
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6">
-                                {card.title}
-                            </Typography>
+                            <div className="summary-text">
+                                <Typography component="div" className="summary-title">
+                                    {card.title}
+                                </Typography>
 
-                            <Typography variant="h4">
-                                {card.value}
-                            </Typography>
+                                <Typography component="div" className="summary-value">
+                                    {card.value}
+                                </Typography>
+                            </div>
                         </CardContent>
                     </Card>
-                </Grid>
-            ))}
-        </Grid>
+                ))}
+            </div>
 
-        {/* 차트 영역 */}
-        <Grid container spacing={3} sx={{ mt: 3 }}>
+            <div className="customer-summary-row bottom">
+                {cards.slice(2).map((card) => (
+                    <Card className="summary-card" key={card.title}>
+                        <CardContent className="summary-card-content">
+                            <div className={`summary-icon ${card.colorClass}`}>
+                                {card.icon}
+                            </div>
 
-            <Grid item xs={12} md={6}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6">
-                            성별 비율
-                        </Typography>
+                            <div className="summary-text">
+                                <Typography className="summary-title">
+                                    {card.title}
+                                </Typography>
 
-                        <div style={{ height: "300px" }}>
-                            <Doughnut data={genderChartData} />
-                        </div>
-                    </CardContent>
-                </Card>
-            </Grid>
+                                <Typography className="summary-value">
+                                    {card.value}
+                                </Typography>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
 
-            <Grid item xs={12} md={6}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6">
-                            연령대 분포
-                        </Typography>
+        <div className="customer-chart-grid">
+            <Card className="dashboard-chart-card">
+                <CardContent className="dashboard-chart-content">
+                    <Typography component="h3"          className="dashboard-chart-title">
+                        성별 비율
+                    </Typography>
 
-                        <div style={{ height: "300px" }}>
-                            <Bar data={ageChartData}
-                                options={ageChartOptions} />
-                        </div>
-                    </CardContent>
-                </Card>
-            </Grid>
+                    <div className="dashboard-chart-box">
+                        <Doughnut data={genderChartData} options={genderChartOptions} />
+                    </div>
+                </CardContent>
+            </Card>
 
-        </Grid>
+            <Card className="dashboard-chart-card">
+                <CardContent className="dashboard-chart-content">
+                    <Typography className="dashboard-chart-title">
+                        연령대 분포
+                    </Typography>
 
+                    <div className="dashboard-chart-box">
+                        <Bar data={ageChartData} options={ageChartOptions} />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     </div>
 );
 };

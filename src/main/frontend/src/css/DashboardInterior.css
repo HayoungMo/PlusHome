@@ -1010,6 +1010,134 @@
 	box-shadow: none;
 }
 
+.booking-start-dialog .MuiDialog-paper {
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+	overflow: hidden;
+}
+
+.booking-start-dialog-title {
+	padding: 22px 24px 16px;
+	border-bottom: 1px solid #e5eaf2;
+	background: #f8fafc;
+}
+
+.booking-start-dialog-title span {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: #111827;
+	font-size: 20px;
+	font-weight: 900;
+	line-height: 1.35;
+}
+
+.booking-start-dialog-title span::before {
+	content: "";
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #10b981;
+	box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.14);
+}
+
+.booking-start-dialog-content {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	padding: 22px 24px 8px !important;
+}
+
+.booking-start-dialog-message {
+	padding: 14px 16px;
+	border: 1px solid #dbeafe;
+	border-radius: 8px;
+	background: #eff6ff;
+	color: #334155;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.6;
+}
+
+.booking-start-date-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.booking-start-date-grid .MuiFormControl-root {
+	width: 100%;
+}
+
+.booking-start-date-grid .MuiInputBase-root {
+	min-height: 42px;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.booking-start-date-grid .MuiInputBase-input {
+	font-size: 13px;
+	font-weight: 800;
+	color: #1f2937;
+}
+
+.booking-start-date-grid .MuiInputLabel-root {
+	font-size: 13px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.booking-start-dialog-actions {
+	gap: 8px;
+	padding: 18px 24px 22px !important;
+}
+
+.booking-start-dialog-actions .MuiButton-root {
+	min-width: 88px;
+	height: 40px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 900;
+}
+
+.booking-start-dialog-actions .MuiButton-containedPrimary {
+	background: #2563eb;
+}
+
+.booking-start-dialog-actions .MuiButton-containedPrimary:hover {
+	background: #1d4ed8;
+	box-shadow: none;
+}
+
+@media (max-width: 640px) {
+	.booking-start-dialog-title {
+		padding: 18px 18px 14px;
+	}
+
+	.booking-start-dialog-title span {
+		font-size: 18px;
+	}
+
+	.booking-start-dialog-content {
+		padding: 18px 18px 6px !important;
+	}
+
+	.booking-start-date-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.booking-start-dialog-actions {
+		padding: 16px 18px 18px !important;
+	}
+
+	.booking-start-dialog-actions .MuiButton-root {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+}
+
 .interior-invoice-form-head {
 	display: flex;
 	align-items: center;

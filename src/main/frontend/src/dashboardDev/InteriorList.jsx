@@ -6,6 +6,7 @@ import { TbCalendarCancel } from 'react-icons/tb';
 import { AiOutlineFileDone } from "react-icons/ai";
 import { GrInProgress } from "react-icons/gr";
 import { MdEventNote, MdToday } from "react-icons/md";
+import Loading from '../components/Loading';
 
 const KpiCard = ({
     icon,
@@ -15,7 +16,7 @@ const KpiCard = ({
     <Card
         sx={{
             width: "100%",
-            height: 145,
+            height: 155,
             borderRadius: "12px",
             boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
             border: "1px solid #eef2f7",
@@ -27,8 +28,8 @@ const KpiCard = ({
                 height: "100%",
                 display: "flex",
                 alignItems: "center",
-                gap: 3,
-                px: 3,
+                gap: 2,
+                px: 2,
                 py: 0,
                 "&:last-child": {
                     pb: 0,
@@ -84,10 +85,20 @@ const InteriorList = () => {
 
     const [summary,setSummary] = useState({})
 
-    const getSummary = async() =>{
-        const result = await userService.getSummary()
+    const [loading,setLoading] = useState(false)
 
-        setSummary(result)
+    const getSummary = async() =>{
+        try {
+
+            setLoading(true)
+            const result = await userService.getSummary()
+            setSummary(result)
+        } catch (error) {
+            console.log(error)
+        }finally{
+            setLoading(false)
+        }
+        
     }
 
     useEffect(()=>{
@@ -120,6 +131,7 @@ const InteriorList = () => {
             legend:{
                 position: "bottom",
             },
+            cutout: "65%",
         },
     }
 
@@ -152,7 +164,7 @@ const InteriorList = () => {
 
     {
         key: "progress",
-        label: "진행중",
+        label: "상담 진행중",
         value: summary.progressCount || 0,
         icon: (
             <GrInProgress                
@@ -165,7 +177,7 @@ const InteriorList = () => {
 
     {
         key: "done",
-        label: "완료",
+        label: "상담 완료",
         value: summary.doneCount || 0,
         icon: (
             <AiOutlineFileDone
@@ -179,7 +191,7 @@ const InteriorList = () => {
 
     {
         key: "cancel",
-        label: "취소",
+        label: "상담 취소",
         value: summary.cancelCount || 0,
         icon: (
             <TbCalendarCancel
@@ -192,41 +204,66 @@ const InteriorList = () => {
     },
 ];
 
-
-
+if (loading) {
+    return <Loading variant="kpi" count={5} />;
+}
     return (
         <div>
-            <h2>상담 통계</h2>
+            <Typography
+                sx={{
+                    fontSize: "2rem",
+                    fontWeight: 800,
+                    textAlign: "center",
+                    mb: 4,
+                }}
+            >
+                상담 통계
+            </Typography>
 
-             <Grid container spacing={3}>
-    {cards.map((item) => (
-        <Grid
-            item
-            xs={12}
-            sm={6}
-            md={3}
-            key={item.key}
-        >
-            <KpiCard
-                icon={item.icon}
-                label={item.label}
-                value={item.value}
-            />
-        </Grid>
-    ))}
-</Grid>
+             <Box
+                sx={{
+                    maxWidth: "1280px",
+                    mx: "auto",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(5, 1fr)",
+                    gap: 3,
+                    mb: 5,
+                }}
+            >
+                {cards.map((item) => (
+                    <Box
+                        key={item.key}
+                        sx={{
+                            width: "190px",
+                        }}
+                    >
+                        <KpiCard
+                            icon={item.icon}
+                            label={item.label}
+                            value={item.value}
+                        />
+                    </Box>
+                ))}
+            </Box>
 
             <Card
                 sx={{
                     mt: 4,
-                    p: 3,
-                    borderRadius: 3,
-                    boxShadow: 3,
+                    p: 4,
+                    maxWidth: "1100px",
+                    mx: "auto",
+                    borderRadius: "12px",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                    border: "1px solid #eef2f7",
                 }}
             >
                 <Typography
-                    variant="h6"
-                    gutterBottom
+                    sx={{
+                        fontSize: "1.5rem",
+                        fontWeight: 700,
+                        textAlign: "center",
+                        mb: 3,
+                    }}
                 >
                     상담 상태 비율
                 </Typography>

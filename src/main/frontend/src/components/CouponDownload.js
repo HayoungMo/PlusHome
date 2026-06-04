@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Alert, AlertTitle, Button, Portal, Snackbar } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CouponService from "../service/couponService";
 
 const CouponDownload = ({
@@ -11,6 +11,7 @@ const CouponDownload = ({
 }) => {
   const { coupon_code } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({
     open: false,
@@ -46,7 +47,8 @@ const CouponDownload = ({
         title: "로그인 필요",
         text: "쿠폰 발급은 로그인 후 가능합니다.",
       });
-      setTimeout(() => navigate("/login"), 1200);
+      const redirectPath = encodeURIComponent(`${location.pathname}${location.search}`);
+      setTimeout(() => navigate(`/login?redirect=${redirectPath}`), 1200);
       return;
     }
 

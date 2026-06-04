@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
 import CouponService from "../service/couponService";
 import GetImgDir from "../resources/function/GetImgDir";
 import "../css/CouponArticleDownload.css";
 
 const CouponArticleDownload = ({ c_id, catagory }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [couponForm, setCouponForm] = useState([]);
   const [alert, setAlert] = useState({
     open: false,
@@ -46,6 +49,9 @@ const CouponArticleDownload = ({ c_id, catagory }) => {
 
   const handleSubmit = async () => {
     if (!id) {
+      const redirectPath = encodeURIComponent(`${location.pathname}${location.search}`);
+      setTimeout(() => navigate(`/login?redirect=${redirectPath}`), 1200);
+
       showAlert({
         severity: "warning",
         title: "로그인 필요",

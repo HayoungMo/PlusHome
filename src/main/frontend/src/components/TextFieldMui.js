@@ -42,7 +42,8 @@ const TextFieldMui = (props) => {
 		rows,
 		minRows,
 		maxRows,
-		size = "medium"
+		size = "medium",
+		style = {}
 	} = props;
 
 	return (
@@ -64,6 +65,7 @@ const TextFieldMui = (props) => {
 				minRows={minRows}
 				maxRows={maxRows}
 				size={size}
+				style={style}
 				fullWidth></TextField>
 		</Box>
 	);

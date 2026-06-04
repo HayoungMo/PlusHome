@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import LoginService from '../service/loginService';
 import { Button, TextField } from '@mui/material';
 import "../css/LoginPage.css"
@@ -11,6 +11,23 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
     console.log("props:",loginUser,setLoginUser)
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const getRedirectPath = () => {
+        const searchParams = new URLSearchParams(location.search);
+        const stateFrom = location.state?.from;
+        const stateRedirect =
+            typeof stateFrom === "string"
+                ? stateFrom
+                : stateFrom?.pathname
+                    ? `${stateFrom.pathname}${stateFrom.search || ""}`
+                    : "/";
+        const redirect = searchParams.get("redirect") || stateRedirect;
+
+        return redirect.startsWith("/") && !redirect.startsWith("//")
+            ? redirect
+            : "/";
+    };
 
     const [form, setForm] = useState({
         id: '',
@@ -76,11 +93,7 @@ const LoginPage = ({ loginUser, setLoginUser, setLoginInfo }) => {
                 setLoginUser(user.id);
                 setLoginInfo(user);
 
-                if(user.type==='company'){
-                    navigate('/')
-                }else{
-                    navigate('/')
-                }
+                navigate(getRedirectPath(), { replace: true });
                 
             } else {
                 setErrorMsg(response.message);
