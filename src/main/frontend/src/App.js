@@ -43,6 +43,7 @@ import Loading from "./components/Loading";
 import EventArticle from "./pages/EventArticle";
 import EventUpdate from "./components/EventUpdate";
 import EventCreated from "./components/EventCreated";
+import LoginShortcut from "./components/LoginShortCut";
 
 function App() {
 
@@ -96,9 +97,15 @@ function App() {
       return () => clearInterval(interval)
 
     },[])
+    
 
     return (
       <div className="App">
+        <LoginShortcut
+          setLoginUser={setLoginUser}
+          setLoginInfo={setLoginInfo}
+        />
+
         <Routes>
           {/*헤더가 없는 곳 - 예린 26-06-02*/}
           <Route

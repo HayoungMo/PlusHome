@@ -555,21 +555,24 @@ const Question = ({ f_code,furniture }) => {
                         ) : (
                             <p>작성자와 관리자만 확인할 수 있습니다.</p>
                         )}
-                       {canReadQuestion(item) && questionImages[item.q_idx]?.map((img, imageIdx) => (
-                            <img
-                                key={img.img_name}
-                                src={img.img_name}
-                                alt="문의 이미지"
-                                onClick={() => openQuestionViewer(item, imageIdx)}
-                                style={{
-                                    width: "120px",
-                                    height: "120px",
-                                    objectFit: "cover",
-                                    marginRight: "8px",
-                                    cursor: "pointer",
-                                }}
-                            />
-                        ))}
+                        {canReadQuestion(item) && questionImages[item.q_idx]?.length > 0 && (
+                            <div className="question-image-list">
+                                {questionImages[item.q_idx].map((img, imageIdx) => (
+                                    <button
+                                        type="button"
+                                        className="question-image-button"
+                                        key={img.img_name}
+                                        onClick={() => openQuestionViewer(item, imageIdx)}
+                                    >
+                                        <img
+                                            src={img.img_name}
+                                            alt="문의 이미지"
+                                            className="question-image-thumb"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                         {/* 답변 */}
                         {canReadQuestion(item) && (
                             item.q_answer ? (
