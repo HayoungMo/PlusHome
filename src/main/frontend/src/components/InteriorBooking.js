@@ -7,7 +7,13 @@ import SelectMui from "./SelectMui";
 import DialogMui from "./DialogMui";
 import "../css/InteriorBooking.css";
 
-const InteriorBooking = ({ company, answers, setBookingPossible, onCancel }) => {
+const InteriorBooking = ({
+  company,
+  answers,
+  setBookingPossible,
+  onCancel,
+  onSuccess,
+}) => {
   const [alert, setAlert] = useState({
     open: false,
     severity: "info",
@@ -109,7 +115,8 @@ const InteriorBooking = ({ company, answers, setBookingPossible, onCancel }) => 
         text: "상담이 등록되었습니다.",
       });
       setTimeout(() => {
-        setBookingPossible(false);
+        setBookingPossible?.(false);
+        onSuccess?.(result.data);
       }, 1000);
     } else {
       setAlert({

@@ -255,6 +255,7 @@ const InteriorQuestion = ({setTab}) => {
                   answers={data}
                   company={company}
                   setBookingPossible={setBookingPossible}
+                  onSuccess={() => navigate("/userpage")}
                 />
               </div>
             )}
