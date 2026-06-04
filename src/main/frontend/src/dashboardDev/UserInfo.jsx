@@ -166,18 +166,6 @@ const UserInfo = (props) => {
 		getUserList();
 	}, [userType]);
 
-	// const isAdmin = type === "admin";
-
-	// let oneTimeCheck = 0;
-
-	// useEffect(() => {
-	// 	if (!isAdmin) {
-	// 		if (oneTimeCheck <= 0) alert("관리자만 접근 가능합니다.");
-
-	// 		oneTimeCheck++;
-	// 		window.location.href = "/";
-	// 	}
-	// }, []);
 
 	const handleRowDeleteInTable = async () => {
 		console.log("선택된 키");
@@ -590,7 +578,7 @@ const UserInfo = (props) => {
 				
 			</div>
 
-			<div>
+			<div className="admin-search-bar">
 				<SelectMui
 					label="검색 조건"
 					name="searchKey"
@@ -613,6 +601,7 @@ const UserInfo = (props) => {
 				/>
 				<TextFieldMui
 					name="searchText"
+					placeholder="검색어를 입력하세요."
 					onChange={onChangeSearchState}
 					value={searchInfo.searchText}
 				/>

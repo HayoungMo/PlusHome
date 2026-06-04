@@ -34,7 +34,7 @@ const CouponListDeve = (props) => {
 		<div>
 			<TableChkMui
 				rowData={coupon}
-				col={["no", "coupon_code", "discount", "coupon_end", "coupon_max", "coupon_info"]}
+				col={["번호", "쿠폰코드", "쿠폰코드 확인", "할인율", "유효기간", "최대 할인 금액", "쿠폰정보","사용여부","쿠폰 타입"]}
 				selectedKeys={selectedCouponKeys}
 				setSelectedKeys={setSelectedCouponKeys}
 				pagination={true}
