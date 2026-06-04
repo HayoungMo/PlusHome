@@ -80,7 +80,10 @@
 }
 
 .interior-my-tabs .MuiTabs-indicator {
-  display: none;
+  display: block;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background-color: #008cff;
 }
 
 .interior-my-content {

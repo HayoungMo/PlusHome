@@ -155,7 +155,7 @@
 }
 
 .user-mypage-main .user-section-tabs.MuiTabs-root {
-  min-height: 42px;
+  min-height: 58px;
   border-bottom: 1px solid #edf0f3;
 }
 
@@ -182,10 +182,10 @@
 
 .user-mypage-main .user-section-tabs .MuiTab-root {
   min-width: auto;
-  min-height: 42px;
-  height: 42px;
-  padding: 0 2px 10px;
-  color: #222;
+  min-height: 58px;
+  height: 58px;
+  padding: 0 2px;
+  color: #111827;
   font-size: 18px;
   font-weight: 900;
   line-height: 1;
@@ -218,22 +218,28 @@
   min-width: auto;
   min-height: 58px;
   height: 58px;
-  padding: 0;
-  color: #333;
+  padding: 0 2px;
+  color: #111827;
   font-size: 15px;
   font-weight: 800;
   line-height: 1.2;
   text-transform: none;
 }
 
-.user-mypage-main .user-sub-tabs .MuiTab-root.Mui-selected,
+.user-mypage-main .user-sub-tabs .MuiTab-root.Mui-selected {
+  color: #008cff;
+}
+
 .user-mypage-main .user-sub-tabs .MuiTab-root:hover,
 .user-mypage-main .user-section-tabs .MuiTab-root:hover {
   color: #008cff;
 }
 
 .user-mypage-main .user-sub-tabs .MuiTabs-indicator {
-  display: none;
+  display: block;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background-color: #008cff;
 }
 
 .user-mypage-content {
