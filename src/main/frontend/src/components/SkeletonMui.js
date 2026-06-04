@@ -417,6 +417,125 @@ const InteriorCompanyCardSkeleton = ({
 	</>
 );
 
+//  쇼핑 아티클 용 스캘래톤
+const FurnitureArticleSkeleton = () => (
+    <div className="furniture-article-page">
+        <div className="furniture-breadcrumb">
+            <Skeleton variant="text" width={180} height={24} animation="wave" />
+        </div>
+
+        <div className="furniture-article-card">
+            <div className="furniture-article-gallery">
+                <div className="furniture-image-area">
+                    <div className="furniture-thumb-list">
+                        <Skeleton variant="rounded" width={70} height={70} />
+                        <Skeleton variant="rounded" width={70} height={70} />
+                    </div>
+
+                    <div className="furniture-main-image-wrap">
+						<Skeleton
+							className="furniture-main-image"
+							variant="rounded"
+							animation="wave"
+							width="100%"
+						/>
+					</div>
+                </div>
+            </div>
+
+            <div className="furniture-article-info">
+                <Skeleton variant="text" width={110} height={20} />
+                <Skeleton variant="text" width="70%" height={42} />
+                <Skeleton variant="text" width={160} height={24} />
+                <Skeleton variant="text" width={190} height={42} />
+                <Skeleton variant="rounded" width="100%" height={70} />
+
+                <div className="furniture-benefit-list">
+                    <Skeleton variant="rounded" width="100%" height={64} />
+                    <Skeleton variant="rounded" width="100%" height={64} />
+                </div>
+
+                <Skeleton variant="rounded" width={96} height={34} />
+                <Skeleton variant="rounded" width="100%" height={54} />
+            </div>
+        </div>
+    </div>
+);
+
+//유저 마이페이지 : 주문
+const UserOrderPageSkeleton = () => (
+    <div className="user-order-page user-order-page-skeleton">
+        <section className="order-dashboard-card">
+            <div className="order-mode-tabs order-mode-tabs-skeleton">
+                <Skeleton variant="text" animation="wave" width={110} height={36} />
+                <Skeleton variant="text" animation="wave" width={140} height={36} />
+            </div>
+
+            <div className="order-status-summary">
+                {Array.from({ length: 5 }, (_, index) => (
+                    <div className="order-status-item order-status-item-skeleton" key={`order-status-skeleton-${index}`}>
+                        <span className="order-status-icon">
+                            <Skeleton variant="circular" animation="wave" width={62} height={62} />
+                        </span>
+
+                        <Skeleton variant="text" animation="wave" width={34} height={38} />
+                        <Skeleton variant="text" animation="wave" width={62} height={20} />
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <section className="order-result-panel">
+            <div className="order-list-head">
+                <Skeleton variant="text" animation="wave" width={150} height={34} />
+                <Skeleton variant="rounded" animation="wave" width={72} height={36} />
+            </div>
+
+            <div className="order-list">
+                {Array.from({ length: 3 }, (_, index) => (
+                    <article className="order-row-card order-row-card-skeleton" key={`order-row-skeleton-${index}`}>
+                        <div className="order-row-date">
+                            <div className="order-row-date-left">
+                                <Skeleton variant="text" animation="wave" width={140} height={24} />
+                                <Skeleton variant="text" animation="wave" width={70} height={22} />
+                            </div>
+
+                            <Skeleton variant="text" animation="wave" width={110} height={22} />
+                        </div>
+
+                        <div className="order-row-code">
+                            <Skeleton variant="text" animation="wave" width="48%" height={22} />
+                        </div>
+
+                        <div className="order-row-main">
+                            <div className="order-row-thumb">
+                                <Skeleton
+                                    variant="rounded"
+                                    animation="wave"
+                                    width="100%"
+                                    height="100%"
+                                    sx={{ borderRadius: "inherit" }}
+                                />
+                            </div>
+
+                            <div className="order-row-info">
+                                <Skeleton variant="text" animation="wave" width="46%" height={32} />
+                                <Skeleton variant="text" animation="wave" width="28%" height={24} />
+                                <Skeleton variant="text" animation="wave" width="38%" height={22} />
+                            </div>
+
+                            <div className="order-row-actions">
+                                <Skeleton variant="rounded" animation="wave" width="100%" height={34} />
+                                <Skeleton variant="rounded" animation="wave" width="100%" height={34} />
+                            </div>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </section>
+    </div>
+);
+
 /**
  * SkeletonMui
  *
@@ -471,7 +590,17 @@ const SkeletonMui = ({ variant = "kpi", ...props }) => {
 	if (variant === "interiorCompanyCard") {
 		return <InteriorCompanyCardSkeleton {...props} />;
 	}
+
+	if (variant === "furnitureArticle") {
+		return <FurnitureArticleSkeleton />;
+	}	
+
+	if (variant === "userOrderPage") {
+		return <UserOrderPageSkeleton />;
+	}
+
 	return <Skeleton animation="wave" {...props} />;
 };
+
 
 export default SkeletonMui;

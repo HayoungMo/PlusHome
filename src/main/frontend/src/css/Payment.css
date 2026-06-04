@@ -1,0 +1,426 @@
+.payment-ticket-dialog .MuiDialog-paper {
+  width: 460px !important;
+  max-width: calc(100vw - 32px) !important;
+  margin: 16px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.payment-ticket-dialog .MuiBackdrop-root {
+  background-color: rgba(0, 0, 0, 0.46) !important;
+}
+
+.payment-ticket {
+  position: relative;
+  padding: 36px 32px 28px !important;
+  color: #111827;
+  text-align: left !important;
+  border-radius: 6px !important;
+  background-color: #ffffff;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+  overflow: visible !important;
+}
+
+.payment-ticket::before,
+.payment-ticket::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  pointer-events: none;
+  z-index: 2;
+  background-repeat: repeat-x;
+  background-size: 20px 10px;
+}
+
+.payment-ticket::before {
+  top: 0;
+  background-image: radial-gradient(
+    circle at 10px 0,
+    rgba(0, 0, 0, 0.46) 0 5px,
+    transparent 5.4px
+  );
+}
+
+.payment-ticket::after {
+  bottom: 0;
+  background-image: radial-gradient(
+    circle at 10px 10px,
+    rgba(0, 0, 0, 0.46) 0 5px,
+    transparent 5.4px
+  );
+}
+
+.payment-ticket-title {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  font-size: 25px;
+  font-weight: 900;
+  color: #111827;
+  text-align: center !important;
+}
+
+.payment-ticket-success-head,
+.payment-ticket-fail-head {
+  position: relative;
+  z-index: 3;
+  text-align: center !important;
+}
+
+.payment-ticket-coin {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 11px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffe08a 0%, #f59e0b 48%, #d97706 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.58),
+    inset 0 -4px 6px rgba(146, 64, 14, 0.36),
+    0 8px 18px rgba(217, 119, 6, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: paymentCoinSpin 1.05s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.payment-ticket-coin::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.58);
+}
+
+.payment-ticket-coin::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  transform: rotate(26deg);
+  left: 13px;
+  top: 5px;
+}
+
+.payment-ticket-coin span {
+  position: relative;
+  z-index: 2;
+  color: #7c2d12;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.payment-ticket-success-head h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 900;
+  color: #1976d2;
+  text-align: center !important;
+  animation: paymentTitlePop 0.45s ease-out both;
+}
+
+.payment-ticket-line {
+  position: relative;
+  z-index: 3;
+  height: 1px;
+  margin: 18px 0 16px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.payment-ticket-line.strong {
+  border-top-color: #9ca3af;
+}
+
+.payment-ticket-rows {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-ticket-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 20px;
+  min-height: 22px;
+}
+
+.payment-ticket-row span {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left !important;
+}
+
+.payment-ticket-row strong {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+  text-align: right !important;
+}
+
+.payment-ticket-row strong.minus {
+  color: #ef4444;
+}
+
+.payment-ticket-total {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 20px;
+}
+
+.payment-ticket-total span {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 900;
+  text-align: left !important;
+}
+
+.payment-ticket-total strong {
+  color: #111827;
+  font-size: 31px;
+  line-height: 1;
+  font-weight: 900;
+  white-space: nowrap;
+  text-align: right !important;
+}
+
+.payment-ticket.is-complete .payment-ticket-total strong {
+  color: #1976d2;
+}
+
+.payment-ticket.is-failed .payment-ticket-total strong {
+  color: #dc2626;
+}
+
+.payment-ticket-error {
+  position: relative;
+  z-index: 3;
+  margin: 16px 0 0;
+  padding: 12px 13px;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: pre-line;
+}
+
+.payment-ticket-actions {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.payment-ticket-actions .MuiButton-root {
+  min-width: 94px;
+  height: 38px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.payment-ticket.is-complete .payment-ticket-actions {
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.payment-ticket.is-complete .payment-ticket-actions .MuiButton-root {
+  min-width: 134px;
+}
+
+@keyframes paymentCoinSpin {
+  0% {
+    transform: rotateY(0deg) scale(0.96);
+  }
+
+  45% {
+    transform: rotateY(180deg) scale(1.06);
+  }
+
+  100% {
+    transform: rotateY(360deg) scale(0.96);
+  }
+}
+
+.payment-fail-coin {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 11px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fecaca 0%, #ef4444 52%, #b91c1c 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.45),
+    inset 0 -4px 6px rgba(127, 29, 29, 0.36),
+    0 8px 18px rgba(220, 38, 38, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: paymentFailCoinDrop 0.72s cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+  transform-origin: center bottom;
+}
+
+.payment-fail-coin::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.46);
+}
+
+.payment-fail-coin::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  transform: rotate(26deg);
+  left: 13px;
+  top: 5px;
+}
+
+.payment-fail-coin span {
+  position: relative;
+  z-index: 2;
+  color: #ffffff;
+  font-size: 27px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+@keyframes paymentFailCoinDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-42px) rotate(-18deg) scale(0.84);
+  }
+
+  45% {
+    opacity: 1;
+    transform: translateY(8px) rotate(12deg) scale(1.08);
+  }
+
+  62% {
+    transform: translateY(-8px) rotate(-7deg) scale(0.98);
+  }
+
+  78% {
+    transform: translateY(3px) rotate(3deg) scale(1.02);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+.payment-ticket.is-failed .payment-ticket-head h2 {
+  color: #dc2626;
+}
+
+@keyframes paymentTitlePop {
+  0% {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.payment-ticket {
+  min-height: 430px;
+}
+
+.payment-ticket-head {
+  position: relative;
+  z-index: 3;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center !important;
+}
+
+.payment-ticket-head h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 900;
+  color: #111827;
+  text-align: center !important;
+}
+
+.payment-ticket-head p {
+  margin: 7px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+  text-align: center !important;
+}
+
+.payment-ticket.is-success .payment-ticket-head h2 {
+  color: #1976d2;
+}
+
+.payment-ticket.is-failed .payment-ticket-head h2 {
+  color: #dc2626;
+}
+
+.payment-processing-loader {
+  width: 54px;
+  height: 32px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+}
+
+.payment-processing-loader span {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #1976d2;
+  animation: paymentProcessingBounce 0.8s ease-in-out infinite;
+}
+
+.payment-processing-loader span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.payment-processing-loader span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes paymentProcessingBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+
+  45% {
+    transform: translateY(-12px);
+    opacity: 1;
+  }
+}

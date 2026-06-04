@@ -18,7 +18,6 @@ import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
 import AddressSearchForm from "../maps/AddressSearchForm";
 import UserPageService from "../service/userPageService";
-import "../css/DashboardCompany.css";
 
 const makeCompanyKey = (row) => {
 	if (!row) return "";

@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.spring.home.dto.BookingDTO;
@@ -19,8 +18,6 @@ import com.spring.home.dto.InteriorScheduleDTO;
 import com.spring.home.dto.InvoiceDTO;
 import com.spring.home.dto.InvoiceDetailDTO;
 import com.spring.home.mapper.InteriorMapper;
-import com.spring.home.mapper.WalletMapper;
-import com.spring.home.dto.WalletDTO;
 
 @Service
 public class InteriorService {	
@@ -28,9 +25,6 @@ public class InteriorService {
 	@Autowired
 	private InteriorMapper interiorMapper;
 
-	@Autowired
-	private WalletMapper walletMapper;
-	
 	public void insertInteriorData(InteriorDTO dto) throws Exception{
 		interiorMapper.insertInteriorData(dto);
 	}
@@ -189,94 +183,6 @@ public class InteriorService {
 
 	public void updateBooking(@RequestBody BookingDTO dto) throws Exception {
 		interiorMapper.updateBooking(dto);
-	}
-
-	@Transactional
-	public Map<String, Object> payFinalInvoice(InvoiceDTO dto) throws Exception {
-		Map<String, Object> result = new HashMap<>();
-
-		List<InvoiceDTO> invoiceList = interiorMapper.getInvoices(toBookingDTO(dto));
-		InvoiceDTO targetInvoice = null;
-
-		for (InvoiceDTO invoice : invoiceList) {
-			if (invoice.getInvoice_no() == dto.getInvoice_no()
-					&& "Y".equals(invoice.getInvoice_kind())) {
-				targetInvoice = invoice;
-				break;
-			}
-		}
-
-		if (targetInvoice == null) {
-			result.put("success", false);
-			result.put("message", "최종 견적서를 찾을 수 없습니다.");
-			return result;
-		}
-
-		List<InvoiceDetailDTO> details = interiorMapper.getInvoicedetails(targetInvoice);
-		int totalAmount = 0;
-
-		for (InvoiceDetailDTO detail : details) {
-			totalAmount += detail.getInvoice_qty() * detail.getInvoice_price();
-		}
-
-		if (totalAmount <= 0) {
-			result.put("success", false);
-			result.put("message", "결제할 견적 금액이 없습니다.");
-			return result;
-		}
-
-		BookingDTO targetBooking = findBookingForInvoice(targetInvoice);
-
-		if (targetBooking == null
-				|| (!"pending".equals(targetBooking.getB_status())
-						&& !"quoting".equals(targetBooking.getB_status()))) {
-			result.put("success", false);
-			result.put("message", "이미 결제되었거나 결제할 수 없는 상담 상태입니다.");
-			return result;
-		}
-
-		int decreaseResult = walletMapper.decreaseIfEnough(targetInvoice.getId(), totalAmount);
-
-		if (decreaseResult <= 0) {
-			result.put("success", false);
-			result.put("message", "지갑 잔액이 부족합니다.");
-			result.put("totalAmount", totalAmount);
-			return result;
-		}
-
-		WalletDTO companyWallet = new WalletDTO();
-		companyWallet.setId(targetInvoice.getC_id());
-		companyWallet.setMoney(totalAmount);
-		walletMapper.updateData(companyWallet);
-
-		result.put("success", true);
-		result.put("message", "결제가 완료되었습니다.");
-		result.put("totalAmount", totalAmount);
-		return result;
-	}
-
-	private BookingDTO toBookingDTO(InvoiceDTO invoice) {
-		BookingDTO booking = new BookingDTO();
-		booking.setId(invoice.getId());
-		booking.setC_id(invoice.getC_id());
-		booking.setC_kind(invoice.getC_kind());
-		booking.setC_name(invoice.getC_name());
-		booking.setB_createdDate(invoice.getB_createdDate());
-		return booking;
-	}
-
-	private BookingDTO findBookingForInvoice(InvoiceDTO invoice) throws Exception {
-		List<BookingDTO> bookingList = interiorMapper.getBookingsByBooking(toBookingDTO(invoice));
-
-		for (BookingDTO booking : bookingList) {
-			if (booking.getB_createdDate() != null
-					&& invoice.getB_createdDate() != null
-					&& booking.getB_createdDate().getTime() == invoice.getB_createdDate().getTime()) {
-				return booking;
-			}
-		}
-
-		return null;
 	}
 
 	public void updateInteriorReview(@RequestBody InteriorReviewDTO dto) throws Exception {

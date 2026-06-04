@@ -15,6 +15,7 @@ const buildCompanyAddress = (baseAddress, detailAddress) => {
 const AddressSearchForm = ({
 	form,
 	setForm,
+	isC,
 	mapHeight = "260px",
 	title = "사업체 주소",
 	description = "주소 검색 버튼을 눌러 사업체 위치를 검색한 뒤 상세주소를 입력하세요.",
@@ -31,25 +32,52 @@ const AddressSearchForm = ({
 		lng: 127.0286,
 	});
 
-	const baseAddress = useMemo(() => {
-		if (form?.c_addr1) return form.c_addr1;
+	const isCompanyAddress = useMemo(() => {
+		if (typeof isC === "boolean") {
+			return isC;
+		}
 
-		if (form?.c_addr) {
-			return String(form.c_addr).split("__")[0] || "";
+		const hasCompanyAddress = ["c_addr", "c_addr1", "c_addr2"].some((key) =>
+			Object.prototype.hasOwnProperty.call(form || {}, key),
+		);
+		const hasUserAddress = ["addr", "addr1", "addr2"].some((key) =>
+			Object.prototype.hasOwnProperty.call(form || {}, key),
+		);
+
+		return hasCompanyAddress && !hasUserAddress;
+	}, [form, isC]);
+
+	const addressKeys = useMemo(() => {
+		return isCompanyAddress
+			? { base: "c_addr1", detail: "c_addr2", full: "c_addr" }
+			: { base: "addr1", detail: "addr2", full: "addr" };
+	}, [isCompanyAddress]);
+
+	const baseAddress = useMemo(() => {
+		const baseKey = addressKeys.base;
+		const fullKey = addressKeys.full;
+
+		if (form?.[baseKey]) return form[baseKey];
+
+		if (form?.[fullKey]) {
+			return String(form[fullKey]).split("__")[0] || "";
 		}
 
 		return "";
-	}, [form?.c_addr1, form?.c_addr]);
+	}, [addressKeys, form]);
 
 	const detailAddress = useMemo(() => {
-		if (form?.c_addr2) return form.c_addr2;
+		const detailKey = addressKeys.detail;
+		const fullKey = addressKeys.full;
 
-		if (form?.c_addr?.includes("__")) {
-			return String(form.c_addr).split("__").slice(1).join("__");
+		if (form?.[detailKey]) return form[detailKey];
+
+		if (form?.[fullKey]?.includes("__")) {
+			return String(form[fullKey]).split("__").slice(1).join("__");
 		}
 
 		return "";
-	}, [form?.c_addr2, form?.c_addr]);
+	}, [addressKeys, form]);
 
 	const openMapSearch = () => {
 		setMapOpen(true);
@@ -74,14 +102,19 @@ const AddressSearchForm = ({
 		const newLng = parseFloat(item.x);
 
 		setForm((prev) => {
+			const baseKey = addressKeys.base;
+			const detailKey = addressKeys.detail;
+			const fullKey = addressKeys.full;
 			const currentDetail =
-				prev?.c_addr2 || prev?.c_addr?.split("__")?.slice(1).join("__") || "";
+				prev?.[detailKey] ||
+				prev?.[fullKey]?.split("__")?.slice(1).join("__") ||
+				"";
 
 			return {
 				...prev,
-				c_addr1: selectedAddress,
-				c_addr2: currentDetail,
-				c_addr: buildCompanyAddress(selectedAddress, currentDetail),
+				[baseKey]: selectedAddress,
+				[detailKey]: currentDetail,
+				[fullKey]: buildCompanyAddress(selectedAddress, currentDetail),
 			};
 		});
 
@@ -101,12 +134,16 @@ const AddressSearchForm = ({
 		const nextDetailAddress = evt.target.value;
 
 		setForm((prev) => {
-			const currentBaseAddress = prev?.c_addr1 || prev?.c_addr?.split("__")?.[0] || "";
+			const baseKey = addressKeys.base;
+			const detailKey = addressKeys.detail;
+			const fullKey = addressKeys.full;
+			const currentBaseAddress =
+				prev?.[baseKey] || prev?.[fullKey]?.split("__")?.[0] || "";
 
 			return {
 				...prev,
-				c_addr2: nextDetailAddress,
-				c_addr: buildCompanyAddress(currentBaseAddress, nextDetailAddress),
+				[detailKey]: nextDetailAddress,
+				[fullKey]: buildCompanyAddress(currentBaseAddress, nextDetailAddress),
 			};
 		});
 	};
@@ -114,9 +151,9 @@ const AddressSearchForm = ({
 	const clearAddress = () => {
 		setForm((prev) => ({
 			...prev,
-			c_addr1: "",
-			c_addr2: "",
-			c_addr: "",
+			[addressKeys.base]: "",
+			[addressKeys.detail]: "",
+			[addressKeys.full]: "",
 		}));
 
 		setSearchResults([]);
@@ -180,7 +217,7 @@ const AddressSearchForm = ({
 						fullWidth
 						size="small"
 						label="상세주소"
-						name="c_addr2"
+						name={addressKeys.detail}
 						value={detailAddress}
 						onChange={changeDetailAddress}
 						placeholder="건물명, 층수, 호수 등을 입력하세요."

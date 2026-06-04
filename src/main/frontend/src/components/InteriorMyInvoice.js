@@ -25,14 +25,6 @@ const InteriorMyInvoice = ({ booking }) => {
     setReBooking(!reBooking);
   };
 
-  const getInvoiceTotal = (invoiceItem) => {
-    return (invoiceItem?.detail || []).reduce(
-      (sum, item) =>
-        sum + Number(item.invoice_qty || 0) * Number(item.invoice_price || 0),
-      0,
-    );
-  };
-
   const makePdfData = async (data) => {
     if (!data) return;
 
