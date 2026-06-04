@@ -9,7 +9,10 @@ import AlertMui from "./AlertMui";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const InteriorExAdd = ({ company, onReload }) => {
-	const { c_id, c_kind, c_name } = company;
+	const localUserData = localStorage.getItem("user");
+	const userData = JSON.parse(localUserData);
+	const { id } = userData;
+	const { c_id = id, c_kind = "interior", c_name } = company;
 
 	const [exampleImageList, setExampleImageList] = useState([]);
 	const [imageFileList, setImageFileList] = useState([]);
@@ -98,7 +101,15 @@ const InteriorExAdd = ({ company, onReload }) => {
 		}
 
 		const formData = new FormData();
-		formData.append("dto", new Blob([JSON.stringify(example)], { type: "application/json" }));
+
+		const sendDataExampleDto = { ...example, c_id: c_id, c_kind: c_kind, c_name: c_name };
+		debugger;
+		formData.append(
+			"dto",
+			new Blob([JSON.stringify(sendDataExampleDto)], {
+				type: "application/json",
+			}),
+		);
 
 		formData.append(
 			"imageDtos",

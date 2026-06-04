@@ -218,9 +218,8 @@ public class InteriorController {
 	public Map<String, Object> insertInteriorExampleData(@RequestPart("dto") InteriorExampleDTO dto,
 			@RequestPart(value = "files", required = false) List<MultipartFile> files,
 			@RequestPart(value = "imageDtos", required = false) List<ImageDTO> imageDtos) throws Exception {
-
 		Map<String, Object> result = new HashMap<>();
-
+		
 		int exResult = interiorService.insertInteriorExampleData(dto);
 
 		if (exResult <= 0) {

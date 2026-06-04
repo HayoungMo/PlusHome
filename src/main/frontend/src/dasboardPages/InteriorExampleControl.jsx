@@ -59,7 +59,7 @@ const ExampleIsEmpty = (props) => {
 			)}
 			{interiorList.length === 0 && viewType === "example" && (
 				<div className="interior-example-form">
-					<InteriorExAdd company={tabCompany} onReload={onReload} />
+					<InteriorExAdd company={{ c_name: tabValue }} onReload={onReload} />
 				</div>
 			)}
 
@@ -442,7 +442,7 @@ const InteriorExampleControl = () => {
 										</span>
 									</div>
 								</div>
-							<div className="interior-example-table">
+								<div className="interior-example-table">
 									<TableMui
 										col={["ie_tag", "ie_tag2"]}
 										columns={["분류", "세부 분류"]}
