@@ -35,6 +35,8 @@ import {
     getFurnitureCategoryTitle,
 } from "../components/FurnitureCategorySelect";
 
+import "../css/Payment.css"
+
 const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -81,6 +83,14 @@ const PaymentPage = () => {
     title: "",
     text: "",
   })
+
+  const paymentStatus = paying
+    ? "processing"
+    : paySuccess
+      ? "success"
+      : payMessage
+        ? "failed"
+        : "confirm";
 
   const showAlert = ({ severity = "info", title = "", text= ""}) =>{
     setAlert({
@@ -353,6 +363,8 @@ const PaymentPage = () => {
   };
 
   const onConfirmPay = async () => {
+    if (paying || paySuccess) return
+
     if (!canPay) {
       setPayMessage("지갑 잔액이 부족합니다.");
       return;
@@ -360,7 +372,7 @@ const PaymentPage = () => {
 
     try {
       setPaying(true);
-      setPayMessage("지갑 잔액을 확인하고 있습니다.");
+      setPayMessage("");
 
       await PaymentService.pay({
         c_codeList: items.map((item) => item.c_code),
@@ -381,12 +393,13 @@ const PaymentPage = () => {
 
       setWalletMoney((prev) => prev - finalPayTotal);
       setPaySuccess(true);
-      setPayMessage("결제가 완료되었습니다.");
+      setPayMessage("");
     } catch (error) {
       console.error("결제 실패", error);
 
       const serverMessage = error.response?.data?.message;
 
+      setPaySuccess(false)
       setPayMessage(
         serverMessage && serverMessage !== "No message available"
           ? serverMessage
@@ -828,160 +841,165 @@ const PaymentPage = () => {
         </Paper>
       </Box>
 
-      <Dialog
-        open={modalOpen}
-        onClose={() => !paying && setModalOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle fontWeight={700}>
-          {paySuccess ? "" : "결제 확인"}
-        </DialogTitle>
+     {(() => {
+        const paymentStatus = paying
+          ? "processing"
+          : paySuccess
+            ? "success"
+            : payMessage
+              ? "failed"
+              : "confirm";
 
-        <DialogContent>
-          <Stack spacing={1.2}>
-            {paySuccess && (
-              <Box
-                sx={{
-                  py: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  textAlign: "center !important",
-                }}
-              >
-                <AiFillCar size={48} color="#1976d2" />
-                <Typography
-                  variant="h6"
-                  fontWeight={800}
-                  mt={1}
-                  sx={{ textAlign: "center !important" }}
-                >
-                  결제가 완료되었습니다
-                </Typography>
-              </Box>
-            )}
+        return (
+          <Dialog
+            open={modalOpen}
+            onClose={(event, reason) => {
+              if (reason === "backdropClick") return;
+              if (paying) return;
 
-            <Box display="flex" justifyContent="space-between">
-              <Typography>상품금액</Typography>
-              <Typography fontWeight={700}>
-                {productTotal.toLocaleString()}원
-              </Typography>
-            </Box>
+              setModalOpen(false);
+            }}
+            disableEscapeKeyDown
+            maxWidth={false}
+            className="payment-ticket-dialog"
+          >
+            <DialogContent className={`payment-ticket is-${paymentStatus}`}>
+              <div className="payment-ticket-head">
+                {paymentStatus === "processing" && (
+                  <>
+                    <div className="payment-processing-loader">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                    <h2>결제 확인 중</h2>
+                    <p>결제 정보를 확인하고 있습니다.</p>
+                  </>
+                )}
 
-            <Box display="flex" justifyContent="space-between">
-              <Typography>배송비</Typography>
-              <Typography fontWeight={700}>
-                {deliveryTotal.toLocaleString()}원
-              </Typography>
-            </Box>
+                {paymentStatus === "success" && (
+                  <>
+                    <div className="payment-ticket-coin">
+                      <span>₩</span>
+                    </div>
+                    <h2>결제 완료</h2>
+                    <p>주문이 정상적으로 접수되었습니다.</p>
+                  </>
+                )}
 
-            <Box display="flex" justifyContent="space-between">
-              <Typography>쿠폰할인</Typography>
-              <Typography fontWeight={700} color="error">
-                -{couponDiscount.toLocaleString()}원
-              </Typography>
-            </Box>
+                {paymentStatus === "failed" && (
+                  <>
+                    <div className="payment-fail-coin">
+                      <span>₩</span>
+                    </div>
+                    <h2>결제 실패</h2>
+                    <p>결제를 완료하지 못했습니다.</p>
+                  </>
+                )}
 
-            <Box display="flex" justifyContent="space-between">
-              <Typography>포인트 사용</Typography>
-              <Typography fontWeight={700} color="error">
-                -{appliedPoint.toLocaleString()}P
-              </Typography>
-            </Box>
+                {paymentStatus === "confirm" && (
+                  <h2>결제 확인</h2>
+                )}
+              </div>
 
-            <Divider />
+              <div className="payment-ticket-line" />
 
-            <Box display="flex" justifyContent="space-between">
-              <Typography>현재 지갑 잔액</Typography>
-              <Typography fontWeight={700}>
-                {walletMoney.toLocaleString()}원
-              </Typography>
-            </Box>
+              <div className="payment-ticket-rows">
+                <div className="payment-ticket-row">
+                  <span>상품금액</span>
+                  <strong>{productTotal.toLocaleString()}원</strong>
+                </div>
 
-            <Box display="flex" justifyContent="space-between">
-              <Typography>결제 후 잔액</Typography>
-              <Typography
-                fontWeight={700}
-                color={afterPayMoney < 0 ? "error" : "text.primary"}
-              >
-                {afterPayMoney.toLocaleString()}원
-              </Typography>
-            </Box>
+                <div className="payment-ticket-row">
+                  <span>배송비</span>
+                  <strong>{deliveryTotal.toLocaleString()}원</strong>
+                </div>
 
-            <Divider />
+                <div className="payment-ticket-row">
+                  <span>쿠폰할인</span>
+                  <strong className="minus">-{couponDiscount.toLocaleString()}원</strong>
+                </div>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography>최종 결제금액</Typography>
-              <Typography variant="h6" fontWeight={800}>
-                {finalPayTotal.toLocaleString()}원
-              </Typography>
-            </Box>
+                <div className="payment-ticket-row">
+                  <span>포인트 사용</span>
+                  <strong className="minus">-{appliedPoint.toLocaleString()}P</strong>
+                </div>
+              </div>
 
-            {payMessage && !paySuccess && (
-              <Typography
-                color="error"
-                sx={{ whiteSpace: "pre-line" }}
-              >
-                {payMessage}
-              </Typography>
-            )}
+              <div className="payment-ticket-line" />
 
-            {lackMoney > 0 && !paySuccess && (
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => setWalletChargeOpen(true)}
-              >
-                지갑 충전하기
-              </Button>
-            )}
+              <div className="payment-ticket-rows">
+                <div className="payment-ticket-row">
+                  <span>현재 지갑 잔액</span>
+                  <strong>{walletMoney.toLocaleString()}원</strong>
+                </div>
 
-            <Stack direction="row" spacing={1} justifyContent="flex-end" pt={1}>
-              {paySuccess ? (
-                <>
-                  <Button
-                    variant="outlined"
-                    color="inherit"
-                    onClick={() => navigate("/")}
-                  >
-                    쇼핑 계속하기
-                  </Button>
+                <div className="payment-ticket-row">
+                  <span>결제 후 잔액</span>
+                  <strong className={afterPayMoney < 0 ? "minus" : ""}>
+                    {afterPayMoney.toLocaleString()}원
+                  </strong>
+                </div>
+              </div>
 
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate("/userpage?menu=orders")}
-                  >
-                    주문 내역 보기
-                  </Button>
+              <div className="payment-ticket-line strong" />
 
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="outlined"
-                    color="inherit"
-                    disabled={paying}
-                    onClick={() => setModalOpen(false)}
-                  >
-                    취소
-                  </Button>
+              <div className="payment-ticket-total">
+                <span>최종 결제금액</span>
+                <strong>{finalPayTotal.toLocaleString()}원</strong>
+              </div>
 
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={paying || !canPay}
-                    onClick={onConfirmPay}
-                  >
-                    {canPay ? "결제" : "잔액 부족"}
-                  </Button>
-                </>
+              {paymentStatus === "failed" && payMessage && (
+                <p className="payment-ticket-error">{payMessage}</p>
               )}
-            </Stack>
-          </Stack>
-        </DialogContent>
-      </Dialog>
+
+              <div className="payment-ticket-actions">
+                {paymentStatus === "success" ? (
+                  <>
+                    <Button variant="outlined" color="inherit" onClick={() => navigate("/")}>
+                      쇼핑 계속하기
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => navigate("/userpage?menu=orders")}
+                    >
+                      주문 내역 보기
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outlined"
+                      color="inherit"
+                      disabled={paying}
+                      onClick={() => setModalOpen(false)}
+                    >
+                      취소
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={paying || !canPay}
+                      onClick={onConfirmPay}
+                    >
+                      {paymentStatus === "processing"
+                        ? "확인 중"
+                        : paymentStatus === "failed"
+                          ? "다시 시도"
+                          : canPay
+                            ? "결제"
+                            : "잔액 부족"}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
 
       <Dialog
         open={couponDialogOpen}
