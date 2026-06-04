@@ -15,6 +15,10 @@ const InteriorMyInvoice = ({ booking }) => {
 
   const [invoiceWithDetails, setInvoiceWithDetails] = useState([]);
 
+  const finalInvoice = [...invoiceWithDetails]
+    .reverse()
+    .find((invoiceItem) => invoiceItem?.invoice_kind === "Y");
+
   const handleNext = (invoice) => {
     navigate("/interior/review", {
       state: { invoice },
@@ -23,14 +27,6 @@ const InteriorMyInvoice = ({ booking }) => {
 
   const BookingAgain = () => {
     setReBooking(!reBooking);
-  };
-
-  const getInvoiceTotal = (invoiceItem) => {
-    return (invoiceItem?.detail || []).reduce(
-      (sum, item) =>
-        sum + Number(item.invoice_qty || 0) * Number(item.invoice_price || 0),
-      0,
-    );
   };
 
   const makePdfData = async (data) => {
@@ -112,67 +108,61 @@ const InteriorMyInvoice = ({ booking }) => {
               "c_boss",
               "c_info",
               "name",
+              "id",
             ]}
-            columns={[
-              "업체명",
-              "업체 ID",
-              "상담 신청일",
-              "견적서 순서",
-              "완료 여부",
-            ]}
+            columns={["업체명", "상담 신청일", "견적서 순서", "완료 여부"]}
             collapseKey="detail"
             collapseTitle="견적 상세 내역"
             collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
             collapseColumnLabels={["항목", "수량", "금액"]}
           />
-          {invoiceWithDetails.map((invoiceItem, invoiceIdx) => (
-            <div className="user-invoice-actions" key={invoiceIdx}>
+          {finalInvoice && (
+            <div className="user-invoice-actions">
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => makePdfData(invoiceItem)}
+                onClick={() => makePdfData(finalInvoice)}
               >
                 pdf뽑기
               </Button>
 
-              {booking?.b_status === "done" &&
-                invoiceItem.invoice_kind === "Y" && (
-                  <div className="user-invoice-done-actions">
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => handleNext(invoiceItem)}
-                    >
-                      리뷰 작성
-                    </Button>
+              {booking?.b_status === "done" && (
+                <div className="user-invoice-done-actions">
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleNext(finalInvoice)}
+                  >
+                    리뷰 작성
+                  </Button>
 
-                    <Button
-                      variant="contained"
-                      color={reBooking ? "inherit" : "primary"}
-                      onClick={() => BookingAgain()}
-                    >
-                      {reBooking ? "취소" : "재상담 신청"}
-                    </Button>
+                  <Button
+                    variant="contained"
+                    color={reBooking ? "inherit" : "primary"}
+                    onClick={() => BookingAgain()}
+                  >
+                    {reBooking ? "취소" : "재상담 신청"}
+                  </Button>
 
-                    {reBooking && (
-                      <DialogInside
-                        open={reBooking}
-                        onClose={() => setReBooking(false)}
-                      >
-                        <InteriorBooking
-                          company={{
-                            c_id: booking.c_id,
-                            c_kind: booking.c_kind,
-                            c_name: booking.c_name,
-                          }}
-                          answers={JSON.parse(booking.b_answer)}
-                        />
-                      </DialogInside>
-                    )}
-                  </div>
-                )}
+                  {reBooking && (
+                    <DialogInside
+                      open={reBooking}
+                      onClose={() => setReBooking(false)}
+                    >
+                      <InteriorBooking
+                        company={{
+                          c_id: booking.c_id,
+                          c_kind: booking.c_kind,
+                          c_name: booking.c_name,
+                        }}
+                        answers={JSON.parse(booking.b_answer)}
+                      />
+                    </DialogInside>
+                  )}
+                </div>
+              )}
             </div>
-          ))}
+          )}
         </div>
       ) : (
         <p>선택된 견적서가 없습니다.</p>

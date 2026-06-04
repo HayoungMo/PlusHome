@@ -1,25 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Snackbar } from "@mui/material";
+import { Dialog, Pagination, Snackbar } from "@mui/material";
 
 import PaymentService from "../service/paymentService";
 import CartService from "../service/cartService";
 import FurnitureService from "../service/furnitureService";
 import ImageService from "../service/imageService";
 
-import Loading from "../components/Loading";
+import SkeletonMui from "../components/SkeletonMui";
 import AlertMui from "../components/AlertMui";
 import DialogMui from "../components/DialogMui";
 
-import OrderClaimInfo from "./OrderClaimInfo";
 import OrderClaimModal from "./OrderClaimModal";
 import ImageViewer from "../components/ImageViewer";
+
+import "../css/UserOrderPage.css"
 
 const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const navigate = useNavigate()
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState("all");
+    const [page, setPage] = useState(1)
+    const pageSize = 5;
     const [openedClaimImages, setOpenedClaimImages] = useState({})
     const [actionLoading, setActionLoading] = useState(false);
     const furnitureCacheRef = useRef(new Map());
@@ -41,6 +44,11 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         star: 0,
         reply: null,
     });
+    const [orderDetailItem, setOrderDetailItem] = useState(null);
+
+    useEffect(()=>{
+        setPage(1)
+    },[statusFilter])
 
     const openReviewViewer = async (item) => {
         const review = item.review;
@@ -86,6 +94,51 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         });
 
         setReviewViewerOpen(true);
+    };
+
+    const openClaimViewer = async (item) => {
+        if (!item.claimed || !item.claim_code) return;
+
+        try {
+            const imageList = await ImageService.getImageData({
+                kind: "CLAIM",
+                a: item.claim_code,
+                d: id,
+                idx: -1,
+            });
+
+            const images = (imageList || []).map((img) => ({
+                src: img.img_name?.startsWith("/api/")
+                    ? img.img_name
+                    : `/api/images/CLAIM/${img.img_name}`,
+                alt: "신청 첨부 이미지",
+            }));
+
+            setReviewViewerImages(
+                images.length > 0
+                    ? images
+                    : [{ src: "/no-image.png", alt: "첨부 이미지 없음" }]
+            );
+
+            setReviewViewerIndex(0);
+            setReviewViewerInfo({
+                title: Number(item.claim_type) === 1 ? "교환 신청 내용" : "반품/환불 신청 내용",
+                content: item.claim_reason || "신청 사유가 없습니다.",
+                date: formatOrderDate(item.claim_createdDate || item.cart_statusdate),
+                writer: id || "",
+                star: 0,
+                reply: null,
+            });
+
+            setReviewViewerOpen(true);
+        } catch (error) {
+            console.error("신청 이미지 조회 실패", error);
+            showAlert({
+                severity: "error",
+                title: "이미지 조회 실패",
+                text: "신청 내용을 불러오지 못했습니다.",
+            });
+        }
     };
 
     const isClaimRejected = (item) => Number(item.claim_status) === -1;
@@ -369,6 +422,89 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         }
     };
 
+    const getStatusClass = (status) => {
+        switch (Number(status)) {
+            case -2:
+                return "rejected";
+            case -1:
+                return "cancel";
+            case 0:
+                return "paid";
+            case 1:
+                return "ready";
+            case 2:
+                return "release";
+            case 3:
+                return "shipping";
+            case 4:
+                return "delivered";
+            case 5:
+                return "confirmed";
+            case 6:
+                return "exchange";
+            default:
+                return "unknown";
+        }
+    };
+
+    const getClaimTypeLabel = (claimType) => {
+        return Number(claimType) === 1 ? "교환" : "반품/환불";
+    };
+
+    const getClaimStatusText = (claimStatus) => {
+        switch (Number(claimStatus)) {
+            case -1:
+                return "신청거절";
+            case 0:
+                return "신청완료";
+            case 1:
+                return "접수완료";
+            case 2:
+                return "처리중";
+            case 3:
+                return "처리완료";
+            default:
+                return "확인중";
+        }
+    };
+
+    const getClaimStepIndex = (claimStatus) => {
+        const status = Number(claimStatus);
+        if (status < 0) return -1;
+        if (status > 3) return 3;
+        return status;
+    };
+
+    const getOptionText = (item) => {
+        const text = (item.options || [])
+            .map((option) => {
+                const select = option.co_select || "";
+                const optionText = option.co_text || "";
+                return [select, optionText].filter(Boolean).join(" ");
+            })
+            .filter(Boolean)
+            .join(" / ");
+
+        return text || "옵션 없음";
+    };
+
+    const getPointDiscount = (item) => {
+        return Number(item?.f_point || item?.point || item?.used_point || item?.pay_point || 0);
+    };
+
+    const getFinalPaymentAmount = (item) => {
+        return Math.max(0, getItemTotal(item) - getPointDiscount(item));
+    };
+
+    const getReceiverName = (item) =>
+        item?.f_name || item?.receiver_name || user?.name || "-";
+
+    const getReceiverTel = (item) =>
+        item?.f_tel || item?.receiver_tel || user?.tel || "-";
+
+    const getReceiverAddress = (item) =>
+        item?.f_addr || item?.receiver_addr || user?.addr || "-";
+
     const getOrderListTitle = () => {
         switch (statusFilter) {
             case "all":
@@ -647,39 +783,82 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const statusCards = [
         {
             key: "ready",
-            label: "주문 완료",
-            count: countByStatus(0) + countByStatus(1)
+            label: "주문완료",
+            count: countByStatus(0) + countByStatus(1),
+            icon: "/order/bag_icon.png",
+            iconClass: "bag",
         },
         {
             key: 2,
             label: "출고",
-            count: countByStatus(2)
+            count: countByStatus(2),
+            icon: "/order/box_icon.png",
+            iconClass: "box",
         },
         {
             key: 3,
             label: "배송중",
-            count: countByStatus(3)
+            count: countByStatus(3),
+            icon: "/order/truck_icon.png",
+            iconClass: "truck",
         },
         {
             key: 4,
             label: "배송완료",
-            count: countByStatus(4) 
+            count: countByStatus(4),
+            icon: "/order/checkBox_icon.png",
+            iconClass: "delivered",
         },
         {
             key: 5,
             label: "구매확정",
-            count: countByStatus(5)
-        }
+            count: countByStatus(5),
+            icon: "/order/confirm_icon.png",
+            iconClass: "confirm",
+        },
     ];
+
+    const claimCards = [
+        {
+            key: -1,
+            label: "취소",
+            count: countByStatus(-1),
+            icon: "/order/cancel_icon.png",
+            iconClass: "cancel",
+        },
+        {
+            key: "exchange",
+            label: "교환",
+            count: countByClaimType(1),
+            icon: "/order/exchange_icon.png",
+            iconClass: "exchange",
+        },
+        {
+            key: "return",
+            label: "반품/환불",
+            count: countByClaimType(2),
+            icon: "/order/refund_icon.png",
+            iconClass: "refund",
+        },
+    ];
+
+    const claimFilterKeys = [-1, "exchange", "return"];
+    const isClaimView = claimFilterKeys.includes(statusFilter);
 
     const filteredOrders = getFilteredOrders();
 
+    const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+    const pagedOrders = filteredOrders.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+    );
+
     if (loading) {
-        return <Loading message="주문 정보를 불러오는 중입니다."/>;
+        return <SkeletonMui variant="userOrderPage" />;
     }
 
     return (
-        <div style={{ padding: "20px" }}>
+        <div className="user-order-page">
             <Snackbar
                 open={alert.open}
                 autoHideDuration={3000}
@@ -716,332 +895,396 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                 ]}
             />
             
-
-            <div
-                style={{
-                    borderTop: "2px solid #222",
-                    padding: "32px 0",
-                    display: "grid",
-                    gridTemplateColumns: "1fr 30px 1fr 30px 1fr 30px 1fr 30px 1fr",
-                    alignItems: "center",
-                    textAlign: "center"
-                }}
-            >
-                {statusCards.map((status, index) => (
-                    <React.Fragment key={status.key}>
-                        <button
-                            type="button"
-                            onClick={() => setStatusFilter(status.key)}
-                            style={{
-                                border: "none",
-                                background: "transparent",
-                                cursor: "pointer",
-                                color: statusFilter === status.key ? "black" : "#555"
-                            }}
-                        >
-                            <strong style={{ fontSize: "24px" }}>
-                                {status.count}
-                            </strong>
-                            <p>{status.label}</p>
-                        </button>
-
-                        {index < statusCards.length - 1 && (
-                            <div style={{ color: "#ddd", fontSize: "32px" }}>›</div>
-                        )}
-                    </React.Fragment>
-                ))}
-            </div>
-
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr",
-                    border: "1px solid #ddd",
-                    textAlign: "center",
-                    marginBottom: "30px"
-                }}
-            >
-
-                <button
-                    type="button"
-                    onClick={() => setStatusFilter(-1)}
-                    style={{
-                        padding: "18px",
-                        border: "none",
-                        borderRight: "1px solid #ddd",
-                        background: statusFilter === -1 ? "black" : "white",
-                        color: statusFilter === -1 ? "white" : "black",
-                        cursor: "pointer"
-                    }}
-                >
-                    취소 : {countByStatus(-1)}
-                </button>
-
-                <button
-                    type="button"
-                    onClick={()=> setStatusFilter("exchange")}
-                    style={{
-                        padding: "18px",
-                        border: "none",
-                        borderRight: "1px solid #ddd",
-                        background: statusFilter === "exchange" ? "black" : "white",
-                        color: statusFilter === "exchange" ? "white" : "black",
-                        cursor: "pointer"
-                    }}
-                >
-                    교환 : {countByClaimType(1)}
-                </button>
-
-                <button
-                    type="button"
-                    onClick={()=> setStatusFilter("return")}
-                    style={{
-                        padding: "18px",
-                        border: "none",
-                        background: statusFilter === "return" ? "black" : "white",
-                        color: statusFilter === "return" ? "white" : "black",
-                        cursor: "pointer"
-                    }}
-                >
-                    반품 / 환불 : {countByClaimType(2)}
-                </button>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "18px" }}>
-                <h3 style={{ margin: 0 }}>{getOrderListTitle()}</h3>
-
-                <button
-                    type="button"
-                    onClick={() => setStatusFilter("all")}
-                    style={{
-                        border: "1px solid #ddd",
-                        background: statusFilter === "all" ? "black" : "white",
-                        color: statusFilter === "all" ? "white" : "black",
-                        padding: "8px 14px",
-                        cursor: "pointer"
-                    }}
-                >
-                    전체보기
-                </button>
-            </div>
-
-            <div style={{ borderTop: "2px solid #222" }}>
-                {filteredOrders.length === 0 ? (
-                    <div
-                        style={{
-                            padding: "50px",
-                            textAlign: "center",
-                            borderBottom: "1px solid #ddd"
-                        }}
+           <section className="order-dashboard-card">
+                <div className="order-mode-tabs">
+                    <button
+                        type="button"
+                        className={!isClaimView ? "active" : ""}
+                        onClick={() => setStatusFilter("all")}
                     >
-                        {getEmptyOrderText()}
+                        주문/배송
+                    </button>
+
+                    <button
+                        type="button"
+                        className={isClaimView ? "active" : ""}
+                        onClick={() => setStatusFilter(-1)}
+                    >
+                        취소 · 교환 · 반품
+                    </button>
+                </div>
+
+                {!isClaimView ? (
+                    <div className="order-status-summary">
+                        {statusCards.map((status) => (
+                            <button
+                                key={status.key}
+                                type="button"
+                                className={`order-status-item ${
+                                    statusFilter === status.key ? "active" : ""
+                                }`}
+                                onClick={() => setStatusFilter(status.key)}
+                            >
+                                <span className={`order-status-icon ${status.iconClass}`}>
+                                    <img src={status.icon} alt={status.label} />
+                                </span>
+                                <strong className="order-status-count">{status.count}</strong>
+                                <span className="order-status-label">{status.label}</span>
+                            </button>
+                        ))}
                     </div>
                 ) : (
-                    filteredOrders.map((item) => (
-                        <div key={item.c_code} style={{ borderBottom: "1px solid #ddd" }}>
-                            <div
-                                style={{
-                                    background: "#f7f7f7",
-                                    padding: "16px",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}
+                    <div className="order-status-summary claim">
+                        {claimCards.map((claim) => (
+                            <button
+                                key={claim.key}
+                                type="button"
+                                className={`order-status-item ${
+                                    statusFilter === claim.key ? "active" : ""
+                                }`}
+                                onClick={() => setStatusFilter(claim.key)}
                             >
-                            <strong>
-                                {formatOrderDate(item.cart_statusdate)}
-                            </strong>
-                            </div>
+                                <span className={`order-status-icon ${claim.iconClass}`}>
+                                    <img src={claim.icon} alt={claim.label} />
+                                </span>
+                                <strong className="order-status-count">{claim.count}</strong>
+                                <span className="order-status-label">{claim.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </section>
+           
+                        <section className="order-result-panel">
+                            <div className="order-list-head">
+                                <h3>{getOrderListTitle()}</h3>
 
-                            <div
-                                style={{
-                                    display: "flex",
-                                    gap: "22px",
-                                    padding: "26px 16px"
-                                }}
-                            >
-                                <img
-                                onClick={() => navigate(`/furniture/article/${item.f_code}`)}
-                                src={
-                                    item.thumbnail
-                                        ? `/api/images/FURNITURE/${item.thumbnail}`
-                                        : "/no-image.png"
-                                }
-                                alt={item.furniture?.f_name || item.f_code}
-                                style={{
-                                    width: "105px",
-                                    height: "105px",
-                                    objectFit: "cover",
-                                    cursor: "pointer"
-                                }}
-                            />
-
-
-                                <div style={{ flex: 1 }}>
-                                    <p
-                                        style={{ marginTop: 0, cursor: "pointer" }}
-                                        onClick={() => navigate(`/furniture/article/${item.f_code}`)}
-                                    >
-                                        <strong>{item.furniture?.f_name || item.f_code}</strong>
-                                    </p>
-
-                                    <p>
-                                        {getItemTotal(item).toLocaleString()}원 ({item.f_count}개)
-                                    </p>
-
-                                    {(item.options || []).map((option, index) => (
-                                        <p key={index}>
-                                            [옵션: {option.co_select} - {option.co_text}]
-                                        </p>
-                                    ))}
-
-                                    <p>수령인: {item.f_name}</p>
-                                    <p>연락처: {item.f_tel}</p>
-                                    <p>배송지: {item.f_addr}</p>
-
-                                    <p>주문상태: {getStatusText(item.f_dstatus)}</p>
-
-                                    <OrderClaimInfo
-                                    item={item}
-                                    openedImages={openedClaimImages[item.claim_code]}
-                                    onToggleImages={toggleClaimImages}
-                                    />
-
-
-                                </div>
-                            </div>
-
-                            <div style={{ display: "flex", gap: "8px" }}>
-                            {Number(item.f_dstatus) === -1 && (() => {
-                                const hasOptions = (item.options || []).length > 0
-                                const isSoldOut = 
-                                    !hasOptions &&
-                                    Number(item.furniture?.f_count ?? item.f_count ?? 0) <= 0
-                                
-                                return isSoldOut ? (
-                                <button type="button" disabled>
-                                    품절
+                                <button
+                                    type="button"
+                                    className={`order-all-button ${statusFilter === "all" ? "active" : ""}`}
+                                    onClick={() => setStatusFilter("all")}
+                                >
+                                    전체보기
                                 </button>
+                            </div>
+
+                            <div className="order-list">
+                                {filteredOrders.length === 0 ? (
+                                    <div className="order-empty">
+                                        {getEmptyOrderText()}
+                                    </div>
                                 ) : (
-                                <button
-                                    type="button"
-                                    disabled={actionLoading}
-                                    onClick={() => onAddCanceledOrderToCart(item)}
-                                >
-                                    다시 장바구니 담기
-                                </button>
-                                )
-                            })()}
+                                    pagedOrders.map((item) => {
+                                        const claimStepIndex = getClaimStepIndex(item.claim_status);
+                                        const claimSteps = ["신청완료", "접수완료", "처리중", "처리완료"];
+                                        const isClaimItem = item.claimed && !isClaimRejected(item);
 
-                            {[0, 1].includes(Number(item.f_dstatus)) && (
-                                <button
-                                    type="button"
-                                    disabled={actionLoading}
-                                    onClick={() => onCancelOrder(item.c_code)}
-                                >
-                                    주문취소
-                                </button>
-                            )}
+                                        return (
+                                        <article key={item.c_code} className={`order-row-card ${isClaimItem ? "claim-row" : ""}`}>
+                                            <div className="order-row-date">
+                                                <div className="order-row-date-left">
+                                                    <span>{formatOrderDate(item.cart_statusdate)}</span>
 
-                            {canShowClaimActions(item) && (
-                            item.claimed && !isClaimRejected(item) ? (
-                                <button type="button" disabled>
-                                    {Number(item.claim_type) === 1 ? "교환" : "반품(환불)"}{" "}
-                                    {Number(item.claim_status) === 0
-                                        ? "신청완료"
-                                        : Number(item.claim_status) === 1
-                                        ? "접수완료"
-                                        : Number(item.claim_status) === 2
-                                        ? "처리중"
-                                        : Number(item.claim_status) === 3
-                                        ? "처리완료"
-                                        : "상태확인중"}
-                                </button>
-                            ) : (
-                                <>
-                                    {canRequestExchange(item) && (
-                                        <button type="button" onClick={() => openClaimModal(item, 1)}>
-                                            교환신청
-                                        </button>
-                                    )}
+                                                    {!isClaimItem && (
+                                                        <span className={`order-row-status ${getStatusClass(item.f_dstatus)}`}>
+                                                            {getStatusText(item.f_dstatus)}
+                                                        </span>
+                                                    )}
+                                                </div>
 
-                                    {canRequestReturn(item) && (
-                                        <button type="button" onClick={() => openClaimModal(item, 2)}>
-                                            반품/환불 신청
-                                        </button>
-                                    )}
-                                </>
-                            )
-                        )}
+                                                <button
+                                                    type="button"
+                                                    className="order-detail-link"
+                                                    onClick={() => setOrderDetailItem(item)}
+                                                >
+                                                    » 주문 상세 보기
+                                                </button>
+                                            </div>
 
-                            {Number(item.f_dstatus) === 3 && (
-                                <button type="button">
-                                    배송조회
-                                </button>
-                            )}
+                                            <div className="order-row-code">
+                                                주문번호 {item.c_code}
+                                            </div>
 
-                            {canConfirmOrder(item) && (
-                                <button
-                                    type="button"
-                                    disabled={actionLoading}
-                                    onClick={() => onConfirmOrder(item.c_code)}
-                                    style={{
-                                        background: "black",
-                                        color: "white",
-                                        border: "none",
-                                        padding: "8px 16px",
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    구매확정
-                                </button>
-                            )}
+                                            <div className="order-row-main">
+                                                <button
+                                                    type="button"
+                                                    className="order-row-thumb"
+                                                    onClick={() => navigate(`/furniture/article/${item.f_code}`)}
+                                                >
+                                                    <img
+                                                        src={item.thumbnail ? `/api/images/FURNITURE/${item.thumbnail}` : "/no-image.png"}
+                                                        alt={item.furniture?.f_name || item.f_code}
+                                                    />
+                                                </button>
 
-                            {Number(item.f_dstatus) === 5 && (
-                            item.reviewed ? (
-                                <button
-                                    type="button"
-                                    onClick={() => openReviewViewer(item)}
-                                    style={{
-                                        background: "white",
-                                        color: "black",
-                                        border: "1px solid #ddd",
-                                        padding: "8px 16px",
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    리뷰 보기
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => navigate(`/furniture/review/${item.f_code}`, {
-                                        state: {
-                                            c_code: item.c_code,
-                                            furniture: item.furniture,
-                                            thumbnail: item.thumbnail,
-                                        }
-                                    })}
-                                    style={{
-                                        background: "black",
-                                        color: "white",
-                                        border: "none",
-                                        padding: "8px 16px",
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    리뷰 쓰기
-                                </button>
-                            )
-                        )}
+                                                <div className="order-row-info">
+                                                    <button
+                                                        type="button"
+                                                        className="order-row-title"
+                                                        onClick={() => navigate(`/furniture/article/${item.f_code}`)}
+                                                    >
+                                                        {item.furniture?.f_name || item.f_code}
+                                                    </button>
 
+                                                    <div className="order-row-price">
+                                                        <strong>{getItemTotal(item).toLocaleString()}원</strong>
+                                                        <span>수량 {item.f_count}개</span>
+                                                    </div>
+
+                                                    <div className="order-row-options">
+                                                        {getOptionText(item)}
+                                                    </div>
+                                                </div>
+
+                                                <div className="order-row-actions">
+                                                    {isClaimItem ? (
+                                                        <>
+                                                            <button type="button" onClick={() => openClaimViewer(item)}>
+                                                                신청 내용 보기
+                                                            </button>
+                                                            <button type="button" disabled>
+                                                                {getClaimStatusText(item.claim_status)}
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            {Number(item.f_dstatus) === -1 && (
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={actionLoading}
+                                                                    onClick={() => onAddCanceledOrderToCart(item)}
+                                                                >
+                                                                    다시 장바구니 담기
+                                                                </button>
+                                                            )}
+
+                                                            {[0, 1].includes(Number(item.f_dstatus)) && (
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={actionLoading}
+                                                                    onClick={() => onCancelOrder(item.c_code)}
+                                                                >
+                                                                    주문취소
+                                                                </button>
+                                                            )}
+
+                                                            {Number(item.f_dstatus) === 3 && (
+                                                                <button type="button">배송조회</button>
+                                                            )}
+
+                                                            {canConfirmOrder(item) && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="primary"
+                                                                    disabled={actionLoading}
+                                                                    onClick={() => onConfirmOrder(item.c_code)}
+                                                                >
+                                                                    구매확정
+                                                                </button>
+                                                            )}
+
+                                                            {Number(item.f_dstatus) === 5 && (
+                                                                item.reviewed ? (
+                                                                    <button type="button" onClick={() => openReviewViewer(item)}>
+                                                                        리뷰 보기
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => navigate(`/furniture/review/${item.f_code}`, {
+                                                                            state: {
+                                                                                c_code: item.c_code,
+                                                                                furniture: item.furniture,
+                                                                                thumbnail: item.thumbnail,
+                                                                            }
+                                                                        })}
+                                                                    >
+                                                                        리뷰 작성
+                                                                    </button>
+                                                                )
+                                                            )}
+
+                                                            {canShowClaimActions(item) && (
+                                                                <>
+                                                                    {canRequestExchange(item) && (
+                                                                        <button type="button" onClick={() => openClaimModal(item, 1)}>
+                                                                            교환신청
+                                                                        </button>
+                                                                    )}
+
+                                                                    {canRequestReturn(item) && (
+                                                                        <button type="button" onClick={() => openClaimModal(item, 2)}>
+                                                                            반품/환불 신청
+                                                                        </button>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {isClaimItem && (
+                                                <div className={`order-claim-section ${Number(item.claim_type) === 1 ? "exchange" : "return"}`}>
+                                                    <div className="order-claim-section-head">
+                                                        <strong>
+                                                            {getClaimTypeLabel(item.claim_type)} {getClaimStatusText(item.claim_status)}
+                                                        </strong>
+                                                    </div>
+
+                                                    <div className="order-claim-steps">
+                                                        {claimSteps.map((step, index) => (
+                                                            <span
+                                                                key={step}
+                                                                className={index <= claimStepIndex ? "active" : ""}
+                                                            >
+                                                                {step}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </article>
+                                    );
+                                    })
+                    )}
+                </div>
+
+                {filteredOrders.length > pageSize && (
+                    <div className="order-pagination">
+                        <Pagination
+                            count={totalPages}
+                            page={page}
+                            onChange={(event, value) => setPage(value)}
+                            color="primary"
+                            shape="rounded"
+                            size="small"
+                        />
+                    </div>
+                )}
+            </section>
+                
+            <Dialog
+                open={!!orderDetailItem}
+                onClose={() => setOrderDetailItem(null)}
+                maxWidth="md"
+                fullWidth
+                className="order-detail-dialog"
+            >
+                {orderDetailItem && (
+                    <div className="order-detail-modal">
+                        <div className="order-detail-modal-head">
+                            <div>
+                                <h2>주문 상세 보기</h2>
+                                <p>주문번호 {orderDetailItem.c_code}</p>
+                            </div>
+
+                            <span className={`order-detail-status ${getStatusClass(orderDetailItem.f_dstatus)}`}>
+                                {getStatusText(orderDetailItem.f_dstatus)}
+                            </span>
                         </div>
 
-                            </div>
+                        <div className="order-detail-modal-body">
+                            <section className="order-detail-product">
+                                <h3>상품 정보</h3>
 
-                    ))
+                                <div className="order-detail-product-row">
+                                    <div className="order-detail-thumb">
+                                        <img
+                                            src={
+                                                orderDetailItem.thumbnail
+                                                    ? `/api/images/FURNITURE/${orderDetailItem.thumbnail}`
+                                                    : "/no-image.png"
+                                            }
+                                            alt={orderDetailItem.furniture?.f_name || orderDetailItem.f_code}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <strong>{orderDetailItem.furniture?.f_name || orderDetailItem.f_code}</strong>
+                                        <p>{getOptionText(orderDetailItem)}</p>
+                                        <span>
+                                            {getItemTotal(orderDetailItem).toLocaleString()}원 | 수량 {orderDetailItem.f_count}개
+                                        </span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section className="order-detail-shipping">
+                                <h3>배송 정보</h3>
+
+                                <dl>
+                                    <div>
+                                        <dt>받는 사람</dt>
+                                        <dd>{getReceiverName(orderDetailItem)}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>연락처</dt>
+                                        <dd>{getReceiverTel(orderDetailItem)}</dd>
+                                    </div>
+                                    <div className="wide">
+                                        <dt>배송지</dt>
+                                        <dd>{getReceiverAddress(orderDetailItem)}</dd>
+                                    </div>
+                                </dl>
+                            </section>
+
+                            <aside className="order-detail-summary">
+                                <section>
+                                    <h3>결제 정보</h3>
+
+                                    <dl>
+                                        <div>
+                                            <dt>상품금액</dt>
+                                            <dd>{getItemTotal(orderDetailItem).toLocaleString()}원</dd>
+                                        </div>
+                                        <div>
+                                            <dt>포인트 할인</dt>
+                                            <dd className="minus">-{getPointDiscount(orderDetailItem).toLocaleString()}P</dd>
+                                        </div>
+                                        <div className="total">
+                                            <dt>최종 결제금액</dt>
+                                            <dd>{getFinalPaymentAmount(orderDetailItem).toLocaleString()}원</dd>
+                                        </div>
+                                    </dl>
+                                </section>
+
+                                <section>
+                                    <h3>처리 정보</h3>
+
+                                    <dl>
+                                        <div>
+                                            <dt>주문일시</dt>
+                                            <dd>{formatOrderDate(orderDetailItem.cart_statusdate)}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>현재 상태</dt>
+                                            <dd>{getStatusText(orderDetailItem.f_dstatus)}</dd>
+                                        </div>
+                                        {orderDetailItem.claimed && (
+                                            <div>
+                                                <dt>신청 상태</dt>
+                                                <dd>
+                                                    {getClaimTypeLabel(orderDetailItem.claim_type)} {getClaimStatusText(orderDetailItem.claim_status)}
+                                                </dd>
+                                            </div>
+                                        )}
+                                    </dl>
+                                </section>
+                            </aside>
+                        </div>
+
+                        <div className="order-detail-modal-actions">
+                            <button type="button" onClick={() => setOrderDetailItem(null)}>
+                                닫기
+                            </button>
+                            <button type="button" className="primary" onClick={() => setOrderDetailItem(null)}>
+                                확인
+                            </button>
+                        </div>
+                    </div>
                 )}
-            </div>
+            </Dialog>
 
             <OrderClaimModal
                 open={claimModal.open}

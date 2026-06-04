@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardLeftbar from "./DashboardLeftbar";
 
@@ -13,12 +13,33 @@ import DevDashboardHeader from "./DevDashBoardHeader";
 import InteriorList from "../dashboardDev/InteriorList";
 import Productreview from "../dashboardDev/Productreview";
 import InteriorCustomer from "../dashboardDev/InteriorCustomer";
+import { useNavigate } from "react-router-dom";
 
 const DashboardDevLayout = () => {
 	const [activeTab, setActiveTab] = useState("user");
 	const [activeMenu, setActiveMenu] = useState("home");
 	const localUserData = localStorage.getItem("user");
-	const userData = JSON.parse(localUserData);
+	const authCheckRef = useRef(false)
+
+	const navigate = useNavigate()
+
+	useEffect(()=>{
+		if(authCheckRef.current) return
+		authCheckRef.current = true
+
+		const localUserData = localStorage.getItem("user")
+		if(!localUserData){
+			alert("관리자만 접근 가능합니다.")
+			navigate("/")
+			return
+		}
+		const userData = JSON.parse(localUserData)
+		if(userData.type !=="admin"){
+			alert("관리자만 접근 가능합니다.")
+			navigate("/")
+		}
+	},[navigate])
+
 
 	const menuMap = {
 		user: [
@@ -84,6 +105,7 @@ const DashboardDevLayout = () => {
 				label:"인테리어 상담 통계",
 				component:(
 					<InteriorList/>
+					
 
 				)
 

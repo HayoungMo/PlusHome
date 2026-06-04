@@ -199,11 +199,6 @@ public class InteriorController {
 		return interiorService.getInvoicedetails(dto);
 	}
 
-	@PostMapping("/pay/invoice")
-	public Map<String, Object> payFinalInvoice(@RequestBody InvoiceDTO dto) throws Exception {
-		return interiorService.payFinalInvoice(dto);
-	}
-
 	@PostMapping("/userreview")
 	public List<InteriorReviewDTO> getUserInteriorReviews(@RequestBody InvoiceDTO dto) throws Exception {
 		return interiorService.getUserInteriorReviews(dto);

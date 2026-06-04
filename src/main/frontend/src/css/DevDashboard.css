@@ -1,0 +1,451 @@
+.interior-customer-dashboard {
+    width: 100%;
+    max-width: 920px;
+    padding: 28px 32px;
+    box-sizing: border-box;
+}
+
+.customer-card-section {
+    width: 100%;
+}
+
+.customer-card-row {
+    display: grid;
+    gap: 18px;
+}
+
+.customer-card-row-top {
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 18px;
+}
+
+.customer-card-row-bottom {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.customer-stat-card {
+    height: 112px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.customer-stat-content {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.customer-stat-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.customer-stat-value {
+    margin-top: 8px;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 800;
+    color: #111827;
+}
+
+.customer-chart-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    margin-top: 24px;
+}
+
+.customer-chart-card {
+    height: 380px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.customer-chart-content {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 22px 24px 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-chart-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+    text-align: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.customer-chart-box {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+.interior-customer-page {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 36px 40px 48px;
+    box-sizing: border-box;
+}
+
+.customer-summary-row {
+    display: grid;
+    gap: 24px;
+}
+
+.customer-summary-row.top {
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 24px;
+}
+
+.customer-summary-row.bottom {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.summary-card {
+    height: 160px;
+    border-radius: 0;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+}
+
+.summary-card-content {
+    height: 100%;
+    padding: 32px 34px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    transform: translateX(-18px);
+}
+
+.summary-icon {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background-color: #eef4ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.summary-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.summary-icon.total {
+    background-color: #e8f3ff;
+    color: #2563eb;
+}
+
+.summary-icon.contract {
+    background-color: #ecfdf3;
+    color: #16a34a;
+}
+
+.summary-icon.male {
+    background-color: #eefcff;
+    color: #2cddce;
+}
+
+.summary-icon.female {
+    background-color: #fff0f6;
+    color: #fa5f05;
+}
+
+.summary-icon.none {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.summary-text .summary-title {
+    font-size: 19px;
+    transform: translateX(-16px);
+    font-weight: 900;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.summary-text .summary-value {
+    margin-top: 8px;
+    transform: translateX(-16px);
+    font-size: 54px;
+    line-height: 1;
+    font-weight: 900;
+    color: #020617;
+}
+
+
+.summary-title {
+    font-size: 19px; 
+    font-weight: 900; 
+    color: #111827;
+    white-space: nowrap;
+}
+
+.summary-value {
+    margin-top: 8px; 
+    font-size: 54px; 
+    line-height: 1;
+    font-weight: 900;
+    color: #020617;
+}
+
+.customer-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.dashboard-chart-card {
+    height: 480px;
+    border-radius: 0;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-chart-content {
+    height: 100%;
+    padding: 32px 34px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-chart-content .dashboard-chart-title {
+    margin-bottom: 22px;
+    font-size: 30px;
+    font-weight: 900;
+    color: #111827;
+    text-align: center;
+}
+
+.dashboard-chart-title {
+    margin-bottom: 22px;
+    font-size: 30px;
+    font-weight: 900;
+    color: #111827;
+    text-align: center;
+}
+
+.dashboard-chart-box {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+.admin-search-bar {
+    width: 100%;
+    max-width: 1060px;
+    margin: 28px auto 24px;
+    padding: 22px 24px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.admin-search-bar > *:first-child {
+    width: 180px;
+    flex-shrink: 0;
+}
+
+.admin-search-bar > *:nth-child(2) {
+    flex: 1;
+}
+
+.admin-search-bar > button {
+    width: 96px;
+    height: 56px;
+    flex-shrink: 0;
+    background-color: #1976d2;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: 0 4px 10px rgba(25, 118, 210, 0.22);
+}
+
+.admin-search-bar > button:hover {
+    background-color: #1565c0;
+}
+
+.admin-search-bar .MuiInputBase-root {
+    height: 56px;
+    background-color: #f8fafc;
+}
+
+.admin-search-bar .MuiOutlinedInput-notchedOutline {
+    border-color: #dbe3ef;
+}
+
+.admin-search-bar .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #94a3b8;
+}
+
+.admin-search-bar .Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #1976d2;
+    border-width: 1px;
+}
+
+.coupon-issue-toolbar {
+    width: 100%;
+    max-width: 1120px;
+    margin: 24px auto 28px;
+    padding: 22px 24px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.coupon-issue-toolbar form {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 16px;
+    align-items: center;
+}
+
+.coupon-issue-toolbar form > * {
+    min-width: 0;
+}
+
+.coupon-issue-toolbar .MuiFormControl-root {
+    width: 100%;
+}
+
+.coupon-issue-toolbar .MuiInputBase-root {
+    height: 54px;
+    background-color: #f8fafc;
+}
+
+.coupon-issue-toolbar .MuiOutlinedInput-notchedOutline {
+    border-color: #dbe3ef;
+}
+
+.coupon-issue-toolbar .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #94a3b8;
+}
+
+.coupon-issue-toolbar .Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #111827;
+    border-width: 1px;
+}
+
+.coupon-issue-button {
+    grid-column: 3;
+    justify-self: end;
+    width: 100px;
+    height: 54px;
+    min-width: 120px;
+    padding: 0;
+    background-color: #1976d2;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: 0 4px 10px rgba(17, 24, 39, 0.22);
+}
+
+.coupon-issue-button:hover {
+    background-color: #1976d2;
+}
+
+.user-coupon-action-row {
+    width: 100%;
+    max-width: none;
+    margin: 18px 0;
+    padding: 22px 24px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.user-coupon-search-area {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 220px minmax(420px, 1fr) 96px;
+    gap: 14px;
+    align-items: center;
+    min-width: 0;
+}
+
+.user-coupon-search-area > * {
+    min-width: 0;
+}
+
+.user-coupon-search-area > *:first-child {
+    width: 100%;
+}
+
+.user-coupon-search-area > *:nth-child(2) {
+    width: 100%;
+}
+
+.user-coupon-search-area > *:nth-child(2) .MuiFormControl-root {
+    width: 100%;
+}
+
+.user-coupon-search-area > *:nth-child(2) .MuiInputBase-root {
+    width: 100%;
+}
+
+.user-coupon-search-area .MuiFormControl-root {
+    width: 100%;
+}
+
+.user-coupon-search-area button {
+    width: 100px;
+    min-width: 100px;
+    height: 54px;
+    flex-shrink: 0;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.user-coupon-give-button {
+    width: 120px;
+    min-width: 120px;
+    height: 54px;
+    flex-shrink: 0;
+    padding: 0 18px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.operation-kpi-grid {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.operation-kpi-grid > * {
+    min-width: 0;
+}
+
