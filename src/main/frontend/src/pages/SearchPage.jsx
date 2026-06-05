@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import FurnitureService from '../service/furnitureService';
 import InteriorService from '../service/interiorService';
 import MultiFilterBar from '../components/MultiFilterBar';
+import GetImgDir from '../resources/function/GetImgDir';
 import { 
     Button,
     Card,
@@ -544,6 +545,25 @@ const SearchPage = () => {
                 Array.isArray(interiorData) ? interiorData : [],
                 ["c_name", "c_addr", "c_tel", "c_info", "c_boss"]
             );
+
+            const interiorListWithLogo = await Promise.all(
+                rawInteriorList.map(async (item) => {
+                    const logo = await GetImgDir({
+                        kind: "LOGO",
+                        returnType: "list",
+                        a: item.c_id,
+                        b: item.c_kind,
+                        c: item.c_name,
+                        d: "Logo",
+                        view: false,
+                    });
+
+                    return {
+                        ...item,
+                        logo,
+                    };
+                })
+            );
             
                 setFilterOptions({
                     furnitureCategories: makeFurnitureCategories(sortedFurnitureList),
@@ -555,7 +575,7 @@ const SearchPage = () => {
            
 
             const interiorList = sortByKorean(
-                filterInteriorByOption(rawInteriorList),
+                filterInteriorByOption(interiorListWithLogo),
                 (item) => item.c_name
             );
 
@@ -761,6 +781,9 @@ const SearchPage = () => {
 };
     const renderInteriorItem = (item) => {
         const region = getInteriorRegion(item.c_addr);
+        const logoImage =
+            item.logo?.result?.find((record) => record.img_tag === "LOGO") ||
+            item.logo?.result?.[0];
 
         return (
             <Card
@@ -777,20 +800,34 @@ const SearchPage = () => {
                     state={{ company: item }}
                     sx={{ height: "100%" }}
                 >
-                    <div
-                        style={{
-                            height: "86px",
-                            backgroundColor: "#f3efe7",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#2f5f53",
-                            fontWeight: 800,
-                            fontSize: "18px",
-                        }}
-                    >
-                        {item.c_name?.slice(0, 2) || "업체"}
-                    </div>
+                    {logoImage ? (
+                        <CardMedia
+                            component="img"
+                            height="86"
+                            image={logoImage.img_name}
+                            alt={`${item.c_name} 로고`}
+                            sx={{
+                                objectFit: "contain",
+                                backgroundColor: "#f3efe7",
+                                p: 1,
+                            }}
+                        />
+                    ) : (
+                        <div
+                            style={{
+                                height: "86px",
+                                backgroundColor: "#f3efe7",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "#2f5f53",
+                                fontWeight: 800,
+                                fontSize: "18px",
+                            }}
+                        >
+                            {item.c_name?.slice(0, 2) || "업체"}
+                        </div>
+                    )}
 
                     <CardContent sx={{ p: 1 }}>
                         <p style={{ margin: "0 0 6px", color: "#666", fontSize: "12px" }}>
