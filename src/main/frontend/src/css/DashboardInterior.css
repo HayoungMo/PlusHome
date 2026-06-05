@@ -2399,6 +2399,218 @@
 	max-width: 100%;
 }
 
+.interior-ex-add {
+	width: 100%;
+}
+
+.interior-ex-add-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(220px, 0.7fr);
+	gap: 16px;
+	align-items: stretch;
+	padding: 18px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.interior-ex-add-form {
+	display: contents;
+}
+
+.interior-ex-add-selects {
+	display: grid;
+	grid-column: 1 / 3;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.interior-ex-add-selects .MuiFormControl-root,
+.interior-ex-add-content .MuiOutlinedInput-root {
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-ex-add-content {
+	grid-column: 1 / 3;
+}
+
+.interior-ex-add-content .MuiInputLabel-root {
+	font-weight: 700;
+	color: #64748b;
+}
+
+.interior-ex-add-preview {
+	grid-column: 3;
+	grid-row: 1 / 3;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+	gap: 10px;
+	min-height: 174px;
+	padding: 12px;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-ex-add-preview-item {
+	position: relative;
+	min-height: 118px;
+	overflow: hidden;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f1f5f9;
+}
+
+.interior-ex-add-preview-item img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+}
+
+.interior-ex-add-preview-item .MuiButton-root {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	min-width: 30px;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, 0.92);
+}
+
+.interior-ex-add-preview-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 150px;
+	border-radius: 8px;
+	background: #f8fafc;
+	font-size: 13px;
+	font-weight: 800;
+	color: #94a3b8;
+}
+
+.interior-ex-add-upload {
+	grid-column: 3;
+	display: flex;
+	align-items: flex-end;
+	justify-content: stretch;
+}
+
+.interior-ex-add-upload .MuiButton-root {
+	width: 100%;
+}
+
+.interior-ex-add-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 14px;
+}
+
+.interior-ex-add-actions .MuiButton-root {
+	min-width: 108px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-ex-add-actions .MuiButton-root:hover {
+	box-shadow: none;
+}
+
+.interior-ex-model-add {
+	width: 100%;
+}
+
+.interior-ex-model-add-layout {
+	display: grid;
+	grid-template-columns: minmax(280px, 1.2fr) minmax(240px, 0.8fr);
+	gap: 16px;
+	align-items: stretch;
+	padding: 18px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.interior-ex-model-preview {
+	min-height: 260px;
+	overflow: hidden;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-ex-model-preview canvas {
+	display: block;
+	width: 100% !important;
+}
+
+.interior-ex-model-preview-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	min-height: 260px;
+	background: #f8fafc;
+	font-size: 14px;
+	font-weight: 800;
+	color: #94a3b8;
+}
+
+.interior-ex-model-upload {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 18px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-ex-model-file-info {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.interior-ex-model-file-info strong {
+	overflow: hidden;
+	font-size: 15px;
+	font-weight: 800;
+	color: #111827;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.interior-ex-model-file-info span {
+	font-size: 13px;
+	font-weight: 700;
+	color: #64748b;
+}
+
+.interior-ex-model-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.interior-ex-model-buttons .MuiButton-root {
+	min-width: 108px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-ex-model-buttons .MuiButton-root:hover {
+	box-shadow: none;
+}
+
 .interior-example-empty,
 .interior-example-guide {
 	display: flex;
@@ -2456,6 +2668,22 @@
 	.interior-example-actions {
 		justify-content: flex-start;
 	}
+
+	.interior-ex-add-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.interior-ex-model-add-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.interior-ex-add-selects,
+	.interior-ex-add-content,
+	.interior-ex-add-preview,
+	.interior-ex-add-upload {
+		grid-column: auto;
+		grid-row: auto;
+	}
 }
 
 @media (max-width: 760px) {
@@ -2464,7 +2692,28 @@
 	}
 
 	.interior-example-actions .MuiButton-root,
-	.interior-example-empty-select {
+	.interior-example-empty-select,
+	.interior-ex-add-actions .MuiButton-root {
+		width: 100%;
+	}
+
+	.interior-ex-add-layout {
+		padding: 14px;
+	}
+
+	.interior-ex-add-selects {
+		grid-template-columns: 1fr;
+	}
+
+	.interior-ex-add-actions {
+		justify-content: stretch;
+	}
+
+	.interior-ex-model-buttons {
+		flex-direction: column;
+	}
+
+	.interior-ex-model-buttons .MuiButton-root {
 		width: 100%;
 	}
 }
@@ -2483,8 +2732,22 @@
 .company-content .interior-review-page {
 	width: 100%;
 	max-width: none;
+	min-height: auto;
 	margin: 0;
 	padding: 0;
+	background: transparent;
+	box-sizing: border-box;
+}
+
+.interior-review-control-page > * {
+	order: 0;
+}
+
+.company-content .interior-review-control-page,
+.interior-review-control-page {
+	width: 100%;
+	max-width: none;
+	align-items: stretch;
 }
 
 .interior-review-header {
@@ -2495,10 +2758,21 @@
 	margin: 0;
 	padding-bottom: 14px;
 	border-bottom: 1px solid #d8dee8;
+	order: 0;
 }
 
 .company-content .interior-review-header {
 	margin: 0;
+	order: 0;
+	padding: 0 0 14px;
+	background: transparent;
+}
+
+.interior-review-control-page .interior-review-header {
+	order: 0;
+	margin: 0;
+	padding: 0 0 14px;
+	background: transparent;
 }
 
 .interior-review-header h3 {
@@ -2553,7 +2827,19 @@
 }
 
 .company-content .interior-review-card {
+	width: 100%;
+	max-width: none;
+	margin: 0;
 	padding: 18px 20px;
+	overflow: visible;
+}
+
+.interior-review-control-page .interior-review-card {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 18px 20px;
+	overflow: visible;
 }
 
 .interior-review-card-head {

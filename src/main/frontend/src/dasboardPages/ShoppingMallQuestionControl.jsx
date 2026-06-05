@@ -356,24 +356,32 @@ const ShoppingMallQuestionControl = () => {
 					</div>
 
 					<div className="shopping-mall-question-fields">
-						<TextFieldMui
-							label="상품명"
-							value={selectedRow.f_name || ""}
-							width="100%"
-						/>
-						<TextFieldMui
-							label="문의 제목"
-							value={selectedRow.q_title || ""}
-							width="100%"
-						/>
-						<TextFieldMui
-							label="문의 내용"
-							value={selectedRow.q_content || ""}
-							width="100%"
-							multiline
-							minRows={3}
-							maxRows={6}
-						/>
+						<div className="shopping-mall-question-title-field">
+							<TextFieldMui
+								label="문의 제목"
+								value={selectedRow.q_title || ""}
+								width="100%"
+								disabled
+							/>
+						</div>
+						<div className="shopping-mall-question-product-field">
+							<TextFieldMui
+								label="상품명"
+								value={selectedRow.f_name || ""}
+								width="100%"
+								disabled
+							/>
+						</div>
+						<div className="shopping-mall-question-content-field">
+							<TextFieldMui
+								label="문의 내용"
+								value={selectedRow.q_content || ""}
+								width="100%"
+								multiline
+								rows={4}
+								disabled
+							/>
+						</div>
 					</div>
 
 					<div className="shopping-mall-question-images">
@@ -394,8 +402,7 @@ const ShoppingMallQuestionControl = () => {
 							value={selectedRow?.q_answer || ""}
 							label="답변 내용"
 							multiline
-							minRows={5}
-							maxRows={8}
+							rows={4}
 							width="100%"
 							onChange={onChangeAnswer}
 						/>

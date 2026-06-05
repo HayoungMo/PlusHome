@@ -169,8 +169,10 @@ const InteriorExAdd = ({ company, onReload }) => {
 		setImageFileList([...imageFileList, file]);
 	};
 
+	const isFormReady = example.ie_tag && example.ie_tag2;
+
 	return (
-		<div>
+		<div className="interior-ex-add">
 			{alert.open && (
 				<AlertMui
 					severity={alert.severity}
@@ -185,91 +187,97 @@ const InteriorExAdd = ({ company, onReload }) => {
 					}
 				/>
 			)}
-			<hr />
-			<h2>인테리어 시공 사례 추가</h2>
-			<form name="example" onSubmit={handleSubmit}>
-				<div>
-					<SelectMui
-						name="ie_tag"
-						value={example.ie_tag}
-						onChange={onChangeHandle}
-						option={tagOptions1}
-						required
-					/>
-					<SelectMui
-						name="ie_tag2"
-						value={example.ie_tag2}
-						onChange={onChangeHandle}
-						option={tagOptions2}
-						required
-					/>
-					{example.ie_tag && example.ie_tag2 && (
-						<TextFieldMui
-							name="ie_content"
-							label="ie_content"
+			<div className="interior-ex-add-layout">
+				<form name="example" className="interior-ex-add-form" onSubmit={handleSubmit}>
+					<div className="interior-ex-add-selects">
+						<SelectMui
+							name="ie_tag"
+							label="공간 유형"
+							value={example.ie_tag}
 							onChange={onChangeHandle}
-							multiline={true}
-							minRows={5}
-							maxRows={5}
-							width="500px"
+							option={tagOptions1}
+							width="100%"
+							required
 						/>
-					)}
-					{example.ie_tag && example.ie_tag2 && (
-						<div>
-							<Button onClick={() => handleOpen()} variant="contained">
-								제출
-							</Button>
-							<DialogMui
-								open={submitDialogOpen}
-								onClose={handleClose}
-								title="제출 확인"
-								text="정말 제출하시겠습니까?"
-								buttons={[
-									{
-										title: "취소",
-										color: "inherit",
-										onClick: handleClose,
-									},
-									{
-										title: "제출",
-										variant: "outlined",
-										onClick: (e) => {
-											console.log("제출 실행");
-											handleSubmit(e);
-											handleClose();
-										},
-									},
-								]}
+						<SelectMui
+							name="ie_tag2"
+							label="시공 영역"
+							value={example.ie_tag2}
+							onChange={onChangeHandle}
+							option={tagOptions2}
+							width="100%"
+							required
+						/>
+					</div>
+					{isFormReady && (
+						<div className="interior-ex-add-content">
+							<TextFieldMui
+								name="ie_content"
+								label="시공 내용"
+								onChange={onChangeHandle}
+								multiline={true}
+								rows={4}
+								width="100%"
 							/>
 						</div>
 					)}
-				</div>
-			</form>
-			{example.ie_tag && example.ie_tag2 && (
-				<form name="exampleImageInsert">
-					<p>시공사례 이미지 업로드</p>
-					<Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-						추가할 파일
-						<input type="file" hidden name="file" onChange={() => onClickAddImage()} />
-					</Button>
 				</form>
-			)}
-			{exampleImageList &&
-				exampleImageList.map((item) => (
-					<div>
-						<img
-							src={item.preview}
-							style={{ width: "150px", height: "150px", objectFit: "cover" }}
-							alt=""
-						/>
-						<Button
-							variant="outlined"
-							color="error"
-							onClick={(e) => deleteInsertImage(e, item.img_idx)}>
-							X
+				<div className="interior-ex-add-preview">
+					{exampleImageList && exampleImageList.length > 0 ? (
+						exampleImageList.map((item) => (
+							<div className="interior-ex-add-preview-item" key={item.img_idx}>
+								<img src={item.preview} alt="시공 사례 미리보기" />
+								<Button
+									variant="outlined"
+									color="error"
+									size="small"
+									onClick={(e) => deleteInsertImage(e, item.img_idx)}>
+									X
+								</Button>
+							</div>
+						))
+					) : (
+						<div className="interior-ex-add-preview-empty">이미지 미리보기</div>
+					)}
+				</div>
+				{isFormReady && (
+					<form name="exampleImageInsert" className="interior-ex-add-upload">
+						<Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+							추가할 파일
+							<input type="file" hidden name="file" onChange={() => onClickAddImage()} />
 						</Button>
-					</div>
-				))}
+					</form>
+				)}
+			</div>
+			{isFormReady && (
+				<div className="interior-ex-add-actions">
+					<Button onClick={() => handleOpen()} variant="contained">
+						제출
+					</Button>
+					<DialogMui
+						open={submitDialogOpen}
+						onClose={handleClose}
+						title="제출 확인"
+						text="정말 제출하시겠습니까?"
+						buttons={[
+							{
+								title: "취소",
+								color: "inherit",
+								onClick: handleClose,
+							},
+							{
+								title: "제출",
+								variant: "outlined",
+								onClick: (e) => {
+									console.log("제출 실행");
+									handleSubmit(e);
+									handleClose();
+								},
+							},
+						]}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

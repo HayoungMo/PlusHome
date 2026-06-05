@@ -135,7 +135,7 @@
 .shopping-mall-question-detail {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
+	gap: 16px;
 }
 
 .shopping-mall-question-detail-head {
@@ -164,14 +164,34 @@
 
 .shopping-mall-question-fields {
 	display: grid;
-	grid-template-columns: minmax(180px, 0.8fr) minmax(220px, 1fr) minmax(280px, 1.4fr);
-	gap: 14px;
+	grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.6fr);
+	gap: 14px 16px;
+	padding: 18px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f8fafc;
 }
 
 .shopping-mall-question-fields .MuiInputBase-input.Mui-disabled,
 .shopping-mall-question-fields .MuiInputBase-root.Mui-disabled {
 	-webkit-text-fill-color: #334155;
-	background-color: #f8fafc;
+	background-color: #ffffff;
+}
+
+.shopping-mall-question-fields .MuiOutlinedInput-root,
+.shopping-mall-question-answer .MuiOutlinedInput-root {
+	border-radius: 8px;
+	background-color: #ffffff;
+}
+
+.shopping-mall-question-fields .MuiInputLabel-root,
+.shopping-mall-question-answer .MuiInputLabel-root {
+	font-weight: 700;
+	color: #64748b;
+}
+
+.shopping-mall-question-content-field {
+	grid-column: 1 / -1;
 }
 
 .shopping-mall-question-images {
@@ -194,15 +214,16 @@
 
 .shopping-mall-question-answer {
 	width: 100%;
-}
-
-.shopping-mall-question-answer .MuiOutlinedInput-root {
-	background-color: #ffffff;
+	padding: 18px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #ffffff;
 }
 
 .shopping-mall-question-actions {
 	display: flex;
 	justify-content: flex-end;
+	margin-top: -4px;
 }
 
 .shopping-mall-question-actions .MuiButton-root {
@@ -228,6 +249,10 @@
 
 	.shopping-mall-question-fields {
 		grid-template-columns: 1fr;
+	}
+
+	.shopping-mall-question-content-field {
+		grid-column: auto;
 	}
 }
 

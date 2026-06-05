@@ -223,7 +223,7 @@ const InteriorReviewControl = () => {
 	}, [selectedIntreiorReview, onlyImageList]);
 
 	return (
-		<div className="interior-review-page">
+		<div className="interior-review-page interior-review-control-page">
 			<div className="interior-review-header">
 				<div>
 					<h3>인테리어 리뷰 관리</h3>
