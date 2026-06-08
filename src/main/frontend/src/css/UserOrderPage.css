@@ -1030,3 +1030,13 @@
     font-size: 27px;
   }
 }
+
+.order-detail-status.claim-exchange {
+  background: #ecfeff;
+  color: #0891b2;
+}
+
+.order-detail-status.claim-return {
+  background: #fff7ed;
+  color: #ea580c;
+}
