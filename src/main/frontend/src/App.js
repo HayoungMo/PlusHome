@@ -20,7 +20,7 @@ import FindPwPage from "./pages/FindPwPage";
 import SearchPage from "./pages/SearchPage";
 import FindIdPage from "./pages/FindIdPage";
 import FurnitureUpdatePage from "./pages/FurnitureUpdatePage";
-import CompanyDashboard from "./dasboardPages/CompanyDashboard";
+import CompanyDashboard from "./dashboardPages/CompanyDashboard";
 import InteriorReview from "./pages/InteriorReview";
 import InteriorChart from "./components/InteriorChart";
 import InteriorUpdateAll from "./pages/InteriorUpdateAll";

@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import DateRangeFilter from "../components/DateRangeFilter";
 import RatingMui from "../components/RatingMui";
-import SelectMui from "./../components/SelectMui";
-import TableMui from "./../components/TableMui";
-import FurnitureService from "./../service/furnitureService";
+import SelectMui from "../components/SelectMui";
+import TableMui from "../components/TableMui";
+import FurnitureService from "../service/furnitureService";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import GetImgDir, { getImgFurnitureList } from "../resources/function/GetImgDir";
 import { Button, Chip } from "@mui/material";
-import TextFieldMui from "./../components/TextFieldMui";
+import TextFieldMui from "../components/TextFieldMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import ImageViewer from "../components/ImageViewer";
