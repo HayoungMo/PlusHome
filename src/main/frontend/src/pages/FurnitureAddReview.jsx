@@ -4,19 +4,27 @@ import TextFieldMui from "../components/TextFieldMui";
 import FurnitureService from "../service/furnitureService";
 import FurnitureReviewService from "../service/furnitureReviewService";
 import ImageService from "../service/imageService";
-import { Alert, AlertTitle, Button, Snackbar } from "@mui/material";
+import { Alert, AlertTitle, Button, Dialog, Snackbar } from "@mui/material";
 import RatingMui from "../components/RatingMui";
 import DialogMui from "../components/DialogMui";
 import AlertMui from "../components/AlertMui";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import "../css/FurnitureAddReview.css";
 
-const FurnitureAddReview = () => {
+const FurnitureAddReview = ({
+  mode = "page",
+  cCode,
+  fCode,
+  furniture,
+  thumbnail,
+  onClose,
+  onSuccess
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const c_code = location.state?.c_code;
-  const routeFurniture = location.state?.furniture || null;
-  const routeThumbnail = location.state?.thumbnail || null;
+  const c_code = cCode || location.state?.c_code;
+  const routeFurniture = furniture || location.state?.furniture || null;
+  const routeThumbnail = thumbnail || location.state?.thumbnail || null;
   const localUserData = localStorage.getItem("user");
   const userData = JSON.parse(localUserData);
   const {
@@ -32,7 +40,8 @@ const FurnitureAddReview = () => {
     companyList = [],
   } = userData;
 
-  const {f_code} = useParams();
+  const params = useParams()
+  const f_code = fCode || params.f_code;
   const [open, setOpen] = useState(false);
   const [sendList, setSendList] = useState([]);
   const [reviewFurniture, setReviewFurniture] = useState(routeFurniture);
@@ -121,7 +130,11 @@ const FurnitureAddReview = () => {
         text: "등록되었습니다.",
       });
 
-      navigate(`/userpage?menu=orders`);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate(`/userpage?menu=orders`);
+      }
     } else {
       submittingRef.current = false;
       setSubmitting(false);
@@ -182,7 +195,7 @@ const FurnitureAddReview = () => {
   };
 
   return (
-    <div className="furniture-review-page">
+  <div className={mode === "dialog" ? "furniture-review-modal-body" : "furniture-review-page"}>
       <Snackbar
         open={alert.open}
         autoHideDuration={3000}
@@ -213,160 +226,183 @@ const FurnitureAddReview = () => {
           {alert.text}
         </Alert>
       </Snackbar>
-      <div className="furniture-review-card">
-        <div className="furniture-review-header">
-          <h2>가구 리뷰 작성</h2>
-          <p>구매한 상품의 별점과 후기를 남겨주세요.</p>
-        </div>
 
-        <div className="furniture-review-product">
-          <div className="furniture-review-product-image-wrap">
-            {furnitureThumbnail ? (
-              <img
-                className="furniture-review-product-image"
-                src={furnitureThumbnail}
-                alt={reviewFurniture?.f_name || f_code}
-              />
-            ) : (
-              <div className="furniture-review-product-image-empty">
-                이미지 없음
+        <div className="furniture-review-card">
+          <div className="furniture-review-header">
+            <h2>가구 리뷰 작성</h2>
+            <p>구매한 상품의 별점과 후기를 남겨주세요.</p>
+          </div>
+
+          <div className="furniture-review-product">
+            <div className="furniture-review-product-image-wrap">
+              {furnitureThumbnail ? (
+                <img
+                  className="furniture-review-product-image"
+                  src={furnitureThumbnail}
+                  alt={reviewFurniture?.f_name || f_code}
+                />
+              ) : (
+                <div className="furniture-review-product-image-empty">
+                  이미지 없음
+                </div>
+              )}
+            </div>
+
+            <div className="furniture-review-product-info">
+              <span>리뷰 작성 상품</span>
+              <strong>{reviewFurniture?.f_name || f_code}</strong>
+              {reviewFurniture?.f_price && (
+                <p>{Number(reviewFurniture.f_price).toLocaleString()}원</p>
+              )}
+            </div>
+          </div>
+
+          <form name="review" className="furniture-review-form">
+            <div className="furniture-review-field furniture-review-rating-field">
+              <span>별점</span>
+              <div className="furniture-review-rating">
+                <RatingMui
+                  name="star"
+                  label=""
+                  onChange={handleChange}
+                  precision={0.5}
+                />
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className="furniture-review-product-info">
-            <span>리뷰 작성 상품</span>
-            <strong>{reviewFurniture?.f_name || f_code}</strong>
-            {reviewFurniture?.f_price && (
-              <p>{Number(reviewFurniture.f_price).toLocaleString()}원</p>
-            )}
-          </div>
-        </div>
-
-        <form name="review" className="furniture-review-form">
-          <div className="furniture-review-rating">
-            <RatingMui
-              name="star"
-              label="별점"
-              onChange={handleChange}
-              precision={0.5}
-            />
-          </div>
-          <div className="furniture-review-fields">
-            <TextFieldMui
-              name="subject"
-              label="subject"
-              onChange={handleChange}
-            />
-            <TextFieldMui
-              name="content"
-              label="content"
-              onChange={handleChange}
-            />
-            <Button disabled={submitting} onClick={() => handleOpen()}>제출</Button>
-          </div>
-          <DialogMui
-            open={open}
-            onClose={handleClose}
-            title="제출 확인"
-            text="정말 제출하시겠습니까?"
-            buttons={[
-              {
-                title: "취소",
-                color: "inherit",
-                onClick: handleClose,
-              },
-              {
-                title: "제출",
-                variant: "outlined",
-                disabled: submitting,
-                onClick: async (e) => {
-                  console.log("제출 실행");
-                  await handleSubmit(e);
-                  handleClose();
-                },
-              },
-            ]}
-          />
-        </form>
-        <p>가구 리뷰 이미지 업로드</p>
-        <div className="furniture-review-upload">
-          <form
-            name="imageInsertTestForm"
-            className="furniture-review-upload-form"
-          >
-            <input
-              type="hidden"
-              value="F_REVIEW"
-              name="img_kind"
-              placeholder="IMG_KIND"
-            />
-            <input
-              type="hidden"
-              value={
-                sendList === null || sendList.length === 0
-                  ? "THUMBNAIL"
-                  : "OTHER"
-              }
-              name="img_tag"
-              placeholder="IMG_TAG"
-            />
-            <input
-              type="hidden"
-              value={c_code}
-              name="dir_a"
-              placeholder="DIR_A"
-            />
-            {/* <input
-          type="hidden"
-          value={company.c_kind}
-          name="dir_b"
-          placeholder="DIR_B"
-        />
-
-        <input
-          type="hidden"
-          value={company.c_name}
-          name="dir_c"
-          placeholder="DIR_C"
-        /> */}
-            <input type="hidden" value={id} name="dir_d" placeholder="DIR_D" />
-            {/*
- <input type="hidden" value="imgTest" name="dir_b" placeholder="DIR_B" /> */}
-            <input
-              type="hidden"
-              name="img_idx"
-              value="1"
-              placeholder="IMG_IDX"
-            />
-
-            <Button
-              component="label"
-              variant="contained"
-              startIcon={<CloudUploadIcon />}
-            >
-              추가할 파일
-              <input
-                type="file"
-                hidden
-                name="file"
-                onChange={onClickAdd}
+            <div className="furniture-review-field">
+              <span>제목</span>
+              <TextFieldMui
+                name="subject"
+                label="subject"
+                onChange={handleChange}
+                width="100%"
+                size="small"
               />
-            </Button>
+            </div>
+
+            <div className="furniture-review-field">
+              <span>내용</span>
+              <TextFieldMui
+                name="content"
+                label="content"
+                onChange={handleChange}
+                width="100%"
+                multiline
+                rows={5}
+              />
+            </div>
+
+            <div className="furniture-review-image-section">
+              <div className="furniture-review-image-head">
+                <span>이미지</span>
+                <p>첫 번째 이미지는 대표 이미지로 저장됩니다.</p>
+              </div>
+
+              <div className="furniture-review-preview-grid">
+                {preview && preview.length > 0 ? (
+                  preview.map((item, idx) => (
+                    <img
+                      key={idx}
+                      className="furniture-review-preview-image"
+                      src={item}
+                      alt=""
+                    />
+                  ))
+                ) : (
+                  <div className="furniture-review-preview-empty">
+                    아직 추가된 이미지가 없습니다.
+                  </div>
+                )}
+              </div>
+
+              <div className="furniture-review-upload">
+                <form
+                  name="imageInsertTestForm"
+                  className="furniture-review-upload-form"
+                >
+                  <input type="hidden" value="F_REVIEW" name="img_kind" />
+                  <input
+                    type="hidden"
+                    value={
+                      sendList === null || sendList.length === 0
+                        ? "THUMBNAIL"
+                        : "OTHER"
+                    }
+                    name="img_tag"
+                  />
+                  <input type="hidden" value={c_code} name="dir_a" />
+                  <input type="hidden" value={id} name="dir_d" />
+                  <input type="hidden" name="img_idx" value="1" />
+
+                  <Button
+                    component="label"
+                    variant="contained"
+                    startIcon={<CloudUploadIcon />}
+                    className="furniture-review-upload-btn"
+                  >
+                    추가할 파일
+                    <input
+                      type="file"
+                      hidden
+                      name="file"
+                      onChange={onClickAdd}
+                    />
+                  </Button>
+                </form>
+              </div>
+            </div>
+
+            <div className="furniture-review-actions">
+              <Button
+                type="button"
+                variant="outlined"
+                color="inherit"
+                onClick={() => {
+                  if (onClose) {
+                    onClose();
+                  } else {
+                    navigate(`/userpage?menu=orders`);
+                  }
+                }}
+              >
+                취소
+              </Button>
+
+              <Button
+                type="button"
+                variant="contained"
+                disabled={submitting}
+                onClick={handleOpen}
+              >
+                {submitting ? "제출 중" : "제출"}
+              </Button>
+            </div>
+
+            <DialogMui
+              open={open}
+              onClose={handleClose}
+              title="제출 확인"
+              text="정말 제출하시겠습니까?"
+              buttons={[
+                {
+                  title: "취소",
+                  color: "inherit",
+                  onClick: handleClose,
+                },
+                {
+                  title: "제출",
+                  variant: "outlined",
+                  disabled: submitting,
+                  onClick: async (e) => {
+                    await handleSubmit(e);
+                    handleClose();
+                  },
+                },
+              ]}
+            />
           </form>
         </div>
-        <div className="furniture-review-preview-grid">
-          {preview &&
-            preview.map((item, idx) => (
-              <img
-                key={idx}
-                className="furniture-review-preview-image"
-                src={item}
-                alt=""
-              />
-            ))}
-        </div>
-      </div>
     </div>
   );
 };

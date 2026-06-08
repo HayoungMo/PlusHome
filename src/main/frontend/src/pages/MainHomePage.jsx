@@ -8,6 +8,7 @@ import EventPopup from './EventPopup';
 import DialogMui from "../components/DialogMui";
 import MainEventBanner from '../components/MainEventBanner';
 import "../css/MainHomePage.css";
+import GetImgDir from '../resources/function/GetImgDir';
 
 const MainHomePage = ({ loginUser }) => {
 
@@ -80,15 +81,40 @@ const MainHomePage = ({ loginUser }) => {
     useEffect(() => {
         getBestFurniture();
     },[currentUser?.id]);
-    
+  
+    //메인화면 인테리어 로고 불러오는 작업 6월 8일 모하영
     useEffect(() => {
-        InteriorService.fetchList()
-            .then((data) => {
-                setInteriorCompanies(Array.isArray(data) ? data.slice(0,4) : []);
-            })
-            .catch((err) => {
+        const getInteriorCompanies = async () => {
+            try{
+                const data = await InteriorService.fetchList();
+
+                const companyList = Array.isArray(data)
+                    ? data.slice(0,4) 
+                    : [];
+                //searchPage에서 하던 것처럼 업체별 로고 이미지 가져오는중
+                const companyListWithLogo = await Promise.all(
+                    companyList.map(async(company) => {
+                        const logo = await GetImgDir({
+                            kind:"LOGO",
+                            returnType:"list",
+                            a: company.c_id,
+                            b: company.c_kind,
+                            c: company.c_name,
+                            d: "Logo",
+                            view: false,
+                        });
+                        return{
+                            ...company,
+                            logo,
+                        };
+                    })
+                );
+                setInteriorCompanies(companyListWithLogo);
+            } catch (err) {
                 console.error("인테리어 업체 조회 실패:", err);
-            });
+        }
+    };
+        getInteriorCompanies();
     },[]);
 
     //숨김 목록 관련 동작
@@ -475,16 +501,21 @@ const MainHomePage = ({ loginUser }) => {
                         gap: "16px"
                     }}
                 >
-                    {interiorCompanies.map((company) => (
-                        <Link
-                            key={`${company.c_id}-${company.c_kind}-${company.c_name}`}
-                            to="/interior/article"
-                            state={{ company }}
-                            style={{
-                                color: "inherit",
-                                textDecoration: "none"
-                            }}
-                        >
+                    {interiorCompanies.map((company) => {
+                        const logoImage =
+                            company.logo?.result?.find((img) => img.img_tag === "LOGO") ||
+                            company.logo?.result?.[0];
+                        
+                        return (
+                            <Link
+                                key={`${company.c_id}-${company.c_kind}-${company.c_name}`}
+                                to="/interior/article"
+                                state={{ company }}
+                                style={{
+                                    color: "inherit",
+                                    textDecoration: "none"
+                                }}
+                            >
                             <div
                                 style={{
                                     minHeight: "120px",
@@ -495,15 +526,42 @@ const MainHomePage = ({ loginUser }) => {
                                     boxSizing: "border-box"
                                 }}
                             >
+                            {logoImage ? (
+                                <img
+                                    src={logoImage.img_name}
+                                    alt={`${company.c_name} 로고`}
+                                    style={{
+                                        width: "100%",
+                                        height: "100px",
+                                        objectFit: "contain",
+                                        marginBottom: "12px",
+                                        backgroundColor: "#f3efe7"
+                                    }}
+                                />
+                                ) : (
+                                    <div
+                                        style={{
+                                            height: "100px",
+                                            backgroundColor: "#f3efe7",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginBottom: "12px",
+                                            fontWeight: 700
+                                        }}
+                                    >
+                                        {company.c_name?.slice(0, 2) || "업체"}
+                                    </div>
+                                )}
                                 <h3>{company.c_name}</h3>
                                 <p>{company.c_kind}</p>
                                 <p>{company.c_addr}</p>
                             </div>
                         </Link>
-                    ))}
+                    );
+                })}
+                    
                 </div>
-
-                
             </section>
             {/* 기존 footer 제거: 공통 Footer가 담당 */}
         </div>

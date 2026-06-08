@@ -505,23 +505,54 @@ const UserQuestionPage = ({ user, setQuestionCount }) => {
                             <div className="user-question-edit-image-tools">
                                 <p>기존 이미지</p>
                                 <div className="user-question-edit-images">
-                                    {(questionImages[editingQuestion.q_idx] || []).length > 0 ? (
-                                        questionImages[editingQuestion.q_idx].map((img) => (
-                                            <div className="user-question-edit-image" key={getImageOriginalName(img) || img.img_name}>
-                                                <img src={`${img.img_name}?t=${imageRefresh}`} alt="문의 이미지" />
-                                                <button type="button" className="user-question-edit-image-delete" onClick={() => deleteEditImage(editingQuestion.q_idx, img)}>×</button>
+                                    {(() => {
+                                    const currentImages = questionImages[editingQuestion.q_idx] || [];
+                                    const newFiles = addImageFiles[editingQuestion.q_idx] || [];
+                                    const hasAnyImage = currentImages.length > 0 || newFiles.length > 0;
+
+                                    if (!hasAnyImage) {
+                                        return <span className="user-question-muted">이미지 없음</span>;
+                                    }
+
+                                    return (
+                                        <>
+                                        {currentImages.map((img) => (
+                                            <div
+                                            className="user-question-edit-image"
+                                            key={getImageOriginalName(img) || img.img_name}
+                                            >
+                                            <img src={`${img.img_name}?t=${imageRefresh}`} alt="문의 이미지" />
+                                            <button
+                                                type="button"
+                                                className="user-question-edit-image-delete"
+                                                onClick={() => deleteEditImage(editingQuestion.q_idx, img)}
+                                            >
+                                                ×
+                                            </button>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <span className="user-question-muted">이미지 없음</span>
-                                    )}
-                                    {addImageFiles[editingQuestion.q_idx]?.map((file) => (
-                                        <div className="user-question-edit-image user-question-edit-image-new" key={makeFileKey(file)}>
+                                        ))}
+
+                                        {newFiles.map((file) => (
+                                            <div
+                                            className="user-question-edit-image user-question-edit-image-new"
+                                            key={makeFileKey(file)}
+                                            >
                                             <img src={URL.createObjectURL(file)} alt="추가 이미지 미리보기" />
                                             <span className="user-question-new-badge">추가</span>
-                                            <button type="button" className="user-question-edit-image-delete" onClick={() => removeAddImageFile(editingQuestion.q_idx, makeFileKey(file))}>×</button>
-                                        </div>
-                                    ))}
+                                            <button
+                                                type="button"
+                                                className="user-question-edit-image-delete"
+                                                onClick={() =>
+                                                removeAddImageFile(editingQuestion.q_idx, makeFileKey(file))
+                                                }
+                                            >
+                                                ×
+                                            </button>
+                                            </div>
+                                        ))}
+                                        </>
+                                    );
+                                    })()}
                                 </div>
                                 <div className="user-question-add-image-form">
                                     <p>이미지 추가</p>

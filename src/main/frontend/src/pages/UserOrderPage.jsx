@@ -15,6 +15,7 @@ import OrderClaimModal from "./OrderClaimModal";
 import ImageViewer from "../components/ImageViewer";
 
 import "../css/UserOrderPage.css"
+import FurnitureAddReview from "./FurnitureAddReview";
 
 const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     const navigate = useNavigate()
@@ -33,6 +34,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         text: "",
     });
 
+    const [reviewTarget, setReviewTarget] = useState(null)
     const [reviewViewerOpen, setReviewViewerOpen] = useState(false);
     const [reviewViewerImages, setReviewViewerImages] = useState([]);
     const [reviewViewerIndex, setReviewViewerIndex] = useState(0);
@@ -45,6 +47,14 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         reply: null,
     });
     const [orderDetailItem, setOrderDetailItem] = useState(null);
+
+    const openReviewDialog = (item) => {
+        setReviewTarget(item)
+    }
+
+    const closeReviewDialog = (item) => {
+        setReviewTarget(null)
+    }
 
     useEffect(()=>{
         setPage(1)
@@ -475,6 +485,26 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
         return status;
     };
 
+    const isActiveClaimItem = (item) =>
+    Boolean(item?.claimed) && !isClaimRejected(item);
+
+    const getOrderDetailStatus = (item) => {
+        if (isActiveClaimItem(item)) {
+            const claimType = getClaimTypeLabel(item.claim_type);
+            const claimStatus = getClaimStatusText(item.claim_status);
+
+            return {
+                text: `${claimType} ${claimStatus}`,
+                className: Number(item.claim_type) === 1 ? "claim-exchange" : "claim-return",
+            };
+        }
+
+        return {
+            text: getStatusText(item.f_dstatus),
+            className: getStatusClass(item.f_dstatus),
+        };
+    };
+
     const getOptionText = (item) => {
         const text = (item.options || [])
             .map((option) => {
@@ -858,6 +888,34 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
     }
 
     return (
+        <>
+        <Dialog
+            open={Boolean(reviewTarget)}
+            onClose={closeReviewDialog}
+            maxWidth={false}
+            PaperProps={{
+                className: "furniture-review-dialog-paper",
+            }}
+            BackdropProps={{
+                className: "furniture-review-dialog-backdrop",
+            }}
+            >
+            {reviewTarget && (
+                <FurnitureAddReview
+                mode="dialog"
+                cCode={reviewTarget.c_code}
+                fCode={reviewTarget.f_code}
+                furniture={reviewTarget.furniture}
+                thumbnail={reviewTarget.thumbnail}
+                onClose={closeReviewDialog}
+                onSuccess={() => {
+                    closeReviewDialog();
+                    loadOrders();
+                }}
+                />
+            )}
+            </Dialog>
+
         <div className="user-order-page">
             <Snackbar
                 open={alert.open}
@@ -1091,15 +1149,9 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                                                 ) : (
                                                                     <button
                                                                         type="button"
-                                                                        onClick={() => navigate(`/furniture/review/${item.f_code}`, {
-                                                                            state: {
-                                                                                c_code: item.c_code,
-                                                                                furniture: item.furniture,
-                                                                                thumbnail: item.thumbnail,
-                                                                            }
-                                                                        })}
+                                                                        onClick={() => openReviewDialog(item)}
                                                                     >
-                                                                        리뷰 작성
+                                                                    리뷰 작성
                                                                     </button>
                                                                 )
                                                             )}
@@ -1179,9 +1231,15 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
                                 <p>주문번호 {orderDetailItem.c_code}</p>
                             </div>
 
-                            <span className={`order-detail-status ${getStatusClass(orderDetailItem.f_dstatus)}`}>
-                                {getStatusText(orderDetailItem.f_dstatus)}
-                            </span>
+                            {(() => {
+                                const detailStatus = getOrderDetailStatus(orderDetailItem);
+
+                                return (
+                                    <span className={`order-detail-status ${detailStatus.className}`}>
+                                        {detailStatus.text}
+                                    </span>
+                                );
+                            })()}
                         </div>
 
                         <div className="order-detail-modal-body">
@@ -1309,6 +1367,7 @@ const UserOrderPage = ({ user, loadPoint, loadWallet }) => {
             />
 
         </div>
+        </>
     );
 };
 
