@@ -19,6 +19,8 @@ const InteriorReviewControl = () => {
 	const [intreiorReviewList, setIntreiorReviewList] = useState([]);
 	const [selectedIntreiorReview, setSelectedIntreiorReview] = useState(null);
 	const [selectedIntreiorReviewImage, setSelectedIntreiorReviewImage] = useState([]);
+	const [selectedInvoiceDetails, setSelectedInvoiceDetails] = useState([]);
+	const [isInvoiceDetailLoading, setIsInvoiceDetailLoading] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadingText, setLoadingText] = useState("인테리어 리뷰 목록을 불러오는 중입니다...");
 	const [alertOpen, setAlertOpen] = useState(false);
@@ -129,6 +131,22 @@ const InteriorReviewControl = () => {
 		isAppliedDateRangeInvalid,
 	]);
 
+	const selectedInvoiceTotal = useMemo(() => {
+		return selectedInvoiceDetails.reduce((sum, detail) => {
+			const qty = Number(detail.invoice_qty || 0);
+			const price = Number(detail.invoice_price || 0);
+
+			return sum + qty * price;
+		}, 0);
+	}, [selectedInvoiceDetails]);
+
+	const formatPrice = (value) => Number(value || 0).toLocaleString();
+
+	const handleReviewImageError = (event) => {
+		event.currentTarget.style.display = "none";
+		event.currentTarget.parentElement?.classList.add("is-missing");
+	};
+
 	const reloadData = async (showLoading = true) => {
 		if (showLoading) {
 			setIsLoading(true);
@@ -151,6 +169,7 @@ const InteriorReviewControl = () => {
 				setIntreiorReviewList([]);
 				setSelectedIntreiorReview(null);
 				setSelectedIntreiorReviewImage([]);
+				setSelectedInvoiceDetails([]);
 				return;
 			}
 
@@ -165,6 +184,7 @@ const InteriorReviewControl = () => {
 				setIntreiorReviewList([]);
 				setSelectedIntreiorReview(null);
 				setSelectedIntreiorReviewImage([]);
+				setSelectedInvoiceDetails([]);
 				return;
 			}
 
@@ -181,6 +201,7 @@ const InteriorReviewControl = () => {
 
 			setSelectedIntreiorReviewImage([]);
 			setSelectedIntreiorReview(null);
+			setSelectedInvoiceDetails([]);
 			setIntreiorReviewList(reviewData);
 		} catch (error) {
 			console.error(error);
@@ -195,6 +216,7 @@ const InteriorReviewControl = () => {
 			setIntreiorReviewList([]);
 			setSelectedIntreiorReview(null);
 			setSelectedIntreiorReviewImage([]);
+			setSelectedInvoiceDetails([]);
 		} finally {
 			if (showLoading) {
 				setIsLoading(false);
@@ -209,6 +231,7 @@ const InteriorReviewControl = () => {
 	useEffect(() => {
 		setSelectedIntreiorReview(null);
 		setSelectedIntreiorReviewImage([]);
+		setSelectedInvoiceDetails([]);
 	}, [intreiorMuiDisplayList]);
 
 	useEffect(() => {
@@ -221,6 +244,31 @@ const InteriorReviewControl = () => {
 		);
 		setSelectedIntreiorReviewImage(imageList || []);
 	}, [selectedIntreiorReview, onlyImageList]);
+
+	useEffect(() => {
+		const fetchSelectedInvoiceDetails = async () => {
+			if (!selectedIntreiorReview) {
+				setSelectedInvoiceDetails([]);
+				return;
+			}
+
+			setIsInvoiceDetailLoading(true);
+
+			try {
+				const data = await InteriorUserService.fetchInvoiceDetails(selectedIntreiorReview);
+				const details = Array.isArray(data) ? data : data ? [data] : [];
+
+				setSelectedInvoiceDetails(details);
+			} catch (error) {
+				console.error("리뷰 견적 상세 조회 실패", error);
+				setSelectedInvoiceDetails([]);
+			} finally {
+				setIsInvoiceDetailLoading(false);
+			}
+		};
+
+		fetchSelectedInvoiceDetails();
+	}, [selectedIntreiorReview]);
 
 	return (
 		<div className="interior-review-page interior-review-control-page">
@@ -284,6 +332,9 @@ const InteriorReviewControl = () => {
 								columns={["번호", "고객 ID", "견적 번호", "작성일", "상담 내용"]}
 								selectedRow={selectedIntreiorReview}
 								setSelectedRow={setSelectedIntreiorReview}
+								defaultRowPerPage={5}
+								resetPageKey={`${selectedCompanyName}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
+								pagination
 							/>
 						</div>
 					) : (
@@ -294,8 +345,8 @@ const InteriorReviewControl = () => {
 				<div className="interior-review-card">
 					<div className="interior-review-card-head">
 						<div>
-							<strong>리뷰 상세</strong>
-							<span>선택한 고객 리뷰의 내용을 확인합니다.</span>
+							<strong>리뷰 상세 및 이미지</strong>
+							<span>선택한 고객 리뷰의 이미지, 연결 견적, 본문을 확인합니다.</span>
 						</div>
 						<Chip
 							label={`${selectedIntreiorReviewImage.length}장`}
@@ -306,18 +357,115 @@ const InteriorReviewControl = () => {
 					{isLoading ? (
 						<div className="interior-review-guide">리뷰 정보를 불러오는 중입니다.</div>
 					) : selectedIntreiorReview ? (
-						<div className="interior-review-detail">
-							<div className="interior-review-meta">
-								<span>견적 번호 {selectedIntreiorReview.invoice_no ?? "-"}</span>
-								<span>작성일 {selectedIntreiorReview.ir_createdDate ?? "-"}</span>
+						<div className="interior-review-detail-layout">
+							<div className="interior-review-media-panel">
+								{selectedIntreiorReviewImage.length > 0 ? (
+									<>
+										<div className="interior-review-main-image">
+											<img
+												src={selectedIntreiorReviewImage[0].img_dir}
+												alt={selectedIntreiorReviewImage[0].img_name || "리뷰 대표 이미지"}
+												onError={handleReviewImageError}
+											/>
+										</div>
+										<div className="interior-review-thumb-list">
+											{selectedIntreiorReviewImage.slice(0, 3).map((record) => (
+												<div
+													className="interior-review-thumb-item"
+													key={`${record.img_name}-${record.img_idx ?? record.index}`}>
+													<img
+														src={record.img_dir}
+														alt={record.img_name || "리뷰 미리보기"}
+														onError={handleReviewImageError}
+													/>
+												</div>
+											))}
+										</div>
+									</>
+								) : (
+									<>
+										<div className="interior-review-main-image empty">
+											<span>이미지 없음</span>
+										</div>
+										<div className="interior-review-thumb-list">
+											{[0, 1, 2].map((index) => (
+												<div className="interior-review-thumb-item empty" key={index}>
+													<span>미리보기</span>
+												</div>
+											))}
+										</div>
+									</>
+								)}
 							</div>
-							<TextFieldMui
-								name="ir_content"
-								value={selectedIntreiorReview.ir_content}
-								multiline={true}
-								minRows={4}
-								maxRows={4}
-							/>
+
+							<div className="interior-review-invoice-panel">
+								<div className="interior-review-invoice-head">
+									<div>
+										<strong>리뷰 견적서</strong>
+										<span>견적 번호 {selectedIntreiorReview.invoice_no ?? "-"}</span>
+									</div>
+									<Chip
+										label={`${formatPrice(selectedInvoiceTotal)}원`}
+										color="primary"
+										variant="outlined"
+									/>
+								</div>
+								<div className="interior-review-invoice-meta">
+									<span>
+										고객 ID <strong>{selectedIntreiorReview.id || "-"}</strong>
+									</span>
+									<span>
+										업체 <strong>{selectedIntreiorReview.c_name || "-"}</strong>
+									</span>
+									<span>
+										상담 신청일 <strong>{selectedIntreiorReview.b_createdDate || "-"}</strong>
+									</span>
+								</div>
+								<div className="interior-review-invoice-items">
+									{isInvoiceDetailLoading ? (
+										<div className="interior-review-invoice-empty">
+											견적 상세 내역을 불러오는 중입니다.
+										</div>
+									) : selectedInvoiceDetails.length > 0 ? (
+										selectedInvoiceDetails.map((detail, index) => {
+											const qty = Number(detail.invoice_qty || 0);
+											const price = Number(detail.invoice_price || 0);
+
+											return (
+												<div
+													className="interior-review-invoice-item"
+													key={`${detail.invoice_text}-${index}`}>
+													<div>
+														<strong>{detail.invoice_text || "항목명 없음"}</strong>
+														<span>
+															{formatPrice(qty)}개 x {formatPrice(price)}원
+														</span>
+													</div>
+													<em>{formatPrice(qty * price)}원</em>
+												</div>
+											);
+										})
+									) : (
+										<div className="interior-review-invoice-empty">
+											등록된 견적 상세 내역이 없습니다.
+										</div>
+									)}
+								</div>
+							</div>
+
+							<div className="interior-review-content-panel">
+								<div className="interior-review-meta">
+									<span>작성일 {selectedIntreiorReview.ir_createdDate ?? "-"}</span>
+								</div>
+								<TextFieldMui
+									name="ir_content"
+									value={selectedIntreiorReview.ir_content}
+									multiline={true}
+									minRows={4}
+									maxRows={4}
+									width="100%"
+								/>
+							</div>
 						</div>
 					) : (
 						<div className="interior-review-guide">목록에서 리뷰를 선택하세요.</div>

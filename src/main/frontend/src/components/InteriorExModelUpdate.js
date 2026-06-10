@@ -6,7 +6,7 @@ import ImageService from "./../service/imageService";
 import InteriorModelViewer from "./InteriorModelViewer";
 
 const InteriorExModelUpdate = (props) => {
-	const { model, setAlertInfo, setAlertOpen, onReload } = props;
+	const { model, setAlertInfo, setAlertOpen, onReload, onCancel } = props;
 	const [updateModelFile, setUpdateModelFile] = useState(null);
 
 	const modelPreview = updateModelFile?.previewUrl || model?.img_dir || null;
@@ -110,30 +110,57 @@ const InteriorExModelUpdate = (props) => {
 	}, [updateModelFile]);
 
 	return (
-		<div>
-			<h3>시공사례 3D 모델 수정</h3>
-			<div>
-				<p>Preview</p>
-				<InteriorModelViewer src={modelPreview} />
+		<div className="interior-ex-model-update">
+			<div className="interior-ex-model-add-layout interior-ex-model-update-layout">
+				<div className="interior-ex-model-top-actions">
+					<Button
+						variant="outlined"
+						color="inherit"
+						onClick={onCancel}>
+						취소
+					</Button>
+					<Button
+						variant="contained"
+						color="primary"
+						startIcon={<FileUploadIcon />}
+						disabled={!updateModelFile?.file}
+						onClick={onClickUpdateModelData}>
+						수정
+					</Button>
+				</div>
+				<div className="interior-ex-model-preview">
+					{modelPreview ? (
+						<InteriorModelViewer
+							src={modelPreview}
+							width="100%"
+							height="300px"
+							border="0"
+						/>
+					) : (
+						<div className="interior-ex-model-preview-empty">3D 모델 미리보기</div>
+					)}
+				</div>
+				<div className="interior-ex-model-upload">
+					<div className="interior-ex-model-file-info">
+						<strong title={updateModelFile?.file?.name || model?.img_name || ""}>
+							{updateModelFile?.file?.name || model?.img_name || "선택된 파일 없음"}
+						</strong>
+						<span>GLB 또는 GLTF 파일로 교체합니다.</span>
+					</div>
+					<div className="interior-ex-model-buttons">
+						<Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+							교체할 파일
+							<input
+								type="file"
+								hidden
+								name="modelUpdateFileInput"
+								accept=".glb,.gltf"
+								onChange={onChangeUpdateModelFile}
+							/>
+						</Button>
+					</div>
+				</div>
 			</div>
-
-			<Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-				교체할 파일
-				<input
-					type="file"
-					hidden
-					name="modelUpdateFileInput"
-					accept=".glb,.gltf"
-					onChange={onChangeUpdateModelFile}
-				/>
-			</Button>
-			<Button
-				variant="contained"
-				color="primary"
-				startIcon={<FileUploadIcon />}
-				onClick={onClickUpdateModelData}>
-				수정
-			</Button>
 		</div>
 	);
 };

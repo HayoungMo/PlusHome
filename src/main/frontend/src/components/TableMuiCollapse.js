@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Box,
 	Collapse,
@@ -12,6 +12,7 @@ import {
 	Paper,
 	Typography,
 	Button,
+	TablePagination,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -60,24 +61,52 @@ const TableMuiCollapse = ({
 	buttonData = [],
 	collapseColumns,
 	collapseColumnLabels = [],
+	columnLabelMap = {},
 	selectedColor = "#b0d2ec",
+	defaultRowPerPage = 10,
+	resetPageKey,
+	pagination = false,
 }) => {
 	const rows = Array.isArray(rowData) ? rowData : [rowData];
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(defaultRowPerPage);
 
 	const tableColumns =
 		rows.length > 0
 			? Object.keys(rows[0]).filter((column) => !hiddenColumns.includes(column))
 			: [];
 
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
+	useEffect(() => {
+		setPage(0);
+	}, [resetPageKey]);
+
+	useEffect(() => {
+		if (page > 0 && page * rowsPerPage >= rows.length) {
+			setPage(0);
+		}
+	}, [rows.length, page, rowsPerPage]);
+
+	const pagedRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+	const visibleRows = pagination ? pagedRows : rows;
+
 	return (
 		<TableContainer component={Paper} sx={tableContainerSx}>
-			<Table>
+			<Table sx={{ minWidth: 650 }} aria-label="simple table">
 				<TableHead>
 					<TableRow>
 						<TableCell />
 						{tableColumns.map((column, index) => (
 							<StyledTableCell key={column} align="right">
-								{columns[index] || column}
+								{columnLabelMap[column] || columns[index] || column}
 							</StyledTableCell>
 						))}
 						{buttonData.map((data) => (
@@ -89,11 +118,12 @@ const TableMuiCollapse = ({
 				</TableHead>
 
 				<TableBody>
-					{rows.map((row, index) => {
-						const isSelected = selectedRow?.rowIndex === index;
+					{visibleRows.map((row, index) => {
+						const realRowIndex = pagination ? page * rowsPerPage + index : index;
+						const isSelected = selectedRow?.rowIndex === realRowIndex;
 						return (
 							<CollapseRow
-								key={index}
+								key={realRowIndex}
 								row={row}
 								tableColumns={tableColumns}
 								collapseKey={collapseKey}
@@ -104,7 +134,7 @@ const TableMuiCollapse = ({
 								collapseColumnLabels={collapseColumnLabels}
 								onClickCollapseRow={() => {
 									if (!setSelectedRow || setSelectedRow === null) return;
-									setSelectedRow({ ...row, rowIndex: index });
+									setSelectedRow({ ...row, rowIndex: realRowIndex });
 								}}
 								setSelectedRow={setSelectedRow}
 								isSelected={isSelected}
@@ -115,6 +145,19 @@ const TableMuiCollapse = ({
 					})}
 				</TableBody>
 			</Table>
+			{pagination && (
+				<TablePagination
+					component="div"
+					count={rows.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+					rowsPerPageOptions={[5, 10, 25, 50]}
+					labelRowsPerPage="페이지당 행 수"
+					labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 총 ${count}개`}
+				/>
+			)}
 		</TableContainer>
 	);
 };

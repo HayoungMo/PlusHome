@@ -8,7 +8,6 @@ import DialogMui from "./DialogMui";
 import AlertMui from "./AlertMui";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import FloatingActionButtonMui from "./FloatingActionButtonMui";
 
 const tagOptions1 = [
 	{ value: "apt", title: "아파트" },
@@ -333,7 +332,7 @@ const InteriorExUpdate = ({ selectedExample, imageList = [], onReload }) => {
 	}, []);
 
 	return (
-		<div>
+		<div className="interior-ex-update">
 			{alert.open && (
 				<AlertMui
 					severity={alert.severity}
@@ -348,41 +347,51 @@ const InteriorExUpdate = ({ selectedExample, imageList = [], onReload }) => {
 					}
 				/>
 			)}
-			<p>인테리어 시공 사례 수정 예시</p>
+			<div className="interior-ex-update-head">
+				<h3>시공 사례 수정</h3>
+				<p>선택한 사례의 정보와 이미지를 수정합니다.</p>
+			</div>
 			{exampleList.map((item, index) => {
 				const exampleImageList = item?.logo?.result || [];
 
 				return (
 					<div
 						key={`${item.c_id}-${item.ie_index}`}
-						style={{
-							marginBottom: "24px",
-							padding: "16px",
-							border: "1px solid #ddd",
-							borderRadius: "8px",
-						}}>
-						<div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
-							<SelectMui
-								name="ie_tag"
-								option={tagOptions1}
-								value={item.ie_tag}
-								onChange={(e) => onChangeExample(index, e)}
-							/>
-							<SelectMui
-								name="ie_tag2"
-								option={tagOptions2}
-								value={item.ie_tag2}
-								onChange={(e) => onChangeExample(index, e)}
-							/>
-						</div>
+						className="interior-ex-update-card">
+						<form name="example" className="interior-ex-update-form">
+							<div className="interior-ex-update-selects">
+								<SelectMui
+									name="ie_tag"
+									label="공간 유형"
+									option={tagOptions1}
+									value={item.ie_tag}
+									onChange={(e) => onChangeExample(index, e)}
+									width="100%"
+								/>
+								<SelectMui
+									name="ie_tag2"
+									label="시공 영역"
+									option={tagOptions2}
+									value={item.ie_tag2}
+									onChange={(e) => onChangeExample(index, e)}
+									width="100%"
+								/>
+							</div>
 
-						<div
-							style={{
-								display: "grid",
-								gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-								gap: "12px",
-								marginBottom: "16px",
-							}}>
+							<div className="interior-ex-update-content">
+								<TextFieldMui
+									name="ie_content"
+									label="시공 내용"
+									value={item.ie_content}
+									onChange={(e) => onChangeExample(index, e)}
+									multiline={true}
+									rows={4}
+									width="100%"
+								/>
+							</div>
+						</form>
+
+						<div className="interior-ex-update-image-grid">
 							{exampleImageList.map((record, imageIndex) => {
 								const markedDelete = isDeleteTarget(record.img_name);
 								const changed = Boolean(updateImageFileMap[record.img_name]);
@@ -391,53 +400,38 @@ const InteriorExUpdate = ({ selectedExample, imageList = [], onReload }) => {
 								return (
 									<div
 										key={`${record.img_name}-${imageIndex}`}
-										style={{
-											border: markedDelete ? "1px solid #d32f2f" : "1px solid #e0e0e0",
-											borderRadius: "8px",
-											padding: "8px",
-											opacity: markedDelete ? 0.45 : 1,
-										}}>
+										className={`interior-ex-update-image-card${markedDelete ? " delete-target" : ""}${changed ? " changed" : ""}`}>
 										<img
 											src={getImagePreview(record)}
 											alt={`${item.c_name} 시공사례`}
-											style={{
-												width: "100%",
-												height: "120px",
-												objectFit: "cover",
-												borderRadius: "6px",
-												marginBottom: "8px",
-											}}
 										/>
-										<div
-											style={{
-												fontSize: "12px",
-												minHeight: "20px",
-												marginBottom: "8px",
-												color: markedDelete ? "#d32f2f" : "#1976d2",
-											}}>
-											{markedDelete ? "삭제 예정" : changed ? "교체 예정" : ""}
+										<div className="interior-ex-update-image-status">
+											{markedDelete ? "삭제 예정" : changed ? "교체 예정" : "등록 이미지"}
 										</div>
-										<form
-											style={{
-												display: "flex",
-												gap: "8px",
-												alignItems: "center",
-											}}>
-											<input
-												type="file"
-												name={record.img_name}
-												className="updateFile"
-												disabled={markedDelete}
-												onChange={(e) => onChangeUpdateImage(record, e)}
-											/>
-											{canDeleteImage && (
-												<FloatingActionButtonMui
-													icon={<DeleteIcon />}
-													color={markedDelete ? "inherit" : "error"}
-													onClick={() => onClickToggleDeleteImage(record)}
+										<div className="interior-ex-update-image-controls">
+											<Button component="label" type="button" variant="outlined" size="small" disabled={markedDelete}>
+												이미지 교체
+												<input
+													type="file"
+													hidden
+													name={record.img_name}
+													className="updateFile"
+													disabled={markedDelete}
+													onChange={(e) => onChangeUpdateImage(record, e)}
 												/>
+											</Button>
+											{canDeleteImage && (
+												<Button
+													type="button"
+													variant="outlined"
+													size="small"
+													startIcon={<DeleteIcon />}
+													color={markedDelete ? "inherit" : "error"}
+													onClick={() => onClickToggleDeleteImage(record)}>
+													{markedDelete ? "취소" : "삭제"}
+												</Button>
 											)}
-										</form>
+										</div>
 									</div>
 								);
 							})}
@@ -445,117 +439,101 @@ const InteriorExUpdate = ({ selectedExample, imageList = [], onReload }) => {
 							{insertImageList.map((record) => (
 								<div
 									key={record.id}
-									style={{
-										border: "1px solid #1976d2",
-										borderRadius: "8px",
-										padding: "8px",
-									}}>
+									className="interior-ex-update-image-card insert-target">
 									<img
 										src={record.previewUrl}
 										alt="추가 예정 이미지"
-										style={{
-											width: "100%",
-											height: "120px",
-											objectFit: "cover",
-											borderRadius: "6px",
-											marginBottom: "8px",
-										}}
 									/>
-									<div
-										style={{
-											fontSize: "12px",
-											minHeight: "20px",
-											marginBottom: "8px",
-											color: "#1976d2",
-										}}>
-										추가 예정
+									<div className="interior-ex-update-image-status">
+										추가 예정 이미지
 									</div>
-									<FloatingActionButtonMui
-										icon={<DeleteIcon />}
-										color="error"
-										onClick={() => onClickRemoveInsertImage(record.id)}
-									/>
+									<div className="interior-ex-update-image-controls">
+										<Button
+											type="button"
+											variant="outlined"
+											size="small"
+											startIcon={<DeleteIcon />}
+											color="error"
+											onClick={() => onClickRemoveInsertImage(record.id)}>
+											삭제
+										</Button>
+									</div>
 								</div>
 							))}
+							{exampleImageList.length === 0 && insertImageList.length === 0 && (
+								<div className="interior-ex-update-image-empty">등록된 이미지가 없습니다.</div>
+							)}
 						</div>
 
-						<div
-							style={{
-								display: "flex",
-								gap: "8px",
-								alignItems: "center",
-								marginBottom: "16px",
-							}}>
-							<input type="file" multiple onChange={onChangeInsertImage} />
+						<div className="interior-ex-update-upload">
+							<Button component="label" type="button" variant="contained" startIcon={<FileUploadIcon />}>
+								추가할 파일
+								<input type="file" hidden multiple onChange={onChangeInsertImage} />
+							</Button>
 						</div>
 
-						<form name="example">
-							<div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-								<TextFieldMui
-									name="ie_content"
-									value={item.ie_content}
-									onChange={(e) => onChangeExample(index, e)}
-								/>
+						<div className="interior-ex-update-actions">
+							<Button
+								type="button"
+								color="error"
+								variant="contained"
+								startIcon={<DeleteIcon />}
+								onClick={() => setDeleteDialogOpen(true)}>
+								사례 삭제
+							</Button>
+							<Button
+								type="button"
+								color="primary"
+								variant="contained"
+								startIcon={<FileUploadIcon />}
+								onClick={() => setUpdateDialogOpen(true)}>
+								수정 저장
+							</Button>
+						</div>
 
-								<Button
-									color="primary"
-									variant="contained"
-									startIcon={<FileUploadIcon />}
-									onClick={() => setUpdateDialogOpen(true)}>
-									수정
-								</Button>
-
-								<FloatingActionButtonMui
-									icon={<DeleteIcon />}
-									color="error"
-									onClick={() => setDeleteDialogOpen(true)}
-								/>
-							</div>
-
-							<DialogMui
-								open={updateDialogOpen}
-								onClose={() => setUpdateDialogOpen(false)}
-								title="제출 확인"
-								text="정말 제출하시겠습니까?"
-								buttons={[
-									{
-										title: "취소",
-										color: "inherit",
-										onClick: () => setUpdateDialogOpen(false),
+						<DialogMui
+							open={updateDialogOpen}
+							onClose={() => setUpdateDialogOpen(false)}
+							title="제출 확인"
+							text="정말 제출하시겠습니까?"
+							buttons={[
+								{
+									title: "취소",
+									color: "inherit",
+									onClick: () => setUpdateDialogOpen(false),
+								},
+								{
+									title: "제출",
+									variant: "outlined",
+									onClick: (e) => {
+										onClickUpdateExample(e, item);
+										setUpdateDialogOpen(false);
 									},
-									{
-										title: "제출",
-										variant: "outlined",
-										onClick: (e) => {
-											onClickUpdateExample(e, item);
-											setUpdateDialogOpen(false);
-										},
+								},
+							]}
+						/>
+						<DialogMui
+							open={deleteDialogOpen}
+							onClose={() => setDeleteDialogOpen(false)}
+							title="삭제 확인"
+							text="정말 삭제하시겠습니까?"
+							buttons={[
+								{
+									title: "취소",
+									color: "inherit",
+									onClick: () => setDeleteDialogOpen(false),
+								},
+								{
+									title: "삭제",
+									color: "error",
+									variant: "contained",
+									onClick: (e) => {
+										onClickDeleteExample(e, item);
+										setDeleteDialogOpen(false);
 									},
-								]}
-							/>
-							<DialogMui
-								open={deleteDialogOpen}
-								onClose={() => setDeleteDialogOpen(false)}
-								title="삭제 확인"
-								text="정말 삭제하시겠습니까?"
-								buttons={[
-									{
-										title: "취소",
-										color: "inherit",
-										onClick: () => setDeleteDialogOpen(false),
-									},
-									{
-										title: "삭제",
-										color: "error",
-										variant: "contained",
-										onClick: (e) => {
-											onClickDeleteExample(e, item);
-											setDeleteDialogOpen(false);
-										},
-									},
-								]}
-							/>
-						</form>
+								},
+							]}
+						/>
 					</div>
 				);
 			})}

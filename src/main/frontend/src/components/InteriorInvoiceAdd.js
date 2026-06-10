@@ -7,6 +7,24 @@ import TableMuiCollapse from "./TableMuiCollapse";
 import AlertMui from "./AlertMui";
 import DialogMui from "./DialogMui";
 
+const invoiceColumnLabels = {
+	c_id: "업체 ID",
+	c_kind: "업체 구분",
+	c_name: "업체명",
+	id: "고객 ID",
+	name: "고객명",
+	b_createdDate: "상담 신청일",
+	invoice_no: "견적서 번호",
+	invoice_kind: "견적 상태",
+	total_qty: "총 수량",
+	total_price: "총 금액",
+};
+
+const invoiceKindLabels = {
+	N: "진행중",
+	Y: "확정",
+};
+
 const InteriorInvoiceAdd = ({
 	booking = null,
 	selectedInvoice = null,
@@ -51,6 +69,18 @@ const InteriorInvoiceAdd = ({
 	const isSameItem = (itemA, itemB) => getItemKey(itemA) === getItemKey(itemB);
 
 	const formatPrice = (value) => Number(value || 0).toLocaleString();
+
+	const renderInvoiceCell = (row, column) => {
+		if (column === "invoice_kind") {
+			return invoiceKindLabels[row[column]] || row[column];
+		}
+
+		if (column === "total_price") {
+			return formatPrice(row[column]);
+		}
+
+		return row[column];
+	};
 
 	const selectTransferItem = (item, side) => {
 		setSelectedItem(item);
@@ -279,28 +309,37 @@ const InteriorInvoiceAdd = ({
 	}, [invoice]);
 
 	useEffect(() => {
-		if (!invoiceWithDetails || invoiceWithDetails.length === 0) return;
-		if (!setSelectedInvoiceDetailList) return;
+		if (!setSelectedInvoiceDetailList || !selectedInvoice) return;
 
-		const latestInvoiceDetail = invoiceWithDetails[invoiceWithDetails.length - 1];
+		const selectedInvoiceDetail = invoiceWithDetails.find(
+			(record) => record.invoice_no === selectedInvoice.invoice_no,
+		);
+
+		if (!selectedInvoiceDetail) return;
 
 		setSelectedInvoiceDetailList((prev) => {
-			if (prev?.invoice_no === latestInvoiceDetail?.invoice_no) {
+			if (prev?.invoice_no === selectedInvoiceDetail.invoice_no) {
 				return prev;
 			}
 
-			return latestInvoiceDetail;
+			return selectedInvoiceDetail;
 		});
-	}, [invoiceWithDetails, setSelectedInvoiceDetailList]);
+	}, [invoiceWithDetails, selectedInvoice, setSelectedInvoiceDetailList]);
 
 	useEffect(() => {
 		if (!setLeft || !setRight) return;
 
-		setLeft(listData || []);
-		setRight([]);
+		if (selectedInvoice && selectedInvoiceDetailList?.invoice_no === selectedInvoice.invoice_no) {
+			setLeft([]);
+			setRight(listData || []);
+		} else {
+			setLeft([]);
+			setRight([]);
+		}
+
 		setSelectedItem({});
 		setSelectedTransferSide("");
-	}, [listData, setLeft, setRight]);
+	}, [listData, selectedInvoice, selectedInvoiceDetailList, setLeft, setRight]);
 
 	useEffect(() => {
 		if (!selectedItem || !selectedItem.invoice_text) return;
@@ -334,6 +373,9 @@ const InteriorInvoiceAdd = ({
 							collapseKey="detail"
 							collapseTitle="견적 상세 내역"
 							collapseColumns={["invoice_text", "invoice_qty", "invoice_price"]}
+							collapseColumnLabels={["항목명", "수량", "단가"]}
+							columnLabelMap={invoiceColumnLabels}
+							renderCell={renderInvoiceCell}
 							selectedRow={selectedInvoice}
 							setSelectedRow={setSelectedInvoice}
 							buttonData={buttonData}

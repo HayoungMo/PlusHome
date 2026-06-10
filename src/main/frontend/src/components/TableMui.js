@@ -31,6 +31,7 @@ import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiSty
  * @param {boolean} [props.buttonData[].disabled] 버튼 비활성화 여부
  * @param {string[]} [props.buttonCol=[]] 버튼 컬럼 key 목록
  * @param {string[]} [props.buttonColumns=[]] 버튼 컬럼 헤더 이름 목록
+ * @param {Function} [props.renderCell] 일반 셀 값을 커스텀 렌더링하는 함수
  * @param {number} [props.defaultRowPerPage=10] 페이지네이션 사용 시 기본 페이지당 행 수
  * @param {any} [props.resetPageKey] 값이 변경될 때 페이지를 0번으로 초기화하는 기준 값
  * @param {boolean} [props.pagination=false] 페이지네이션 사용 여부
@@ -48,6 +49,7 @@ const TableMui = (props) => {
 		buttonData = [],
 		buttonCol = [],
 		buttonColumns = [],
+		renderCell,
 		defaultRowPerPage = 10,
 		resetPageKey,
 		pagination = false,
@@ -79,13 +81,11 @@ const TableMui = (props) => {
 	}, [rowData.length, page, rowsPerPage]);
 
 	const pagedRowData = rowData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-	
+
 	const visibleRowData = pagination ? pagedRowData : rowData;
 
 	return (
-		<TableContainer
-			component={Paper}
-			sx={tableContainerSx}>
+		<TableContainer component={Paper} sx={tableContainerSx}>
 			<Table sx={{ minWidth: 650 }} aria-label="simple table">
 				<TableHead>
 					<TableRow>
@@ -128,7 +128,7 @@ const TableMui = (props) => {
 								{tableColumns.map((column) => {
 									return (
 										<StyledTableCell key={column} align="right">
-											{row[column]}
+											{renderCell ? renderCell(row, column) : row[column]}
 										</StyledTableCell>
 									);
 								})}

@@ -28,6 +28,23 @@ const formatAddress = (address) => {
 	return [c_addr1, c_addr2].filter(Boolean).join(" ");
 };
 
+const bookingStatusLabels = {
+	pending: "예약 대기",
+	quoting: "견적 진행중",
+	confirmed: "예약 확정",
+	working: "시공중",
+	done: "시공 완료",
+	cancel: "취소",
+	canceled: "취소",
+	cance: "취소",
+};
+
+const formatBookingStatus = (status) => {
+	if (status == null || status === "") return "";
+
+	return bookingStatusLabels[status] || status;
+};
+
 const InteriorBookingControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = useMemo(() => JSON.parse(localUserData), [localUserData]);
@@ -162,12 +179,9 @@ const InteriorBookingControl = () => {
 
 	useEffect(() => {
 		setSelectedInvoice(null);
+		setSelectedInvoiceDetailLatestList([]);
 		setTransferListMuiLeft([]);
 		setTransferListMuiRight([]);
-
-		if (!selectedBooking) {
-			setSelectedInvoiceDetailLatestList([]);
-		}
 	}, [selectedBooking]);
 
 	return (
@@ -215,6 +229,9 @@ const InteriorBookingControl = () => {
 							rowData={interiorCompanyList}
 							col={["c_name", "c_tel", "c_addr_display", "c_boss"]}
 							columns={["업체명", "연락처", "주소", "대표자"]}
+							defaultRowPerPage={5}
+							resetPageKey={`tablemui-${selectedCompany}-info-table`}
+							pagination
 						/>
 					) : (
 						<div className="interior-booking-guide">등록된 업체 데이터가 없습니다.</div>
@@ -232,7 +249,7 @@ const InteriorBookingControl = () => {
 					</div>
 					{selectedBooking && (
 						<Chip
-							label={selectedBooking.b_status || "상태 확인"}
+							label={formatBookingStatus(selectedBooking.b_status) || "상태 확인"}
 							color="secondary"
 							variant="outlined"
 						/>

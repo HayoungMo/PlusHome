@@ -213,7 +213,26 @@ return (
       <span>현재 값을 변경하거나 삭제할 수 있습니다.</span>
     </div>
 
+    <div className="interior-update-selected-info">
+      <span>선택한 정보</span>
+      <dl>
+        <div>
+          <dt>업체명</dt>
+          <dd>{c_name || "-"}</dd>
+        </div>
+        <div>
+          <dt>정보 항목</dt>
+          <dd>{formatInteriorAnswerLabel(i_tag)}</dd>
+        </div>
+        <div>
+          <dt>현재 값</dt>
+          <dd>{formatInteriorAnswerValue(interiorInfo?.i_text)}</dd>
+        </div>
+      </dl>
+    </div>
+
     <div className="interior-update-form">
+      <span className="interior-update-field-label">변경할 값</span>
       {i_tag !== "location" ? (
         <SelectMui
           label="항목 선택"
@@ -231,6 +250,7 @@ return (
             value={textRegion}
             onChange={handleChange}
             option={sidoOption}
+            width="100%"
           />
 
           <SelectMui
@@ -240,6 +260,7 @@ return (
             onChange={handleChange}
             option={sigunguOption}
             disabled={!textRegion}
+            width="100%"
           />
         </div>
       )}

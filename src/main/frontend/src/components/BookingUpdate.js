@@ -21,6 +21,40 @@ import {
 	formatInteriorAnswerValue,
 } from "../resources/function/interiorAnswerFormat";
 
+const bookingStatusLabels = {
+	pending: "예약 대기",
+	quoting: "견적 진행중",
+	confirmed: "예약 확정",
+	working: "시공중",
+	done: "시공 완료",
+	cancel: "취소",
+	canceled: "취소",
+	cance: "취소",
+};
+
+const bookingKindLabels = {
+	byTel: "전화상담",
+	byKakaoTalk: "카카오톡",
+	byemail: "이메일",
+	byVisit: "직접방문",
+};
+
+const formatLabels = (status, type) => {
+	if (status == null || status === "") return "";
+
+	if (type === "b_status") return bookingStatusLabels[status] || status;
+
+	if (type === "b_kind") return bookingKindLabels[status] || status;
+};
+
+const formatScheduleValue = (value, key) => {
+	if (key === "b_status" || key === "b_kind") {
+		return formatLabels(value, key);
+	}
+
+	return value;
+};
+
 const BookingUpdate = ({
 	company,
 	selectedBooking,
@@ -221,25 +255,32 @@ const BookingUpdate = ({
 		<div className="booking-update">
 			<div className="booking-update-table-area">
 				{displayBooking?.length > 0 ? (
-						<TableMuiCollapse
-							selectedRow={selectedBooking}
-							setSelectedRow={setSelectedBooking}
-							selectedColor="#eff6ff"
-							rowData={displayBooking}
-						hiddenColumns={["b_answer"]}
+					<TableMuiCollapse
+						selectedRow={selectedBooking}
+						setSelectedRow={setSelectedBooking}
+						selectedColor="#eff6ff"
+						rowData={displayBooking}
+						defaultRowPerPage={5}
+						resetPageKey={`${company?.c_id || ""}-${dateRange.startDate}-${dateRange.endDate}-${isDateRangeInvalid}`}
+						pagination
+						hiddenColumns={["b_answer", "c_kind", "b_content", "c_id"]}
 						columns={[
 							"예약자 ID",
 							"신청일",
-							"업체 ID",
-							"업체 구분",
 							"업체명",
 							"상담 종류",
 							"희망 기간",
 							"예약일",
 							"진행 상태",
-							"상담 내용",
 						]}
 						collapseTitle="상담 상세 정보"
+						renderCell={(row, column) => {
+							if (column === "b_status" || column === "b_kind") {
+								return formatScheduleValue(row[column], column);
+							}
+
+							return row[column];
+						}}
 						renderCollapse={(row) => {
 							let answer = {};
 
@@ -254,8 +295,12 @@ const BookingUpdate = ({
 									<TableBody>
 										{Object.keys(answer).map((key) => (
 											<TableRow key={key}>
-												<TableCell>{formatInteriorAnswerLabel(key)}</TableCell>
-												<TableCell>{formatInteriorAnswerValue(answer[key])}</TableCell>
+												<TableCell>
+													{formatInteriorAnswerLabel(key)}
+												</TableCell>
+												<TableCell>
+													{formatInteriorAnswerValue(answer[key])}
+												</TableCell>
 											</TableRow>
 										))}
 									</TableBody>
@@ -264,9 +309,7 @@ const BookingUpdate = ({
 						}}
 					/>
 				) : (
-					<div className="interior-booking-guide">
-						상담 예약 데이터가 없습니다.
-					</div>
+					<div className="interior-booking-guide">상담 예약 데이터가 없습니다.</div>
 				)}
 				{selectedBooking && (
 					<div className="booking-update-actions">
@@ -275,7 +318,12 @@ const BookingUpdate = ({
 						</Button>
 						{selectedBooking.b_status !== "cancel" &&
 							selectedBooking.b_status !== "done" && (
-								<Button onClick={handleDialogCancelBooking}>상담 취소</Button>
+								<Button
+									variant="contained"
+									color="error"
+									onClick={handleDialogCancelBooking}>
+									상담 취소
+								</Button>
 							)}
 						<DialogMui
 							open={dialogCancelBooking}
@@ -335,7 +383,10 @@ const BookingUpdate = ({
 						</div>
 					</DialogContent>
 					<DialogActions className="booking-start-dialog-actions">
-						<Button variant="outlined" color="inherit" onClick={onClickHandleCloseDialog}>
+						<Button
+							variant="outlined"
+							color="inherit"
+							onClick={onClickHandleCloseDialog}>
 							취소
 						</Button>
 						<Button

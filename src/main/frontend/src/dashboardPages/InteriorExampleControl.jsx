@@ -314,6 +314,11 @@ const InteriorExampleControl = () => {
 		}
 	};
 
+	const onClickCloseWorkPanel = () => {
+		setUpdateAvailable(false);
+		setAddAvailable(false);
+	};
+
 	useEffect(() => {
 		reLoadData();
 	}, [id]);
@@ -568,27 +573,8 @@ const InteriorExampleControl = () => {
 								</div>
 							</div>
 
-							<div className="interior-example-panel">
-								<div className="interior-example-panel-head">
-									<div>
-										<strong>3D 모델 미리보기</strong>
-										<span>선택한 모델을 확인합니다.</span>
-									</div>
-								</div>
-
-								{selectedModel3DImage?.img_dir ? (
-									<div className="interior-example-model-viewer">
-										<InteriorModelViewer src={selectedModel3DImage.img_dir} />
-									</div>
-								) : (
-									<div className="interior-example-guide">
-										3D 모델을 선택하면 미리보기가 표시됩니다.
-									</div>
-								)}
-							</div>
-
-							{isUpdateAvailable && (
-								<div className="interior-example-panel interior-example-wide">
+							{isUpdateAvailable ? (
+								<div className="interior-example-panel interior-example-model-form-panel">
 									<div className="interior-example-panel-head">
 										<div>
 											<strong>3D 모델 수정</strong>
@@ -601,13 +587,12 @@ const InteriorExampleControl = () => {
 											setAlertInfo={setAlertInfo}
 											setAlertOpen={setAlertOpen}
 											onReload={reLoadData}
+											onCancel={onClickCloseWorkPanel}
 										/>
 									</div>
 								</div>
-							)}
-
-							{tabValue !== "all" && isAddAvailable && (
-								<div className="interior-example-panel interior-example-wide">
+							) : tabValue !== "all" && isAddAvailable ? (
+								<div className="interior-example-panel interior-example-model-form-panel">
 									<div className="interior-example-panel-head">
 										<div>
 											<strong>3D 모델 등록</strong>
@@ -620,8 +605,33 @@ const InteriorExampleControl = () => {
 											setAlertInfo={setAlertInfo}
 											setAlertOpen={setAlertOpen}
 											onReload={reLoadData}
+											onCancel={onClickCloseWorkPanel}
 										/>
 									</div>
+								</div>
+							) : (
+								<div className="interior-example-panel">
+									<div className="interior-example-panel-head">
+										<div>
+											<strong>3D 모델 미리보기</strong>
+											<span>선택한 모델을 확인합니다.</span>
+										</div>
+									</div>
+
+									{selectedModel3DImage?.img_dir ? (
+										<div className="interior-example-model-viewer">
+											<InteriorModelViewer
+												src={selectedModel3DImage.img_dir}
+												width="100%"
+												height="300px"
+												border="0"
+											/>
+										</div>
+									) : (
+										<div className="interior-example-guide">
+											3D 모델을 선택하면 미리보기가 표시됩니다.
+										</div>
+									)}
 								</div>
 							)}
 						</div>

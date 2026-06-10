@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import InteriorUpdate from "../components/InteriorUpdate";
 import InteriorAdd from "../components/InteriorAdd";
 import InteriorService from "../service/interiorService";
-import { Button, Chip, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import { Button, Chip, Dialog, DialogContent } from "@mui/material";
 import ButtonGroupMui from "./../components/ButtonGroupMui";
 import TableMui from "./../components/TableMui";
 import Loading from "../components/Loading";
@@ -192,6 +192,9 @@ const InteriorInfo = () => {
 							rowData={interiorCompanyList}
 							col={["c_name", "c_tel", "c_addr_display", "c_boss"]}
 							columns={["업체명", "연락처", "주소", "대표자"]}
+							defaultRowPerPage={5}
+							resetPageKey={`tablemui-${selectedCompany}-info-table`}
+							pagination
 						/>
 					) : (
 						<div className="interior-info-guide">
@@ -221,6 +224,9 @@ const InteriorInfo = () => {
 							rowData={interiorDisplayList}
 							col={["c_name", "i_tag", "i_text"]}
 							columns={["업체명", "정보 항목", "정보 내용"]}
+							defaultRowPerPage={5}
+							resetPageKey={`${selectedCompany}-${selectedInterior}`}
+							pagination
 						/>
 					</div>
 				) : selectedCompany ? (
@@ -253,11 +259,10 @@ const InteriorInfo = () => {
 
 			{tabValue === "add" && (
 				<Dialog
+					className="interior-info-add-dialog"
 					open={openAddDialog}
 					onClose={() => setOpenAddDialog(false)}
-					maxWidth="md"
-					fullWidth>
-					<DialogTitle>인테리어 정보 등록</DialogTitle>
+					maxWidth={false}>
 
 					<DialogContent>
 						<InteriorAdd
@@ -274,10 +279,12 @@ const InteriorInfo = () => {
 			)}
 			{tabValue === "update" && (
 				<Dialog
+					className={`interior-info-update-dialog ${
+						selectedInterior?.i_tag === "location" ? "location-mode" : ""
+					}`}
 					open={openUpdateDialog}
-					onClose={() => setOpenAddDialog(false)}
-					maxWidth="md"
-					fullWidth>
+					onClose={() => setOpenUpdateDialog(false)}
+					maxWidth={false}>
 					<InteriorUpdate
 						setOpenUpdateDialog={setOpenUpdateDialog}
 						interiorInfo={selectedInterior}

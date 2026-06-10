@@ -687,6 +687,191 @@
 	box-shadow: none;
 }
 
+.interior-info-add-dialog .MuiDialog-paper {
+	width: 300px;
+	max-width: 300px;
+	border-radius: 8px;
+}
+
+.interior-info-add-dialog .MuiDialogContent-root {
+	padding: 20px 24px;
+}
+
+.interior-info-add-dialog .interior-add-card {
+	width: 252px;
+	min-width: 0;
+	padding: 24px 22px 20px;
+	border-color: #d9edf8;
+	box-shadow: none;
+}
+
+.interior-info-add-dialog .interior-add-head {
+	margin-bottom: 22px;
+	padding-bottom: 18px;
+}
+
+.interior-info-add-dialog .interior-add-head strong {
+	font-size: 20px;
+	line-height: 1.35;
+}
+
+.interior-info-add-dialog .interior-add-head span {
+	font-size: 14px;
+	line-height: 1.55;
+}
+
+.interior-info-add-dialog .interior-add-fields {
+	gap: 16px;
+}
+
+.interior-info-add-dialog .interior-add-actions {
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: 2px;
+	padding-top: 16px;
+}
+
+.interior-info-add-dialog .interior-add-actions .MuiButton-root {
+	flex: 1 1 0;
+	min-width: 0;
+	min-height: 40px;
+	border-radius: 8px;
+}
+
+.interior-info-update-dialog .MuiDialog-paper {
+	width: 440px;
+	max-width: 440px;
+	border-radius: 8px;
+}
+
+.interior-info-update-dialog.location-mode .MuiDialog-paper {
+	width: 560px;
+	max-width: 560px;
+}
+
+.interior-info-update-dialog .interior-update-card {
+	min-width: 0;
+	padding: 24px;
+	border: 0;
+	box-shadow: none;
+}
+
+.interior-info-update-dialog .interior-update-head strong {
+	font-size: 0;
+}
+
+.interior-info-update-dialog .interior-update-head strong::before {
+	content: "인테리어 정보 수정";
+	font-size: 20px;
+	font-weight: 900;
+	line-height: 1.35;
+	color: #1f2f3a;
+}
+
+.interior-update-selected-info {
+	display: grid;
+	gap: 10px;
+	margin-bottom: 18px;
+	padding: 14px;
+	border: 1px solid #d9edf8;
+	border-radius: 8px;
+	background: #f7fbfd;
+}
+
+.interior-update-selected-info > span {
+	font-size: 13px;
+	font-weight: 900;
+	color: #1f2f3a;
+}
+
+.interior-update-selected-info dl {
+	display: grid;
+	gap: 8px;
+	margin: 0;
+}
+
+.interior-update-selected-info dl div {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.interior-update-selected-info dt,
+.interior-update-selected-info dd {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.interior-update-selected-info dt {
+	color: #60727f;
+	white-space: nowrap;
+}
+
+.interior-update-selected-info dd {
+	max-width: 230px;
+	overflow: hidden;
+	text-align: right;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #2f3438;
+}
+
+.interior-info-update-dialog.location-mode .interior-update-selected-info dd {
+	max-width: 350px;
+}
+
+.interior-info-update-dialog .interior-update-form {
+	gap: 16px;
+	grid-template-columns: 1fr;
+}
+
+.interior-info-update-dialog .interior-update-location {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	width: 100%;
+}
+
+.interior-info-update-dialog .interior-update-field-label,
+.interior-info-update-dialog .interior-update-form > div,
+.interior-info-update-dialog .interior-update-location {
+	grid-column: 1 / -1;
+}
+
+.interior-info-update-dialog .interior-update-location > div {
+	min-width: 0;
+	width: 100%;
+}
+
+.interior-update-field-label {
+	font-size: 13px;
+	font-weight: 900;
+	color: #1f2f3a;
+}
+
+.interior-info-update-dialog .interior-update-actions {
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.interior-info-update-dialog .interior-update-actions .MuiButton-root {
+	min-width: 92px;
+}
+
+.interior-info-update-dialog .interior-update-actions .MuiButton-root:nth-of-type(1) {
+	order: 3;
+}
+
+.interior-info-update-dialog .interior-update-actions .MuiButton-root:nth-of-type(2) {
+	order: 2;
+}
+
+.interior-info-update-dialog .interior-update-actions .MuiButton-root:nth-of-type(3) {
+	order: 1;
+}
+
 @media (max-width: 960px) {
 	.interior-info-header {
 		align-items: flex-start;
@@ -767,7 +952,7 @@
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 20px;
 	padding: 18px 20px;
 	border: 1px solid #d8dee8;
 	border-radius: 8px;
@@ -935,6 +1120,25 @@
 	border-color: #bfdbfe;
 	background: #eff6ff;
 	color: #1d4ed8;
+}
+
+.interior-booking-panel .MuiTablePagination-actions .MuiIconButton-root {
+	width: 40px;
+	height: 40px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: #94a3b8;
+}
+
+.interior-booking-panel .MuiTablePagination-actions .MuiIconButton-root:hover {
+	border: 0;
+	background: rgba(15, 23, 42, 0.04);
+	color: #475569;
+}
+
+.interior-booking-panel .MuiTablePagination-actions .MuiIconButton-root.Mui-disabled {
+	color: #cbd5e1;
 }
 
 .interior-booking-panel .MuiCollapse-root {
@@ -2250,6 +2454,7 @@
 
 .interior-example-model-grid {
 	grid-template-columns: 260px minmax(0, 1fr);
+	align-items: start;
 }
 
 .interior-example-content {
@@ -2258,6 +2463,7 @@
 
 .interior-example-panel {
 	min-width: 0;
+	max-width: fit-content;
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
@@ -2377,16 +2583,23 @@
 }
 
 .interior-example-model-viewer {
-	min-height: 420px;
+	width: 322px;
+	max-width: 100%;
+	min-height: 0;
+	padding: 10px;
 	overflow: hidden;
 	border: 1px solid #e5eaf2;
 	border-radius: 8px;
-	background: #f8fafc;
+	background: #ffffff;
 }
 
-.interior-example-model-viewer canvas {
+.interior-example-model-viewer model-viewer,
+.interior-ex-model-preview model-viewer {
 	display: block;
-	width: 100% !important;
+	width: 300px !important;
+	max-width: 100%;
+	height: 300px !important;
+	border: 0 !important;
 }
 
 .interior-example-form {
@@ -2521,32 +2734,230 @@
 	box-shadow: none;
 }
 
-.interior-ex-model-add {
+.interior-ex-update {
 	width: 100%;
 }
 
-.interior-ex-model-add-layout {
+.interior-ex-update-head {
+	margin-bottom: 16px;
+}
+
+.interior-ex-update-head h3 {
+	margin: 0 0 8px;
+	font-size: 18px;
+	font-weight: 900;
+	color: #0f172a;
+}
+
+.interior-ex-update-head p {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 700;
+	color: #64748b;
+}
+
+.interior-ex-update-card {
 	display: grid;
-	grid-template-columns: minmax(280px, 1.2fr) minmax(240px, 0.8fr);
+	grid-template-columns: minmax(0, 1fr) minmax(260px, 0.55fr);
 	gap: 16px;
 	align-items: stretch;
+	margin-bottom: 18px;
 	padding: 18px;
 	border: 1px solid #e2e8f0;
 	border-radius: 8px;
 	background: #f8fafc;
 }
 
-.interior-ex-model-preview {
-	min-height: 260px;
-	overflow: hidden;
+.interior-ex-update-form {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+	min-width: 0;
+}
+
+.interior-ex-update-selects {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.interior-ex-update-selects .MuiFormControl-root,
+.interior-ex-update-content .MuiOutlinedInput-root {
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-ex-update-content .MuiInputLabel-root {
+	font-weight: 700;
+	color: #64748b;
+}
+
+.interior-ex-update-image-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	align-content: start;
+	min-height: 236px;
+	padding: 12px;
 	border: 1px dashed #cbd5e1;
 	border-radius: 8px;
 	background: #ffffff;
 }
 
-.interior-ex-model-preview canvas {
+.interior-ex-update-image-card {
+	display: grid;
+	gap: 8px;
+	min-width: 0;
+	padding: 8px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f8fafc;
+	transition: border-color 0.16s ease, opacity 0.16s ease;
+}
+
+.interior-ex-update-image-card.changed,
+.interior-ex-update-image-card.insert-target {
+	border-color: #60a5fa;
+	background: #eff6ff;
+}
+
+.interior-ex-update-image-card.delete-target {
+	border-color: #ef4444;
+	opacity: 0.5;
+}
+
+.interior-ex-update-image-card img {
+	width: 100%;
+	aspect-ratio: 4 / 3;
 	display: block;
-	width: 100% !important;
+	object-fit: cover;
+	border-radius: 6px;
+	background: #e2e8f0;
+}
+
+.interior-ex-update-image-status {
+	min-height: 18px;
+	font-size: 12px;
+	font-weight: 800;
+	color: #2563eb;
+}
+
+.interior-ex-update-image-card.delete-target .interior-ex-update-image-status {
+	color: #dc2626;
+}
+
+.interior-ex-update-image-controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.interior-ex-update-image-controls .MuiButton-root {
+	min-width: 0;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-ex-update-image-empty {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 180px;
+	border-radius: 8px;
+	background: #f8fafc;
+	font-size: 13px;
+	font-weight: 800;
+	color: #94a3b8;
+}
+
+.interior-ex-update-upload {
+	grid-column: 2;
+	display: flex;
+	justify-content: stretch;
+}
+
+.interior-ex-update-upload .MuiButton-root {
+	width: 100%;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-ex-update-actions {
+	grid-column: 1 / -1;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	padding-top: 2px;
+}
+
+.interior-ex-update-actions .MuiButton-root {
+	min-width: 108px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-ex-update-actions .MuiButton-root:hover,
+.interior-ex-update-upload .MuiButton-root:hover,
+.interior-ex-update-image-controls .MuiButton-root:hover {
+	box-shadow: none;
+}
+
+.interior-ex-model-add,
+.interior-ex-model-update {
+	width: 100%;
+}
+
+.interior-example-model-form-panel {
+	position: relative;
+}
+
+.interior-example-model-form-panel .interior-example-panel-head {
+	padding-right: 176px;
+}
+
+.interior-ex-model-add-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 384px;
+	max-width: 100%;
+	box-sizing: border-box;
+	padding: 18px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.interior-ex-model-top-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	position: absolute;
+	top: 14px;
+	right: 16px;
+	z-index: 1;
+}
+
+.interior-ex-model-top-actions .MuiButton-root {
+	min-width: 78px;
+	border-radius: 6px;
+	box-shadow: none;
+	font-weight: 800;
+}
+
+.interior-ex-model-preview {
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 0;
+	padding: 14px;
+	overflow: hidden;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+	background: #ffffff;
 }
 
 .interior-ex-model-preview-empty {
@@ -2554,7 +2965,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	min-height: 260px;
+	min-height: 300px;
 	background: #f8fafc;
 	font-size: 14px;
 	font-weight: 800;
@@ -2564,22 +2975,30 @@
 .interior-ex-model-upload {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
-	gap: 16px;
-	padding: 18px;
+	align-items: center;
+	justify-content: center;
+	gap: 14px;
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 112px;
+	padding: 18px 20px;
 	border: 1px solid #e2e8f0;
 	border-radius: 8px;
 	background: #ffffff;
+	text-align: center;
 }
 
 .interior-ex-model-file-info {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
 	min-width: 0;
 }
 
 .interior-ex-model-file-info strong {
+	max-width: 100%;
 	overflow: hidden;
 	font-size: 15px;
 	font-weight: 800;
@@ -2596,7 +3015,7 @@
 
 .interior-ex-model-buttons {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: center;
 	gap: 10px;
 }
 
@@ -2607,6 +3026,7 @@
 	font-weight: 800;
 }
 
+.interior-ex-model-top-actions .MuiButton-root:hover,
 .interior-ex-model-buttons .MuiButton-root:hover {
 	box-shadow: none;
 }
@@ -2808,7 +3228,7 @@
 
 .interior-review-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+	grid-template-columns: 1fr;
 	gap: 18px;
 }
 
@@ -2904,6 +3324,216 @@
 	width: 100%;
 }
 
+.interior-review-detail-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.95fr);
+	gap: 16px;
+	align-items: stretch;
+}
+
+.interior-review-media-panel {
+	min-width: 0;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 132px;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: inset 0 0 0 1px rgba(248, 250, 252, 0.9);
+}
+
+.interior-review-main-image,
+.interior-review-thumb-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #f8fafc;
+	color: #94a3b8;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.interior-review-main-image {
+	height: 320px;
+}
+
+.interior-review-main-image img,
+.interior-review-thumb-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.interior-review-main-image.is-missing::after,
+.interior-review-thumb-item.is-missing::after {
+	content: "미리보기 없음";
+	color: #94a3b8;
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.interior-review-thumb-list {
+	display: grid;
+	grid-template-rows: repeat(3, 1fr);
+	gap: 10px;
+	min-height: 320px;
+}
+
+.interior-review-thumb-item.empty {
+	background: #f8fafc;
+}
+
+.interior-review-invoice-panel {
+	min-height: 320px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 16px;
+	border: 1px solid #d8dee8;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.interior-review-invoice-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e5eaf2;
+}
+
+.interior-review-invoice-head strong {
+	display: block;
+	font-size: 16px;
+	font-weight: 900;
+	line-height: 1.35;
+	color: #111827;
+}
+
+.interior-review-invoice-head span {
+	display: block;
+	margin-top: 3px;
+	font-size: 12px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.interior-review-invoice-head .MuiChip-root {
+	flex: 0 0 auto;
+	border-radius: 6px;
+	background: #ffffff;
+	font-weight: 900;
+}
+
+.interior-review-invoice-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.interior-review-invoice-meta span {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 8px;
+	border: 1px solid #e5eaf2;
+	border-radius: 6px;
+	background: #ffffff;
+	font-size: 12px;
+	font-weight: 800;
+	color: #64748b;
+}
+
+.interior-review-invoice-meta strong {
+	max-width: 160px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #334155;
+	font-size: 12px;
+	font-weight: 900;
+}
+
+.interior-review-invoice-items {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 194px;
+	overflow-y: auto;
+	padding-right: 4px;
+}
+
+.interior-review-invoice-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 12px;
+	border: 1px solid #e5eaf2;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.interior-review-invoice-item strong {
+	display: block;
+	max-width: 190px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 900;
+	color: #1f2937;
+}
+
+.interior-review-invoice-item span {
+	display: block;
+	margin-top: 3px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #64748b;
+}
+
+.interior-review-invoice-item em {
+	flex: 0 0 auto;
+	font-style: normal;
+	font-size: 13px;
+	font-weight: 900;
+	color: #1d4ed8;
+}
+
+.interior-review-invoice-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 120px;
+	padding: 14px;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+	background: #ffffff;
+	font-size: 13px;
+	font-weight: 800;
+	color: #64748b;
+	text-align: center;
+}
+
+.interior-review-content-panel {
+	grid-column: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.interior-review-content-panel .MuiInputBase-root {
+	min-height: 132px;
+	align-items: flex-start;
+	background: #ffffff;
+}
+
 .interior-review-meta {
 	display: flex;
 	align-items: center;
@@ -2949,6 +3579,10 @@
 	font-weight: 800;
 	color: #475569;
 	text-align: center;
+}
+
+.interior-review-control-page > section.interior-review-card:nth-of-type(3) {
+	display: none;
 }
 
 @media (max-width: 1100px) {

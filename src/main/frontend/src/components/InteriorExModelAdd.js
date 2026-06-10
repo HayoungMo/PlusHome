@@ -6,7 +6,7 @@ import ImageService from "./../service/imageService";
 import InteriorModelViewer from "./InteriorModelViewer";
 
 const InteriorExModelAdd = (props) => {
-	const { company, setAlertInfo, setAlertOpen, onReload } = props;
+	const { company, setAlertInfo, setAlertOpen, onReload, onCancel } = props;
 	const { c_id, c_kind, c_name } = company;
 
 	const [modelFile, setModelFile] = useState(null);
@@ -94,16 +94,39 @@ const InteriorExModelAdd = (props) => {
 	return (
 		<div className="interior-ex-model-add">
 			<div className="interior-ex-model-add-layout">
+				<div className="interior-ex-model-top-actions">
+					<Button
+						variant="outlined"
+						color="inherit"
+						onClick={onCancel}>
+						취소
+					</Button>
+					<Button
+						variant="contained"
+						color="primary"
+						startIcon={<FileUploadIcon />}
+						disabled={!modelFile?.file}
+						onClick={onClickSaveModelData}>
+						저장
+					</Button>
+				</div>
 				<div className="interior-ex-model-preview">
 					{previewDir ? (
-						<InteriorModelViewer src={previewDir} />
+						<InteriorModelViewer
+							src={previewDir}
+							width="100%"
+							height="300px"
+							border="0"
+						/>
 					) : (
 						<div className="interior-ex-model-preview-empty">3D 모델 미리보기</div>
 					)}
 				</div>
 				<div className="interior-ex-model-upload">
 					<div className="interior-ex-model-file-info">
-						<strong>{modelFile?.file?.name || "선택된 파일 없음"}</strong>
+						<strong title={modelFile?.file?.name || ""}>
+							{modelFile?.file?.name || "선택된 파일 없음"}
+						</strong>
 						<span>GLB 또는 GLTF 파일을 업로드합니다.</span>
 					</div>
 					<div className="interior-ex-model-buttons">
@@ -116,13 +139,6 @@ const InteriorExModelAdd = (props) => {
 								accept=".glb,.gltf"
 								onChange={onChangeModelFile}
 							/>
-						</Button>
-						<Button
-							variant="contained"
-							color="primary"
-							startIcon={<FileUploadIcon />}
-							onClick={onClickSaveModelData}>
-							저장
 						</Button>
 					</div>
 				</div>

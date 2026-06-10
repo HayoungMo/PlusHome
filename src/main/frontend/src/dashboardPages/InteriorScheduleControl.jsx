@@ -19,6 +19,56 @@ import {
 
 dayjs.extend(isBetween);
 
+const bookingStatusLabels = {
+	pending: "예약 대기",
+	quoting: "견적 진행중",
+	confirmed: "예약 확정",
+	working: "시공중",
+	done: "시공 완료",
+	cancel: "취소",
+	canceled: "취소",
+	cance: "취소",
+};
+
+const scheduleLabelMap = {
+	id: "예약자 ID",
+	b_createdDate: "신청일",
+	c_id: "업체 ID",
+	c_kind: "업체 구분",
+	c_name: "업체명",
+	b_kind: "상담 종류",
+	b_long: "희망 기간",
+	b_date: "예약일",
+	b_status: "진행 상태",
+	b_content: "상담 내용",
+	is_index: "일정 번호",
+	is_startdate: "시작일",
+	is_enddate: "종료일",
+};
+
+const bookingKindLabels = {
+	byTel: "전화상담",
+	byKakaoTalk: "카톡",
+	byemail: "이메일",
+	byVisit: "직접방문",
+};
+
+const formatLabels = (status, type) => {
+	if (status == null || status === "") return "";
+
+	if (type === "b_status") return bookingStatusLabels[status] || status;
+
+	if (type === "b_kind") return bookingKindLabels[status] || status;
+};
+
+const formatScheduleValue = (key, value) => {
+	if (key === "b_status" || key === "b_kind") {
+		return formatLabels(value, key);
+	}
+
+	return value;
+};
+
 const InteriorScheduleControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
@@ -238,22 +288,6 @@ const InteriorScheduleControl = () => {
 		isAppliedDateRangeInvalid,
 	]);
 
-	const scheduleLabelMap = {
-		id: "예약자 ID",
-		b_createdDate: "신청일",
-		c_id: "업체 ID",
-		c_kind: "업체 구분",
-		c_name: "업체명",
-		b_kind: "상담 종류",
-		b_long: "희망 기간",
-		b_date: "예약일",
-		b_status: "진행 상태",
-		b_content: "상담 내용",
-		is_index: "일정 번호",
-		is_startdate: "시작일",
-		is_enddate: "종료일",
-	};
-
 	const formatScheduleEntry = ([key, value]) => {
 		if (key === "b_answer") {
 			try {
@@ -270,8 +304,10 @@ const InteriorScheduleControl = () => {
 		return [[scheduleLabelMap[key] || key, value]];
 	};
 
+	const excludedKeys = ["rowIndex", "c_kind", "c_id"];
 	const selectedScheduleEntries = Object.entries(selectedSchedule ?? {})
-		.filter(([key]) => key !== "rowIndex")
+		.filter(([key]) => !excludedKeys.includes(key))
+		.map(([key, value]) => [key, formatScheduleValue(key, value)])
 		.flatMap(formatScheduleEntry);
 
 	const workingCount = interiorScheduleList.filter((data) => data.b_status === "working").length;
@@ -443,26 +479,15 @@ const InteriorScheduleControl = () => {
 								setSelectedRow={setSelectedSchedule}
 								defaultRowPerPage={5}
 								pagination
-								col={[
-									"id",
-									"b_createdDate",
-									"c_name",
-									"b_long",
-									"b_status",
-									"b_content",
-									"is_startdate",
-									"is_enddate",
-								]}
-								columns={[
-									"ID",
-									"예약일",
-									"업체명",
-									"기간",
-									"상태",
-									"내용",
-									"시작일",
-									"종료일",
-								]}
+								col={["id", "c_name", "b_status", "is_startdate", "is_enddate"]}
+								columns={["신청자 ID", "업체명", "상태", "시작일", "종료일"]}
+								renderCell={(row, column) => {
+									if (column === "b_status") {
+										return bookingStatusLabels[row.b_status] || row.b_status;
+									}
+
+									return row[column];
+								}}
 							/>
 						</div>
 					) : (
