@@ -364,13 +364,29 @@
 
 .dashboard-company-table {
 	width: 100%;
-	overflow-x: auto;
+	overflow-x: visible;
 }
 
 .dashboard-company-table .MuiPaper-root {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
 	border: 1px solid #e5eaf2;
 	border-radius: 8px;
 	box-shadow: none;
+	overflow: hidden !important;
+}
+
+.dashboard-company-table .MuiTableContainer-root {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow: hidden !important;
+}
+
+.dashboard-company-table .MuiTable-root {
+	min-width: 100% !important;
+	table-layout: fixed;
 }
 
 .dashboard-company-table .MuiTableCell-head {
@@ -381,6 +397,34 @@
 
 .dashboard-company-table .MuiTableCell-body {
 	color: #334155;
+}
+
+.dashboard-company-table .MuiTableCell-root {
+	max-width: 0;
+	padding: 10px 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.dashboard-company-table .MuiTableCell-root:nth-child(1) {
+	width: 20%;
+}
+
+.dashboard-company-table .MuiTableCell-root:nth-child(2) {
+	width: 12%;
+}
+
+.dashboard-company-table .MuiTableCell-root:nth-child(3) {
+	width: 17%;
+}
+
+.dashboard-company-table .MuiTableCell-root:nth-child(4) {
+	width: 39%;
+}
+
+.dashboard-company-table .MuiTableCell-root:nth-child(5) {
+	width: 12%;
 }
 
 .dashboard-company-empty,
@@ -1262,4 +1306,3 @@
 		aspect-ratio: 1 / 1;
 	}
 }
-
