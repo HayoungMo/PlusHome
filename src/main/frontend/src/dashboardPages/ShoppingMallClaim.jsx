@@ -107,6 +107,21 @@ const alertInit = { severity: null, title: "", text: "", open: false };
 
 const getClaimImageKey = (claimCode, userId) => `${claimCode || ""}__${userId || ""}`;
 
+const formatWon = (value) => {
+	if (value === null || value === undefined || value === "") return "-";
+
+	const numberValue = Number(value);
+	if (!Number.isFinite(numberValue)) return value;
+
+	return `${numberValue.toLocaleString()}\uc6d0`;
+};
+
+const renderClaimCell = (row, column) => {
+	if (column === "pay_total") return formatWon(row[column]);
+
+	return row[column];
+};
+
 const sortClaimImages = (imageList) =>
 	[...(imageList || [])].sort((a, b) => {
 		if (a.img_tag === "THUMBNAIL" && b.img_tag !== "THUMBNAIL") return -1;
@@ -569,6 +584,7 @@ const ShoppingMallClaim = () => {
 							selectedRow={selectedNewClaim}
 							setSelectedRow={setSelectedNewClaim}
 							onRowClick={() => setSelectedManagedClaim({})}
+							renderCell={renderClaimCell}
 						/>
 					) : (
 						<div className="shopping-mall-claim-empty">{TEXT.noNewData}</div>
@@ -635,6 +651,7 @@ const ShoppingMallClaim = () => {
 							selectedRow={selectedManagedClaim}
 							setSelectedRow={setSelectedManagedClaim}
 							onRowClick={() => setSelectedNewClaim({})}
+							renderCell={renderClaimCell}
 						/>
 					) : (
 						<div className="shopping-mall-claim-empty">{TEXT.noData}</div>
@@ -656,6 +673,16 @@ const ShoppingMallClaim = () => {
 							<strong>{TEXT.detailTitle}</strong>
 							<span>{selectedClaim?.claim_code || TEXT.detailEmpty}</span>
 						</div>
+						<Button
+							variant="outlined"
+							color="inherit"
+							size="small"
+							onClick={() => {
+								setSelectedNewClaim({});
+								setSelectedManagedClaim({});
+							}}>
+							닫기
+						</Button>
 					</div>
 
 					{selectedClaim?.claim_code && (
@@ -699,7 +726,7 @@ const ShoppingMallClaim = () => {
 								</div>
 								<div>
 									<span>{TEXT.payTotal}</span>
-									<strong>{selectedClaim.pay_total || "-"}</strong>
+									<strong>{formatWon(selectedClaim.pay_total)}</strong>
 								</div>
 							</div>
 
@@ -738,15 +765,34 @@ const ShoppingMallClaim = () => {
 			</Dialog>
 
 			<Dialog
+				className="shopping-mall-claim-preview-dialog"
 				open={Boolean(previewImage)}
 				onClose={() => setPreviewImage(null)}
-				maxWidth="md">
+				maxWidth="md"
+				fullWidth>
 				{previewImage && (
-					<img
-						className="shopping-mall-claim-preview-image"
-						src={`/api/images/CLAIM/${previewImage.img_name}`}
-						alt={previewImage.img_tag || "claim preview"}
-					/>
+					<div className="shopping-mall-claim-preview-shell">
+						<div className="shopping-mall-claim-preview-head">
+							<div>
+								<strong>첨부 이미지 미리보기</strong>
+								<span>{previewImage.img_tag || previewImage.img_name}</span>
+							</div>
+							<Button
+								variant="outlined"
+								color="inherit"
+								size="small"
+								onClick={() => setPreviewImage(null)}>
+								닫기
+							</Button>
+						</div>
+						<div className="shopping-mall-claim-preview-frame">
+							<img
+								className="shopping-mall-claim-preview-image"
+								src={`/api/images/CLAIM/${previewImage.img_name}`}
+								alt={previewImage.img_tag || "claim preview"}
+							/>
+						</div>
+					</div>
 				)}
 			</Dialog>
 

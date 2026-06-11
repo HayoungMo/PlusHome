@@ -23,6 +23,7 @@ const TableCheckBoxMui = (props) => {
 		pagination = false,
 		selectedRow = null,
 		setSelectedRow = null,
+		renderCell,
 	} = props;
 
 	const tableColumns =
@@ -145,7 +146,7 @@ const TableCheckBoxMui = (props) => {
 								{tableColumns.map((column) => {
 									return (
 										<StyledTableCell key={column} align="right">
-											{row[column]}
+											{renderCell ? renderCell(row, column) : row[column]}
 										</StyledTableCell>
 									);
 								})}

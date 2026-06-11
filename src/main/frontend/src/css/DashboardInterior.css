@@ -399,6 +399,31 @@
 	box-shadow: none;
 }
 
+.interior-dashboard-table-card.compact-table {
+	overflow-x: hidden;
+}
+
+.interior-dashboard-table-card.compact-table .MuiTableContainer-root,
+.interior-dashboard-table-card.compact-table .MuiPaper-root {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow: hidden !important;
+}
+
+.interior-dashboard-table-card.compact-table .MuiTable-root {
+	min-width: 100% !important;
+	table-layout: fixed;
+}
+
+.interior-dashboard-table-card.compact-table .MuiTableCell-root {
+	max-width: 0;
+	padding: 10px 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .interior-dashboard-checklist,
 .interior-dashboard-mini-list {
 	display: grid;
@@ -625,7 +650,7 @@
 
 .interior-info-table {
 	width: 100%;
-	overflow-x: auto;
+	overflow-x: visible;
 }
 
 .interior-info-table .MuiPaper-root {
@@ -642,6 +667,47 @@
 
 .interior-info-table .MuiTableCell-body {
 	color: #334155;
+}
+
+.interior-info-table .MuiTableContainer-root,
+.interior-info-table .MuiPaper-root,
+.interior-booking-table .MuiTableContainer-root,
+.interior-booking-table .MuiPaper-root,
+.interior-construction-table .MuiTableContainer-root,
+.interior-construction-table .MuiPaper-root,
+.interior-schedule-table .MuiTableContainer-root,
+.interior-schedule-table .MuiPaper-root,
+.interior-example-table .MuiTableContainer-root,
+.interior-example-table .MuiPaper-root,
+.interior-review-table .MuiTableContainer-root,
+.interior-review-table .MuiPaper-root {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow: hidden !important;
+}
+
+.interior-info-table .MuiTable-root,
+.interior-booking-table .MuiTable-root,
+.interior-construction-table .MuiTable-root,
+.interior-schedule-table .MuiTable-root,
+.interior-example-table .MuiTable-root,
+.interior-review-table .MuiTable-root {
+	min-width: 100% !important;
+	table-layout: fixed;
+}
+
+.interior-info-table .MuiTableCell-root,
+.interior-booking-table .MuiTableCell-root,
+.interior-construction-table .MuiTableCell-root,
+.interior-schedule-table .MuiTableCell-root,
+.interior-example-table .MuiTableCell-root,
+.interior-review-table .MuiTableCell-root {
+	max-width: 0;
+	padding: 10px 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .interior-info-guide,
@@ -691,6 +757,7 @@
 	width: 300px;
 	max-width: 300px;
 	border-radius: 8px;
+	overflow: hidden;
 }
 
 .interior-info-add-dialog .MuiDialogContent-root {
@@ -742,6 +809,7 @@
 	width: 440px;
 	max-width: 440px;
 	border-radius: 8px;
+	overflow: hidden;
 }
 
 .interior-info-update-dialog.location-mode .MuiDialog-paper {
@@ -753,6 +821,7 @@
 	min-width: 0;
 	padding: 24px;
 	border: 0;
+	border-radius: 8px;
 	box-shadow: none;
 }
 
@@ -1012,6 +1081,10 @@
 .interior-booking-panel {
 	width: 100%;
 	overflow-x: auto;
+}
+
+.interior-booking-table {
+	overflow-x: visible;
 }
 
 .interior-booking-table .MuiPaper-root,
@@ -1854,7 +1927,7 @@
 
 .interior-schedule-table {
 	width: 100%;
-	overflow-x: auto;
+	overflow-x: visible;
 }
 
 .interior-schedule-table .MuiPaper-root {
@@ -2172,7 +2245,7 @@
 
 .interior-construction-table {
 	width: 100%;
-	overflow-x: auto;
+	overflow-x: visible;
 }
 
 .interior-construction-table .MuiPaper-root {
@@ -2192,14 +2265,28 @@
 }
 
 .interior-construction-table .MuiButton-root {
+	min-width: 86px;
+	padding: 7px 10px;
 	border-radius: 6px;
 	box-shadow: none;
+	font-size: 13px;
 	font-weight: 800;
 	white-space: nowrap;
 }
 
 .interior-construction-table .MuiButton-root:hover {
 	box-shadow: none;
+}
+
+.interior-construction-table .MuiTableCell-root {
+	padding: 10px 8px;
+}
+
+.interior-construction-table .MuiTableCell-root:has(.MuiButton-root) {
+	width: 104px;
+	max-width: none;
+	overflow: visible;
+	text-overflow: clip;
 }
 
 .interior-construction-guide {
@@ -2513,7 +2600,7 @@
 .interior-example-table {
 	width: 320px;
 	max-width: 100%;
-	overflow-x: auto;
+	overflow-x: visible;
 }
 
 .interior-example-model-table {
@@ -3289,7 +3376,7 @@
 	flex: 1 1 auto;
 	width: 100%;
 	min-width: 0;
-	overflow-x: auto;
+	overflow-x: visible;
 }
 
 .interior-review-table .MuiTableContainer-root,
@@ -3808,17 +3895,4 @@
 	.interior-update-actions .MuiButton-root {
 		width: 100%;
 	}
-}
-
-/* DialogMui 안쪽 박스까지 강제로 radius 통일 */
-.MuiDialog-paper {
-	border-radius: 8px !important;
-	overflow: hidden;
-}
-
-/* InteriorUpdate 카드가 Dialog 안에 있을 때 이중 테두리 방지 */
-.MuiDialog-paper .interior-update-card {
-	border: none;
-	box-shadow: none;
-	border-radius: 8px;
 }

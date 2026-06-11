@@ -328,8 +328,8 @@ const InteriorReviewControl = () => {
 						<div className="interior-review-table">
 							<TableMui
 								rowData={intreiorMuiDisplayList}
-								col={["index", "id", "invoice_no", "ir_createdDate", "c_content"]}
-								columns={["번호", "고객 ID", "견적 번호", "작성일", "상담 내용"]}
+								col={["index", "id", "invoice_no", "ir_createdDate"]}
+								columns={["번호", "고객 ID", "견적 번호", "작성일"]}
 								selectedRow={selectedIntreiorReview}
 								setSelectedRow={setSelectedIntreiorReview}
 								defaultRowPerPage={5}
@@ -364,22 +364,27 @@ const InteriorReviewControl = () => {
 										<div className="interior-review-main-image">
 											<img
 												src={selectedIntreiorReviewImage[0].img_dir}
-												alt={selectedIntreiorReviewImage[0].img_name || "리뷰 대표 이미지"}
+												alt={
+													selectedIntreiorReviewImage[0].img_name ||
+													"리뷰 대표 이미지"
+												}
 												onError={handleReviewImageError}
 											/>
 										</div>
 										<div className="interior-review-thumb-list">
-											{selectedIntreiorReviewImage.slice(0, 3).map((record) => (
-												<div
-													className="interior-review-thumb-item"
-													key={`${record.img_name}-${record.img_idx ?? record.index}`}>
-													<img
-														src={record.img_dir}
-														alt={record.img_name || "리뷰 미리보기"}
-														onError={handleReviewImageError}
-													/>
-												</div>
-											))}
+											{selectedIntreiorReviewImage
+												.slice(0, 3)
+												.map((record) => (
+													<div
+														className="interior-review-thumb-item"
+														key={`${record.img_name}-${record.img_idx ?? record.index}`}>
+														<img
+															src={record.img_dir}
+															alt={record.img_name || "리뷰 미리보기"}
+															onError={handleReviewImageError}
+														/>
+													</div>
+												))}
 										</div>
 									</>
 								) : (
@@ -389,7 +394,9 @@ const InteriorReviewControl = () => {
 										</div>
 										<div className="interior-review-thumb-list">
 											{[0, 1, 2].map((index) => (
-												<div className="interior-review-thumb-item empty" key={index}>
+												<div
+													className="interior-review-thumb-item empty"
+													key={index}>
 													<span>미리보기</span>
 												</div>
 											))}
@@ -402,7 +409,9 @@ const InteriorReviewControl = () => {
 								<div className="interior-review-invoice-head">
 									<div>
 										<strong>리뷰 견적서</strong>
-										<span>견적 번호 {selectedIntreiorReview.invoice_no ?? "-"}</span>
+										<span>
+											견적 번호 {selectedIntreiorReview.invoice_no ?? "-"}
+										</span>
 									</div>
 									<Chip
 										label={`${formatPrice(selectedInvoiceTotal)}원`}
@@ -418,7 +427,10 @@ const InteriorReviewControl = () => {
 										업체 <strong>{selectedIntreiorReview.c_name || "-"}</strong>
 									</span>
 									<span>
-										상담 신청일 <strong>{selectedIntreiorReview.b_createdDate || "-"}</strong>
+										상담 신청일{" "}
+										<strong>
+											{selectedIntreiorReview.b_createdDate || "-"}
+										</strong>
 									</span>
 								</div>
 								<div className="interior-review-invoice-items">
@@ -436,9 +448,12 @@ const InteriorReviewControl = () => {
 													className="interior-review-invoice-item"
 													key={`${detail.invoice_text}-${index}`}>
 													<div>
-														<strong>{detail.invoice_text || "항목명 없음"}</strong>
+														<strong>
+															{detail.invoice_text || "항목명 없음"}
+														</strong>
 														<span>
-															{formatPrice(qty)}개 x {formatPrice(price)}원
+															{formatPrice(qty)}개 x{" "}
+															{formatPrice(price)}원
 														</span>
 													</div>
 													<em>{formatPrice(qty * price)}원</em>
@@ -455,7 +470,9 @@ const InteriorReviewControl = () => {
 
 							<div className="interior-review-content-panel">
 								<div className="interior-review-meta">
-									<span>작성일 {selectedIntreiorReview.ir_createdDate ?? "-"}</span>
+									<span>
+										작성일 {selectedIntreiorReview.ir_createdDate ?? "-"}
+									</span>
 								</div>
 								<TextFieldMui
 									name="ir_content"

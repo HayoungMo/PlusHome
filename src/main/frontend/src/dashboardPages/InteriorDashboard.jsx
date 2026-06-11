@@ -351,8 +351,12 @@ const TableCard = ({
 	statusKeys = [],
 	loading = false,
 	responses = {},
+	compactTable = false,
 }) => (
-	<section className="interior-dashboard-card interior-dashboard-table-card">
+	<section
+		className={`interior-dashboard-card interior-dashboard-table-card${
+			compactTable ? " compact-table" : ""
+		}`}>
 		<div className="interior-dashboard-card-head">
 			<strong>{title}</strong>
 		</div>
@@ -1273,6 +1277,7 @@ const InteriorDashboard = () => {
 								col={["cName", "ieIndex", "ieTag", "ieTag2", "ieContentSummary"]}
 								columns={["업체명", "번호", "태그", "보조 태그", "내용"]}
 								statusKeys={["recentExample"]}
+								compactTable
 								{...cardStatusProps}
 							/>
 							<ProgressChecklist profile={stats.profile} />
@@ -1307,6 +1312,7 @@ const InteriorDashboard = () => {
 									"리스크 유형",
 								]}
 								statusKeys={["riskList"]}
+								compactTable
 								{...cardStatusProps}
 							/>
 							<ProgressChecklist profile={stats.profile} />

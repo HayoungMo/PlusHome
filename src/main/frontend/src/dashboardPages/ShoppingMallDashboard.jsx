@@ -244,7 +244,30 @@ const formatValue = (value) => {
 };
 
 const formatManwon = (value) => Math.round(num(value) / 10000).toLocaleString();
+const formatWon = (value) => {
+	if (value === null || value === undefined || value === "") return "-";
+
+	const numberValue = Number(value);
+	if (!Number.isFinite(numberValue)) return value;
+
+	return `${numberValue.toLocaleString()}\uc6d0`;
+};
 const formatPercent = (value) => `${num(value).toFixed(1)}%`;
+
+const renderDashboardMoneyCell = (row, column) => {
+	if (
+		[
+			"totalPayAmount",
+			"avgPayAmount",
+			"avgBeforeDiscountAmount",
+			"optionExtraAmount",
+		].includes(column)
+	) {
+		return formatWon(row[column]);
+	}
+
+	return row[column];
+};
 
 const makeKpiChange = (value, fallbackRate) => {
 	const currentValue = typeof value === "string" ? Number(value.replace("%", "")) : num(value);
@@ -302,8 +325,13 @@ const TableCard = ({
 	statusKeys = [],
 	loading = false,
 	responses = {},
+	renderCell,
+	compactTable = false,
 }) => (
-	<section className="shopping-mall-dashboard-card shopping-mall-dashboard-table-card">
+	<section
+		className={`shopping-mall-dashboard-card shopping-mall-dashboard-table-card${
+			compactTable ? " compact-table" : ""
+		}`}>
 		<div className="shopping-mall-dashboard-card-head">
 			<strong>{title}</strong>
 		</div>
@@ -322,6 +350,7 @@ const TableCard = ({
 				columns={columns}
 				defaultRowPerPage={5}
 				pagination
+				renderCell={renderCell}
 			/>
 		) : (
 			<div className="shopping-mall-dashboard-empty table">{emptyStatsMessage}</div>
@@ -1106,6 +1135,8 @@ const ShoppingMallDashboard = () => {
 								]}
 								columns={["상품명", "상태", "숨김일", "결제", "매출"]}
 								statusKeys={["productDisplay"]}
+								renderCell={renderDashboardMoneyCell}
+								compactTable
 								{...cardStatusProps}
 							/>
 						</div>
@@ -1141,6 +1172,7 @@ const ShoppingMallDashboard = () => {
 								]}
 								columns={["상품명", "총 문의", "답변 완료", "미답변", "답변률"]}
 								statusKeys={["productQuestion"]}
+								compactTable
 								{...cardStatusProps}
 							/>
 						</div>
@@ -1166,6 +1198,7 @@ const ShoppingMallDashboard = () => {
 								]}
 								columns={["상품명", "클레임 수", "클레임률", "취소", "결제"]}
 								statusKeys={["productDeliveryClaim"]}
+								compactTable
 								{...cardStatusProps}
 							/>
 						</div>

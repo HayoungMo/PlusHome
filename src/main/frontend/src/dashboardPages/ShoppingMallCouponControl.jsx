@@ -11,6 +11,21 @@ import dayjs from "dayjs";
 import Loading from "../components/Loading";
 import "../css/DashboardShoppingMall.css";
 
+const formatWon = (value) => {
+	if (value === null || value === undefined || value === "") return "-";
+
+	const numberValue = Number(value);
+	if (!Number.isFinite(numberValue)) return value;
+
+	return `${numberValue.toLocaleString()}\uc6d0`;
+};
+
+const renderCouponCell = (row, column) => {
+	if (column === "coupon_max") return formatWon(row[column]);
+
+	return row[column];
+};
+
 const ShoppingMallCouponControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
@@ -267,6 +282,7 @@ const ShoppingMallCouponControl = () => {
 								"사용자",
 							]}
 							resetPageKey={`${appliedTabValue}-${appliedViewDataType}-${appliedDateRange.startDate}-${appliedDateRange.endDate}`}
+							renderCell={renderCouponCell}
 						/>
 					) : (
 						<div className="shopping-mall-empty-state">

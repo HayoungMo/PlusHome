@@ -536,6 +536,41 @@
 	padding-top: 2px;
 }
 
+.shopping-mall-product-form-dialog .MuiDialog-paper {
+	border-radius: 8px;
+	background: #f8fafc;
+	box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+	overflow: hidden;
+}
+
+.shopping-mall-product-form-dialog-title {
+	padding: 18px 22px 14px;
+	border-bottom: 1px solid #e2e8f0;
+	background: #ffffff;
+	color: #111827;
+	font-size: 18px;
+	font-weight: 900;
+	line-height: 1.35;
+}
+
+.shopping-mall-product-form-dialog-content {
+	max-height: min(76vh, 760px);
+	padding: 0 !important;
+	overflow-y: auto;
+	background: #f8fafc;
+}
+
+.shopping-mall-product-form-dialog-content .furniture-add-page {
+	max-width: none;
+	margin: 0;
+	padding: 18px 20px 24px;
+}
+
+.shopping-mall-product-form-dialog-content .furniture-add-section {
+	border-color: #e2e8f0;
+	box-shadow: none;
+}
+
 .shopping-mall-product-empty-guide {
 	min-height: 220px;
 	flex-direction: column;

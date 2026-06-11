@@ -11,6 +11,23 @@ import CartService from "../service/cartService";
 import Loading from "../components/Loading";
 import dayjs from "dayjs";
 
+const formatWon = (value) => {
+	if (value === null || value === undefined || value === "") return "-";
+
+	const numberValue = Number(value);
+	if (!Number.isFinite(numberValue)) return value;
+
+	return `${numberValue.toLocaleString()}\uc6d0`;
+};
+
+const renderOrderCell = (row, column) => {
+	if (column === "furnitureproductprice" || column === "cartpayedprice") {
+		return formatWon(row[column]);
+	}
+
+	return row[column];
+};
+
 const ShoppingMallOrderControl = () => {
 	const localUserData = localStorage.getItem("user");
 	const userData = JSON.parse(localUserData);
@@ -349,6 +366,7 @@ const ShoppingMallOrderControl = () => {
 						setCheckedList={setCheckedList}
 						defaultRowPerPage={5}
 						pagination
+						renderCell={renderOrderCell}
 					/>
 				) : (
 					<div className="shopping-mall-empty-state">

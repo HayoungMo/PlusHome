@@ -151,17 +151,14 @@ const ShoppingMallFurnitureInfo = () => {
 	const handleTabChange = (event, newValue) => {
 		setTabValue(newValue);
 		const selectedCompany =
-			shopListState.find((record) => record.c_name === newValue) ||
-			shopListState[0];
+			shopListState.find((record) => record.c_name === newValue) || shopListState[0];
 		setSelectedTabCompany(selectedCompany);
 		setFilterBarState({});
 	};
 
 	const handleEmptyCompanyChange = (event) => {
 		const companyName = event.target.value;
-		const selectedCompany = shopCompanyList.find(
-			(record) => record.c_name === companyName,
-		);
+		const selectedCompany = shopCompanyList.find((record) => record.c_name === companyName);
 
 		if (!selectedCompany) return;
 
@@ -203,9 +200,7 @@ const ShoppingMallFurnitureInfo = () => {
 		return [...new Set(list.map((item) => item[key]).filter(Boolean))].map((item) => ({
 			value: item,
 			// 0602 모하영: DB에는 영어 카테고리 코드를 유지하고, 필터 화면에는 한글 라벨로 표시함.
-			title: key.startsWith("f_catagory")
-				? getFurnitureCategoryTitle(item)
-				: item,
+			title: key.startsWith("f_catagory") ? getFurnitureCategoryTitle(item) : item,
 		}));
 	}, []);
 
@@ -450,7 +445,7 @@ const ShoppingMallFurnitureInfo = () => {
 				</div>
 				<div className="shopping-mall-product-metrics">
 					<div>판매된 물품 합 : {cart_total_f_count}</div>
-					<div>판매된 금액 합 : {cart_total_f_price}</div>
+					<div>판매된 금액 합 : {Number(cart_total_f_price || 0).toLocaleString()}원</div>
 					<div>평균 구매 갯수 : {cart_avg_f_count}</div>
 					<div>총 판매 횟수 : {cart_total_buy}</div>
 				</div>
@@ -536,10 +531,7 @@ const ShoppingMallFurnitureInfo = () => {
 			)}
 			<div className="shopping-mall-product-footer">
 				{tabValue !== "all" && currentAddCompany && (
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={handleAddDialogOpen}>
+					<Button variant="contained" color="primary" onClick={handleAddDialogOpen}>
 						상품 등록
 					</Button>
 				)}
@@ -557,13 +549,16 @@ const ShoppingMallFurnitureInfo = () => {
 			)}
 			{addDialogOpen && (
 				<Dialog
+					className="shopping-mall-product-form-dialog"
 					open={addDialogOpen}
 					onClose={() => setAddDialogOpen(false)}
 					maxWidth="md"
 					fullWidth>
-					<DialogTitle>상품 등록</DialogTitle>
+					<DialogTitle className="shopping-mall-product-form-dialog-title">
+						상품 등록
+					</DialogTitle>
 
-					<DialogContent>
+					<DialogContent className="shopping-mall-product-form-dialog-content">
 						<FurnitureAddPage
 							key={`${currentAddCompany?.c_id || ""}-${currentAddCompany?.c_name || ""}`}
 							company={currentAddCompany}
@@ -578,13 +573,16 @@ const ShoppingMallFurnitureInfo = () => {
 
 			{updateDialogOpen && (
 				<Dialog
+					className="shopping-mall-product-form-dialog"
 					open={updateDialogOpen}
 					onClose={() => setUpdateDialogOpen(false)}
 					maxWidth="md"
 					fullWidth>
-					<DialogTitle>상품 수정</DialogTitle>
+					<DialogTitle className="shopping-mall-product-form-dialog-title">
+						상품 수정
+					</DialogTitle>
 
-					<DialogContent>
+					<DialogContent className="shopping-mall-product-form-dialog-content">
 						<FurnitureUpdatePage
 							furniture={selectedFurniture}
 							onSuccess={async () => {

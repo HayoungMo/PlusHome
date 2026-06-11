@@ -458,54 +458,20 @@ const InteriorExampleControl = () => {
 								</div>
 							</div>
 
-							<div className="interior-example-panel">
-								<div className="interior-example-panel-head">
-									<div>
-										<strong>사례 상세 보기</strong>
-										<span>선택한 사례에 연결된 이미지와 내용입니다.</span>
-									</div>
-									<Chip
-										label={`이미지 ${selectedImageCount}장`}
-										variant="outlined"
-									/>
-								</div>
-
-								{selectedInteriorExample?.c_id ? (
-									<div className="interior-example-detail">
-										{selectedInteriorExampleImage?.length > 0 ? (
-											<div className="interior-example-image-grid">
-												{selectedInteriorExampleImage.map((record) => (
-													<img
-														key={`${record.img_name}-${record.img_idx ?? record.index}`}
-														src={record.img_dir}
-														alt={record.img_name || record.img_dir}
-													/>
-												))}
-											</div>
-										) : (
-											<div className="interior-example-guide">
-												등록된 이미지가 없습니다.
-											</div>
-										)}
-										<div className="interior-example-detail-text">
-											{selectedInteriorExample.ie_content ||
-												"등록된 내용이 없습니다."}
-										</div>
-									</div>
-								) : (
-									<div className="interior-example-guide">
-										시공 사례를 선택하면 이미지가 표시됩니다.
-									</div>
-								)}
-							</div>
-
-							{isUpdateAvailable && (
-								<div className="interior-example-panel interior-example-wide">
+							{isUpdateAvailable ? (
+								<div className="interior-example-panel">
 									<div className="interior-example-panel-head">
 										<div>
 											<strong>시공 사례 수정</strong>
 											<span>선택한 사례의 정보와 이미지를 수정합니다.</span>
 										</div>
+										<Button
+											variant="outlined"
+											color="inherit"
+											size="small"
+											onClick={onClickCloseWorkPanel}>
+											취소
+										</Button>
 									</div>
 									<div className="interior-example-form">
 										<InteriorExUpdate
@@ -515,10 +481,8 @@ const InteriorExampleControl = () => {
 										/>
 									</div>
 								</div>
-							)}
-
-							{tabValue !== "all" && isAddAvailable && (
-								<div className="interior-example-panel interior-example-wide">
+							) : tabValue !== "all" && isAddAvailable ? (
+								<div className="interior-example-panel">
 									<div className="interior-example-panel-head">
 										<div>
 											<strong>시공 사례 등록</strong>
@@ -526,10 +490,58 @@ const InteriorExampleControl = () => {
 												선택한 업체에 새로운 포트폴리오 사례를 추가합니다.
 											</span>
 										</div>
+										<Button
+											variant="outlined"
+											color="inherit"
+											size="small"
+											onClick={onClickCloseWorkPanel}>
+											취소
+										</Button>
 									</div>
 									<div className="interior-example-form">
 										<InteriorExAdd company={tabCompany} onReload={reLoadData} />
 									</div>
+								</div>
+							) : (
+								<div className="interior-example-panel">
+									<div className="interior-example-panel-head">
+										<div>
+											<strong>사례 상세 보기</strong>
+											<span>선택한 사례에 연결된 이미지와 내용입니다.</span>
+										</div>
+										<Chip
+											label={`이미지 ${selectedImageCount}장`}
+											variant="outlined"
+										/>
+									</div>
+
+									{selectedInteriorExample?.c_id ? (
+										<div className="interior-example-detail">
+											{selectedInteriorExampleImage?.length > 0 ? (
+												<div className="interior-example-image-grid">
+													{selectedInteriorExampleImage.map((record) => (
+														<img
+															key={`${record.img_name}-${record.img_idx ?? record.index}`}
+															src={record.img_dir}
+															alt={record.img_name || record.img_dir}
+														/>
+													))}
+												</div>
+											) : (
+												<div className="interior-example-guide">
+													등록된 이미지가 없습니다.
+												</div>
+											)}
+											<div className="interior-example-detail-text">
+												{selectedInteriorExample.ie_content ||
+													"등록된 내용이 없습니다."}
+											</div>
+										</div>
+									) : (
+										<div className="interior-example-guide">
+											시공 사례를 선택하면 이미지가 표시됩니다.
+										</div>
+									)}
 								</div>
 							)}
 						</div>

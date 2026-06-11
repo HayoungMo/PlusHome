@@ -298,7 +298,7 @@ const InteriorConstructionControl = () => {
 		{ value: "done", title: "done" },
 	];
 
-	const tableCol = ["id", "b_date", "c_name", "b_long", "b_status", "button"];
+	const tableCol = ["id", "b_date", "c_name", "b_long", "b_status"];
 	const tableColumns = ["고객 ID", "상담일", "진행 업체", "시공 기간", "진행 상태"];
 	const handleSearch = () => {
 		setAppliedDateRange(dateRange);
