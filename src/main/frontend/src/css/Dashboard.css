@@ -415,6 +415,8 @@
 }
 
 .shopping-mall-product-filter {
+	width: 100%;
+	box-sizing: border-box;
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -437,8 +439,9 @@
 
 .shopping-mall-product-card {
 	width: 100%;
+	box-sizing: border-box;
 	display: grid;
-	grid-template-columns: 96px minmax(180px, 1.2fr) minmax(170px, 1fr) minmax(220px, 1.1fr) auto;
+	grid-template-columns: 96px minmax(180px, 1.3fr) minmax(120px, 0.65fr) minmax(200px, 1fr) auto;
 	align-items: center;
 	gap: 20px;
 	padding: 18px 20px;
@@ -508,6 +511,13 @@
 	font-weight: 600;
 	line-height: 1.35;
 	color: #475569;
+}
+
+.shopping-mall-product-metrics div {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .shopping-mall-product-actions {
