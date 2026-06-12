@@ -191,6 +191,7 @@ const MainHomePage = ({ loginUser }) => {
         .then(() => {
             setHiddenFurnitureCodes(pendingHiddenFurnitureCodes);
             setHideMode(false);
+            setHideConfirmOpen(false);
             showSnackbar("추천 숨김 설정이 저장되었습니다.", "success");
             getBestFurniture();
         })
