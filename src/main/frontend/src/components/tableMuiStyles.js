@@ -69,3 +69,20 @@ export const tableContainerSx = {
 		boxShadow: "none",
 	},
 };
+
+export const checkboxCellSx = {
+	width: 56,
+	minWidth: 56,
+	maxWidth: 56,
+	padding: "0 !important",
+	textAlign: "center",
+	"& .MuiCheckbox-root": {
+		width: 40,
+		height: 40,
+		margin: "0 auto",
+		padding: "8px",
+	},
+	"& .MuiSvgIcon-root": {
+		fontSize: 22,
+	},
+};

@@ -75,7 +75,6 @@ const ShoppingMallOrderControl = () => {
 		{ value: 2, title: "출고" },
 		{ value: 3, title: "배송중" },
 		{ value: 4, title: "배송완료" },
-		{ value: 5, title: "구매확정" },
 		{ value: -1, title: "주문 취소" },
 	];
 

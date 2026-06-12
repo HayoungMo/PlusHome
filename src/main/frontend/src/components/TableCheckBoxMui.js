@@ -7,7 +7,12 @@ import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import { useEffect, useState } from "react";
 import { TablePagination } from "@mui/material";
-import { StyledTableCell, StyledTableRow, tableContainerSx } from "./tableMuiStyles";
+import {
+	StyledTableCell,
+	StyledTableRow,
+	checkboxCellSx,
+	tableContainerSx,
+} from "./tableMuiStyles";
 
 const TableCheckBoxMui = (props) => {
 	const {
@@ -97,7 +102,7 @@ const TableCheckBoxMui = (props) => {
 			<Table sx={{ minWidth: 650 }} aria-label="simple table">
 				<TableHead>
 					<TableRow>
-						<StyledTableCell align="center" sx={{ width: 60 }}>
+						<StyledTableCell align="center" sx={checkboxCellSx}>
 							<Checkbox
 								checked={isAllChecked}
 								indeterminate={isIndeterminate}
@@ -137,7 +142,10 @@ const TableCheckBoxMui = (props) => {
 									backgroundColor: isSelected ? "#b0d2ec !important" : undefined,
 									cursor: setSelectedRow ? "pointer" : "default",
 								}}>
-								<StyledTableCell align="center" onClick={(event) => event.stopPropagation()}>
+								<StyledTableCell
+									align="center"
+									sx={checkboxCellSx}
+									onClick={(event) => event.stopPropagation()}>
 									<Checkbox
 										checked={isChecked}
 										onChange={(event) => handleRowCheck(event, row, rowIndex)}
